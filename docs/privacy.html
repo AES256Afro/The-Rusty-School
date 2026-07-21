@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy - The Rusty School</title>
+<meta name="description" content="The Rusty School's privacy promise, in plain English: what we store, what we never collect, and your controls.">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <span class="kicker">The whole policy, no lawyer required</span>
+    <h1>Privacy at <span class="grad">The Rusty School</span> 🔍</h1>
+    <p class="lede muted">
+      A school should model good behavior. This page describes everything this
+      site stores, in plain English. It is short because the list is short.
+      The site is open source, so every claim here can be checked against
+      <a href="https://github.com/AES256Afro/The-Rusty-School" target="_blank" rel="noopener">the code</a>.
+    </p>
+  </section>
+
+  <h2>Without an account (the default)</h2>
+  <ul class="checklist">
+    <li>Your lesson progress, quiz scores, and theme choice live in
+      <strong>your browser's localStorage</strong>. They never leave your device.</li>
+    <li>No analytics scripts, no tracking pixels, no third-party cookies, no ads.</li>
+    <li>The site is hosted on Cloudflare Pages, which handles web requests the
+      way any host must (transient logs to serve traffic); we add nothing on top.</li>
+  </ul>
+
+  <h2>The public counter</h2>
+  <p>
+    The home page shows how many lessons have been completed worldwide. When you
+    complete a lesson, your browser sends one anonymous ping: the lesson's name
+    and nothing else. No account, cookie, IP, or identifier is stored with it.
+    Each browser reports a given lesson at most once, and if your browser sends
+    the <strong>Do Not Track</strong> signal, the ping is skipped entirely, on
+    both the client and the server.
+  </p>
+
+  <h2>With an account (optional)</h2>
+  <p>If you choose to sign in with GitHub or Google, we store exactly:</p>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Field</th><th>Example</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>provider</td><td><code>github</code></td><td>which button you pressed</td></tr>
+      <tr><td>provider id</td><td><code>8888336</code></td><td>recognizing you next sign-in</td></tr>
+      <tr><td>display name</td><td><code>Chris</code></td><td>greeting you</td></tr>
+      <tr><td>avatar URL</td><td><code>https://…/avatar.png</code></td><td>showing your picture</td></tr>
+      <tr><td>progress</td><td><code>{"done":["01-hello-world"]}</code></td><td>the point of the feature</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>What we deliberately do <strong>not</strong> collect, even though the
+  sign-in buttons could ask for it: your <strong>email address</strong>, your
+  contacts, your repositories, or any posting permission. The Google scope is
+  "openid profile" only; the GitHub app requests no scopes at all.</p>
+
+  <h2>Sessions</h2>
+  <p>
+    Signing in sets one cookie, <code>rusty_session</code>, holding a random
+    token. It is HttpOnly, Secure, and SameSite. The database stores only a hash
+    of it. Signing out deletes the session server-side, so the cookie becomes
+    worthless immediately.
+  </p>
+
+  <h2>Your controls</h2>
+  <ul class="checklist">
+    <li><strong>See and download everything:</strong> the
+      <a href="account.html">account page</a> has a one-click "Download my data"
+      button. The file is small. That's the feature.</li>
+    <li><strong>Delete everything:</strong> the account page's delete button
+      erases your row and sessions immediately and permanently. No grace period
+      full of guilt-trip emails; we don't even have your email.</li>
+    <li><strong>Never sign in at all:</strong> the full curriculum, quizzes, and
+      local progress tracking work without an account, forever.</li>
+  </ul>
+
+  <h2>Changes</h2>
+  <p>
+    If this policy ever changes, the change lands as a public commit in the
+    site's repository with a clear message, and this page is updated the same
+    moment. History is auditable, like everything else here.
+  </p>
+
+  <p class="muted small">Questions? Open an issue on
+  <a href="https://github.com/AES256Afro/The-Rusty-School/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -109,7 +109,8 @@ Chris's stated goal is to teach others. This phase turns the site from a course
 into a school. Cloudflare Workers + KV/D1 (already in the account, free tier)
 can power all of it without abandoning the static site.
 
-- **Accounts & synced progress (GitHub + Google SSO):** optional sign-in via
+- **Accounts & synced progress (GitHub + Google SSO)** *(code shipped; goes
+  live once the OAuth apps are registered)*: optional sign-in via
   OAuth so progress, quiz scores, and certificates follow the student across
   devices. LocalStorage remains the no-account default; signing in merges local
   progress into the profile. Implementation sketch: a Cloudflare Worker handles
@@ -119,7 +120,7 @@ can power all of it without abandoning the static site.
   export/delete of your data. Scope check: this is roughly a focused week of
   work, not a moonshot, and it is the right architecture (the static site stays
   static; the Worker only augments it).
-- **The impact counter:** a "students helped" banner on the home page backed by
+- **The impact counter** *(shipped)*: a "students helped" banner on the home page backed by
   real numbers. Phase A needs no accounts at all: the site pings a Worker on
   each lesson completion (an anonymous counter increment, no personal data,
   respecting Do Not Track), and the home page shows "N lessons completed

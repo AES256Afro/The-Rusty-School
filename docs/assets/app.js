@@ -38,6 +38,21 @@
     if (burger && nav) {
       burger.addEventListener("click", () => nav.classList.toggle("open"));
     }
+    // Account link in the nav and Privacy link in the footer are injected
+    // here so all thirty-odd static pages pick them up from one place.
+    const prefix = location.pathname.includes("/learn/") ? "../" : "";
+    if (nav && !nav.querySelector('a[href$="account.html"]')) {
+      const acct = document.createElement("a");
+      acct.href = prefix + "account.html";
+      acct.textContent = "Account";
+      nav.insertBefore(acct, nav.querySelector(".theme-toggle"));
+    }
+    const footList = document.querySelector(".site-footer .cols ul");
+    if (footList && !footList.querySelector('a[href$="privacy.html"]')) {
+      const li = document.createElement("li");
+      li.innerHTML = '<a href="' + prefix + 'privacy.html">Privacy</a>';
+      footList.appendChild(li);
+    }
     // highlight the current page in the nav
     const here = location.pathname.replace(/\/index\.html$/, "/");
     document.querySelectorAll(".main-nav a").forEach((a) => {
@@ -157,6 +172,7 @@
         }
         saveDone(set);
         render();
+        pushProgress();
       });
     });
 
@@ -338,6 +354,7 @@
       if (score > (best[quiz.id] || 0)) {
         best[quiz.id] = score;
         localStorage.setItem("rusty-quiz-best", JSON.stringify(best));
+        pushProgress();
       }
       const pct = score / total;
       const verdict =
@@ -394,16 +411,168 @@
     if (fromHash && document.getElementById("tab-" + fromHash)) activate(fromHash, false);
   }
 
+  /* ---------------- accounts & progress sync ----------------
+     Optional sign-in (GitHub/Google) syncs progress across devices.
+     Everything here degrades gracefully: with no API (local dev server)
+     or no session, the site behaves exactly as before, localStorage only. */
+  let signedIn = false;
+
+  function readJson(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key) || fallback); }
+    catch { return JSON.parse(fallback); }
+  }
+
+  function localProgress() {
+    return {
+      done: readJson("rusty-done", "[]"),
+      counted: readJson("rusty-counted", "[]"),
+      quizBest: readJson("rusty-quiz-best", "{}"),
+    };
+  }
+
+  function mergeProgress(a, b) {
+    const done = [...new Set([...(a.done || []), ...(b.done || [])])];
+    const counted = [...new Set([...(a.counted || []), ...(b.counted || [])])];
+    const quizBest = {};
+    const keys = new Set([...Object.keys(a.quizBest || {}), ...Object.keys(b.quizBest || {})]);
+    keys.forEach((k) => {
+      quizBest[k] = Math.max((a.quizBest || {})[k] || 0, (b.quizBest || {})[k] || 0);
+    });
+    return { done, counted, quizBest };
+  }
+
+  function saveLocalProgress(p) {
+    localStorage.setItem("rusty-done", JSON.stringify(p.done));
+    localStorage.setItem("rusty-counted", JSON.stringify(p.counted));
+    localStorage.setItem("rusty-quiz-best", JSON.stringify(p.quizBest));
+  }
+
+  function pushProgress() {
+    if (!signedIn) return;
+    fetch("/api/progress", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(localProgress()),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  // Fetch the session; if signed in, merge remote and local progress
+  // (union of completions, best of quiz scores) in both directions.
+  async function syncProgress(timeoutMs) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs || 1500);
+      const resp = await fetch("/api/me", { signal: ctrl.signal });
+      clearTimeout(timer);
+      if (!resp.ok) return null;
+      const me = await resp.json();
+      if (!me.signedIn) return me;
+      signedIn = true;
+      const merged = mergeProgress(localProgress(), me.progress || {});
+      saveLocalProgress(merged);
+      if (JSON.stringify(merged) !== JSON.stringify(me.progress)) {
+        pushProgress();
+      }
+      me.progress = merged;
+      return me;
+    } catch {
+      return null;
+    }
+  }
+
+  /* ---------------- account page ---------------- */
+  const AUTH_ERRORS = {
+    "state-mismatch": "The sign-in attempt expired or was tampered with. Please try again.",
+    "token-exchange-failed": "The provider rejected the sign-in. Please try again.",
+    "profile-fetch-failed": "We couldn't read your public profile. Please try again.",
+    "github-not-configured": "GitHub sign-in isn't switched on yet.",
+    "google-not-configured": "Google sign-in isn't switched on yet.",
+  };
+
+  function initAccount(me) {
+    const root = document.getElementById("account-root");
+    if (!root) return;
+
+    if (me && me.signedIn) {
+      const tpl = document.getElementById("tpl-signed-in");
+      root.innerHTML = "";
+      root.appendChild(tpl.content.cloneNode(true));
+      const avatar = document.getElementById("acct-avatar");
+      if (me.avatar) avatar.src = me.avatar; else avatar.style.display = "none";
+      document.getElementById("acct-name").textContent = me.name || "Rustacean";
+      document.getElementById("acct-provider").textContent = me.provider;
+      const doneCount = (me.progress && me.progress.done ? me.progress.done.length : 0);
+      document.getElementById("acct-progress").innerHTML =
+        "📚 <strong>" + doneCount + " lesson" + (doneCount === 1 ? "" : "s") +
+        "</strong> synced to your account.";
+      document.getElementById("acct-sync-note").textContent =
+        "Progress syncs automatically whenever you complete a lesson or quiz on any signed-in device.";
+
+      document.getElementById("btn-signout").addEventListener("click", () => {
+        fetch("/api/auth/logout", { method: "POST" }).finally(() => location.reload());
+      });
+      document.getElementById("btn-delete").addEventListener("click", () => {
+        const sure = confirm(
+          "Delete your account? Your name, picture, and synced progress will be " +
+          "erased from our database immediately and permanently."
+        );
+        if (!sure) return;
+        fetch("/api/me", { method: "DELETE" }).finally(() => {
+          location.href = "account.html";
+        });
+      });
+      return;
+    }
+
+    // Signed out: show whichever provider buttons are actually configured.
+    const tpl = document.getElementById("tpl-signed-out");
+    root.innerHTML = "";
+    root.appendChild(tpl.content.cloneNode(true));
+
+    const params = new URLSearchParams(location.search);
+    const err = params.get("error");
+    if (err) {
+      const el = document.getElementById("auth-error");
+      el.textContent = "⚠️ " + (AUTH_ERRORS[err] || "Sign-in failed. Please try again.");
+      el.hidden = false;
+    }
+
+    fetch("/api/auth/providers")
+      .then((r) => (r.ok ? r.json() : {}))
+      .catch(() => ({}))
+      .then((providers) => {
+        const row = document.getElementById("provider-buttons");
+        const note = document.getElementById("provider-note");
+        let any = false;
+        if (providers.github) {
+          any = true;
+          row.insertAdjacentHTML("beforeend",
+            '<a class="btn btn-primary" href="/api/auth/github">Sign in with GitHub</a>');
+        }
+        if (providers.google) {
+          any = true;
+          row.insertAdjacentHTML("beforeend",
+            '<a class="btn btn-ghost" href="/api/auth/google">Sign in with Google</a>');
+        }
+        if (!any) note.hidden = false;
+      });
+  }
+
   /* ---------------- boot ---------------- */
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     initNav();
     initCode();
-    initProgress();
-    initQuizzes();
     initTabs();
-    initImpactBanner();
     const themeBtn = document.querySelector(".theme-toggle");
     if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+
+    // Sync before rendering progress so checkmarks reflect merged state.
+    const me = await syncProgress(1500);
+    initProgress();
+    initQuizzes();
+    initImpactBanner();
+    initAccount(me);
   });
 })();
