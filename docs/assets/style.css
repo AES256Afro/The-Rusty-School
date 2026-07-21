@@ -198,6 +198,8 @@ a.card:hover { text-decoration: none; border-color: var(--accent); transform: tr
   color: var(--text);
 }
 .chip small { color: var(--text-muted); font-weight: 500; }
+a.chip { color: var(--text); }
+a.chip:hover { border-color: var(--accent); text-decoration: none; transform: translateY(-1px); }
 
 /* ---------- badges ---------- */
 .badge {
