@@ -205,6 +205,7 @@ a.card:hover { text-decoration: none; border-color: var(--accent); transform: tr
   letter-spacing: 0.06em; text-transform: uppercase;
   padding: 3px 10px; border-radius: 999px; vertical-align: middle;
 }
+.badge.l0 { background: rgba(216, 167, 240, 0.16); color: var(--tok-num); }
 .badge.l1 { background: rgba(143, 206, 95, 0.16); color: var(--green); }
 .badge.l2 { background: rgba(255, 180, 84, 0.16); color: var(--accent-soft); }
 .badge.l3 { background: rgba(111, 183, 255, 0.16); color: var(--blue); }

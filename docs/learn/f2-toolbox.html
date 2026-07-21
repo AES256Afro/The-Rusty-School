@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations 2: The Programmer's Toolbox - The Rusty School</title>
+<meta name="description" content="Terminals, files and paths, editors, libraries, and the vocabulary every programmer uses daily.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Foundations 2 of 5</nav>
+    <span class="badge l0">Level 0 · Foundations</span>
+    <h1>The Programmer's Toolbox 🧰</h1>
+    <p class="lede muted">Programmers seem to speak a private language: terminal,
+    path, dependency, API. It is a small vocabulary, and one lesson is enough
+    to stop nodding along and start actually knowing.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>The terminal: talking to the computer in text 💬</h2>
+    <p>
+      Before windows and mice, computers were operated by typing commands. That
+      interface never went away, because for precise work it is <em>faster and more
+      powerful</em> than clicking. The window you type into is the
+      <strong>terminal</strong>; the program inside it that understands your commands
+      is the <strong>shell</strong> (macOS and Linux commonly use <code>zsh</code> or
+      <code>bash</code>; Windows has PowerShell).
+    </p>
+    <p>A command is just a program's name, sometimes with extra words (arguments):</p>
+<pre class="term"><code>pwd             # "print working directory": where am I?
+ls              # list files here (Windows PowerShell: dir works too)
+cd projects     # "change directory": move into the projects folder
+cd ..           # move UP one level (.. means "parent folder")
+mkdir lab       # make a new folder called lab</code></pre>
+    <p>
+      That is 90% of the terminal skill you need for this entire school. Commands
+      like <code>cargo run</code> follow the same shape: program name
+      (<code>cargo</code>), then arguments (<code>run</code>).
+    </p>
+    <div class="callout tip">
+      <span class="co-title">💡 The fear cure</span>
+      The terminal cannot break your computer by you merely looking around with
+      <code>pwd</code>, <code>ls</code> and <code>cd</code>. Explore freely. The
+      few genuinely destructive commands (like <code>rm</code>, remove) you will
+      meet later, clearly labeled, and you will treat them like knives: useful,
+      respected, not feared.
+    </div>
+
+    <h2>Files, folders, and paths 🗺️</h2>
+    <p>
+      Everything on disk lives in a tree of folders. A <strong>path</strong> is an
+      address in that tree, written with slashes:
+    </p>
+<pre class="term"><code>/Users/chris/Projects/hello_rusty/src/main.rs   # absolute: from the root
+src/main.rs                                     # relative: from where you are
+~/Projects                                      # ~ is shorthand for your home folder</code></pre>
+    <p>
+      File <strong>extensions</strong> hint at content: <code>.rs</code> is Rust
+      source, <code>.html</code> a web page, <code>.toml</code> a config file,
+      <code>.md</code> formatted text notes. The computer mostly does not care;
+      humans and tools do.
+    </p>
+
+    <h2>Editors and IDEs ✍️</h2>
+    <p>
+      Code is plain text, so you could write it in Notepad. Nobody does, because a
+      <strong>code editor</strong> (VS Code, Zed) understands programming: it colors
+      your code, autocompletes names, and shows errors as you type. An
+      <strong>IDE</strong> (integrated development environment, like RustRover) is
+      the same idea with even more built in. The magic ingredient for Rust is
+      <strong>rust-analyzer</strong>, a helper that reads your code as you type and
+      surfaces the compiler's knowledge instantly. The <a href="../setup.html">setup
+      guide</a> installs all of this.
+    </p>
+
+    <h2>Libraries: code you did not have to write 📦</h2>
+    <p>
+      No one builds alone. A <strong>library</strong> is a bundle of ready-made code
+      you pull into your project: random numbers, JSON parsing, whole game engines.
+      Rust calls them <strong>crates</strong>, and the public collection at
+      crates.io holds over 150,000 of them. A library your project uses is called a
+      <strong>dependency</strong> (your code now depends on it), and Cargo fetches
+      and updates them for you.
+    </p>
+    <p>
+      Related word you will hear constantly: <strong>API</strong> (application
+      programming interface). It simply means "the set of things some code offers
+      you to call." A library has an API (its public functions). A web service has
+      an API (URLs you can request). When documentation says "the Vec API," it just
+      means "the list of things a Vec can do."
+    </p>
+
+    <h2>Where the languages fit 🗺️</h2>
+    <p>You will hear language names constantly. A rough map of the neighborhood:</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Language</th><th>Famous for</th><th>Relationship to Rust</th></tr></thead>
+      <tbody>
+        <tr><td>Python</td><td>Beginner-friendly scripts, data science, AI</td><td>Easier to start, much slower to run. Rust often speeds up Python's guts (uv, ruff, Polars).</td></tr>
+        <tr><td>JavaScript</td><td>The language of web browsers</td><td>Different arena. Rust reaches the browser through WebAssembly.</td></tr>
+        <tr><td>C / C++</td><td>Operating systems, games, maximum speed</td><td>Rust's elders. Same speed class; Rust adds the safety they lack.</td></tr>
+        <tr><td>Java / C#</td><td>Big business software, Android, Unity games</td><td>Garbage-collected middle ground: safe but with runtime overhead.</td></tr>
+        <tr><td>Go</td><td>Cloud services, simple and productive</td><td>Friendly rival. Simpler than Rust, slower and less strict.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      Languages are tools, not sports teams. Learning Rust first gives you the
+      hardest concepts (memory, types, ownership) in their clearest form; every
+      other language feels easy afterward.
+    </p>
+
+    <h2>Words you can now use correctly 🎓</h2>
+    <ul class="checklist">
+      <li><strong>Source code</strong>: the human-readable text you write.</li>
+      <li><strong>Binary / executable</strong>: the compiled, runnable result.</li>
+      <li><strong>Bug</strong>: any behavior you did not intend. <strong>Debugging</strong>: hunting it down.</li>
+      <li><strong>Syntax</strong>: the grammar rules of a language.</li>
+      <li><strong>Runtime</strong>: while the program is running ("a runtime error" happens then, not at compile time).</li>
+      <li><strong>Open source</strong>: code whose source is public for anyone to read, use, and improve. Rust itself, this site, and most crates are open source.</li>
+    </ul>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Terminal scavenger hunt</h4>
+      <p>Open a terminal. Using only <code>pwd</code>, <code>ls</code>, and
+      <code>cd</code>: find your Desktop folder, list what is on it, then come back
+      to your home folder (<code>cd ~</code>). Narrate your position out loud as you
+      go, like a taxi driver.</p>
+      <details class="solution"><summary>Reveal a typical route</summary>
+<pre class="term"><code>pwd            # /Users/you  (home)
+ls             # see: Desktop, Documents, Downloads...
+cd Desktop
+ls             # your desktop clutter, now in text form
+cd ~           # home again</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Build your lab bench</h4>
+      <p>Still in the terminal: create a folder called <code>rusty-lab</code> in your
+      home folder. This is where all your course projects will live. Then step
+      inside it and confirm where you are.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre class="term"><code>cd ~
+mkdir rusty-lab
+cd rusty-lab
+pwd            # /Users/you/rusty-lab</code></pre>
+        <p>From now on, when a lesson says "in your project folder," this is your
+        neighborhood.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Translate the jargon</h4>
+      <p>Rewrite this sentence in plain English: "The crate's API had a breaking
+      change, so our binary hit a runtime bug until we updated the dependency."</p>
+      <details class="solution"><summary>Reveal translation</summary>
+        <p>"A library we use changed what it offers in an incompatible way, so our
+        compiled program misbehaved while running until we switched to the library's
+        newer version." Congratulations: you speak programmer now.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="f2-toolbox">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="f1-computers.html"><span class="dir">← Previous</span>Foundations 1: How a Computer Thinks</a>
+      <a class="next" href="f3-git.html"><span class="dir">Next →</span>Foundations 3: Version Control &amp; Git</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

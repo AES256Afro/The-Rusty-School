@@ -33,13 +33,15 @@ static file server.
 |---|---|
 | `docs/index.html` | Home: why Rust, who uses it, games & apps built with Rust |
 | `docs/setup.html` | Build your lab: macOS, Windows, Linux, or zero-install in the browser |
-| `docs/learn/` | The 17-lesson curriculum, from Hello World to concurrency |
+| `docs/learn/` | The 22-lesson curriculum, from "what is a computer?" to concurrency |
 | `docs/quiz.html` | Interactive quizzes for each level, with explanations |
 | `docs/cheatsheets.html` | Printable cheat sheets: syntax, ownership, collections, Cargo |
 | `src/main.rs` | The Rust web server that serves it all (and teaches while doing it) |
 
 ### The curriculum
 
+- **Level 0 - Foundations 🌍** (never programmed): how computers think, the
+  terminal, git & version control, standards & conventions, the programmer's mindset
 - **Level 1 - Sprout 🌱** (total beginner): Hello World & Cargo, variables,
   data types, functions, control flow
 - **Level 2 - The Rust Way 🔧**: ownership, borrowing & references, structs,
@@ -68,6 +70,12 @@ Everything under `docs/` is static, so deployment is trivial:
 - **Netlify / Cloudflare Pages / Vercel**: point the publish directory at `docs/`.
 - **Any server**: copy `docs/` anywhere that can serve files, or run the Rust
   server on a box of your own.
+
+## Where this is going
+
+See [ROADMAP.md](ROADMAP.md) for the expansion plan: runnable in-page examples,
+a project workshop track, specialist courses (web, games, async, embedded), and
+a classroom mode for teaching groups.
 
 ## Project goals
 
