@@ -299,6 +299,40 @@ pre.compiler code { color: #eec9b0; }
 .pg-output .run-err { color: #ffb4a8; display: block; }
 .pg-output .run-hint { color: var(--tok-com); margin-top: 8px; font-style: italic; }
 
+/* ---------- project workshop ---------- */
+.badge.build { background: rgba(111, 183, 255, 0.16); color: var(--blue); }
+.spec {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 4px solid var(--blue);
+  border-radius: var(--radius); padding: 20px 24px; margin: 1.4em 0;
+}
+.spec h3 { margin-top: 0; }
+.spec ul { margin-bottom: 0; }
+.hint {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  margin: 10px 0; background: var(--surface);
+}
+.hint summary {
+  cursor: pointer; font-weight: 700; font-size: 0.93rem;
+  padding: 11px 16px; list-style: none; user-select: none;
+  display: flex; align-items: center; gap: 8px; color: var(--accent-bright);
+}
+.hint summary::-webkit-details-marker { display: none; }
+.hint summary::before { content: "💡"; }
+.hint[open] summary { border-bottom: 1px solid var(--border); }
+.hint summary:hover { background: var(--surface-2); }
+.hint .hint-body { padding: 4px 18px 14px; font-size: 0.95rem; }
+.hint .hint-body > :first-child { margin-top: 10px; }
+.hint-ladder { margin: 1.2em 0; }
+.hint-ladder .muted { font-size: 0.86rem; }
+.difficulty { display: inline-flex; gap: 3px; vertical-align: middle; }
+.difficulty span { color: var(--accent-soft); }
+.difficulty span.off { opacity: 0.25; }
+.project-card .meta {
+  display: flex; gap: 12px; align-items: center;
+  font-size: 0.82rem; color: var(--text-muted); margin-top: 8px;
+}
+
 /* ---------- glossary ---------- */
 .gloss-filter {
   width: 100%; font: inherit; font-size: 1rem;

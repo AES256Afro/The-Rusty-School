@@ -40,7 +40,19 @@
     }
     // Account link in the nav and Privacy link in the footer are injected
     // here so all thirty-odd static pages pick them up from one place.
-    const prefix = location.pathname.includes("/learn/") ? "../" : "";
+    const inSubfolder = location.pathname.includes("/learn/") ||
+                        location.pathname.includes("/build/");
+    const prefix = inSubfolder ? "../" : "";
+    if (nav && !nav.querySelector('a[href$="build/index.html"]') &&
+        !nav.querySelector('a[href="index.html"][data-build]')) {
+      const build = document.createElement("a");
+      build.href = prefix + "build/index.html";
+      build.textContent = "Build";
+      build.dataset.build = "1";
+      const learn = nav.querySelector('a[href$="learn/index.html"]');
+      if (learn) learn.insertAdjacentElement("afterend", build);
+      else nav.insertBefore(build, nav.querySelector(".theme-toggle"));
+    }
     if (nav && !nav.querySelector('a[href$="playground.html"]')) {
       const pg = document.createElement("a");
       pg.href = prefix + "playground.html";

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 2: Tip Splitter CLI - The Rusty School</title>
+<meta name="description" content="Build a real command-line tool in Rust: arguments, money math, error handling, modules, and tests.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 2 of 3</nav>
+    <span class="badge build">Project · after Level 2</span>
+    <h1>Tip Splitter CLI 💸</h1>
+    <p class="lede muted">
+      A tool you will genuinely use at dinner. More importantly, it is a real
+      command-line program: it takes arguments, validates them, does careful
+      money math, and has tests proving it works.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p>Build a command-line tool that runs like this:</p>
+<pre class="term"><code>$ cargo run -- 84.50 3
+Bill:       $84.50
+Tip (18%):  $15.21
+Total:      $99.71
+Each of 3:  $33.24</code></pre>
+      <p>Requirements:</p>
+      <ul>
+        <li>Takes the bill amount and the number of people as command-line arguments.</li>
+        <li>Accepts an optional third argument for the tip percentage; defaults to 18.</li>
+        <li>Prints a clear breakdown with two decimal places.</li>
+        <li>Refuses nonsense with a helpful message instead of crashing: missing
+          arguments, non-numbers, zero people, negative bills.</li>
+        <li>Puts the math in its own module with <strong>at least three tests</strong>
+          that pass.</li>
+      </ul>
+    </div>
+
+    <h2>The one new thing: reading arguments</h2>
+<pre><code>use std::env;
+
+fn main() {
+    let args: Vec&lt;String&gt; = env::args().collect();
+    println!("{args:?}");
+}</code></pre>
+    <p>
+      Run <code>cargo run -- 84.50 3</code> and look closely at what prints.
+      <code>args[0]</code> is the program's own path, so your first real argument
+      is <code>args[1]</code>. That off-by-one trips up everyone once. The
+      <code>--</code> tells Cargo "the rest is for my program, not for you."
+    </p>
+
+    <div class="callout tip">
+      <span class="co-title">💡 Go build it now</span>
+      You know everything else already: <code>parse</code>, <code>Result</code>,
+      <code>match</code>, functions, modules, and tests. This is your first project
+      assembled entirely from parts you own.
+    </div>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: How should I structure this?</summary>
+        <div class="hint-body">
+          <p>Separate the thinking from the talking. Pure math functions in one
+          module, all printing and argument reading in <code>main</code>:</p>
+<pre class="term"><code>src/
+├── main.rs    ← reads args, prints, handles errors
+└── calc.rs    ← total_with_tip(), split_between(), plus tests</code></pre>
+          <p>Why bother? Because pure functions are trivially testable: no
+          keyboard, no screen, just numbers in and numbers out. That separation
+          is most of what "good architecture" means in practice.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: What should the math functions look like?</summary>
+        <div class="hint-body">
+<pre><code>// src/calc.rs
+pub fn tip_amount(bill: f64, percent: f64) -&gt; f64 {
+    bill * percent / 100.0
+}
+
+pub fn total_with_tip(bill: f64, percent: f64) -&gt; f64 {
+    bill + tip_amount(bill, percent)
+}
+
+pub fn split_between(total: f64, people: u32) -&gt; f64 {
+    total / people as f64
+}</code></pre>
+          <p>Remember <code>pub</code>, or <code>main.rs</code> cannot see them, and
+          <code>mod calc;</code> at the top of <code>main.rs</code> to pull the file in.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: How do I validate the arguments?</summary>
+        <div class="hint-body">
+          <p>Write one function that either produces good values or an error
+          message, and let <code>main</code> decide how to complain:</p>
+<pre><code>fn parse_args(args: &amp;[String]) -&gt; Result&lt;(f64, u32, f64), String&gt; {
+    if args.len() &lt; 3 {
+        return Err(String::from("usage: tip &lt;bill&gt; &lt;people&gt; [tip percent]"));
+    }
+
+    let bill: f64 = args[1].parse()
+        .map_err(|_| format!("'{}' is not a valid amount", args[1]))?;
+    let people: u32 = args[2].parse()
+        .map_err(|_| format!("'{}' is not a whole number of people", args[2]))?;
+    let percent: f64 = match args.get(3) {
+        Some(p) =&gt; p.parse().map_err(|_| format!("'{p}' is not a percentage"))?,
+        None =&gt; 18.0,
+    };
+
+    if bill &lt; 0.0 { return Err(String::from("a negative bill? lucky you")); }
+    if people == 0 { return Err(String::from("splitting between zero people is undefined")); }
+
+    Ok((bill, people, percent))
+}</code></pre>
+          <p><code>map_err</code> is new but reads exactly as it sounds: if this is an
+          <code>Err</code>, replace the error with a friendlier one. Then <code>?</code>
+          hands it upward.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: How do I print money properly?</summary>
+        <div class="hint-body">
+          <p><code>{:.2}</code> forces two decimal places, and a width like
+          <code>{:&gt;8.2}</code> right-aligns numbers into a tidy column:</p>
+<pre><code>println!("Bill:       ${bill:.2}");
+println!("Tip ({percent}%):  ${tip:.2}");</code></pre>
+          <div class="callout warn" style="margin-top:10px">
+            <span class="co-title">⚠️ Real-world money warning</span>
+            <code>f64</code> is fine for a dinner tool, but real financial software
+            never uses floats for money, because 0.1 + 0.2 is famously not exactly
+            0.3 in binary. Professionals store whole cents as integers. Worth
+            knowing now; not worth fixing tonight.
+          </div>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 5: What should I test?</summary>
+        <div class="hint-body">
+          <p>Test the interesting cases, not the obvious ones. Floats need a
+          tolerance rather than exact equality:</p>
+<pre><code>#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn standard_tip_is_correct() {
+        assert!((total_with_tip(100.0, 18.0) - 118.0).abs() &lt; 0.001);
+    }
+
+    #[test]
+    fn zero_tip_changes_nothing() {
+        assert!((total_with_tip(50.0, 0.0) - 50.0).abs() &lt; 0.001);
+    }
+
+    #[test]
+    fn splitting_divides_evenly() {
+        assert!((split_between(90.0, 3) - 30.0).abs() &lt; 0.001);
+    }
+}</code></pre>
+          <p>Run with <code>cargo test</code>. Watching three green lines appear
+          for code you designed is a genuinely good feeling.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 6: Show me main.rs tying it together</summary>
+        <div class="hint-body">
+<pre><code>// src/main.rs
+mod calc;
+
+use std::env;
+use std::process;
+
+fn main() {
+    let args: Vec&lt;String&gt; = env::args().collect();
+
+    let (bill, people, percent) = match parse_args(&amp;args) {
+        Ok(values) =&gt; values,
+        Err(message) =&gt; {
+            eprintln!("⚠️  {message}");
+            process::exit(1);
+        }
+    };
+
+    let tip = calc::tip_amount(bill, percent);
+    let total = calc::total_with_tip(bill, percent);
+    let each = calc::split_between(total, people);
+
+    println!("Bill:       ${bill:.2}");
+    println!("Tip ({percent:.0}%):  ${tip:.2}");
+    println!("Total:      ${total:.2}");
+    println!("Each of {people}:  ${each:.2}");
+}</code></pre>
+          <p>Two professional details worth stealing: errors go to
+          <code>eprintln!</code> (stderr, so they do not pollute piped output), and
+          a failure exits with code 1, which is how other programs know something
+          went wrong.</p>
+        </div>
+      </details>
+
+    </div>
+
+    <h2>You built a real tool 🎉</h2>
+    <p>
+      Run <code>cargo build --release</code> and look in
+      <code>target/release/</code>. That single file is a native executable you can
+      copy to any machine with the same operating system and just run, with no
+      Rust installed. That is a genuine advantage compiled languages have, and it
+      is now yours.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h4>Make it yours</h4>
+      <ul>
+        <li><strong>Rounding up.</strong> Add a flag that rounds each person's share
+          up to the nearest dollar and reports the extra as a bonus tip.</li>
+        <li><strong>Uneven splits.</strong> Accept per-person weights so the one who
+          ordered lobster pays more.</li>
+        <li><strong>Interactive fallback.</strong> With no arguments, ask questions
+          instead of printing usage (reuse your input skills from Project 1).</li>
+        <li><strong>A real argument parser.</strong> Try <code>cargo add clap</code> and
+          rebuild the interface with proper flags like
+          <code>--tip 20</code>. Clap is what serious Rust CLIs use.</li>
+        <li><strong>Integer cents.</strong> Take the float warning seriously and
+          rewrite the math in whole cents. Notice how the tests change.</li>
+      </ul>
+    </div>
+
+    <button class="complete-btn" data-lesson="build-02-tip-splitter">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="01-guessing-game.html"><span class="dir">← Previous</span>Project 1: Number Guessing Game</a>
+      <a class="next" href="03-todo-list.html"><span class="dir">Next →</span>Project 3: Todo List</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
