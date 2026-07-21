@@ -42,7 +42,7 @@ I have been learning Rust, and I kept hitting the same wall: almost every
 resource assumes you already program in something else. The Rust Book is
 excellent but assumes a lot. Rustlings assumes you can already read Rust.
 
-So I built the thing I wanted when I started: https://cybercard.net
+So I built the thing I wanted when I started: https://rustyschool.com
 
 What is different about it:
 
@@ -80,7 +80,7 @@ fix it than be told it is nice.
 
 **Body:**
 
-https://cybercard.net
+https://rustyschool.com
 
 I wanted a Rust course that assumes zero programming background, so I built one.
 The part this crowd might find fun: the site is served by a web server written
@@ -106,7 +106,7 @@ something subtly wrong.
 
 **Body:**
 
-https://cybercard.net
+https://rustyschool.com
 
 I wanted to learn Rust and found that most material assumes you already program.
 This starts from "what is a CPU," goes through ownership and lifetimes to
@@ -130,7 +130,7 @@ before publishing. Feedback and corrections welcome.
 **Discord / Slack (Rust communities):**
 
 > I built a free Rust course aimed at people who have never programmed:
-> https://cybercard.net. Level 0 covers computers, terminals, and git before any
+> https://rustyschool.com. Level 0 covers computers, terminals, and git before any
 > code, then 22 lessons through to concurrency, plus runnable examples and a
 > project workshop. Would genuinely appreciate corrections.
 
@@ -143,14 +143,14 @@ before publishing. Feedback and corrections welcome.
 > The part I enjoyed most: the site is served by a web server written in Rust,
 > and the final project has students rebuild it. Free, no ads, no tracking.
 >
-> https://cybercard.net
+> https://rustyschool.com
 
 **X / Bluesky:**
 
 > Built a free Rust course for people who have never programmed. Starts at "what
 > is a CPU," ends at fearless concurrency. Runnable examples, real projects, no
 > ads or tracking. The site is served by a Rust server students rebuild as the
-> capstone. 🦀 https://cybercard.net
+> capstone. 🦀 https://rustyschool.com
 
 ---
 
@@ -162,7 +162,7 @@ before publishing. Feedback and corrections welcome.
 > experience to concurrency, with runnable examples, quizzes, and a project
 > workshop. Served by a dependency-free Rust web server.
 
-**Website:** https://cybercard.net
+**Website:** https://rustyschool.com
 
 **Topics:** `rust` `learning` `education` `tutorial` `beginner-friendly`
 `course` `rust-lang` `teaching` `curriculum` `learn-to-code`

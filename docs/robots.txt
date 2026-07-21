@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://cybercard.net/sitemap.xml
+Sitemap: https://rustyschool.com/sitemap.xml

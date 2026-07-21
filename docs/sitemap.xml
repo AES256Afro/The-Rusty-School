@@ -1,177 +1,177 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://cybercard.net/</loc>
+    <loc>https://rustyschool.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/account</loc>
+    <loc>https://rustyschool.com/account</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/build/</loc>
+    <loc>https://rustyschool.com/build/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/build/01-guessing-game</loc>
+    <loc>https://rustyschool.com/build/01-guessing-game</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/build/02-tip-splitter</loc>
+    <loc>https://rustyschool.com/build/02-tip-splitter</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/build/03-todo-list</loc>
+    <loc>https://rustyschool.com/build/03-todo-list</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/cheatsheets</loc>
+    <loc>https://rustyschool.com/cheatsheets</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/glossary</loc>
+    <loc>https://rustyschool.com/glossary</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/</loc>
+    <loc>https://rustyschool.com/learn/</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/01-hello-world</loc>
+    <loc>https://rustyschool.com/learn/01-hello-world</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/02-variables</loc>
+    <loc>https://rustyschool.com/learn/02-variables</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/03-types</loc>
+    <loc>https://rustyschool.com/learn/03-types</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/04-functions</loc>
+    <loc>https://rustyschool.com/learn/04-functions</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/05-control-flow</loc>
+    <loc>https://rustyschool.com/learn/05-control-flow</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/06-ownership</loc>
+    <loc>https://rustyschool.com/learn/06-ownership</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/07-borrowing</loc>
+    <loc>https://rustyschool.com/learn/07-borrowing</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/08-structs</loc>
+    <loc>https://rustyschool.com/learn/08-structs</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/09-enums</loc>
+    <loc>https://rustyschool.com/learn/09-enums</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/10-collections</loc>
+    <loc>https://rustyschool.com/learn/10-collections</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/11-errors</loc>
+    <loc>https://rustyschool.com/learn/11-errors</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/12-traits</loc>
+    <loc>https://rustyschool.com/learn/12-traits</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/13-lifetimes</loc>
+    <loc>https://rustyschool.com/learn/13-lifetimes</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/14-iterators</loc>
+    <loc>https://rustyschool.com/learn/14-iterators</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/15-smart-pointers</loc>
+    <loc>https://rustyschool.com/learn/15-smart-pointers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/16-concurrency</loc>
+    <loc>https://rustyschool.com/learn/16-concurrency</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/17-cargo</loc>
+    <loc>https://rustyschool.com/learn/17-cargo</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/f1-computers</loc>
+    <loc>https://rustyschool.com/learn/f1-computers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/f2-toolbox</loc>
+    <loc>https://rustyschool.com/learn/f2-toolbox</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/f3-git</loc>
+    <loc>https://rustyschool.com/learn/f3-git</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/f4-standards</loc>
+    <loc>https://rustyschool.com/learn/f4-standards</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/learn/f5-mindset</loc>
+    <loc>https://rustyschool.com/learn/f5-mindset</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/playground</loc>
+    <loc>https://rustyschool.com/playground</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/privacy</loc>
+    <loc>https://rustyschool.com/privacy</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/quiz</loc>
+    <loc>https://rustyschool.com/quiz</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://cybercard.net/setup</loc>
+    <loc>https://rustyschool.com/setup</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
