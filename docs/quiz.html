@@ -43,6 +43,83 @@
 <script>
 window.RUSTY_QUIZZES = [
   {
+    id: "level0",
+    title: "Foundations Quiz",
+    level: "Level 0 · Foundations",
+    levelClass: "l0",
+    blurb: "Computers, the terminal, git, standards, and the programmer's mindset. No code required.",
+    questions: [
+      {
+        q: "What is a compiler?",
+        options: ["A program that translates your code into machine code",
+                  "A tool that compresses files",
+                  "The part of the computer that stores data",
+                  "A website for downloading libraries"],
+        answer: 0,
+        explain: "Computers only understand machine code. A compiler (Rust's is <code>rustc</code>) translates the human-readable code you write into instructions the CPU can run directly."
+      },
+      {
+        q: "What is the difference between RAM and disk storage?",
+        options: ["RAM is bigger; disk is faster",
+                  "They are two names for the same thing",
+                  "RAM is fast but cleared when power is lost; disk is slower but permanent",
+                  "RAM stores programs; disk stores only pictures"],
+        answer: 2,
+        explain: "In the kitchen analogy: RAM is the countertop (fast, limited, wiped clean at the end), and the disk is the pantry (large, slower to reach, keeps things between sessions)."
+      },
+      {
+        q: "In the terminal, what does <code>cd</code> do?",
+        options: ["Copies a directory", "Changes directory, moving you to another folder",
+                  "Creates a directory", "Closes the terminal"],
+        answer: 1,
+        explain: "<code>cd</code> is \"change directory\". Together with <code>pwd</code> (where am I?) and <code>ls</code> (what's here?), it covers nearly all the terminal navigation this course needs."
+      },
+      {
+        q: "You are in <code>/Users/you/projects</code>. What does <code>cd ..</code> do?",
+        options: ["Moves you to <code>/Users/you</code>, the parent folder",
+                  "Moves you to your home folder",
+                  "Lists hidden files",
+                  "Nothing; <code>..</code> is invalid"],
+        answer: 0,
+        explain: "<code>..</code> always means \"the folder above this one\". Paths use it constantly, and you will see it in Rust import paths and file references too."
+      },
+      {
+        q: "What is a git commit?",
+        options: ["A promise to finish a feature",
+                  "A snapshot of your project at a moment, with a message saying why",
+                  "A copy of your project uploaded to GitHub",
+                  "A request for someone to review your code"],
+        answer: 1,
+        explain: "A commit photographs your whole project state, recording what changed, when, by whom, and why. The chain of commits is your project's story, and you can return to any point in it."
+      },
+      {
+        q: "In Rust convention, how should you name a struct that represents a game state?",
+        options: ["<code>game_state</code>", "<code>gameState</code>",
+                  "<code>GameState</code>", "<code>GAME_STATE</code>"],
+        answer: 2,
+        explain: "Types (structs, enums, traits) use UpperCamelCase. Variables and functions use snake_case, and constants use SCREAMING_SNAKE_CASE. The compiler will actually warn you when you stray."
+      },
+      {
+        q: "A library you use goes from version 1.4.2 to 2.0.0. What does that tell you?",
+        options: ["Only bug fixes; update freely",
+                  "New features, but nothing existing breaks",
+                  "Breaking changes; read the notes before updating",
+                  "The library was renamed"],
+        answer: 2,
+        explain: "Semantic versioning: MAJOR.MINOR.PATCH. A major bump is a promise that something will break. Patch bumps are safe, minor bumps add features safely, major bumps demand your attention."
+      },
+      {
+        q: "Your program fails with a compiler error you don't understand. What is the best first move?",
+        options: ["Delete the code and start over",
+                  "Read the error message carefully, out loud if it helps",
+                  "Immediately ask someone else to fix it",
+                  "Try random changes until it compiles"],
+        answer: 1,
+        explain: "Rust's error messages usually name the file, the line, the problem, and the fix. Reading them properly is the single highest-value debugging habit, and skipping that step is the source of most beginner frustration."
+      }
+    ]
+  },
+  {
     id: "level1",
     title: "Sprout Quiz",
     level: "Level 1 · Beginner",

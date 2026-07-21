@@ -1,0 +1,13 @@
+# Cloudflare Pages header rules.
+#
+# The problem this solves: assets were served with a four hour cache, so
+# returning students kept running yesterday's JavaScript after a deploy.
+# These rules ask browsers to revalidate assets on each visit (a cheap
+# 304 when nothing changed) while letting Cloudflare's edge still cache
+# them globally. Content updates now appear immediately.
+
+/assets/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate

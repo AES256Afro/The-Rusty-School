@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glossary - The Rusty School</title>
+<meta name="description" content="Every term The Rusty School teaches, defined in plain English, each linked to the lesson that covers it.">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <span class="kicker">Look it up, then get back to building</span>
+    <h1>Glossary <span class="grad">A to Z</span> 📖</h1>
+    <p class="lede muted">
+      Every term this school teaches, in plain English, with a link to the lesson
+      that covers it properly. Forgetting vocabulary is normal; looking it up is
+      what professionals do all day.
+    </p>
+  </section>
+
+  <input type="search" id="gloss-filter" class="gloss-filter" placeholder="Filter terms… (try: ownership, trait, git)" aria-label="Filter glossary terms">
+  <p class="muted small" id="gloss-count"></p>
+
+  <dl class="gloss" id="gloss-list">
+
+    <dt>API</dt>
+    <dd>The set of functions or endpoints some code offers for others to call. A library has an API; so does a web service. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>Argument</dt>
+    <dd>A value you pass into a function when calling it. The function receives it as a <em>parameter</em>. <a href="learn/04-functions.html">Lesson 4</a></dd>
+
+    <dt>Arc</dt>
+    <dd><em>Atomic reference counting.</em> Like <code>Rc</code>, but safe to share across threads. Usually paired with a <code>Mutex</code>. <a href="learn/16-concurrency.html">Lesson 16</a></dd>
+
+    <dt>Array</dt>
+    <dd>A fixed-size collection of values of the same type, written <code>[1, 2, 3]</code>. For a growable list, use a <code>Vec</code>. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>Binary (executable)</dt>
+    <dd>The compiled, runnable output of your program, as opposed to the source code you wrote. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>Binary (number system)</dt>
+    <dd>Counting with only 1s and 0s, matching the on/off switches inside a computer. <a href="learn/f1-computers.html">Foundations 1</a></dd>
+
+    <dt>Bit / Byte</dt>
+    <dd>A bit is one on/off switch. A byte is eight of them. Type names like <code>i32</code> say how many bits a number occupies. <a href="learn/f1-computers.html">Foundations 1</a></dd>
+
+    <dt>bool</dt>
+    <dd>The type holding only <code>true</code> or <code>false</code>. Every comparison produces one. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>Borrow</dt>
+    <dd>Using a value through a reference without taking ownership of it. Written <code>&amp;value</code>. <a href="learn/07-borrowing.html">Lesson 7</a></dd>
+
+    <dt>Borrow checker</dt>
+    <dd>The part of the compiler that enforces the borrowing rules: many readers <em>or</em> one writer, and no reference outliving its data. <a href="learn/07-borrowing.html">Lesson 7</a></dd>
+
+    <dt>Box</dt>
+    <dd>The simplest smart pointer: puts a value on the heap with a single owner. Essential for recursive types. <a href="learn/15-smart-pointers.html">Lesson 15</a></dd>
+
+    <dt>Branch (git)</dt>
+    <dd>A parallel timeline of commits, letting you experiment without touching the main line of work. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>Bug</dt>
+    <dd>Any behavior you did not intend. Hunting one down is <em>debugging</em>. <a href="learn/f5-mindset.html">Foundations 5</a></dd>
+
+    <dt>Cargo</dt>
+    <dd>Rust's build tool and project manager: creates projects, compiles, tests, formats, and fetches libraries. <a href="learn/01-hello-world.html">Lesson 1</a></dd>
+
+    <dt>char</dt>
+    <dd>A single character, in single quotes: <code>'A'</code>, <code>'🦀'</code>. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>Closure</dt>
+    <dd>A small unnamed function you can store in a variable, which can capture variables from the surrounding scope. <a href="learn/14-iterators.html">Lesson 14</a></dd>
+
+    <dt>Clone</dt>
+    <dd>Making a real, independent copy of a value, so both the original and the copy stay valid. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>Commit</dt>
+    <dd>A snapshot of your project at a moment in time, with a message explaining why. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>Compiler</dt>
+    <dd>The program that translates your source code into machine code. Rust's is <code>rustc</code>. <a href="learn/f1-computers.html">Foundations 1</a></dd>
+
+    <dt>Concurrency</dt>
+    <dd>Doing several things at once, usually with threads. Rust checks it at compile time, hence "fearless". <a href="learn/16-concurrency.html">Lesson 16</a></dd>
+
+    <dt>Constant</dt>
+    <dd>A value that can never change, declared with <code>const</code> and named in SCREAMING_SNAKE_CASE. <a href="learn/02-variables.html">Lesson 2</a></dd>
+
+    <dt>CPU</dt>
+    <dd>The processor: the chef that executes instructions, billions per second. Modern ones have several cores. <a href="learn/f1-computers.html">Foundations 1</a></dd>
+
+    <dt>Crate</dt>
+    <dd>A Rust package. Public ones live on crates.io; over 150,000 of them. <a href="learn/17-cargo.html">Lesson 17</a></dd>
+
+    <dt>Data race</dt>
+    <dd>Two threads touching the same data at once, at least one writing. Impossible in safe Rust. <a href="learn/16-concurrency.html">Lesson 16</a></dd>
+
+    <dt>Dependency</dt>
+    <dd>A library your project relies on, listed in <code>Cargo.toml</code> and fetched by Cargo. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>derive</dt>
+    <dd>An attribute asking the compiler to write a trait implementation for you, like <code>#[derive(Debug)]</code>. <a href="learn/08-structs.html">Lesson 8</a></dd>
+
+    <dt>Diff</dt>
+    <dd>The line-by-line difference between two versions of a file. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>DRY</dt>
+    <dd><em>Don't Repeat Yourself.</em> Extract repeated code into a function so there is one place to fix it. <a href="learn/f4-standards.html">Foundations 4</a></dd>
+
+    <dt>Enum</dt>
+    <dd>A type whose value is exactly one of a fixed set of variants, each able to carry its own data. <a href="learn/09-enums.html">Lesson 9</a></dd>
+
+    <dt>Expression</dt>
+    <dd>Code that produces a value. The last expression in a function, without a semicolon, is its return value. <a href="learn/04-functions.html">Lesson 4</a></dd>
+
+    <dt>f64</dt>
+    <dd>The default type for decimal numbers. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>Function</dt>
+    <dd>A named, reusable block of instructions, declared with <code>fn</code>. <a href="learn/04-functions.html">Lesson 4</a></dd>
+
+    <dt>Garbage collector</dt>
+    <dd>A background process that frees unused memory in some languages. Rust does not need one; ownership handles it. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>Generic</dt>
+    <dd>A type placeholder like <code>T</code>, letting one piece of code work with many types. <a href="learn/12-traits.html">Lesson 12</a></dd>
+
+    <dt>git</dt>
+    <dd>The version control system the whole industry uses: snapshots, branches, and history. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>GitHub</dt>
+    <dd>A website hosting git repositories, for collaboration and as a public portfolio. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>HashMap</dt>
+    <dd>A collection mapping keys to values, like a dictionary. <a href="learn/10-collections.html">Lesson 10</a></dd>
+
+    <dt>Heap</dt>
+    <dd>The flexible region of memory for data whose size can grow, such as <code>String</code> and <code>Vec</code> contents. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>i32</dt>
+    <dd>The default integer type: whole numbers, positive or negative. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>Immutable</dt>
+    <dd>Unable to be changed. Rust variables are immutable unless declared <code>mut</code>. <a href="learn/02-variables.html">Lesson 2</a></dd>
+
+    <dt>Iterator</dt>
+    <dd>Something that hands out items one at a time, and can be chained with adaptors like <code>map</code> and <code>filter</code>. <a href="learn/14-iterators.html">Lesson 14</a></dd>
+
+    <dt>KISS</dt>
+    <dd><em>Keep It Simple.</em> The boring readable version beats the clever unreadable one. <a href="learn/f4-standards.html">Foundations 4</a></dd>
+
+    <dt>Lifetime</dt>
+    <dd>How long a reference is valid. Written <code>'a</code> when the compiler needs help connecting inputs to outputs. <a href="learn/13-lifetimes.html">Lesson 13</a></dd>
+
+    <dt>Linter</dt>
+    <dd>A tool that flags working-but-unidiomatic code. Rust's is <code>cargo clippy</code>. <a href="learn/f4-standards.html">Foundations 4</a></dd>
+
+    <dt>Machine code</dt>
+    <dd>The raw numeric instructions a CPU executes directly. <a href="learn/f1-computers.html">Foundations 1</a></dd>
+
+    <dt>Macro</dt>
+    <dd>Code that writes code at compile time. Marked with <code>!</code>, as in <code>println!</code>. <a href="learn/01-hello-world.html">Lesson 1</a></dd>
+
+    <dt>match</dt>
+    <dd>Rust's pattern-matching decision maker. It must be exhaustive: every possible case covered. <a href="learn/09-enums.html">Lesson 9</a></dd>
+
+    <dt>Memory safety</dt>
+    <dd>Freedom from bugs like use-after-free and buffer overflows. Rust guarantees it at compile time. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>Merge conflict</dt>
+    <dd>When two timelines edit the same line and git asks a human to choose. Routine, not a disaster. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>Module</dt>
+    <dd>A named grouping of related code, declared with <code>mod</code>. Items are private unless marked <code>pub</code>. <a href="learn/17-cargo.html">Lesson 17</a></dd>
+
+    <dt>Move</dt>
+    <dd>Transferring ownership of a value. The original variable becomes unusable. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>mut</dt>
+    <dd>The keyword marking a variable or reference as changeable. <a href="learn/02-variables.html">Lesson 2</a></dd>
+
+    <dt>Mutex</dt>
+    <dd><em>Mutual exclusion.</em> A lock ensuring only one thread touches shared data at a time. <a href="learn/16-concurrency.html">Lesson 16</a></dd>
+
+    <dt>Open source</dt>
+    <dd>Code whose source is public for anyone to read, use, and improve. Rust itself is open source. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>Option</dt>
+    <dd>The enum for a value that may be absent: <code>Some(value)</code> or <code>None</code>. Rust's replacement for null. <a href="learn/09-enums.html">Lesson 9</a></dd>
+
+    <dt>Ownership</dt>
+    <dd>Rust's core idea: every value has one owner, and is freed when that owner goes out of scope. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>Panic</dt>
+    <dd>An unrecoverable error that stops the program immediately with a message. <a href="learn/11-errors.html">Lesson 11</a></dd>
+
+    <dt>Path</dt>
+    <dd>An address for a file or folder, written with slashes. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>Pull request</dt>
+    <dd>A proposed change offered for review before merging. How most open-source contribution happens. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>Rc</dt>
+    <dd><em>Reference counted.</em> Allows several owners of one value in a single thread; freed when the last one goes. <a href="learn/15-smart-pointers.html">Lesson 15</a></dd>
+
+    <dt>Reference</dt>
+    <dd>A way to access a value without owning it, written <code>&amp;value</code> or <code>&amp;mut value</code>. <a href="learn/07-borrowing.html">Lesson 7</a></dd>
+
+    <dt>RefCell</dt>
+    <dd>Moves borrow checking from compile time to runtime, allowing mutation through a shared handle. <a href="learn/15-smart-pointers.html">Lesson 15</a></dd>
+
+    <dt>Repository (repo)</dt>
+    <dd>A folder whose history git tracks. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>Result</dt>
+    <dd>The enum for an operation that may fail: <code>Ok(value)</code> or <code>Err(error)</code>. <a href="learn/11-errors.html">Lesson 11</a></dd>
+
+    <dt>Runtime</dt>
+    <dd>While the program is running, as opposed to compile time. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>Scope</dt>
+    <dd>The region between braces where a variable exists. Values are dropped when their scope ends. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>Semantic versioning</dt>
+    <dd>MAJOR.MINOR.PATCH version numbers, promising what a release will break. <a href="learn/f4-standards.html">Foundations 4</a></dd>
+
+    <dt>Shadowing</dt>
+    <dd>Reusing a name with a new <code>let</code>, creating a fresh variable that may even change type. <a href="learn/02-variables.html">Lesson 2</a></dd>
+
+    <dt>Slice</dt>
+    <dd>A borrowed view into part of a collection or string, like <code>&amp;numbers[1..4]</code>. <a href="learn/07-borrowing.html">Lesson 7</a></dd>
+
+    <dt>Smart pointer</dt>
+    <dd>A type that points at data and manages it, such as <code>Box</code>, <code>Rc</code>, and <code>RefCell</code>. <a href="learn/15-smart-pointers.html">Lesson 15</a></dd>
+
+    <dt>Stack</dt>
+    <dd>The fast, fixed-size region of memory holding simple values and function bookkeeping. <a href="learn/06-ownership.html">Lesson 6</a></dd>
+
+    <dt>String</dt>
+    <dd>Owned, growable text stored on the heap. <a href="learn/10-collections.html">Lesson 10</a></dd>
+
+    <dt>&amp;str</dt>
+    <dd>A borrowed view into text that lives elsewhere. Preferred for function parameters. <a href="learn/10-collections.html">Lesson 10</a></dd>
+
+    <dt>Struct</dt>
+    <dd>Your own type, bundling related named fields together. <a href="learn/08-structs.html">Lesson 8</a></dd>
+
+    <dt>Syntax</dt>
+    <dd>The grammar rules of a language. Breaking them produces a syntax error. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>Terminal / Shell</dt>
+    <dd>The text window where you type commands, and the program that interprets them. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+
+    <dt>Test</dt>
+    <dd>Code that checks your code, marked <code>#[test]</code> and run with <code>cargo test</code>. <a href="learn/17-cargo.html">Lesson 17</a></dd>
+
+    <dt>Thread</dt>
+    <dd>An independent stream of execution, letting a program use several CPU cores. <a href="learn/16-concurrency.html">Lesson 16</a></dd>
+
+    <dt>Trait</dt>
+    <dd>A shared capability that types can implement, like an interface. <a href="learn/12-traits.html">Lesson 12</a></dd>
+
+    <dt>Trait bound</dt>
+    <dd>A requirement on a generic type, as in <code>T: PartialOrd</code> meaning "any T that can be compared". <a href="learn/12-traits.html">Lesson 12</a></dd>
+
+    <dt>Tuple</dt>
+    <dd>A fixed bundle of values of possibly different types, like <code>("Rusty", 42, true)</code>. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>Type</dt>
+    <dd>What kind of thing a value is, determining what you can do with it and how much memory it needs. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>unwrap</dt>
+    <dd>Takes the value out of an <code>Option</code> or <code>Result</code>, crashing if there isn't one. Convenient in experiments, risky in real code. <a href="learn/11-errors.html">Lesson 11</a></dd>
+
+    <dt>Variable</dt>
+    <dd>A named place holding a value, created with <code>let</code>. <a href="learn/02-variables.html">Lesson 2</a></dd>
+
+    <dt>Vec</dt>
+    <dd>A growable list of values of one type. <a href="learn/10-collections.html">Lesson 10</a></dd>
+
+    <dt>Version control</dt>
+    <dd>Tooling that tracks a project's history over time. In practice, git. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>WebAssembly (WASM)</dt>
+    <dd>A format letting compiled languages like Rust run inside web browsers. <a href="index.html#showcase">Home</a></dd>
+
+    <dt>YAGNI</dt>
+    <dd><em>You Aren't Gonna Need It.</em> Build what today needs, not what tomorrow might. <a href="learn/f4-standards.html">Foundations 4</a></dd>
+
+    <dt>Zero-cost abstraction</dt>
+    <dd>High-level code that compiles down to machine code as fast as hand-written low-level code. Generics and iterators are both examples. <a href="learn/12-traits.html">Lesson 12</a></dd>
+
+    <dt>? (question mark operator)</dt>
+    <dd>Shorthand for error handling: return the error to the caller, or unwrap the success and continue. <a href="learn/11-errors.html">Lesson 11</a></dd>
+
+  </dl>
+
+  <p class="muted small" id="gloss-empty" hidden>No terms match that. Try a shorter word. 🦀</p>
+
+  <div class="callout tip">
+    <span class="co-title">💡 Still stuck on a word?</span>
+    Every term here links to the lesson that teaches it properly. For anything
+    beyond this course, the
+    <a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">standard library docs</a>
+    are searchable and surprisingly readable.
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
