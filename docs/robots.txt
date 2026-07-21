@@ -1,0 +1,6 @@
+# The Rusty School is a free, open course. Crawl away.
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://cybercard.net/sitemap.xml

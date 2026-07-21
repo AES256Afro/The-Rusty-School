@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background:
+      radial-gradient(circle at 78% 52%, rgba(247,76,0,0.30) 0%, rgba(247,76,0,0) 58%),
+      linear-gradient(135deg, #1d1611 0%, #191310 55%, #241a12 100%);
+    color: #f4ebe2;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .topbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 10px;
+    background: linear-gradient(90deg, #f74c00, #ffb454);
+  }
+  .wrap { display: flex; align-items: center; width: 100%; padding: 0 78px; gap: 20px; }
+  .left { flex: 1; }
+  .kicker {
+    font-size: 21px; font-weight: 800; letter-spacing: 4.5px;
+    color: #ffb454; text-transform: uppercase; margin-bottom: 22px;
+  }
+  h1 {
+    font-size: 92px; font-weight: 800; line-height: 1.02;
+    letter-spacing: -2.5px;
+  }
+  h1 .grad {
+    background: linear-gradient(92deg, #ff6a26, #ffb454);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .tagline { font-size: 33px; color: #b9a897; margin-top: 26px; letter-spacing: -0.3px; }
+  .pills { display: flex; gap: 13px; margin-top: 34px; }
+  .pill {
+    background: #271f19; border: 1px solid #3d3026; border-radius: 999px;
+    padding: 12px 26px; font-size: 22px; font-weight: 600; color: #f4ebe2;
+  }
+  .url { margin-top: 38px; font-size: 24px; font-weight: 800; color: #f74c00; letter-spacing: 0.2px; }
+  .art { width: 400px; display: grid; place-items: center; }
+  .art svg { width: 400px; filter: drop-shadow(0 22px 44px rgba(247,76,0,0.34)); }
+</style>
+</head>
+<body>
+  <div class="topbar"></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="kicker">A free course for absolute beginners</div>
+      <h1>The Rusty<br><span class="grad">School</span></h1>
+      <div class="tagline">Learn Rust from zero. No experience needed.</div>
+      <div class="pills">
+        <span class="pill">22 lessons</span>
+        <span class="pill">live playground</span>
+        <span class="pill">real projects</span>
+      </div>
+      <div class="url">cybercard.net</div>
+    </div>
+    <div class="art">
+      <svg viewBox="0 0 220 150" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#f74c00" stroke-width="9" stroke-linecap="round">
+          <line x1="46" y1="62" x2="72" y2="80"/>
+          <line x1="174" y1="62" x2="148" y2="80"/>
+        </g>
+        <g stroke="#d63c00" stroke-width="7" stroke-linecap="round">
+          <line x1="72" y1="118" x2="58" y2="132"/>
+          <line x1="92" y1="124" x2="84" y2="140"/>
+          <line x1="128" y1="124" x2="136" y2="140"/>
+          <line x1="148" y1="118" x2="162" y2="132"/>
+        </g>
+        <path d="M34 48 L39.8 32 A17 17 0 1 0 50 42.2 Z" fill="#f74c00"/>
+        <path d="M186 48 L180.2 32 A17 17 0 1 1 170 42.2 Z" fill="#f74c00"/>
+        <path d="M58 76 L70 48 L84 66 L97 42 L110 60 L123 42 L136 66 L150 48 L162 76 Z" fill="#f74c00"/>
+        <ellipse cx="110" cy="88" rx="58" ry="40" fill="#f74c00"/>
+        <ellipse cx="110" cy="94" rx="50" ry="30" fill="#ff5d14" opacity="0.55"/>
+        <circle cx="92" cy="82" r="9.5" fill="#fff"/>
+        <circle cx="128" cy="82" r="9.5" fill="#fff"/>
+        <circle cx="94" cy="84" r="4.6" fill="#2b1608"/>
+        <circle cx="126" cy="84" r="4.6" fill="#2b1608"/>
+        <circle cx="95.6" cy="82.4" r="1.5" fill="#fff"/>
+        <circle cx="127.6" cy="82.4" r="1.5" fill="#fff"/>
+        <circle cx="78" cy="96" r="6" fill="#ffb454" opacity="0.55"/>
+        <circle cx="142" cy="96" r="6" fill="#ffb454" opacity="0.55"/>
+        <path d="M100 100 Q110 109 120 100" fill="none" stroke="#5b1d00" stroke-width="3.4" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+</body>
+</html>
