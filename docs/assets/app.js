@@ -229,11 +229,14 @@
       const label = document.getElementById("progress-label");
       if (fill) fill.style.width = Math.round((doneCount / cards.length) * 100) + "%";
       if (label) {
+        const noun = location.pathname.includes("/build/") ? "projects" : "lessons";
+        const one = noun === "projects" ? "project" : "lesson";
         label.textContent = doneCount === 0
-          ? "0 of " + cards.length + " lessons complete. Your journey starts here 🦀"
+          ? "0 of " + cards.length + " " + noun + " complete. Your journey starts here 🦀"
           : doneCount === cards.length
-          ? "All " + cards.length + " lessons complete. You did it! 🎓🦀"
-          : doneCount + " of " + cards.length + " lessons complete. Keep going!";
+          ? "All " + cards.length + " " + noun + " complete. You did it! 🎓🦀"
+          : doneCount + " of " + cards.length + " " +
+            (doneCount === 1 ? one : noun) + " complete. Keep going!";
       }
     }
   }
