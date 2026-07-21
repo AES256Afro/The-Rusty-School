@@ -43,12 +43,14 @@
     const inSubfolder = location.pathname.includes("/learn/") ||
                         location.pathname.includes("/build/");
     const prefix = inSubfolder ? "../" : "";
-    if (nav && !nav.querySelector('a[href$="build/index.html"]') &&
-        !nav.querySelector('a[href="index.html"][data-build]')) {
+    // Some pages already ship a hard-coded link (workshop pages link to
+    // "index.html" relatively), so match on the rendered label rather than
+    // on any particular href spelling.
+    const navLabels = [...nav.querySelectorAll("a")].map((a) => a.textContent.trim());
+    if (nav && !navLabels.includes("Build")) {
       const build = document.createElement("a");
       build.href = prefix + "build/index.html";
       build.textContent = "Build";
-      build.dataset.build = "1";
       const learn = nav.querySelector('a[href$="learn/index.html"]');
       if (learn) learn.insertAdjacentElement("afterend", build);
       else nav.insertBefore(build, nav.querySelector(".theme-toggle"));
