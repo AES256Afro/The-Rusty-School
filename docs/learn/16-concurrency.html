@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 16 of 17</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
@@ -192,7 +193,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Race... condition-free</h4>
+      <h3>Race... condition-free</h3>
       <p>Spawn two threads: one prints "tick 1..5", the other "tock 1..5", each sleeping
       30ms between prints. Join both. Run it a few times. Does the interleaving change?
       Why is this <em>randomness</em> still safe?</p>
@@ -220,7 +221,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>The worker pipeline</h4>
+      <h3>The worker pipeline</h3>
       <p>Spawn 4 workers that each compute a square (worker <code>n</code> sends
       <code>n * n</code>) through a channel. Collect and sum the results in main.
       (Mind the <code>drop(tx)</code> trick.)</p>
@@ -245,7 +246,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Shared crab census</h4>
+      <h3>Shared crab census</h3>
       <p>Adapt the <code>Arc&lt;Mutex&lt;...&gt;&gt;</code> counter: make it an
       <code>Arc&lt;Mutex&lt;Vec&lt;String&gt;&gt;&gt;</code>, have 5 threads each push
       <code>"crab #n"</code>, then print the final census. Predict the length.
@@ -285,11 +286,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -298,7 +299,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

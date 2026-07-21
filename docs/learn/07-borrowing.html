@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 7 of 17</nav>
     <span class="badge l2">Level 2 · The Rust Way</span>
@@ -172,7 +173,7 @@ println!("{reader}");</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Fix it with a borrow</h4>
+      <h3>Fix it with a borrow</h3>
       <p>This is Lesson 6's broken cake program. Fix it by changing <code>devour</code>
       to <em>borrow</em> instead of take. You'll change exactly two characters.</p>
 <pre><code>fn devour(snack: String) {
@@ -200,7 +201,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>The decorator</h4>
+      <h3>The decorator</h3>
       <p>Write <code>fn decorate(s: &amp;mut String)</code> that wraps the text in
       <code>✨</code> sparkles (hint: <code>push_str</code> adds to the end;
       <code>insert_str(0, "✨")</code> adds to the front). Call it on a String of your
@@ -221,7 +222,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Borrow-checker whisperer</h4>
+      <h3>Borrow-checker whisperer</h3>
       <p>This won't compile. Rearrange the lines (don't delete any!) so it does.</p>
 <pre><code>fn main() {
     let mut inventory = String::from("rope");
@@ -256,11 +257,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -269,7 +270,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

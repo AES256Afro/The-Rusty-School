@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 6 of 17</nav>
     <span class="badge l2">Level 2 · The Rust Way</span>
@@ -186,7 +187,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Predict the verdict</h4>
+      <h3>Predict the verdict</h3>
       <p>Which of these compiles? Decide first, then test both in the Playground.</p>
 <pre><code>// Program A
 let word = String::from("crab");
@@ -206,7 +207,7 @@ println!("{num}");</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Two fixes, your choice</h4>
+      <h3>Two fixes, your choice</h3>
       <p>Make this compile two different ways: once with <code>clone</code>, once by
       reordering the code so the move happens last.</p>
 <pre><code>fn main() {
@@ -232,7 +233,7 @@ println!("banner: {banner}");</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>The vanishing cake</h4>
+      <h3>The vanishing cake</h3>
       <p>Type out the <code>devour</code> example from above and confirm the error.
       Then change <code>devour</code> to <em>return</em> the String
       (<code>fn devour(snack: String) -&gt; String</code>) and hand ownership back with
@@ -264,11 +265,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -277,7 +278,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 4 of 17</nav>
     <span class="badge l1">Level 1 · Sprout</span>
@@ -149,7 +150,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Temperature translator</h4>
+      <h3>Temperature translator</h3>
       <p>Write <code>fn to_fahrenheit(celsius: f64) -&gt; f64</code> using the formula
       <code>c × 9 ÷ 5 + 32</code>, and print the result for 100°C. (Remember: use
       <code>9.0</code> and <code>5.0</code>; no mixing integers and floats!)</p>
@@ -166,7 +167,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Spot the bug</h4>
+      <h3>Spot the bug</h3>
       <p>Why doesn't this compile, and what's the one-character fix?</p>
 <pre><code>fn square(n: i32) -&gt; i32 {
     n * n;
@@ -180,7 +181,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Tip calculator</h4>
+      <h3>Tip calculator</h3>
       <p>Write <code>fn total_with_tip(bill: f64, tip_percent: f64) -&gt; f64</code>, then
       use it to print the total for a 84.50 bill with an 18% tip.</p>
       <details class="solution"><summary>Reveal solution</summary>
@@ -207,11 +208,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -220,7 +221,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

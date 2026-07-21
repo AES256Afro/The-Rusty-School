@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 5 of 17</nav>
     <span class="badge l1">Level 1 · Sprout</span>
@@ -145,7 +146,7 @@ match dice {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>FizzBuzz, the classic</h4>
+      <h3>FizzBuzz, the classic</h3>
       <p>Print numbers 1 to 20, but for multiples of 3 print <code>Fizz</code>, for
       multiples of 5 print <code>Buzz</code>, and for both print <code>FizzBuzz</code>.
       (Hint: <code>n % 3 == 0</code> means "divisible by 3"; <code>%</code> gives the
@@ -171,7 +172,7 @@ match dice {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Sum of a range</h4>
+      <h3>Sum of a range</h3>
       <p>Use a <code>for</code> loop and a mutable total to add up every number from
       1 to 100, then print it. (Legend says young Gauss did this in his head.)</p>
       <details class="solution"><summary>Reveal solution</summary>
@@ -187,7 +188,7 @@ match dice {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>The bouncing countdown</h4>
+      <h3>The bouncing countdown</h3>
       <p>Rewrite Lesson 2's level-up counter properly: start at level 1 and loop until
       level 5, printing <code>"Level up! Now level N"</code> each time. Which loop fits best?</p>
       <details class="solution"><summary>Reveal solution</summary>
@@ -227,11 +228,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -240,7 +241,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

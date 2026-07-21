@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 2 of 17</nav>
     <span class="badge l1">Level 1 · Sprout</span>
@@ -142,7 +143,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Fix the crab counter</h4>
+      <h3>Fix the crab counter</h3>
       <p>This program won't compile. Fix it <em>two different ways</em>: once with
       <code>mut</code>, once with shadowing.</p>
 <pre><code>fn main() {
@@ -169,7 +170,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Level-up counter</h4>
+      <h3>Level-up counter</h3>
       <p>Create a mutable <code>level</code> starting at 1. Add 1 to it three times,
       printing <code>"Level up! Now level N"</code> after each change.</p>
       <details class="solution"><summary>Reveal solution</summary>
@@ -189,7 +190,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Predict the output</h4>
+      <h3>Predict the output</h3>
       <p>Without running it, what does this print?</p>
 <pre><code>fn main() {
     let x = 2;
@@ -215,11 +216,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -228,7 +229,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

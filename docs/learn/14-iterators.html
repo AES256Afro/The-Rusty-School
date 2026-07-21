@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 14 of 17</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
@@ -157,7 +158,7 @@
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Loop → pipeline</h4>
+      <h3>Loop → pipeline</h3>
       <p>Rewrite this with one iterator chain, no <code>mut</code>:</p>
 <pre><code>let numbers = vec![1, 2, 3, 4, 5, 6];
 let mut result = Vec::new();
@@ -179,7 +180,7 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Longest word</h4>
+      <h3>Longest word</h3>
       <p>Given <code>"the quick rusty crab jumps over the lazy catfish"</code>, use
       <code>split_whitespace()</code> and <code>max_by_key</code> (look it up in the std
       docs; reading docs is a skill!) to find the longest word.</p>
@@ -198,7 +199,7 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>FizzBuzz, graduation edition 🎓</h4>
+      <h3>FizzBuzz, graduation edition 🎓</h3>
       <p>Remember Lesson 5's FizzBuzz? Rebuild it as a pipeline: map the range
       <code>1..=20</code> to Strings, collect, and print. (Hint: the closure can contain
       a full <code>if/else</code>, or even a <code>match</code> on
@@ -232,11 +233,11 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -245,7 +246,7 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

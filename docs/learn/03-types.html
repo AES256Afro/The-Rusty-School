@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 3 of 17</nav>
     <span class="badge l1">Level 1 · Sprout</span>
@@ -141,7 +142,7 @@ println!("first tide: {first}, days: {}", week.len());</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Type detective</h4>
+      <h3>Type detective</h3>
       <p>Without running it, name the type of each variable:</p>
 <pre><code>let a = 42;
 let b = 42.0;
@@ -158,7 +159,7 @@ let e = 4 &gt; 2;</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Trading card</h4>
+      <h3>Trading card</h3>
       <p>Make a tuple for a creature: name (<code>&amp;str</code>), power level
       (<code>i32</code>), and legendary status (<code>bool</code>). Unpack it and print a
       sentence like <code>Krabby has power 9000 (legendary: true)</code>.</p>
@@ -173,7 +174,7 @@ let e = 4 &gt; 2;</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Meal plan</h4>
+      <h3>Meal plan</h3>
       <p>Create an array of three meal names. Print the first and last elements,
       using <code>.len()</code> to find the last index (careful: positions start at zero!).</p>
       <details class="solution"><summary>Reveal solution</summary>
@@ -200,11 +201,11 @@ let e = 4 &gt; 2;</code></pre>
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -213,7 +214,7 @@ let e = 4 &gt; 2;</code></pre>
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
