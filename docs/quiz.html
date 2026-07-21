@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Quizzes — The Rusty School</title>
+<title>Quizzes - The Rusty School</title>
 <meta name="description" content="Interactive Rust quizzes for every level, with instant feedback and explanations.">
 <link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
 <link rel="stylesheet" href="assets/style.css">
@@ -33,7 +33,7 @@
     <h1>Quiz <span class="grad">time</span> 🧠</h1>
     <p class="lede muted">
       Instant feedback, friendly explanations, zero pressure. Wrong answers are
-      just future right answers — your best score is saved in your browser.
+      just future right answers, and your best score is saved in your browser.
     </p>
   </section>
 
@@ -61,12 +61,12 @@ window.RUSTY_QUIZZES = [
         options: ["The first line of the file", "<code>fn start()</code>",
                   "<code>fn main()</code>", "Wherever you put <code>println!</code>"],
         answer: 2,
-        explain: "<code>fn main()</code> is the entry point. When your program runs, Rust calls <code>main</code> first — everything grows from there."
+        explain: "<code>fn main()</code> is the entry point. When your program runs, Rust calls <code>main</code> first. Everything grows from there."
       },
       {
         q: "What happens when you compile this?",
         code: "let apples = 5;\napples = 6;",
-        options: ["It prints 6", "Compile error — <code>apples</code> isn't mutable",
+        options: ["It prints 6", "Compile error: <code>apples</code> isn't mutable",
                   "It prints 5", "The computer picks one at random"],
         answer: 1,
         explain: "Variables are <strong>immutable by default</strong> in Rust. To allow changes, declare it as <code>let mut apples = 5;</code>. The compiler even suggests this fix!"
@@ -76,13 +76,13 @@ window.RUSTY_QUIZZES = [
         options: ["It's shouting", "It marks a macro, not a regular function",
                   "It means 'not'", "It's optional decoration"],
         answer: 1,
-        explain: "The <code>!</code> marks a <strong>macro</strong> — code that writes code at compile time. That's how <code>println!</code> can accept any number of arguments."
+        explain: "The <code>!</code> marks a <strong>macro</strong>: code that writes code at compile time. That's how <code>println!</code> can accept any number of arguments."
       },
       {
         q: "Which type holds only <code>true</code> or <code>false</code>?",
         options: ["<code>char</code>", "<code>i32</code>", "<code>bool</code>", "<code>f64</code>"],
         answer: 2,
-        explain: "<code>bool</code> is Rust's true/false type — the fuel for every <code>if</code> and <code>while</code>."
+        explain: "<code>bool</code> is Rust's true/false type: the fuel for every <code>if</code> and <code>while</code>."
       },
       {
         q: "What does this print?",
@@ -100,7 +100,7 @@ window.RUSTY_QUIZZES = [
       {
         q: "What does this function return?",
         code: "fn double(n: i32) -> i32 {\n    n * 2\n}",
-        options: ["Nothing — there's no <code>return</code>", "<code>n * 2</code>, because the last expression is the return value",
+        options: ["Nothing; there's no <code>return</code>", "<code>n * 2</code>, because the last expression is the return value",
                   "It doesn't compile", "Always 0"],
         answer: 1,
         explain: "In Rust, the last expression in a function body (no semicolon!) is automatically the return value. <code>return</code> exists but is only needed for early exits."
@@ -118,22 +118,22 @@ window.RUSTY_QUIZZES = [
         q: "What happens here?",
         code: "let s1 = String::from(\"hello\");\nlet s2 = s1;\nprintln!(\"{s1}\");",
         options: ["Prints <code>hello</code>", "Prints nothing",
-                  "Compile error — <code>s1</code> was moved to <code>s2</code>", "Prints <code>hello</code> twice"],
+                  "Compile error: <code>s1</code> was moved to <code>s2</code>", "Prints <code>hello</code> twice"],
         answer: 2,
-        explain: "Assigning a <code>String</code> <strong>moves</strong> ownership. After the move, <code>s1</code> is no longer valid — this is how Rust guarantees exactly one owner cleans up the memory. Use <code>s1.clone()</code> if you need two copies."
+        explain: "Assigning a <code>String</code> <strong>moves</strong> ownership. After the move, <code>s1</code> is no longer valid. This is how Rust guarantees exactly one owner cleans up the memory. Use <code>s1.clone()</code> if you need two copies."
       },
       {
         q: "How many mutable references to a value can exist at the same time?",
-        options: ["As many as you like", "Exactly one", "Two", "Zero — mutation is forbidden"],
+        options: ["As many as you like", "Exactly one", "Two", "Zero; mutation is forbidden"],
         answer: 1,
         explain: "The borrowing rule: <strong>many readers OR one writer</strong>, never both. One <code>&amp;mut</code> at a time is what makes data races impossible."
       },
       {
         q: "What is <code>Option&lt;T&gt;</code> for?",
-        options: ["Configuring the compiler", "Representing a value that might be absent — Rust's answer to <code>null</code>",
+        options: ["Configuring the compiler", "Representing a value that might be absent, Rust's answer to <code>null</code>",
                   "Making code optional to run", "Storing exactly two values"],
         answer: 1,
-        explain: "Rust has no <code>null</code>. A maybe-missing value is <code>Some(value)</code> or <code>None</code>, and the compiler forces you to handle both — goodbye, null-pointer crashes."
+        explain: "Rust has no <code>null</code>. A maybe-missing value is <code>Some(value)</code> or <code>None</code>, and the compiler forces you to handle both. Goodbye, null-pointer crashes."
       },
       {
         q: "What are the two variants of <code>Result&lt;T, E&gt;</code>?",
@@ -153,14 +153,14 @@ window.RUSTY_QUIZZES = [
         q: "Which one <em>owns</em> its text: <code>String</code> or <code>&amp;str</code>?",
         options: ["<code>&amp;str</code>", "<code>String</code>", "Both", "Neither"],
         answer: 1,
-        explain: "<code>String</code> owns (and can grow) its data on the heap. <code>&amp;str</code> is just a borrowed view into text that lives somewhere else — like a bookmark, not the book."
+        explain: "<code>String</code> owns (and can grow) its data on the heap. <code>&amp;str</code> is just a borrowed view into text that lives somewhere else (like a bookmark, not the book)."
       },
       {
         q: "A <code>match</code> must be <em>exhaustive</em>. What does that mean?",
         options: ["It must be tiring to write", "Every possible value must be covered by some arm",
                   "It can only match numbers", "It must have exactly two arms"],
         answer: 1,
-        explain: "The compiler checks that no case is forgotten — that's why adding a new enum variant instantly shows you every <code>match</code> that needs updating. The <code>_</code> arm means 'everything else'."
+        explain: "The compiler checks that no case is forgotten; that's why adding a new enum variant instantly shows you every <code>match</code> that needs updating. The <code>_</code> arm means 'everything else'."
       },
       {
         q: "How do you add <code>4</code> to the end of <code>let mut v = vec![1, 2, 3];</code>?",
@@ -180,10 +180,10 @@ window.RUSTY_QUIZZES = [
     questions: [
       {
         q: "A Rust <em>trait</em> is closest to which idea?",
-        options: ["A variable that never changes", "A shared capability that different types can implement — like an interface",
+        options: ["A variable that never changes", "A shared capability that different types can implement, like an interface",
                   "A compiler warning", "A kind of loop"],
         answer: 1,
-        explain: "A trait defines behavior — like <code>Summary</code> with a <code>summarize()</code> method — and any type can implement it. Functions can then accept 'anything that can summarize'."
+        explain: "A trait defines behavior (like <code>Summary</code> with a <code>summarize()</code> method), and any type can implement it. Functions can then accept 'anything that can summarize'."
       },
       {
         q: "What does <code>#[derive(Debug)]</code> above a struct do?",
@@ -194,23 +194,23 @@ window.RUSTY_QUIZZES = [
       },
       {
         q: "In <code>fn largest&lt;T: PartialOrd&gt;(list: &amp;[T]) -&gt; &amp;T</code>, what is <code>T: PartialOrd</code>?",
-        options: ["A lifetime", "A macro", "A trait bound — 'any type T, as long as it can be compared'", "A typo"],
+        options: ["A lifetime", "A macro", "A trait bound: 'any type T, as long as it can be compared'", "A typo"],
         answer: 2,
         explain: "Generics say 'any type'; trait bounds narrow it to 'any type that can do X'. Here, <code>largest</code> works on slices of anything comparable with <code>&lt;</code> and <code>&gt;</code>."
       },
       {
         q: "Lifetimes exist to prevent…",
-        options: ["Programs running too long", "Dangling references — using data after it's been destroyed",
+        options: ["Programs running too long", "Dangling references: using data after it's been destroyed",
                   "Infinite loops", "Slow compile times"],
         answer: 1,
-        explain: "A lifetime tracks how long borrowed data is valid. The borrow checker uses them to guarantee no reference ever outlives the data it points to — a classic crash in C, impossible in safe Rust."
+        explain: "A lifetime tracks how long borrowed data is valid. The borrow checker uses them to guarantee no reference ever outlives the data it points to: a classic crash in C, impossible in safe Rust."
       },
       {
         q: "When do iterator adaptors like <code>map</code> and <code>filter</code> actually run?",
         options: ["Immediately, line by line", "Only when a consumer like <code>collect()</code>, <code>sum()</code>, or a <code>for</code> loop asks for values",
                   "At compile time", "In a background thread"],
         answer: 1,
-        explain: "Iterators are <strong>lazy</strong>: adaptors just build a recipe. Nothing is computed until something consumes it — which lets Rust fuse the steps into one fast loop."
+        explain: "Iterators are <strong>lazy</strong>: adaptors just build a recipe. Nothing is computed until something consumes it, which lets Rust fuse the steps into one fast loop."
       },
       {
         q: "What is <code>Box&lt;T&gt;</code> for?",
@@ -224,7 +224,7 @@ window.RUSTY_QUIZZES = [
         options: ["<code>Rc&lt;RefCell&lt;i32&gt;&gt;</code>", "<code>Box&lt;i32&gt;</code>",
                   "<code>Arc&lt;Mutex&lt;i32&gt;&gt;</code>", "A global variable"],
         answer: 2,
-        explain: "<code>Arc</code> lets many threads co-own the value (atomic reference counting); <code>Mutex</code> makes sure only one thread mutates it at a time. <code>Rc</code> is the single-threaded cousin — the compiler won't let you send it across threads."
+        explain: "<code>Arc</code> lets many threads co-own the value (atomic reference counting); <code>Mutex</code> makes sure only one thread mutates it at a time. <code>Rc</code> is the single-threaded cousin; the compiler won't let you send it across threads."
       },
       {
         q: "What happens if two threads could mutate the same data without synchronization in safe Rust?",

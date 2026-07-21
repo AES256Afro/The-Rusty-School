@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 3: Data Types — The Rusty School</title>
+<title>Lesson 3: Data Types - The Rusty School</title>
 <meta name="description" content="Rust's basic data types: integers, floats, booleans, characters, strings, tuples, and arrays.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -32,7 +32,7 @@
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 3 of 17</nav>
     <span class="badge l1">Level 1 · Sprout</span>
     <h1>Data Types 🔢</h1>
-    <p class="lede muted">Numbers, text, yes/no switches — every value in Rust has a
+    <p class="lede muted">Numbers, text, yes/no switches: every value in Rust has a
     type, and the compiler always knows which one. Meet the raw ingredients.</p>
   </section>
 
@@ -45,7 +45,7 @@
       runs, so type mix-ups can never crash it later.
     </p>
     <p>
-      Usually you don't even write types — Rust <strong>infers</strong> them from
+      Usually you don't even write types; Rust <strong>infers</strong> them from
       context. But you can always be explicit with a colon:
     </p>
 <pre><code>let lucky = 7;        // Rust infers: i32
@@ -58,7 +58,7 @@ let lucky: i8 = 7;    // you insist: a tiny i8</code></pre>
     <table>
       <thead><tr><th>Type</th><th>Range</th><th>Use it for…</th></tr></thead>
       <tbody>
-        <tr><td><code>i32</code></td><td>±2.1 billion</td><td><strong>the default</strong> — almost everything</td></tr>
+        <tr><td><code>i32</code></td><td>±2.1 billion</td><td><strong>the default</strong>: almost everything</td></tr>
         <tr><td><code>i64</code></td><td>±9.2 quintillion</td><td>very big counts, timestamps</td></tr>
         <tr><td><code>u8</code></td><td>0 to 255</td><td>bytes, color channels</td></tr>
         <tr><td><code>u32</code></td><td>0 to 4.3 billion</td><td>counts that can't be negative</td></tr>
@@ -70,11 +70,11 @@ let lucky: i8 = 7;    // you insist: a tiny i8</code></pre>
 let depth: i32 = -11_034;         // negative needs a signed type</code></pre>
 
     <h2>Decimal numbers: floats</h2>
-<pre><code>let pi = 3.14159;      // f64 — the default, double precision
-let ratio: f32 = 0.5;  // f32 — half the memory, less precise</code></pre>
+<pre><code>let pi = 3.14159;      // f64: the default, double precision
+let ratio: f32 = 0.5;  // f32: half the memory, less precise</code></pre>
     <div class="callout warn">
       <span class="co-title">⚠️ Oil and water</span>
-      Rust never mixes types silently. <code>let sum = 5 + 0.5;</code> is an error —
+      Rust never mixes types silently. <code>let sum = 5 + 0.5;</code> is an error:
       is that integer math or decimal math? You decide, with a cast:
       <code>5 as f64 + 0.5</code>. Explicit beats surprising.
     </div>
@@ -84,34 +84,34 @@ let ratio: f32 = 0.5;  // f32 — half the memory, less precise</code></pre>
 let has_snacks = false;
 let panic_time = is_hungry &amp;&amp; !has_snacks; // && = AND, ! = NOT, || = OR
 println!("Panic? {panic_time}");</code></pre>
-    <p>Booleans fuel every decision your program makes — they're the answer to every
+    <p>Booleans fuel every decision your program makes; they're the answer to every
     comparison: <code>5 &gt; 3</code> is <code>true</code>, <code>x == y</code> asks "equal?",
     <code>x != y</code> asks "different?".</p>
 
     <h2>Single characters: <code>char</code></h2>
 <pre><code>let grade = 'A';      // single quotes for chars
-let crab = '🦀';      // yes, emoji are chars — Rust speaks Unicode
+let crab = '🦀';      // yes, emoji are chars; Rust speaks Unicode
 let heart = '❤';</code></pre>
 
     <h2>Text: <code>&amp;str</code> (for now)</h2>
 <pre><code>let greeting = "Hello, sailor!"; // double quotes for text</code></pre>
     <p>
       Text in double quotes is a <em>string literal</em>, type <code>&amp;str</code>.
-      Rust actually has two string types — the other is <code>String</code> — and the
+      Rust actually has two string types (the other is <code>String</code>), and the
       difference is one of the most interesting stories in the language. It needs
       ownership (Lesson 6) to make sense, so we'll park it until Lesson 10.
       For now, double quotes just work.
     </p>
 
     <h2>Bundles: tuples and arrays</h2>
-    <p><strong>Tuples</strong> group a few values of <em>any</em> mix of types — like one
+    <p><strong>Tuples</strong> group a few values of <em>any</em> mix of types, like one
     row on a scoreboard:</p>
 <pre><code>let player = ("Rusty", 42, true);  // name, score, is_online
 let (name, score, online) = player;      // unpack all at once
 println!("{name} scored {score} (online: {online})");
 println!("score again: {}", player.1);   // or grab by position: .0, .1, .2</code></pre>
     <p><strong>Arrays</strong> hold a <em>fixed</em> number of values of the <em>same</em>
-    type — like an egg carton:</p>
+    type, like an egg carton:</p>
 <pre><code>let tides = [1.2, 0.8, 1.5, 0.9];
 let first = tides[0];              // positions start at ZERO
 let week = [0; 7];                 // shortcut: seven zeros
@@ -119,8 +119,8 @@ println!("first tide: {first}, days: {}", week.len());</code></pre>
     <div class="callout info">
       <span class="co-title">🛡️ Safety, even here</span>
       Ask for <code>tides[99]</code> and Rust stops the program with a clear message
-      instead of silently reading random memory like C would. That silent reading —
-      a <em>buffer overflow</em> — is one of the most exploited security bugs
+      instead of silently reading random memory like C would. That silent reading
+      (a <em>buffer overflow</em>) is one of the most exploited security bugs
       in history. In Rust, it's simply not a thing.
     </div>
 
@@ -159,7 +159,7 @@ let e = 4 &gt; 2;</code></pre>
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
       <h4>Meal plan</h4>
-      <p>Create an array of three meal names. Print the first and last elements —
+      <p>Create an array of three meal names. Print the first and last elements,
       using <code>.len()</code> to find the last index (careful: positions start at zero!).</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn main() {
@@ -168,7 +168,7 @@ let e = 4 &gt; 2;</code></pre>
     println!("dinner: {}", meals[meals.len() - 1]);
 }</code></pre>
         <p>Forgetting the <code>- 1</code> asks for index 3 in a 3-item array (positions
-        0, 1, 2) — try it and read the panic message. Now you've seen Rust's bounds
+        0, 1, 2). Try it and read the panic message. Now you've seen Rust's bounds
         checking with your own eyes.</p>
       </details>
     </div>

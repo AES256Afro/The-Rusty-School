@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 16: Fearless Concurrency — The Rusty School</title>
-<meta name="description" content="Threads, channels, Mutex and Arc in Rust — concurrency with compile-time safety.">
+<title>Lesson 16: Fearless Concurrency - The Rusty School</title>
+<meta name="description" content="Threads, channels, Mutex and Arc in Rust: concurrency with compile-time safety.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
 <script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -33,17 +33,17 @@
     <span class="badge l3">Level 3 · Power Tools</span>
     <h1>Fearless Concurrency 🧵</h1>
     <p class="lede muted">Doing many things at once is where most languages get
-    scary — and where Rust got its swagger. The trick: everything you've learned
+    scary, and where Rust got its swagger. The trick: everything you've learned
     since Lesson 6 was secretly preparing you for this.</p>
   </section>
 
   <div class="lesson-body">
     <h2>Why concurrency is feared</h2>
     <p>
-      Your CPU has many cores; using them means running <strong>threads</strong> —
+      Your CPU has many cores; using them means running <strong>threads</strong>:
       several instruction streams at once. The danger: two threads touching the same
       data at the same time, a <strong>data race</strong>. Races are the worst kind of
-      bug — invisible in testing, catastrophic at 3am, unreproducible by daylight.
+      bug: invisible in testing, catastrophic at 3am, unreproducible by daylight.
       Most languages document "best practices" and wish you luck. Rust made the
       compiler responsible. If a program has a data race, <em>it does not compile</em>.
     </p>
@@ -65,7 +65,7 @@ fn main() {
     println!("all quests done!");
 }</code></pre>
     <p><code>thread::spawn</code> takes a closure (Lesson 14!) and runs it in parallel.
-    <code>join()</code> waits for it. Run it twice — the line order can differ.
+    <code>join()</code> waits for it. Run it twice; the line order can differ.
     That unpredictability is exactly why the next part matters.</p>
 
     <h2>Ownership meets threads: <code>move</code></h2>
@@ -78,20 +78,20 @@ fn main() {
         println!("thread guards: {treasure:?}");
     });
 
-    // println!("{treasure:?}");   // ❌ moved into the thread — hands off!
+    // println!("{treasure:?}");   // ❌ moved into the thread, hands off!
     handle.join().unwrap();
 }</code></pre>
     <p>
-      Without <code>move</code>, the closure would <em>borrow</em> <code>treasure</code> —
+      Without <code>move</code>, the closure would <em>borrow</em> <code>treasure</code>,
       but the compiler can't know how long the thread will live. Maybe longer than
       <code>main</code>'s variables! So it demands ownership transfer. Feel that? The
       "annoying" ownership rules from Lesson 6 just quietly prevented a
-      use-after-free <em>across threads</em> — a bug class that has haunted C for fifty years.
+      use-after-free <em>across threads</em>, a bug class that has haunted C for fifty years.
     </p>
 
     <h2>Talking between threads: channels 📮</h2>
     <p>The Rust motto: <em>"Do not communicate by sharing memory; share memory by
-    communicating."</em> A channel is a one-way pipe — many senders, one receiver:</p>
+    communicating."</em> A channel is a one-way pipe (many senders, one receiver):</p>
 <pre><code>use std::sync::mpsc;
 use std::thread;
 
@@ -122,10 +122,10 @@ fn main() {
       which you basically already know:
     </p>
     <ul>
-      <li><code>Mutex</code> (<em>mutual exclusion</em>) — a lock. One thread at a time
+      <li><code>Mutex</code> (<em>mutual exclusion</em>): a lock. One thread at a time
         may hold it and touch the data inside. It's <code>RefCell</code>'s hard-hat
         cousin: same "one writer" law, enforced with actual blocking.</li>
-      <li><code>Arc</code> — <em>atomic</em> reference counting: <code>Rc</code>'s
+      <li><code>Arc</code> (<em>atomic</em> reference counting): <code>Rc</code>'s
         thread-safe twin, so many threads can co-own the Mutex.</li>
     </ul>
 <pre><code>use std::sync::{Arc, Mutex};
@@ -150,7 +150,7 @@ fn main() {
 }</code></pre>
     <p>
       In C++ this program compiles happily <em>without</em> the lock and corrupts the
-      count randomly. In Rust, try removing the Mutex and sharing a plain counter —
+      count randomly. In Rust, try removing the Mutex and sharing a plain counter:
       the compiler rejects it. The phrase <strong>fearless concurrency</strong> isn't
       marketing: whole categories of concurrency bugs are compile-time errors, so
       refactoring threaded code stops being scary.
@@ -159,7 +159,7 @@ fn main() {
     <div class="callout info">
       <span class="co-title">🔭 Beyond threads: async</span>
       For servers juggling thousands of connections, Rust also has
-      <code>async/await</code> (with runtimes like <code>tokio</code>) — same safety
+      <code>async/await</code> (with runtimes like <code>tokio</code>): same safety
       guarantees, different machinery. Learn threads first; async is a natural next
       step once you're comfortable.
     </div>
@@ -167,10 +167,10 @@ fn main() {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Forgetting <code>move</code> on the closure — the compiler will tell you,
+        <li>Forgetting <code>move</code> on the closure; the compiler will tell you,
             with the fix.</li>
-        <li>Forgetting <code>join()</code> — main ends, program exits, threads die mid-sentence.</li>
-        <li>Using <code>Rc</code>/<code>RefCell</code> across threads — refused at
+        <li>Forgetting <code>join()</code>: main ends, program exits, threads die mid-sentence.</li>
+        <li>Using <code>Rc</code>/<code>RefCell</code> across threads: refused at
             compile time; the thread-safe spellings are <code>Arc</code>/<code>Mutex</code>.</li>
       </ul>
     </div>
@@ -179,7 +179,7 @@ fn main() {
       <span class="ex-label">Exercise 1</span>
       <h4>Race... condition-free</h4>
       <p>Spawn two threads: one prints "tick 1..5", the other "tock 1..5", each sleeping
-      30ms between prints. Join both. Run it a few times — does the interleaving change?
+      30ms between prints. Join both. Run it a few times. Does the interleaving change?
       Why is this <em>randomness</em> still safe?</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>use std::thread;
@@ -197,7 +197,7 @@ fn main() {
     t1.join().unwrap();
     t2.join().unwrap();
 }</code></pre>
-        <p>The <em>order</em> varies — that's inherent to parallelism — but no data is
+        <p>The <em>order</em> varies (that's inherent to parallelism), but no data is
         shared, so no race exists. Unpredictable timing is fine; unpredictable
         <em>data</em> is the disease, and Rust cures it.</p>
       </details>
@@ -233,8 +233,8 @@ fn main() {
       <h4>Shared crab census</h4>
       <p>Adapt the <code>Arc&lt;Mutex&lt;...&gt;&gt;</code> counter: make it an
       <code>Arc&lt;Mutex&lt;Vec&lt;String&gt;&gt;&gt;</code>, have 5 threads each push
-      <code>"crab #n"</code>, then print the final census. Predict the length —
-      can you predict the order?</p>
+      <code>"crab #n"</code>, then print the final census. Predict the length.
+      Can you predict the order?</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>use std::sync::{Arc, Mutex};
 use std::thread;
@@ -253,7 +253,7 @@ fn main() {
 
     println!("{:?}", census.lock().unwrap());
 }</code></pre>
-        <p>Length: always 5. Order: whoever grabbed the lock first — varies per run.
+        <p>Length: always 5. Order: whoever grabbed the lock first (varies per run).
         Consistent data, flexible timing. Fearless.</p>
       </details>
     </div>

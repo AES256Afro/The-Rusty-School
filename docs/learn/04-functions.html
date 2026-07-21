@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 4: Functions — The Rusty School</title>
+<title>Lesson 4: Functions - The Rusty School</title>
 <meta name="description" content="Rust functions: parameters, return values, and the expression secret.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -39,7 +39,7 @@
   <div class="lesson-body">
     <h2>Recipes with ingredients</h2>
     <p>
-      You've been using a function since day one — <code>main</code>. Now let's write
+      You've been using a function since day one: <code>main</code>. Now let's write
       our own. Parameters (the ingredients) go in the parentheses, and in Rust,
       <strong>every parameter declares its type</strong>:
     </p>
@@ -53,7 +53,7 @@ fn main() {
 }</code></pre>
     <p>
       Why insist on types? Because it makes functions a <em>contract</em>. Anyone
-      calling <code>greet</code> knows exactly what it needs — and the compiler slams
+      calling <code>greet</code> knows exactly what it needs, and the compiler slams
       the door on wrong ingredients before the program can run.
     </p>
 
@@ -68,7 +68,7 @@ fn main() {
     println!("{answer}"); // 42
 }</code></pre>
     <p>
-      Wait — where's the <code>return</code>? This is one of Rust's most elegant habits,
+      Wait, where's the <code>return</code>? This is one of Rust's most elegant habits,
       and it deserves its own section.
     </p>
 
@@ -83,7 +83,7 @@ fn main() {
     <p>
       The rule: <strong>if the last line of a function is an expression with no
       semicolon, that value is returned automatically.</strong> Adding a semicolon
-      turns it into a statement — which returns nothing. One character changes everything:
+      turns it into a statement, which returns nothing. One character changes everything:
     </p>
 <pre><code>fn double(n: i32) -&gt; i32 {
     n * 2    // ✅ expression → returned
@@ -100,7 +100,7 @@ fn broken_double(n: i32) -&gt; i32 {
   |
 help: remove this semicolon to return this value</code></pre>
     <p>
-      The compiler even knows the cure. (<code>()</code> — "unit" — is Rust's way of
+      The compiler even knows the cure. (<code>()</code>, called "unit", is Rust's way of
       saying "nothing here.") The <code>return</code> keyword still exists for leaving a
       function <em>early</em>; for the final line, Rustaceans always use the bare expression.
     </p>
@@ -123,12 +123,12 @@ fn main() {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>A semicolon on the final expression of a returning function — see above,
+        <li>A semicolon on the final expression of a returning function: see above,
             it's the classic.</li>
         <li>Forgetting parameter types: <code>fn greet(name)</code> won't compile;
             Rust needs <code>name: &amp;str</code>.</li>
         <li>Type mismatch between what <code>-&gt;</code> promises and what the body
-            delivers — the error message will point right at it.</li>
+            delivers; the error message will point right at it.</li>
       </ul>
     </div>
 
@@ -137,7 +137,7 @@ fn main() {
       <h4>Temperature translator</h4>
       <p>Write <code>fn to_fahrenheit(celsius: f64) -&gt; f64</code> using the formula
       <code>c × 9 ÷ 5 + 32</code>, and print the result for 100°C. (Remember: use
-      <code>9.0</code> and <code>5.0</code> — no mixing integers and floats!)</p>
+      <code>9.0</code> and <code>5.0</code>; no mixing integers and floats!)</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn to_fahrenheit(celsius: f64) -&gt; f64 {
     celsius * 9.0 / 5.0 + 32.0

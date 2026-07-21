@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 8: Structs &amp; Methods — The Rusty School</title>
+<title>Lesson 8: Structs &amp; Methods - The Rusty School</title>
 <meta name="description" content="Rust structs: bundle related data into your own types, then add methods with impl.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -33,13 +33,13 @@
     <span class="badge l2">Level 2 · The Rust Way</span>
     <h1>Structs &amp; Methods 🏗️</h1>
     <p class="lede muted">Tuples bundle values by position. Structs bundle them by
-    <em>name</em> — and let you invent your own types that mean something.</p>
+    <em>name</em>, and let you invent your own types that mean something.</p>
   </section>
 
   <div class="lesson-body">
     <h2>Design your own type</h2>
     <p>
-      Real programs aren't about loose numbers and strings — they're about
+      Real programs aren't about loose numbers and strings; they're about
       <em>players</em>, <em>invoices</em>, <em>crabs</em>. A <strong>struct</strong>
       (structure) groups related data under one roof, each field with a name and a type:
     </p>
@@ -66,7 +66,7 @@ fn main() {
     </p>
 
     <h2>Printing a whole struct: <code>derive</code></h2>
-    <p><code>println!("{hero}")</code> won't work — Rust doesn't presume how your type
+    <p><code>println!("{hero}")</code> won't work: Rust doesn't presume how your type
     should look. But ask nicely and the compiler writes a debug-printer for you:</p>
 <pre><code>#[derive(Debug)]
 struct Crab {
@@ -79,7 +79,7 @@ fn main() {
     println!("{hero:?}");    // Crab { name: "Rusty", weight_kg: 1.2 }
     println!("{hero:#?}");   // same, but pretty multi-line
 }</code></pre>
-    <p><code>#[derive(Debug)]</code> is an <em>attribute</em> — an instruction to the
+    <p><code>#[derive(Debug)]</code> is an <em>attribute</em>: an instruction to the
     compiler. You'll sprinkle this one on almost every struct you write; it's the
     difference between debugging blind and debugging with eyes.</p>
 
@@ -87,7 +87,7 @@ fn main() {
     <p>
       Data is half the story. <strong>Methods</strong> are functions that belong to your
       type, written in an <code>impl</code> (implementation) block. Their first parameter
-      is <code>&amp;self</code> — a borrow of the struct itself (Lesson 7 paying off already):
+      is <code>&amp;self</code>, a borrow of the struct itself (Lesson 7 paying off already):
     </p>
 <pre><code>#[derive(Debug)]
 struct Rectangle {
@@ -126,7 +126,7 @@ fn main() {
 
     <h2>Constructors by convention: <code>new</code></h2>
     <p>Functions in an <code>impl</code> block <em>without</em> <code>self</code> are
-    <strong>associated functions</strong> — called on the type itself. The classic is a
+    <strong>associated functions</strong>, called on the type itself. The classic is a
     constructor named <code>new</code>:</p>
 <pre><code>impl Rectangle {
     fn new(width: f64, height: f64) -&gt; Rectangle {
@@ -150,9 +150,9 @@ fn main() {
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
         <li>Forgetting <code>#[derive(Debug)]</code> then wondering why <code>{:?}</code> errors.</li>
-        <li>Writing <code>self</code> instead of <code>&amp;self</code> — that <em>consumes</em>
+        <li>Writing <code>self</code> instead of <code>&amp;self</code>: that <em>consumes</em>
             the struct; the caller loses it. Borrow unless you mean it.</li>
-        <li>Calling a method with <code>Rectangle.area()</code> — methods use a value:
+        <li>Calling a method with <code>Rectangle.area()</code>. Methods use a value:
             <code>r.area()</code>; associated functions use the type: <code>Rectangle::new(...)</code>.</li>
       </ul>
     </div>
@@ -232,7 +232,7 @@ fn main() {
     let p = Player::new("Rusty");
     println!("{p:?}");
 }</code></pre>
-        <p><code>&amp;str</code> accepts string literals <em>and</em> borrowed Strings —
+        <p><code>&amp;str</code> accepts string literals <em>and</em> borrowed Strings:
         the flexible doorway. The struct still stores an owned <code>String</code>,
         because the Player must own its own name.</p>
       </details>

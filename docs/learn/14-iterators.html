@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 14: Closures &amp; Iterators — The Rusty School</title>
+<title>Lesson 14: Closures &amp; Iterators - The Rusty School</title>
 <meta name="description" content="Rust closures and iterators: map, filter, collect, and lazy assembly lines for data.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -46,7 +46,7 @@
     println!("{}", double(21));    // 42
     println!("{}", add(40, 2));    // 42
 }</code></pre>
-    <p>Their party trick — the reason they're called closures — is that they can
+    <p>Their party trick (the reason they're called closures) is that they can
     <em>capture</em> variables from the surrounding scope:</p>
 <pre><code>fn main() {
     let tax_rate = 0.19;
@@ -54,13 +54,13 @@
 
     println!("{:.2}", with_tax(100.0));   // 119.00
 }</code></pre>
-    <p>A normal function couldn't see <code>tax_rate</code> — a closure closes over it,
+    <p>A normal function couldn't see <code>tax_rate</code>; a closure closes over it,
     carrying its environment along. That's what makes the machines below so handy.</p>
 
     <h2>Iterators: the assembly line</h2>
     <p>An <strong>iterator</strong> hands out items one at a time. Every collection
-    provides one via <code>.iter()</code>, and you can bolt processing stations —
-    <strong>adaptors</strong> — onto it, each taking a closure:</p>
+    provides one via <code>.iter()</code>, and you can bolt processing stations
+    (<strong>adaptors</strong>) onto it, each taking a closure:</p>
 <pre><code>fn main() {
     let catch_g = vec![12, 7, 30, 5, 18];  // crab weights in grams
 
@@ -92,10 +92,10 @@
     <h2>The lazy secret 😴</h2>
     <p>Adaptors do <strong>nothing</strong> on their own. This line processes zero items:</p>
 <pre><code>let line = catch_g.iter().filter(|w| **w &gt;= 10).map(|w| w * 2);
-// nothing has happened yet — `line` is just a plan</code></pre>
+// nothing has happened yet: `line` is just a plan</code></pre>
     <p>
-      Iterators are <em>lazy</em>: stations only run when a <strong>consumer</strong> —
-      <code>collect()</code>, <code>sum()</code>, a <code>for</code> loop — pulls items
+      Iterators are <em>lazy</em>: stations only run when a <strong>consumer</strong>
+      (<code>collect()</code>, <code>sum()</code>, a <code>for</code> loop) pulls items
       through. Why is that brilliant? Rust fuses the whole pipeline into a single pass
       (no wasteful intermediate lists), and the compiler then optimizes it as hard as a
       hand-written loop. Zero-cost abstraction, again: code that reads like poetry,
@@ -122,7 +122,7 @@
     <div class="callout tip">
       <span class="co-title">💡 About those <code>*</code> and <code>**</code></span>
       <code>.iter()</code> lends items, so closures receive <em>references</em>
-      (Lesson 7 again!). <code>*</code> just unwraps a reference to reach the value —
+      (Lesson 7 again!). <code>*</code> just unwraps a reference to reach the value,
       and <code>filter</code> adds one more layer, hence the occasional <code>**</code>.
       When confused, try the compiler's suggestion; it's nearly always right about
       these. With experience it becomes automatic.
@@ -131,11 +131,11 @@
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Building a pipeline and forgetting the consumer — the compiler literally
+        <li>Building a pipeline and forgetting the consumer; the compiler literally
             warns: "iterators are lazy and do nothing unless consumed."</li>
-        <li>Forgetting the type on <code>collect</code> — it can build many collection
+        <li>Forgetting the type on <code>collect</code>: it can build many collection
             types, so annotate: <code>let v: Vec&lt;i32&gt; = ...collect();</code></li>
-        <li>Using <code>.iter()</code> when you want to keep the values themselves —
+        <li>Using <code>.iter()</code> when you want to keep the values themselves;
             <code>.into_iter()</code> consumes the collection and hands you owned items.</li>
       </ul>
     </div>
@@ -167,7 +167,7 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
       <h4>Longest word</h4>
       <p>Given <code>"the quick rusty crab jumps over the lazy catfish"</code>, use
       <code>split_whitespace()</code> and <code>max_by_key</code> (look it up in the std
-      docs — reading docs is a skill!) to find the longest word.</p>
+      docs; reading docs is a skill!) to find the longest word.</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn main() {
     let text = "the quick rusty crab jumps over the lazy catfish";
@@ -176,7 +176,7 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
         .max_by_key(|word| word.len());
     println!("{longest:?}");   // Some("catfish")
 }</code></pre>
-        <p>Note the <code>Some(...)</code> — an empty sentence has no longest word, and
+        <p>Note the <code>Some(...)</code>: an empty sentence has no longest word, and
         the type system never forgot that for a second.</p>
       </details>
     </div>
@@ -186,7 +186,7 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
       <h4>FizzBuzz, graduation edition 🎓</h4>
       <p>Remember Lesson 5's FizzBuzz? Rebuild it as a pipeline: map the range
       <code>1..=20</code> to Strings, collect, and print. (Hint: the closure can contain
-      a full <code>if/else</code> — or even a <code>match</code> on
+      a full <code>if/else</code>, or even a <code>match</code> on
       <code>(n % 3, n % 5)</code> if you're feeling fancy.)</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn main() {
@@ -201,7 +201,7 @@ println!("{result:?}");   // [20, 40, 60]</code></pre>
 
     println!("{}", output.join(", "));
 }</code></pre>
-        <p>Same program as Lesson 5 — but look how far your vocabulary has come.</p>
+        <p>Same program as Lesson 5, but look how far your vocabulary has come.</p>
       </details>
     </div>
 

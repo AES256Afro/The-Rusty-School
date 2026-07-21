@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 1: Hello, World! — The Rusty School</title>
+<title>Lesson 1: Hello, World! - The Rusty School</title>
 <meta name="description" content="Your very first Rust program, explained for complete beginners.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -33,7 +33,7 @@
     <span class="badge l1">Level 1 · Sprout</span>
     <h1>Hello, World! 👋</h1>
     <p class="lede muted">Every programmer's journey starts with the same two words.
-    Today you'll write, compile, and run your first Rust program — and understand
+    Today you'll write, compile, and run your first Rust program, and understand
     every single character of it.</p>
   </section>
 
@@ -42,11 +42,11 @@
     <p>
       A program is a list of instructions for a computer, written in a language both
       humans and machines can deal with. Computers only truly understand
-      <em>machine code</em> — raw numbers. So we write in a human-friendly language
+      <em>machine code</em>: raw numbers. So we write in a human-friendly language
       (Rust!) and use a <strong>compiler</strong> to translate it into machine code.
     </p>
     <p>
-      Rust's compiler is called <code>rustc</code>, and it's famously strict —
+      Rust's compiler is called <code>rustc</code>, and it's famously strict,
       in the best way. Think of it as a friendly proofreader who catches your
       mistakes <em>before</em> your program ever runs, instead of letting it crash later.
     </p>
@@ -55,7 +55,7 @@
       <span class="co-title">🧪 Two ways to follow along</span>
       <strong>No installs:</strong> open the <a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a>,
       copy any example (every code block here has a copy button), press <em>Run</em>.<br>
-      <strong>The full lab:</strong> follow the <a href="../setup.html">setup guide</a> —
+      <strong>The full lab:</strong> follow the <a href="../setup.html">setup guide</a>;
       it takes about ten minutes.
     </div>
 
@@ -65,20 +65,20 @@
 }</code></pre>
     <p>Three lines. Let's take them apart like a curious crab:</p>
     <ul>
-      <li><code>fn main()</code> — <code>fn</code> declares a <strong>function</strong>
+      <li><code>fn main()</code>: <code>fn</code> declares a <strong>function</strong>
         (a named block of instructions). The one called <code>main</code> is special:
         it's where every Rust program starts. No <code>main</code>, no program.</li>
-      <li><code>{ }</code> — curly braces mark where the function's body begins and ends.
+      <li><code>{ }</code>: curly braces mark where the function's body begins and ends.
         Everything between them belongs to <code>main</code>.</li>
-      <li><code>println!("Hello, world!")</code> — prints text to the screen, then moves
-        to a new line. The <code>!</code> means it's a <strong>macro</strong> — a
+      <li><code>println!("Hello, world!")</code>: prints text to the screen, then moves
+        to a new line. The <code>!</code> means it's a <strong>macro</strong>, a
         super-powered function that can do things normal functions can't (like accept
         any number of arguments). For now, just remember: <em>printing needs the bang</em>.</li>
-      <li><code>;</code> — the semicolon ends an instruction, like a period ends a sentence.</li>
+      <li><code>;</code>: the semicolon ends an instruction, like a period ends a sentence.</li>
     </ul>
 
     <h2>Leaving notes: comments</h2>
-    <p>Anything after <code>//</code> is a <strong>comment</strong> — the compiler ignores
+    <p>Anything after <code>//</code> is a <strong>comment</strong>: the compiler ignores
     it completely. Comments are notes to your future self.</p>
 <pre><code>fn main() {
     // I wrote this on day one. Hi, future me!
@@ -100,16 +100,16 @@ cargo run               # compile + run</code></pre>
 └── src/
     └── main.rs   ← your code lives here (.rs = Rust source)</code></pre>
     <p>
-      After running, a <code>target/</code> folder appears too — that's where compiled
+      After running, a <code>target/</code> folder appears too; that's where compiled
       machine code goes. You never edit it, and you can always delete it;
       Cargo will rebuild.
     </p>
 
     <div class="callout tip">
       <span class="co-title">⚡ The three commands you'll use constantly</span>
-      <code>cargo run</code> — compile and run.&nbsp;
-      <code>cargo check</code> — "would this compile?" in a hurry.&nbsp;
-      <code>cargo build</code> — compile without running.
+      <code>cargo run</code>: compile and run.&nbsp;
+      <code>cargo check</code>: "would this compile?" in a hurry.&nbsp;
+      <code>cargo build</code>: compile without running.
     </div>
 
     <h2>Break it on purpose 🔨</h2>
@@ -126,16 +126,16 @@ cargo run               # compile + run</code></pre>
     <p>
       Look at that: it tells you the file, the line, the column, and the exact fix.
       Rust's error messages are the best teaching assistant you'll ever have.
-      Never fear red text — read it.
+      Never fear red text: read it.
     </p>
 
     <div class="callout warn">
       <span class="co-title">⚠️ Classic first-day stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Writing <code>println</code> without the <code>!</code> — printing is a macro, bang required.</li>
+        <li>Writing <code>println</code> without the <code>!</code>: printing is a macro, bang required.</li>
         <li>Forgetting a <code>;</code> at the end of an instruction.</li>
-        <li>Unmatched braces — every <code>{</code> needs its <code>}</code>.</li>
-        <li>Running <code>cargo run</code> outside the project folder — <code>cd</code> in first.</li>
+        <li>Unmatched braces: every <code>{</code> needs its <code>}</code>.</li>
+        <li>Running <code>cargo run</code> outside the project folder; <code>cd</code> in first.</li>
       </ul>
     </div>
 
@@ -155,11 +155,11 @@ cargo run               # compile + run</code></pre>
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
       <h4>Become a code-breaker</h4>
-      <p>Sabotage your program three different ways — remove the <code>!</code>, remove a
-      quote mark, remove a brace — and run it each time. Read each error out loud.
+      <p>Sabotage your program three different ways (remove the <code>!</code>, remove a
+      quote mark, remove a brace) and run it each time. Read each error out loud.
       Which one gave the most helpful hint?</p>
       <details class="solution"><summary>Reveal thoughts</summary>
-        <p>No single right answer here — the goal is to lose your fear of errors.
+        <p>No single right answer here: the goal is to lose your fear of errors.
         Notice how each message points at a file, a line number, and usually a
         suggested fix. Compiler errors are directions, not punishments.</p>
       </details>
@@ -168,7 +168,7 @@ cargo run               # compile + run</code></pre>
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
       <h4>ASCII crab</h4>
-      <p>Use several <code>println!</code> lines to print a little crab scene — get
+      <p>Use several <code>println!</code> lines to print a little crab scene. Get
       creative. Emoji work in Rust strings, by the way: <code>🦀</code> is fair game.</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn main() {

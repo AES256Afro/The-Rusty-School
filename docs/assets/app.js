@@ -1,5 +1,5 @@
 /* ============================================================
-   The Rusty School — site scripts
+   The Rusty School: site scripts
    Theme toggle · mobile nav · Rust syntax highlighting ·
    copy buttons · lesson progress · quiz engine · confetti
    ============================================================ */
@@ -143,7 +143,7 @@
       const render = () => {
         const isDone = getDone().has(id);
         btn.classList.toggle("done", isDone);
-        btn.textContent = isDone ? "✓ Lesson complete — nice work!" : "Mark lesson complete";
+        btn.textContent = isDone ? "✓ Lesson complete. Nice work!" : "Mark lesson complete";
       };
       render();
       btn.addEventListener("click", (e) => {
@@ -166,10 +166,10 @@
       if (fill) fill.style.width = Math.round((doneCount / cards.length) * 100) + "%";
       if (label) {
         label.textContent = doneCount === 0
-          ? "0 of " + cards.length + " lessons complete — your journey starts here 🦀"
+          ? "0 of " + cards.length + " lessons complete. Your journey starts here 🦀"
           : doneCount === cards.length
-          ? "All " + cards.length + " lessons complete — you did it! 🎓🦀"
-          : doneCount + " of " + cards.length + " lessons complete — keep going!";
+          ? "All " + cards.length + " lessons complete. You did it! 🎓🦀"
+          : doneCount + " of " + cards.length + " lessons complete. Keep going!";
       }
     }
   }
@@ -294,15 +294,15 @@
       const pct = score / total;
       const verdict =
         pct === 1 ? "Perfect score! Ferris is doing a happy dance. 🦀💃"
-        : pct >= 0.7 ? "Great work — you clearly know your stuff. 🎉"
+        : pct >= 0.7 ? "Great work! You clearly know your stuff. 🎉"
         : pct >= 0.4 ? "Good start! A re-read of the lessons will lock it in. 📖"
-        : "No worries — wrong answers are how brains learn. Try again! 💪";
+        : "No worries: wrong answers are how brains learn. Try again! 💪";
 
       rootEl.innerHTML = "";
       const card = document.createElement("div");
       card.className = "card quiz-card quiz-score";
       card.innerHTML =
-        "<h3>" + quiz.title + " — results</h3>" +
+        "<h3>" + quiz.title + ": results</h3>" +
         '<div class="big">' + score + " / " + total + "</div>" +
         "<p>" + verdict + "</p>";
       const actions = document.createElement("div");

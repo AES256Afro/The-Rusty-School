@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 5: Control Flow — The Rusty School</title>
-<meta name="description" content="if/else, loops, while, for and ranges in Rust — how programs make decisions and repeat work.">
+<title>Lesson 5: Control Flow - The Rusty School</title>
+<meta name="description" content="if/else, loops, while, for and ranges in Rust: how programs make decisions and repeat work.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
 <script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -50,21 +50,21 @@
     }
 }</code></pre>
     <p>
-      The condition must be a real <code>bool</code> — Rust refuses the "0 means false"
+      The condition must be a real <code>bool</code>. Rust refuses the "0 means false"
       trick from C and JavaScript, which quietly causes bugs there. And notice: no
       parentheses needed around the condition. Clean.
     </p>
 
     <h2>Plot twist: <code>if</code> is an expression</h2>
     <p>Remember the expression secret from Lesson 4? An <code>if</code> <em>produces a
-    value</em>, so you can assign it directly — no awkward "declare then maybe assign" dance:</p>
+    value</em>, so you can assign it directly, with no awkward "declare then maybe assign" dance:</p>
 <pre><code>let temperature = 33;
 let outfit = if temperature &gt; 30 { "swimsuit" } else { "jacket" };
 println!("Wear the {outfit}");</code></pre>
-    <p>Both branches must produce the same type — the compiler checks, of course.</p>
+    <p>Both branches must produce the same type; the compiler checks, of course.</p>
 
     <h2>Repeating: three loops</h2>
-    <h3>1. <code>loop</code> — forever, until <code>break</code></h3>
+    <h3>1. <code>loop</code>: forever, until <code>break</code></h3>
 <pre><code>let mut countdown = 3;
 loop {
     println!("{countdown}...");
@@ -75,7 +75,7 @@ loop {
 }
 println!("Liftoff! 🚀");</code></pre>
 
-    <h3>2. <code>while</code> — as long as something is true</h3>
+    <h3>2. <code>while</code>: as long as something is true</h3>
 <pre><code>let mut fuel = 10;
 while fuel &gt; 0 {
     println!("Flying... fuel: {fuel}");
@@ -83,7 +83,7 @@ while fuel &gt; 0 {
 }
 println!("Time to land.");</code></pre>
 
-    <h3>3. <code>for</code> — once per item (the one you'll use most)</h3>
+    <h3>3. <code>for</code>: once per item (the one you'll use most)</h3>
 <pre><code>// Over a range: 1, 2, 3, 4 (the end is excluded!)
 for i in 1..5 {
     println!("bottle #{i}");
@@ -94,7 +94,7 @@ for i in 1..=5 {
     println!("crab #{i}");
 }
 
-// Over a collection — no index bookkeeping, no off-by-one bugs
+// Over a collection: no index bookkeeping, no off-by-one bugs
 let snacks = ["kelp", "algae", "plankton"];
 for snack in snacks {
     println!("Rusty eats {snack}");
@@ -107,7 +107,7 @@ for snack in snacks {
     </div>
 
     <h2>Sneak peek: <code>match</code> 🔮</h2>
-    <p>Rust has a fourth way to steer — a supercharged decision-maker you'll properly
+    <p>Rust has a fourth way to steer: a supercharged decision-maker you'll properly
     meet in Lesson 9. A taste:</p>
 <pre><code>let dice = 4;
 match dice {
@@ -120,10 +120,10 @@ match dice {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Expecting <code>1..5</code> to include 5 — it doesn't; use <code>1..=5</code>.</li>
-        <li>A <code>while</code> whose condition never becomes false — infinite loop.
+        <li>Expecting <code>1..5</code> to include 5: it doesn't; use <code>1..=5</code>.</li>
+        <li>A <code>while</code> whose condition never becomes false: infinite loop.
             (Press <code>Ctrl+C</code> in the terminal to rescue yourself.)</li>
-        <li>Using <code>if x = 5</code> instead of <code>if x == 5</code> — one <code>=</code>
+        <li>Using <code>if x = 5</code> instead of <code>if x == 5</code>: one <code>=</code>
             assigns, two compare. Rust catches this; many languages don't.</li>
       </ul>
     </div>
@@ -131,9 +131,9 @@ match dice {
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
       <h4>FizzBuzz, the classic</h4>
-      <p>Print numbers 1 to 20 — but for multiples of 3 print <code>Fizz</code>, for
+      <p>Print numbers 1 to 20, but for multiples of 3 print <code>Fizz</code>, for
       multiples of 5 print <code>Buzz</code>, and for both print <code>FizzBuzz</code>.
-      (Hint: <code>n % 3 == 0</code> means "divisible by 3" — <code>%</code> gives the
+      (Hint: <code>n % 3 == 0</code> means "divisible by 3"; <code>%</code> gives the
       division remainder. Check the "both" case first!)</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn main() {
@@ -196,7 +196,7 @@ fn main() {
     <div class="callout tip">
       <span class="co-title">🎓 Level 1 complete!</span>
       You can now write real programs: variables, types, functions, decisions, loops.
-      Lock it in with the <a href="../quiz.html">Sprout Quiz</a> — then rest up.
+      Lock it in with the <a href="../quiz.html">Sprout Quiz</a>, then rest up.
       Next level, we meet the idea that made Rust famous.
     </div>
 

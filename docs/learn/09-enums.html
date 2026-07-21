@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 9: Enums &amp; Pattern Matching — The Rusty School</title>
+<title>Lesson 9: Enums &amp; Pattern Matching - The Rusty School</title>
 <meta name="description" content="Rust enums, match, Option, and how Rust ended null-pointer crashes.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -52,11 +52,11 @@ fn main() {
     let today = Weather::Rainy;
 }</code></pre>
     <p>A <code>Weather</code> is never two of these, never none of these, never
-    "Purple" — the compiler guarantees it. That already kills a whole species of bug
+    "Purple": the compiler guarantees it. That already kills a whole species of bug
     (the stray string: <code>"rainy"</code> vs <code>"Rainy"</code> vs <code>"RAINY"</code>…).</p>
 
     <h2>Variants can carry data 🎒</h2>
-    <p>Here's where Rust enums leave other languages behind — each variant can hold
+    <p>Here's where Rust enums leave other languages behind. Each variant can hold
     its own cargo:</p>
 <pre><code>enum Message {
     Quit,                       // no data
@@ -66,7 +66,7 @@ fn main() {
 }</code></pre>
     <p>A <code>Message</code> is one shape <em>or</em> another, each with exactly the
     data that shape needs. Modeling "it's this or that, with different details" is
-    most of programming — enums make it native.</p>
+    most of programming; enums make it native.</p>
 
     <h2><code>match</code>: the pattern-matching powerhouse</h2>
 <pre><code>enum Weather {
@@ -91,26 +91,26 @@ fn main() {
 }</code></pre>
     <p>Three superpowers on display:</p>
     <ul>
-      <li><strong>Destructuring</strong> — <code>Windy(speed)</code> pulls the cargo out
+      <li><strong>Destructuring</strong>: <code>Windy(speed)</code> pulls the cargo out
         of the variant into a variable.</li>
-      <li><strong>Guards</strong> — <code>if speed &gt; 80</code> adds a condition to an arm.</li>
-      <li><strong>Exhaustiveness</strong> — delete the <code>Rainy</code> arm and the
+      <li><strong>Guards</strong>: <code>if speed &gt; 80</code> adds a condition to an arm.</li>
+      <li><strong>Exhaustiveness</strong>: delete the <code>Rainy</code> arm and the
         program <em>won't compile</em>: "pattern <code>Weather::Rainy</code> not covered."
         Add a new variant next year, and the compiler walks you to every
         <code>match</code> that needs updating. That's refactoring with a safety net.</li>
     </ul>
-    <p>The <code>_</code> pattern means "anything else" — useful, but use it sparingly:
+    <p>The <code>_</code> pattern means "anything else". It's useful, but use it sparingly:
     every <code>_</code> is a place the compiler <em>stops</em> checking for you.</p>
 
     <h2>The billion-dollar bug, and Rust's answer 💸</h2>
     <p>
       Tony Hoare, who invented the <em>null reference</em> in 1965, calls it his
-      "billion-dollar mistake" — decades of crashes from programs using a value that
+      "billion-dollar mistake": decades of crashes from programs using a value that
       turned out to be nothing. Most languages still live with it.
       Rust simply… doesn't have null.
     </p>
     <p>Instead, "maybe a value" is an ordinary enum from the standard library:</p>
-<pre><code>enum Option&lt;T&gt; {    // T = any type (generics — Lesson 12)
+<pre><code>enum Option&lt;T&gt; {    // T = any type (generics, Lesson 12)
     Some(T),         // there IS a value, here it is
     None,            // there is no value
 }</code></pre>
@@ -131,7 +131,7 @@ fn main() {
     }
 }</code></pre>
     <p>
-      You <em>cannot</em> forget the <code>None</code> case — it won't compile. The
+      You <em>cannot</em> forget the <code>None</code> case; it won't compile. The
       null-pointer crash isn't "less likely" in Rust; it's grammatically impossible.
     </p>
 
@@ -148,12 +148,12 @@ if let Some(nick) = nickname {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Reaching for <code>.unwrap()</code> to skip the <code>None</code> case — it
+        <li>Reaching for <code>.unwrap()</code> to skip the <code>None</code> case: it
             crashes the program if the value is absent. Fine in toy code; in real code,
             <code>match</code>, <code>if let</code>, or <code>unwrap_or(default)</code>.</li>
         <li>Forgetting <code>Some(...)</code> when returning: <code>return nick;</code>
             where <code>Some(nick)</code> is needed.</li>
-        <li>Overusing <code>_</code> arms — you're muting your best reviewer.</li>
+        <li>Overusing <code>_</code> arms: you're muting your best reviewer.</li>
       </ul>
     </div>
 
@@ -163,7 +163,7 @@ if let Some(nick) = nickname {
       <p>Create an enum <code>Light</code> with <code>Red</code>, <code>Yellow</code>,
       <code>Green</code>. Write <code>fn action(light: Light) -&gt; &amp;'static str</code>
       using <code>match</code> (that <code>'static</code> is just "text built into the
-      program" — details in Lesson 13). Then try deleting one arm and read the error.</p>
+      program"; details in Lesson 13). Then try deleting one arm and read the error.</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>enum Light {
     Red,
@@ -188,7 +188,7 @@ fn main() {
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
       <h4>Safe division</h4>
-      <p>Division by zero is nonsense — model it! Write
+      <p>Division by zero is nonsense. Model it! Write
       <code>fn divide(a: f64, b: f64) -&gt; Option&lt;f64&gt;</code> returning
       <code>None</code> when <code>b == 0.0</code>. Call it twice (once with zero) and
       <code>match</code> on both results.</p>
@@ -216,7 +216,7 @@ fn main() {
       <span class="ex-label">Exercise 3</span>
       <h4>Message dispatcher</h4>
       <p>Using the <code>Message</code> enum from above, write a function that takes a
-      <code>Message</code> and describes it — e.g. <code>Move { x, y }</code> prints
+      <code>Message</code> and describes it, e.g. <code>Move { x, y }</code> prints
       "moving to (x, y)". Create one of each variant and dispatch them all.</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>enum Message {

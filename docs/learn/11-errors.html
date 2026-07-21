@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 11: Error Handling — The Rusty School</title>
+<title>Lesson 11: Error Handling - The Rusty School</title>
 <meta name="description" content="Rust error handling: panic!, Result, unwrap, expect, and the ? operator.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -33,16 +33,16 @@
     <span class="badge l2">Level 2 · The Rust Way</span>
     <h1>Error Handling 🚨</h1>
     <p class="lede muted">Files go missing. Networks drop. Users type "banana" where a
-    number goes. Rust's philosophy: failure is normal, so put it in the type system —
+    number goes. Rust's philosophy: failure is normal, so put it in the type system,
     honestly, visibly, impossible to forget.</p>
   </section>
 
   <div class="lesson-body">
     <h2>Two kinds of trouble</h2>
     <ul>
-      <li><strong>Unrecoverable</strong> — a bug. The program is in a state that should
+      <li><strong>Unrecoverable</strong>: a bug. The program is in a state that should
         be impossible. Rust <em>panics</em>: stops immediately with a message.</li>
-      <li><strong>Recoverable</strong> — expected trouble. A missing file, bad input.
+      <li><strong>Recoverable</strong>: expected trouble. A missing file, bad input.
         The function returns a <code>Result</code> and the caller decides what to do.</li>
     </ul>
 
@@ -53,7 +53,7 @@
     panic!("something impossible happened!");  // or panic on purpose
 }</code></pre>
     <p>
-      A panic is loud, immediate, and points at the guilty line — a crash with a good
+      A panic is loud, immediate, and points at the guilty line: a crash with a good
       alibi. But most trouble isn't a bug; it's Tuesday. For that, Rust has something
       much better.
     </p>
@@ -62,8 +62,8 @@
     <p>You already know <code>Option</code> ("maybe a value"). <code>Result</code> is its
     sibling: "a value <em>or an explanation of what went wrong</em>."</p>
 <pre><code>enum Result&lt;T, E&gt; {
-    Ok(T),     // it worked — here's the value
-    Err(E),    // it failed — here's the error
+    Ok(T),     // it worked, here's the value
+    Err(E),    // it failed, here's the error
 }</code></pre>
     <p>Functions that can fail return it, and the compiler makes callers face both cases:</p>
 <pre><code>fn parse_age(text: &amp;str) -&gt; Result&lt;u32, String&gt; {
@@ -96,7 +96,7 @@ let n: u32 = "banana".parse().unwrap_or(0);    // Err → fallback: 0</code></pr
     <div class="callout tip">
       <span class="co-title">💡 House rules</span>
       <code>unwrap()</code> in quick experiments: fine, everyone does it.
-      <code>expect("...")</code> when a failure would be a genuine bug: good — the message
+      <code>expect("...")</code> when a failure would be a genuine bug: good; the message
       helps future-you. <code>unwrap_or(default)</code> when there's a sensible fallback:
       great. Bare <code>unwrap()</code> on user input in real code: how outages are born.
     </div>
@@ -124,12 +124,12 @@ fn main() {
     <p>
       Each <code>?</code> means: <em>"if this failed, stop here and hand the error to my
       caller; otherwise unwrap and continue."</em> The happy path reads top to bottom
-      like nothing could go wrong — while every failure is still handled. This is the
+      like nothing could go wrong, while every failure is still handled. This is the
       operator Rustaceans miss most in other languages.
     </p>
     <p>
       One rule: <code>?</code> only works inside functions that themselves return a
-      <code>Result</code> (or <code>Option</code>) — the error needs somewhere to go.
+      <code>Result</code> (or <code>Option</code>): the error needs somewhere to go.
       That's why we wrote a helper function instead of using <code>?</code> directly
       in plain <code>main</code>.
     </p>
@@ -137,7 +137,7 @@ fn main() {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Using <code>?</code> in a function that returns nothing — the compiler will
+        <li>Using <code>?</code> in a function that returns nothing: the compiler will
             ask "return the error <em>where</em>?" Wrap the logic in a
             <code>Result</code>-returning function.</li>
         <li>Forgetting to wrap the final success in <code>Ok(...)</code>.</li>
@@ -180,7 +180,7 @@ fn main() {
       <span class="ex-label">Exercise 2</span>
       <h4>Chain with ?</h4>
       <p>Write <code>fn add_strings(a: &amp;str, b: &amp;str) -&gt; Result&lt;i32, std::num::ParseIntError&gt;</code>
-      that parses both strings and returns their sum — using <code>?</code> twice and
+      that parses both strings and returns their sum, using <code>?</code> twice and
       zero <code>match</code> expressions.</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn add_strings(a: &amp;str, b: &amp;str) -&gt; Result&lt;i32, std::num::ParseIntError&gt; {
@@ -200,14 +200,14 @@ fn main() {
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
       <h4>Judgment calls</h4>
-      <p>For each situation, pick your tool — <code>panic!</code>, <code>Result</code>,
-      or <code>unwrap_or(default)</code> — and say why: (a) a user mistypes their age in a
+      <p>For each situation, pick your tool (<code>panic!</code>, <code>Result</code>,
+      or <code>unwrap_or(default)</code>) and say why: (a) a user mistypes their age in a
       form; (b) your game's settings file is missing, and defaults exist; (c) an internal
-      function receives a negative array length — which should be impossible.</p>
+      function receives a negative array length, which should be impossible.</p>
       <details class="solution"><summary>Reveal reasoning</summary>
-        <p>(a) <strong>Result</strong> — user input failing is normal; show a friendly
-        message and re-ask. (b) <strong>unwrap_or(default)</strong>-style fallback —
-        a missing optional file has an obvious recovery. (c) <strong>panic!</strong> —
+        <p>(a) <strong>Result</strong>: user input failing is normal; show a friendly
+        message and re-ask. (b) <strong>unwrap_or(default)</strong>-style fallback:
+        a missing optional file has an obvious recovery. (c) <strong>panic!</strong>:
         that's a bug in your own code; crashing loudly at the source beats corrupting
         data quietly downstream.</p>
       </details>
@@ -215,7 +215,7 @@ fn main() {
 
     <div class="callout tip">
       <span class="co-title">🎓 Level 2 complete!</span>
-      Ownership, borrowing, structs, enums, collections, errors — that's the entire
+      Ownership, borrowing, structs, enums, collections, errors: that's the entire
       heart of Rust. Prove it with the <a href="../quiz.html">Rust Way quiz</a>,
       then on to the power tools. 🚀
     </div>

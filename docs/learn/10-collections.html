@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 10: Collections — The Rusty School</title>
-<meta name="description" content="Vec, String and HashMap — Rust's workhorse collections, explained for beginners.">
+<title>Lesson 10: Collections - The Rusty School</title>
+<meta name="description" content="Vec, String and HashMap: Rust's workhorse collections, explained for beginners.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
 <script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -32,8 +32,8 @@
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 10 of 17</nav>
     <span class="badge l2">Level 2 · The Rust Way</span>
     <h1>Collections 🗃️</h1>
-    <p class="lede muted">Arrays are fixed at birth. Real data grows and shrinks —
-    meet the three collections you'll use every single day.</p>
+    <p class="lede muted">Arrays are fixed at birth. Real data grows and shrinks.
+    Meet the three collections you'll use every single day.</p>
   </section>
 
   <div class="lesson-body">
@@ -58,21 +58,21 @@ println!("{}", v.len());    // 3
 println!("{}", v.contains(&amp;2)); // true</code></pre>
 
     <h2>Reading safely: <code>[ ]</code> vs <code>.get()</code></h2>
-    <p>Two ways to read a position — one bold, one careful:</p>
+    <p>Two ways to read a position, one bold, one careful:</p>
 <pre><code>let v = vec![1, 2, 3];
 
 let a = v[0];        // bold: crashes ("panics") if out of bounds
-let b = v.get(99);   // careful: returns an Option — None here!
+let b = v.get(99);   // careful: returns an Option, None here!
 
 match v.get(99) {
     Some(n) =&gt; println!("found {n}"),
     None =&gt; println!("nothing at 99, and nobody crashed"),
 }</code></pre>
-    <p>See what happened? <code>Option</code> from Lesson 9 isn't a special trick —
+    <p>See what happened? <code>Option</code> from Lesson 9 isn't a special trick;
     it's how the whole standard library talks about "maybe." Learn it once, use it
     everywhere.</p>
 
-    <h2>Looping over vectors — with borrows</h2>
+    <h2>Looping over vectors, with borrows</h2>
 <pre><code>let mut scores = vec![80, 95, 72];
 
 for s in &amp;scores {          // borrow each item to read
@@ -86,7 +86,7 @@ println!("{scores:?}");     // [85, 100, 77]</code></pre>
     <div class="callout tip">
       <span class="co-title">💡 Why <code>&amp;scores</code> and not <code>scores</code>?</span>
       Looping over <code>scores</code> directly <em>moves</em> the vector into the loop
-      (Lesson 6!) — gone afterwards. Borrow it (<code>&amp;scores</code>) and it's still
+      (Lesson 6!); it's gone afterwards. Borrow it (<code>&amp;scores</code>) and it's still
       yours when the loop ends. The ownership rules aren't separate trivia; they're
       the grammar of everything.
     </div>
@@ -97,7 +97,7 @@ println!("{scores:?}");     // [85, 100, 77]</code></pre>
     <table>
       <thead><tr><th></th><th><code>String</code></th><th><code>&amp;str</code></th></tr></thead>
       <tbody>
-        <tr><td>owns its text?</td><td>yes — the book</td><td>no — a bookmark</td></tr>
+        <tr><td>owns its text?</td><td>yes, the book</td><td>no, a bookmark</td></tr>
         <tr><td>can grow?</td><td>yes (<code>push_str</code>)</td><td>no</td></tr>
         <tr><td>store it in a struct?</td><td>usually this</td><td>rarely</td></tr>
         <tr><td>function parameters?</td><td>rarely</td><td>usually this</td></tr>
@@ -128,22 +128,22 @@ fn main() {
         None =&gt; println!("Rusty hasn't played yet"),
     }
 
-    // the entry API: "get it, or insert a default" — then modify
+    // the entry API: "get it, or insert a default", then modify
     *high_scores.entry(String::from("Dana")).or_insert(0) += 10;
 
     for (name, score) in &amp;high_scores {
         println!("{name}: {score}");
     }
 }</code></pre>
-    <p>That <code>entry(...).or_insert(0)</code> line is the classic counter pattern —
+    <p>That <code>entry(...).or_insert(0)</code> line is the classic counter pattern,
     perfect for tallying words, votes, or crabs per rockpool.</p>
 
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li><code>v[i]</code> past the end — panic. Use <code>.get(i)</code> when unsure.</li>
+        <li><code>v[i]</code> past the end: panic. Use <code>.get(i)</code> when unsure.</li>
         <li>Pushing to a Vec that isn't <code>mut</code>.</li>
-        <li>Looping over a collection without <code>&amp;</code>, then using it after — moved!</li>
+        <li>Looping over a collection without <code>&amp;</code>, then using it after: moved!</li>
         <li>Forgetting <code>use std::collections::HashMap;</code> at the top.</li>
       </ul>
     </div>
@@ -218,7 +218,7 @@ fn main() {
         println!("{word}: {n}");
     }
 }</code></pre>
-        <p>Congratulations — this is a real text-analysis program, the seed of every
+        <p>Congratulations: this is a real text-analysis program, the seed of every
         search engine. In eleven lines.</p>
       </details>
     </div>

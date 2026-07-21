@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 15: Smart Pointers — The Rusty School</title>
+<title>Lesson 15: Smart Pointers - The Rusty School</title>
 <meta name="description" content="Box, Rc, and RefCell explained gently: heap allocation, shared ownership, and interior mutability.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -32,7 +32,7 @@
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 15 of 17</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
     <h1>Smart Pointers 📦🧠</h1>
-    <p class="lede muted">Ownership's rules are strict on purpose — but some programs
+    <p class="lede muted">Ownership's rules are strict on purpose, but some programs
     genuinely need more flexibility. Smart pointers bend the rules <em>safely</em>,
     each in one specific, well-labeled way.</p>
   </section>
@@ -41,7 +41,7 @@
     <h2>What's a smart pointer?</h2>
     <p>
       A regular reference (<code>&amp;T</code>) just points at data. A <strong>smart
-      pointer</strong> is a small struct that points at data <em>and manages it</em> —
+      pointer</strong> is a small struct that points at data <em>and manages it</em>:
       freeing it at the right moment, counting who's using it, or policing access.
       You've secretly used two already: <code>String</code> and <code>Vec</code> both
       own heap data and clean it up on scope exit. Today: the three famous ones.
@@ -49,7 +49,7 @@
 
     <h2><code>Box&lt;T&gt;</code>: a simple crate for the warehouse 📦</h2>
     <p><code>Box</code> moves a value to the heap and owns it there. One owner, freed at
-    scope end — ownership rules unchanged, just heap-flavored:</p>
+    scope end; ownership rules unchanged, just heap-flavored:</p>
 <pre><code>fn main() {
     let boxed_num = Box::new(5);
     println!("{}", *boxed_num + 1);   // * reaches into the box
@@ -61,7 +61,7 @@
     Done,
 }</code></pre>
     <p>
-      The compiler must know how much memory a type needs — but this type contains
+      The compiler must know how much memory a type needs, but this type contains
       itself, so the math never ends ("infinite size", it will say). A <code>Box</code>
       breaks the spiral, because a box is always just one pointer-size, no matter
       what's inside:
@@ -88,7 +88,7 @@ fn main() {
     <h2><code>Rc&lt;T&gt;</code>: shared ownership, counted 🔢</h2>
     <p>
       Ownership rule #1 says one owner per value. But consider a song in three
-      playlists — who owns it? All of them, really; it should live until the
+      playlists: who owns it? All of them, really; it should live until the
       <em>last</em> playlist is gone. <code>Rc</code> (reference counted) does exactly
       that: every <code>clone</code> increments a counter, every drop decrements it,
       and the value is freed when the count hits zero.
@@ -104,15 +104,15 @@ fn main() {
     println!("owners: {}", Rc::strong_count(&amp;song));  // 3
     drop(playlist_a);
     drop(playlist_b);
-    println!("owners: {}", Rc::strong_count(&amp;song));  // 1 — still alive
+    println!("owners: {}", Rc::strong_count(&amp;song));  // 1, still alive
 }</code></pre>
-    <p>Note: <code>Rc</code> hands out <em>read-only</em> access — many owners who could
+    <p>Note: <code>Rc</code> hands out <em>read-only</em> access; many owners who could
     all write would be chaos (Lesson 7's law). And it's single-threaded only; its
     thread-safe twin <code>Arc</code> stars in the next lesson.</p>
 
     <h2><code>RefCell&lt;T&gt;</code>: the rules, checked at runtime 🕵️</h2>
     <p>
-      Sometimes you genuinely need to mutate shared data, and you — not the compiler —
+      Sometimes you genuinely need to mutate shared data, and you (not the compiler)
       know it's safe. <code>RefCell</code> moves the borrow checking from compile time
       to <strong>runtime</strong>: the same "many readers or one writer" law, enforced
       while the program runs. Break it and the program panics, pointing at the crime.
@@ -129,13 +129,13 @@ fn main() {
     let _a = diary.borrow_mut();
     // let _b = diary.borrow_mut();   // 💥 PANIC: already borrowed
 }</code></pre>
-    <p>The classic combo is <code>Rc&lt;RefCell&lt;T&gt;&gt;</code> — many owners
+    <p>The classic combo is <code>Rc&lt;RefCell&lt;T&gt;&gt;</code>: many owners
     (<code>Rc</code>) who can each mutate (<code>RefCell</code>), a favorite for graphs
     and shared game state in single-threaded programs.</p>
 
     <div class="callout tip">
       <span class="co-title">🧭 Which one when?</span>
-      <strong>Default:</strong> plain ownership + borrows — reach for smart pointers only
+      <strong>Default:</strong> plain ownership + borrows; reach for smart pointers only
       when the compiler forces the issue.
       <strong>Recursive type / "infinite size" error?</strong> <code>Box</code>.
       <strong>Several owners, read-only?</strong> <code>Rc</code>.
@@ -146,11 +146,11 @@ fn main() {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Using <code>Box</code> "for performance" everywhere — it adds indirection;
+        <li>Using <code>Box</code> "for performance" everywhere: it adds indirection;
             use it when the type system needs it, not as a lucky charm.</li>
-        <li>Holding a <code>borrow_mut()</code> guard too long, then borrowing again —
+        <li>Holding a <code>borrow_mut()</code> guard too long, then borrowing again:
             runtime panic. Keep RefCell borrows short and scoped.</li>
-        <li><code>song.clone()</code> vs <code>Rc::clone(&amp;song)</code> — both work, but
+        <li><code>song.clone()</code> vs <code>Rc::clone(&amp;song)</code>: both work, but
             Rustaceans write the second to signal "just counting, not deep-copying."</li>
       </ul>
     </div>
@@ -159,12 +159,12 @@ fn main() {
       <span class="ex-label">Exercise 1</span>
       <h4>Break the infinite loop</h4>
       <p>Type the boxless <code>TodoList</code> into the Playground and read the
-      "infinite size" error — including the compiler's suggested fix. Then apply it
+      "infinite size" error, including the compiler's suggested fix. Then apply it
       and build a three-item list.</p>
       <details class="solution"><summary>Reveal answer</summary>
         <p>The compiler suggests exactly what this lesson did: "insert some indirection
         (e.g., a <code>Box</code>, <code>Rc</code>, or <code>&amp;</code>) to break the
-        cycle." Even at the advanced level, error messages remain the best teacher —
+        cycle." Even at the advanced level, error messages remain the best teacher;
         that never stops being true.</p>
       </details>
     </div>

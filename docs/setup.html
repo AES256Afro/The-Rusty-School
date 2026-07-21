@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Set Up Your Rust Lab — The Rusty School</title>
-<meta name="description" content="Step-by-step Rust setup guides for macOS, Windows, Linux — or start coding in your browser with zero installs.">
+<title>Set Up Your Rust Lab - The Rusty School</title>
+<meta name="description" content="Step-by-step Rust setup guides for macOS, Windows, Linux, or start coding in your browser with zero installs.">
 <link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
 <link rel="stylesheet" href="assets/style.css">
 <script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -32,7 +32,7 @@
     <span class="kicker">Setup guide</span>
     <h1>Build your <span class="grad">Rust lab</span> 🧪</h1>
     <p class="lede muted">
-      Pick your operating system below — or skip installs entirely and code in your
+      Pick your operating system below, or skip installs entirely and code in your
       browser. Either way, you'll be running real Rust in about ten minutes.
     </p>
   </section>
@@ -51,21 +51,21 @@
       <li>
         <strong>Open the Terminal app</strong>
         Press <code>⌘ + Space</code>, type <em>Terminal</em>, press Enter. This plain
-        text window is your new laboratory — you type commands, the Mac obeys.
+        text window is your new laboratory: you type commands, the Mac obeys.
       </li>
       <li>
         <strong>Install Apple's command-line tools</strong>
         Rust needs Apple's linker (the tool that glues compiled code into an app).
-        Paste this and press Enter — a dialog will guide you (takes a few minutes):
+        Paste this and press Enter; a dialog will guide you (takes a few minutes):
 <pre class="term"><code>xcode-select --install</code></pre>
-        If it says <em>"already installed"</em>, even better — skip ahead.
+        If it says <em>"already installed"</em>, even better: skip ahead.
       </li>
       <li>
         <strong>Install Rust with rustup</strong>
         <code>rustup</code> is Rust's official installer and version manager. Paste:
 <pre class="term"><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
         Press Enter to accept the default installation. It installs everything into
-        your home folder — no admin password, easy to remove later.
+        your home folder: no admin password, easy to remove later.
         <div class="callout tip"><span class="co-title">🍺 Homebrew user?</span>
         <code>brew install rustup</code> followed by <code>rustup-init</code> works too.
         Either route ends in the same place.</div>
@@ -93,7 +93,7 @@ cargo --version</code></pre>
         <strong>Run it and follow the prompts</strong>
         Rust on Windows needs the <em>Microsoft C++ Build Tools</em> (the linker lives
         there). The installer detects if they're missing and offers to install
-        them for you — say yes and grab a coffee; it's the longest step.
+        them for you. Say yes and grab a coffee; it's the longest step.
       </li>
       <li>
         <strong>Choose the default installation</strong>
@@ -110,7 +110,7 @@ cargo --version</code></pre>
     </ol>
     <div class="callout info"><span class="co-title">🐧 Prefer WSL?</span>
     If you use the Windows Subsystem for Linux, open your WSL terminal and follow the
-    <strong>Linux</strong> tab instead — many Rustaceans on Windows work this way.</div>
+    <strong>Linux</strong> tab instead; many Rustaceans on Windows work this way.</div>
   </section>
 
   <!-- ================= Linux ================= -->
@@ -133,7 +133,7 @@ sudo pacman -S base-devel</code></pre>
         <strong>Install Rust with rustup</strong>
 <pre class="term"><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
         Press Enter for the default install. Everything lands in <code>~/.cargo</code> and
-        <code>~/.rustup</code> — no root needed.
+        <code>~/.rustup</code>: no root needed.
         <div class="callout warn"><span class="co-title">📦 Why not <code>apt install rust</code>?</span>
         Distro packages are often months out of date and don't ship <code>rustup</code>'s
         easy updates. The official installer is the recommended path.</div>
@@ -168,7 +168,7 @@ cargo --version</code></pre>
       </li>
       <li>
         <strong>Press <em>Run</em></strong>
-        The output appears below the editor. That's it — you're compiling and running
+        The output appears below the editor. That's it. You're compiling and running
         Rust on a server somewhere, right now.
       </li>
       <li>
@@ -178,9 +178,9 @@ cargo --version</code></pre>
         Breaking things safely is 80% of learning.
       </li>
     </ol>
-    <div class="callout tip"><span class="co-title">✅ Great for lessons 1–14</span>
+    <div class="callout tip"><span class="co-title">✅ Great for lessons 1-14</span>
     The Playground is perfect for almost the whole curriculum. You'll only need a real
-    install for multi-file projects and to run this website's own Rust server —
+    install for multi-file projects and to run this website's own Rust server;
     by then you'll be ready.</div>
   </section>
 
@@ -191,13 +191,13 @@ cargo --version</code></pre>
   <div class="grid cols-3">
     <div class="card"><span class="emoji">🟦</span><h3>VS Code <span class="badge l1">recommended</span></h3>
       <p>Free, works everywhere. Install the <strong>rust-analyzer</strong> extension and
-      you get autocomplete, inline errors, and hover documentation — a tutor inside your editor.</p></div>
+      you get autocomplete, inline errors, and hover documentation: a tutor inside your editor.</p></div>
     <div class="card"><span class="emoji">⚡</span><h3>Zed</h3>
       <p>A blazing-fast editor <em>written in Rust</em>, with Rust support built in.
       Poetic, really.</p></div>
     <div class="card"><span class="emoji">🧠</span><h3>RustRover / Helix</h3>
       <p>JetBrains' dedicated Rust IDE (free for non-commercial use), or Helix if you
-      like living in the terminal — also written in Rust.</p></div>
+      like living in the terminal (also written in Rust).</p></div>
   </div>
 
   <hr class="soft">
@@ -219,7 +219,7 @@ cargo run</code></pre>
      Running `target/debug/hello_rusty`
 Hello, world!</code></pre>
   <p>
-    That's a real, compiled, native program — and you just built it.
+    That's a real, compiled, native program, and you just built it.
     Head to <a href="learn/01-hello-world.html"><strong>Lesson 1</strong></a> to find out
     what those files actually do.
   </p>
@@ -241,7 +241,7 @@ Hello, world!</code></pre>
           Linux: install <code>build-essential</code> (or your distro's equivalent).
           Windows: re-run rustup and accept the Visual Studio Build Tools.</td></tr>
       <tr><td>Corporate proxy / offline</td>
-          <td>rustup respects <code>https_proxy</code> environment variables — ask your IT
+          <td>rustup respects <code>https_proxy</code> environment variables; ask your IT
           team. Or use the browser Playground while you sort it out.</td></tr>
       <tr><td>Old Rust version</td>
           <td>One command updates everything: <code>rustup update</code>.</td></tr>

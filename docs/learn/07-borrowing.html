@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 7: Borrowing &amp; References — The Rusty School</title>
+<title>Lesson 7: Borrowing &amp; References - The Rusty School</title>
 <meta name="description" content="References and borrowing in Rust: lending values without giving them away, and the two rules that prevent data races.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -39,13 +39,13 @@
   <div class="lesson-body">
     <h2>Lending instead of giving: <code>&amp;</code></h2>
     <p>
-      Put an ampersand in front of a value and you create a <strong>reference</strong> —
+      Put an ampersand in front of a value and you create a <strong>reference</strong>:
       a way to <em>look at</em> a value without owning it. Think of a library book 📚:
       you can read it, but the library still owns it, and you have to give it back.
     </p>
 <pre><code>fn count_letters(text: &amp;String) -&gt; usize {
     text.len()
-}   // the borrow ends here — nothing is freed, we never owned it
+}   // the borrow ends here: nothing is freed, we never owned it
 
 fn main() {
     let poem = String::from("crabs write free verse");
@@ -55,7 +55,7 @@ fn main() {
 }</code></pre>
     <p>
       Compare with Lesson 6's <code>devour</code>: no ownership lost, no clunky
-      hand-it-back dance. The <code>&amp;</code> appears in two places — the function
+      hand-it-back dance. The <code>&amp;</code> appears in two places: the function
       says "I accept borrowed Strings" (<code>&amp;String</code>), and the caller says
       "here, borrow mine" (<code>&amp;poem</code>). This is called <strong>borrowing</strong>.
     </p>
@@ -64,7 +64,7 @@ fn main() {
     <p>A plain <code>&amp;</code> reference is read-only. To let someone <em>modify</em>
     your value without taking it, lend it mutably:</p>
 <pre><code>fn add_signature(letter: &amp;mut String) {
-    letter.push_str(" — sincerely, Rusty 🦀");
+    letter.push_str(" - sincerely, Rusty 🦀");
 }
 
 fn main() {
@@ -72,7 +72,7 @@ fn main() {
     add_signature(&amp;mut letter);      // lend with edit rights
     println!("{letter}");            // changed, still ours
 }</code></pre>
-    <p>(The variable itself must be <code>mut</code> too — you can't lend edit rights
+    <p>(The variable itself must be <code>mut</code> too; you can't lend edit rights
     you don't have.)</p>
 
     <h2>The two rules of borrowing 📜</h2>
@@ -80,13 +80,13 @@ fn main() {
       <span class="co-title">At any moment, you may have:</span>
       <ul style="margin:6px 0 0">
         <li>🟢 <strong>any number of read-only references</strong> (<code>&amp;T</code>), <em>or</em></li>
-        <li>🔴 <strong>exactly one mutable reference</strong> (<code>&amp;mut T</code>) — never both.</li>
+        <li>🔴 <strong>exactly one mutable reference</strong> (<code>&amp;mut T</code>), never both.</li>
       </ul>
       <p style="margin:8px 0 0">In short: <strong>many readers or one writer.</strong></p>
     </div>
     <p>
       Why so strict? Imagine ten people silently reading a shared document while one
-      person rewrites it — chaos, confusion, readers seeing half-edited sentences.
+      person rewrites it: chaos, confusion, readers seeing half-edited sentences.
       Every data race and a whole family of crashes come from exactly that: reading
       and writing the same data at once. Most languages let it happen and hope.
       Rust makes it <em>unrepresentable</em>:
@@ -98,7 +98,7 @@ fn main() {
     let r2 = &amp;score;        // ✅ two readers, fine
     println!("{r1} {r2}");
 
-    let w = &amp;mut score;     // ✅ readers are done — one writer OK
+    let w = &amp;mut score;     // ✅ readers are done, one writer OK
     w.push_str("!!!");
     println!("{w}");
 }</code></pre>
@@ -119,14 +119,14 @@ println!("{reader}");</code></pre>
     <div class="callout tip">
       <span class="co-title">💡 The usual fix: reorder</span>
       A borrow ends after its last use. Finish reading <em>before</em> you start
-      writing — move <code>println!("{reader}")</code> above the <code>&amp;mut</code>
+      writing: move <code>println!("{reader}")</code> above the <code>&amp;mut</code>
       line and the example compiles. When the borrow checker complains, ask:
       "can I finish one job before starting the next?" The answer is almost always yes.
     </div>
 
     <h2>Slices: borrowing a piece 🍰</h2>
     <p>You can also borrow just a <em>portion</em> of something. This finally explains
-    <code>&amp;str</code> from Lesson 3 — it's a borrowed view into text:</p>
+    <code>&amp;str</code> from Lesson 3; it's a borrowed view into text:</p>
 <pre><code>fn main() {
     let song = String::from("under the sea");
     let word: &amp;str = &amp;song[6..9];    // borrow characters 6,7,8
@@ -139,7 +139,7 @@ println!("{reader}");</code></pre>
     <div class="callout info">
       <span class="co-title">📝 Why functions take <code>&amp;str</code>, not <code>&amp;String</code></span>
       A <code>&amp;str</code> can view a whole <code>String</code>, a piece of one, or a
-      <code>"literal"</code> — so <code>fn shout(text: &amp;str)</code> accepts all three.
+      <code>"literal"</code>, so <code>fn shout(text: &amp;str)</code> accepts all three.
       It's the friendlier doorway, and Rust converts <code>&amp;String</code> to
       <code>&amp;str</code> automatically. Idiom to remember: <strong>own a
       <code>String</code>, borrow a <code>&amp;str</code></strong>.
@@ -148,10 +148,10 @@ println!("{reader}");</code></pre>
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Forgetting the <code>&amp;</code> at the call site — <code>count_letters(poem)</code>
+        <li>Forgetting the <code>&amp;</code> at the call site: <code>count_letters(poem)</code>
             <em>moves</em> the value; <code>count_letters(&amp;poem)</code> lends it.</li>
         <li>Trying <code>&amp;mut</code> on a variable that isn't <code>mut</code>.</li>
-        <li>Two <code>&amp;mut</code> borrows alive at once — finish one job first.</li>
+        <li>Two <code>&amp;mut</code> borrows alive at once; finish one job first.</li>
       </ul>
     </div>
 
@@ -159,7 +159,7 @@ println!("{reader}");</code></pre>
       <span class="ex-label">Exercise 1</span>
       <h4>Fix it with a borrow</h4>
       <p>This is Lesson 6's broken cake program. Fix it by changing <code>devour</code>
-      to <em>borrow</em> instead of take — you'll change exactly two characters.</p>
+      to <em>borrow</em> instead of take. You'll change exactly two characters.</p>
 <pre><code>fn devour(snack: String) {
     println!("nom nom: {snack}");
 }
@@ -179,7 +179,7 @@ fn main() {
     devour(&amp;cake);                   // 2: lend, don't give
     println!("{cake} is still here!");
 }</code></pre>
-        <p>(Even more idiomatic: <code>snack: &amp;str</code> — see the note above.)</p>
+        <p>(Even more idiomatic: <code>snack: &amp;str</code>; see the note above.)</p>
       </details>
     </div>
 
@@ -224,7 +224,7 @@ fn main() {
     println!("final: {inventory}");
 }</code></pre>
         <p>The read-borrow <code>peek</code> ends at its last use, freeing
-        <code>inventory</code> to be modified. Many readers <em>or</em> one writer —
+        <code>inventory</code> to be modified. Many readers <em>or</em> one writer,
         just not overlapping.</p>
       </details>
     </div>

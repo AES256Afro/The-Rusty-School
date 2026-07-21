@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 13: Lifetimes — The Rusty School</title>
+<title>Lesson 13: Lifetimes - The Rusty School</title>
 <meta name="description" content="Rust lifetimes demystified: what 'a really means, why the borrow checker needs it, and when you can ignore it.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -40,7 +40,7 @@
   <div class="lesson-body">
     <h2>The crime lifetimes prevent</h2>
     <p>In C, this is a legendary way to ruin a weekend: keep a pointer to something,
-    free the thing, use the pointer anyway. A <em>dangling reference</em> — reading
+    free the thing, use the pointer anyway. A <em>dangling reference</em>: reading
     memory that now belongs to someone else. Here's the Rust equivalent:</p>
 <pre><code>fn main() {
     let borrowed;
@@ -62,18 +62,18 @@
       Rust catches it because it tracks a <strong>lifetime</strong> for every reference:
       the region of code where the borrowed data is guaranteed alive. Rule (you know it
       from Lesson 7): <em>a reference must never outlive what it points to.</em>
-      Usually this checking is invisible. Sometimes the compiler needs a hint — that's
+      Usually this checking is invisible. Sometimes the compiler needs a hint; that's
       the only time you see <code>'a</code>.
     </p>
 
     <h2>When the compiler asks for help</h2>
-    <p>Here's the classic function that needs a hint — return the longer of two strings:</p>
+    <p>Here's the classic function that needs a hint, returning the longer of two strings:</p>
 <pre><code>fn longest(a: &amp;str, b: &amp;str) -&gt; &amp;str {   // ❌ won't compile
     if a.len() &gt; b.len() { a } else { b }
 }</code></pre>
     <p>
       The compiler's dilemma: the returned reference points at <code>a</code>'s data
-      <em>or</em> <code>b</code>'s data — it can't know which until runtime. So how long
+      <em>or</em> <code>b</code>'s data; it can't know which until runtime. So how long
       is the <em>result</em> safe to use? It refuses to guess. We answer with a
       lifetime annotation:
     </p>
@@ -82,10 +82,10 @@
 }</code></pre>
     <p>
       Read <code>'a</code> as a label, like "lifetime A." The signature now says:
-      <em>"both inputs live at least as long as some region 'a — and my result is only
+      <em>"both inputs live at least as long as some region 'a, and my result is only
       valid inside that same region."</em> In practice: the result is safe as long as
       the <strong>shorter-lived</strong> of the two inputs. That's all a lifetime
-      annotation is — paperwork connecting outputs to inputs. It changes nothing at
+      annotation is: paperwork connecting outputs to inputs. It changes nothing at
       runtime; it exists only so the compiler can check callers:
     </p>
 <pre><code>fn main() {
@@ -95,16 +95,16 @@
     {
         let short_lived = String::from("kelp");
         result = longest(&amp;long_lived, &amp;short_lived);
-        println!("{result}");    // ✅ fine — both inputs still alive
+        println!("{result}");    // ✅ fine: both inputs still alive
     }
     // println!("{result}");     // ❌ short_lived is gone; result might
-                                 //    point at it — compiler says no
+                                 //    point at it, so the compiler says no
 }</code></pre>
 
     <h2>The library card analogy 📇</h2>
     <p>
       A reference is a library card for a book you don't own. A lifetime is the card's
-      <strong>expiry date</strong> — the compiler stamps it to match when the book
+      <strong>expiry date</strong>: the compiler stamps it to match when the book
       leaves the library. <code>longest&lt;'a&gt;</code> just tells the stamp machine:
       "this card's expiry = the earlier of the two books' due dates."
       Expired card? The librarian (borrow checker) stops you at the door.
@@ -112,7 +112,7 @@
     </p>
 
     <h2>Why you'll rarely write these</h2>
-    <p>Good news: in common patterns, the compiler stamps cards automatically —
+    <p>Good news: in common patterns, the compiler stamps cards automatically;
     that's called <strong>lifetime elision</strong>. This needs no annotation:</p>
 <pre><code>fn first_word(text: &amp;str) -&gt; &amp;str {
     text.split_whitespace().next().unwrap_or("")
@@ -124,12 +124,12 @@
     </p>
     <p>
       One special lifetime you've met already: <code>'static</code> means "alive for
-      the whole program" — true of string literals, which are baked into the binary:
+      the whole program". That's true of string literals, which are baked into the binary:
       <code>let motto: &amp;'static str = "stay rusty";</code>
     </p>
 
     <h2>Structs that borrow</h2>
-    <p>If a struct holds a reference, it needs the annotation too — "this struct must
+    <p>If a struct holds a reference, it needs the annotation too: "this struct must
     not outlive the data it's viewing":</p>
 <pre><code>struct Excerpt&lt;'a&gt; {
     line: &amp;'a str,
@@ -139,7 +139,7 @@ fn main() {
     let poem = String::from("the tide returns. the crab abides.");
     let quote = Excerpt { line: &amp;poem[0..17] };
     println!("{}", quote.line);
-}   // poem and quote die together — all good</code></pre>
+}   // poem and quote die together, all good</code></pre>
     <div class="callout tip">
       <span class="co-title">💡 Beginner escape hatch</span>
       Fighting a lifetime error you don't understand? Store an owned
@@ -152,11 +152,11 @@ fn main() {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Returning a reference to a variable created <em>inside</em> the function —
+        <li>Returning a reference to a variable created <em>inside</em> the function:
             it dies at the closing brace; nothing can save it. Return an owned value.</li>
-        <li>Reading <code>'a</code> as something mystical — it's a label, like naming a
+        <li>Reading <code>'a</code> as something mystical: it's a label, like naming a
             generic <code>T</code>.</li>
-        <li>Adding lifetimes everywhere preemptively — write without them, add only
+        <li>Adding lifetimes everywhere preemptively: write without them, add only
             when the compiler asks.</li>
       </ul>
     </div>
@@ -169,7 +169,7 @@ fn main() {
       the inner braces. Why does that satisfy the checker?</p>
       <details class="solution"><summary>Reveal answer</summary>
         <p>Inside the braces, <code>temp</code> is still alive, so the reference is
-        valid at the moment it's used. The borrow now ends before its target dies —
+        valid at the moment it's used. The borrow now ends before its target dies:
         rule respected, everyone happy.</p>
       </details>
     </div>
@@ -178,7 +178,7 @@ fn main() {
       <span class="ex-label">Exercise 2</span>
       <h4>Shortest, not longest</h4>
       <p>Write <code>fn shortest&lt;'a&gt;(a: &amp;'a str, b: &amp;'a str) -&gt; &amp;'a str</code>
-      returning the shorter string, and prove it works. (Mostly muscle memory —
+      returning the shorter string, and prove it works. (Mostly muscle memory;
       that's the point.)</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn shortest&lt;'a&gt;(a: &amp;'a str, b: &amp;'a str) -&gt; &amp;'a str {
@@ -195,13 +195,13 @@ fn main() {
       <span class="ex-label">Exercise 3</span>
       <h4>The impossible function</h4>
       <p>Explain why this can <em>never</em> compile, no matter what lifetime
-      annotations you add — then write the version that works.</p>
+      annotations you add. Then write the version that works.</p>
 <pre><code>fn make_greeting() -&gt; &amp;str {
     let text = String::from("ahoy!");
     &amp;text
 }</code></pre>
       <details class="solution"><summary>Reveal answer</summary>
-        <p><code>text</code> is dropped when the function returns — the reference would
+        <p><code>text</code> is dropped when the function returns; the reference would
         point at freed memory, and no annotation can extend a dead value's life.
         Lifetimes <em>describe</em> reality; they don't change it. The fix is to hand
         over ownership instead:</p>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 12: Traits &amp; Generics — The Rusty School</title>
+<title>Lesson 12: Traits &amp; Generics - The Rusty School</title>
 <meta name="description" content="Rust traits and generics: shared behavior, trait bounds, and flexible code without duplication.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -33,7 +33,7 @@
     <span class="badge l3">Level 3 · Power Tools</span>
     <h1>Traits &amp; Generics 🧬</h1>
     <p class="lede muted">Welcome to Level 3. First tool: writing code that works for
-    <em>many</em> types at once — without losing an ounce of safety or speed.</p>
+    <em>many</em> types at once, without losing an ounce of safety or speed.</p>
   </section>
 
   <div class="lesson-body">
@@ -75,7 +75,7 @@ fn main() {
 }</code></pre>
     <p>
       Two completely unrelated types now share a vocabulary. If a type skips a required
-      method, the compiler refuses the badge — a half-implemented interface can't exist.
+      method, the compiler refuses the badge: a half-implemented interface can't exist.
     </p>
 
     <h2>Functions that accept "anything with the badge"</h2>
@@ -88,7 +88,7 @@ fn main() {
     announce(&amp;Wave { height_m: 1.5 });
 }</code></pre>
     <p><code>&amp;impl Describe</code> reads exactly as it sounds: "a borrow of anything
-    that implements Describe." One function, every describable type, forever —
+    that implements Describe." One function, every describable type, forever,
     including types other people write next year.</p>
 
     <h2>Generics: type placeholders</h2>
@@ -134,13 +134,13 @@ fn main() {
     <p>
       <code>T: PartialOrd</code> means "any type T that can be compared with
       <code>&lt;</code> and <code>&gt;</code>." Remove the bound and the compiler
-      rejects the <code>&gt;</code> — it won't let you assume abilities a type might
+      rejects the <code>&gt;</code>: it won't let you assume abilities a type might
       not have. Maximum flexibility, zero leaps of faith.
     </p>
     <div class="callout info">
       <span class="co-title">⚡ The free lunch</span>
       Here's the magic: at compile time Rust generates a specialized copy of
-      <code>largest</code> for each type you use it with — as if you'd hand-written an
+      <code>largest</code> for each type you use it with, as if you'd hand-written an
       <code>i32</code> version and a <code>char</code> version. Generic code runs
       <em>exactly as fast</em> as duplicated code. This is called
       <em>zero-cost abstraction</em>, and it's a core reason Rust wins benchmarks.
@@ -156,12 +156,12 @@ fn main() {
         <tr><td><code>Copy</code></td><td>copy instead of move (Lesson 6!)</td><td><code>#[derive(Copy, Clone)]</code>, small types only</td></tr>
         <tr><td><code>PartialEq</code></td><td><code>==</code> and <code>!=</code></td><td><code>#[derive(PartialEq)]</code></td></tr>
         <tr><td><code>PartialOrd</code></td><td><code>&lt;</code> <code>&gt;</code> comparisons</td><td><code>#[derive(PartialOrd)]</code></td></tr>
-        <tr><td><code>Display</code></td><td>printing with <code>{}</code></td><td>written by hand — you choose the look</td></tr>
+        <tr><td><code>Display</code></td><td>printing with <code>{}</code></td><td>written by hand; you choose the look</td></tr>
       </tbody>
     </table>
     </div>
     <p>That mysterious <code>#[derive(...)]</code> from Lesson 8 was trait
-    implementation all along — the compiler writing badge paperwork for you.</p>
+    implementation all along: the compiler writing badge paperwork for you.</p>
 
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
@@ -169,7 +169,7 @@ fn main() {
         <li>Using <code>&gt;</code>, <code>==</code> or <code>{:?}</code> on a generic
             <code>T</code> without the bound that grants it.</li>
         <li>Forgetting <code>for</code> in <code>impl Describe for Crab</code>.</li>
-        <li>Deriving <code>Copy</code> on heap-owning types like <code>String</code> —
+        <li>Deriving <code>Copy</code> on heap-owning types like <code>String</code>:
             not allowed, and the compiler explains why.</li>
       </ul>
     </div>
@@ -223,7 +223,7 @@ fn main() {
     println!("{:?}", swap((1, 2)));          // (2, 1)
     println!("{:?}", swap(("hi", "yo")));    // ("yo", "hi")
 }</code></pre>
-        <p>No bound needed — swapping only <em>moves</em> values around. Bounds are for
+        <p>No bound needed: swapping only <em>moves</em> values around. Bounds are for
         when you <em>use</em> abilities: compare, print, clone…</p>
       </details>
     </div>

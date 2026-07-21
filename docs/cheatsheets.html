@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cheat Sheets — The Rusty School</title>
+<title>Cheat Sheets - The Rusty School</title>
 <meta name="description" content="Printable Rust cheat sheets: syntax, types, ownership rules, collections, error handling, and Cargo commands.">
 <link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
 <link rel="stylesheet" href="assets/style.css">
@@ -33,7 +33,7 @@
     <h1>Cheat <span class="grad">sheets</span> 📋</h1>
     <p class="lede muted">
       Everything you keep forgetting, on one page. Print it
-      (<code>Ctrl/⌘+P</code> — we styled it for paper) or keep it in a tab.
+      (<code>Ctrl/⌘+P</code>; we styled it for paper) or keep it in a tab.
     </p>
   </section>
 
@@ -91,8 +91,8 @@ eprintln!("to stderr");</code></pre>
       <tr><td><code>char</code></td><td>one character (any emoji too)</td><td><code>let c = '🦀';</code></td></tr>
       <tr><td><code>&amp;str</code></td><td>borrowed text view</td><td><code>let s = "hi";</code></td></tr>
       <tr><td><code>String</code></td><td>owned, growable text</td><td><code>let s = String::from("hi");</code></td></tr>
-      <tr><td><code>(i32, bool)</code></td><td>tuple — mixed bundle</td><td><code>let t = (5, true);</code></td></tr>
-      <tr><td><code>[i32; 3]</code></td><td>array — fixed size</td><td><code>let a = [1, 2, 3];</code></td></tr>
+      <tr><td><code>(i32, bool)</code></td><td>tuple: mixed bundle</td><td><code>let t = (5, true);</code></td></tr>
+      <tr><td><code>[i32; 3]</code></td><td>array: fixed size</td><td><code>let a = [1, 2, 3];</code></td></tr>
       <tr><td><code>Vec&lt;T&gt;</code></td><td>growable list</td><td><code>let v = vec![1, 2, 3];</code></td></tr>
       <tr><td><code>Option&lt;T&gt;</code></td><td>maybe a value</td><td><code>Some(5)</code> / <code>None</code></td></tr>
       <tr><td><code>Result&lt;T, E&gt;</code></td><td>success or failure</td><td><code>Ok(5)</code> / <code>Err(e)</code></td></tr>
@@ -100,7 +100,7 @@ eprintln!("to stderr");</code></pre>
   </table>
   </div>
 
-  <h2>🧠 Ownership &amp; borrowing — the whole law</h2>
+  <h2>🧠 Ownership &amp; borrowing: the whole law</h2>
   <div class="sheet-grid">
     <div class="card">
       <h3>The three ownership rules</h3>
@@ -161,7 +161,7 @@ let n = "42".parse().unwrap_or(0);</code></pre>
   <h2>📚 Collections in practice</h2>
   <div class="sheet-grid">
     <div class="card">
-      <h3>Vec — a growable list</h3>
+      <h3>Vec: a growable list</h3>
 <pre><code>let mut v = vec![1, 2, 3];
 v.push(4);                 // add to end
 let last = v.pop();        // Option&lt;i32&gt;
@@ -172,7 +172,7 @@ for x in &v { ... }        // iterate borrowed
 v.len();  v.is_empty();  v.contains(&2);</code></pre>
     </div>
     <div class="card">
-      <h3>String — owned text</h3>
+      <h3>String: owned text</h3>
 <pre><code>let mut s = String::from("Hello");
 s.push_str(", world");     // append &str
 s.push('!');               // append char
@@ -182,7 +182,7 @@ for word in s.split(' ') { ... }
 let num: i32 = "42".parse().unwrap();</code></pre>
     </div>
     <div class="card">
-      <h3>HashMap — key → value</h3>
+      <h3>HashMap: key → value</h3>
 <pre><code>use std::collections::HashMap;
 
 let mut scores = HashMap::new();
@@ -242,7 +242,7 @@ fn read_config() -> Result&lt;String, std::io::Error&gt; {
       <tr><td><code>cargo test</code></td><td>run all tests</td></tr>
       <tr><td><code>cargo add serde</code></td><td>add a dependency from crates.io</td></tr>
       <tr><td><code>cargo fmt</code></td><td>auto-format all code</td></tr>
-      <tr><td><code>cargo clippy</code></td><td>the wise linter — catches bad patterns</td></tr>
+      <tr><td><code>cargo clippy</code></td><td>the wise linter (catches bad patterns)</td></tr>
       <tr><td><code>cargo doc --open</code></td><td>build &amp; open docs for your code + deps</td></tr>
       <tr><td><code>rustup update</code></td><td>update Rust itself</td></tr>
     </tbody>
@@ -264,7 +264,7 @@ fn read_config() -> Result&lt;String, std::io::Error&gt; {
       <h3>Beginner rules of thumb</h3>
       <ul class="checklist">
         <li>Functions should usually take <code>&amp;str</code> instead of <code>String</code>, and <code>&amp;[T]</code> instead of <code>Vec&lt;T&gt;</code>.</li>
-        <li>Reach for <code>.clone()</code> guilt-free while learning — correct first, optimal later.</li>
+        <li>Reach for <code>.clone()</code> guilt-free while learning: correct first, optimal later.</li>
         <li>Let the compiler drive: read the error, apply its suggestion, repeat.</li>
         <li>When stuck, <code>cargo clippy</code> often knows the idiomatic fix.</li>
       </ul>
@@ -273,7 +273,7 @@ fn read_config() -> Result&lt;String, std::io::Error&gt; {
 
   <div class="callout tip no-print" style="margin-top:30px">
     <span class="co-title">🖨️ Make it paper</span>
-    Press <code>Ctrl/⌘ + P</code> — this page has a clean print layout on purpose.
+    Press <code>Ctrl/⌘ + P</code>. This page has a clean print layout on purpose.
     Pin it above your desk like the periodic table of crab.
   </div>
 </main>

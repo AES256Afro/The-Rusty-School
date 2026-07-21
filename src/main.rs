@@ -1,17 +1,17 @@
-//! The Rusty School — web server
+//! The Rusty School: web server
 //! ============================
 //!
 //! This little program serves the entire Rusty School website from the
-//! `docs/` folder. It is written in 100% standard-library Rust — no
-//! external dependencies at all — so `cargo run` starts instantly.
+//! `docs/` folder. It is written in 100% standard-library Rust (no
+//! external dependencies at all), so `cargo run` starts instantly.
 //!
 //! It is also a *lesson*: once you finish the curriculum on the site,
 //! come back and read this file top to bottom. Everything here is
 //! covered in the lessons:
 //!
-//!   * functions & control flow ......... Lessons 4–5
-//!   * ownership & borrowing ............ Lessons 6–7
-//!   * structs, enums & `match` ......... Lessons 8–9
+//!   * functions & control flow ......... Lessons 4-5
+//!   * ownership & borrowing ............ Lessons 6-7
+//!   * structs, enums & `match` ......... Lessons 8-9
 //!   * `String` vs `&str` ............... Lesson 10
 //!   * `Option`, `Result` and `?` ....... Lessons 9 & 11
 //!   * traits (`Display`) ............... Lesson 12
@@ -37,7 +37,7 @@ fn main() {
     // `expect` crashes with a friendly message if the port is taken.
     // You'll learn about `Result` and error handling in Lesson 11.
     let listener = TcpListener::bind(ADDRESS)
-        .expect("could not bind to port 7878 — is another server already running?");
+        .expect("could not bind to port 7878. Is another server already running?");
 
     println!("🦀 The Rusty School is open!");
     println!("   Visit  http://{ADDRESS}  in your browser.");
@@ -63,7 +63,7 @@ fn handle_connection(mut stream: TcpStream) {
     // The first line of an HTTP request looks like:  GET /learn/index.html HTTP/1.1
     let request_line = match reader.lines().next() {
         Some(Ok(line)) => line,
-        _ => return, // The browser hung up early — nothing to do.
+        _ => return, // The browser hung up early; nothing to do.
     };
 
     // Split the request line into its three parts.
@@ -91,7 +91,7 @@ fn handle_connection(mut stream: TcpStream) {
 
 /// Turn a URL path like `/learn/` into a safe file path like `docs/learn/index.html`.
 ///
-/// Returns `None` (Lesson 9!) if the path tries to escape the site folder —
+/// Returns `None` (Lesson 9!) if the path tries to escape the site folder:
 /// requests containing `..` could otherwise read files they shouldn't.
 fn resolve(raw_path: &str) -> Option<PathBuf> {
     // Ignore anything after `?` (query strings) or `#` (fragments).
@@ -128,7 +128,7 @@ fn resolve(raw_path: &str) -> Option<PathBuf> {
 /// Pick the right `Content-Type` header from the file extension so the
 /// browser knows whether it received HTML, CSS, an image, and so on.
 fn mime_type(path: &PathBuf) -> &'static str {
-    // `and_then` and `unwrap_or` are Option helpers — Lesson 9.
+    // `and_then` and `unwrap_or` are Option helpers (Lesson 9).
     let extension = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
     match extension {
@@ -154,7 +154,7 @@ fn respond(stream: &mut TcpStream, status: &str, mime: &str, body: &[u8]) {
     );
 
     // If the browser disconnected mid-response, there is nobody left to
-    // tell — so we deliberately ignore write errors with `.ok()`.
+    // tell, so we deliberately ignore write errors with `.ok()`.
     stream.write_all(header.as_bytes()).ok();
     stream.write_all(body).ok();
 }
@@ -162,7 +162,7 @@ fn respond(stream: &mut TcpStream, status: &str, mime: &str, body: &[u8]) {
 /// Send a small 404 page. If the site has a custom 404.html, use that.
 fn not_found(stream: &mut TcpStream) {
     let body = fs::read(format!("{SITE_ROOT}/404.html")).unwrap_or_else(|_| {
-        b"<h1>404 &mdash; page not found</h1><p><a href='/'>Back to The Rusty School</a></p>"
+        b"<h1>404: page not found</h1><p><a href='/'>Back to The Rusty School</a></p>"
             .to_vec()
     });
     respond(stream, "404 Not Found", "text/html; charset=utf-8", &body);

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 17: Cargo, Modules &amp; Tests — The Rusty School</title>
+<title>Lesson 17: Cargo, Modules &amp; Tests - The Rusty School</title>
 <meta name="description" content="Organize Rust projects with modules, write tests, use crates.io, and graduate: your next steps as a Rustacean.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -41,7 +41,7 @@
     <h2>Modules: rooms in the house 🏠</h2>
     <p>
       One giant <code>main.rs</code> stops scaling around a few hundred lines.
-      <strong>Modules</strong> give your code rooms — related functions live together,
+      <strong>Modules</strong> give your code rooms: related functions live together,
       and <code>pub</code> marks which doors are open to visitors:
     </p>
 <pre><code>mod kitchen {
@@ -56,16 +56,16 @@
 
 fn main() {
     println!("{}", kitchen::cook());
-    // kitchen::secret_spice();  // ❌ private — the compiler guards the door
+    // kitchen::secret_spice();  // ❌ private: the compiler guards the door
 }</code></pre>
-    <p>When a room outgrows the house, move it to its own file — <code>mod kitchen;</code>
+    <p>When a room outgrows the house, move it to its own file: <code>mod kitchen;</code>
     in <code>main.rs</code> tells Cargo to look in <code>src/kitchen.rs</code>. Same
     code, tidier home. The <code>use</code> keyword makes paths shorter:
-    <code>use kitchen::cook;</code> — exactly what
+    <code>use kitchen::cook;</code> is exactly what
     <code>use std::collections::HashMap;</code> was doing all along.</p>
 
     <h2>Tests: proof, not hope 🧪</h2>
-    <p>Testing is built into the language — no frameworks to install, no excuses:</p>
+    <p>Testing is built into the language. No frameworks to install, no excuses:</p>
 <pre><code>fn tip(bill: f64, percent: f64) -&gt; f64 {
     bill * percent / 100.0
 }
@@ -91,21 +91,21 @@ test tests::zero_percent_is_zero ... ok
 
 test result: ok. 2 passed; 0 failed</code></pre>
     <p>
-      The toolbox: <code>assert_eq!(a, b)</code> — must be equal; <code>assert!(cond)</code>
-      — must be true; <code>#[should_panic]</code> — this test <em>expects</em> a crash.
+      The toolbox: <code>assert_eq!(a, b)</code> (must be equal); <code>assert!(cond)</code>
+      (must be true); <code>#[should_panic]</code> (this test <em>expects</em> a crash).
       Write a test the moment you write a function; future-you will refactor without
       fear, because the tests will catch any slip. (This very website's Rust server
-      has tests — run <code>cargo test</code> in the project and watch them pass.)
+      has tests: run <code>cargo test</code> in the project and watch them pass.)
     </p>
 
     <h2>Crates.io: the world's toolshed 📦</h2>
     <p>
       A <em>crate</em> is a Rust package, and <a href="https://crates.io" target="_blank" rel="noopener">crates.io</a>
-      hosts over 150,000 of them, free. Adding one is a single command —
+      hosts over 150,000 of them, free. Adding one is a single command;
       here's the beloved <code>rand</code>:
     </p>
 <pre class="term"><code>cargo add rand</code></pre>
-<pre><code>use rand::Rng;   // trait import — Lesson 12 knowledge!
+<pre><code>use rand::Rng;   // trait import, Lesson 12 knowledge!
 
 fn main() {
     let roll = rand::thread_rng().gen_range(1..=6);
@@ -120,7 +120,7 @@ fn main() {
     <table>
       <thead><tr><th>Command</th><th>What it does</th></tr></thead>
       <tbody>
-        <tr><td><code>cargo fmt</code></td><td>formats your code the standard way — ends all style debates</td></tr>
+        <tr><td><code>cargo fmt</code></td><td>formats your code the standard way; ends all style debates</td></tr>
         <tr><td><code>cargo clippy</code></td><td>a lint sage: flags un-idiomatic code and teaches the better way</td></tr>
         <tr><td><code>cargo doc --open</code></td><td>generates a documentation website from your <code>///</code> comments</td></tr>
         <tr><td><code>cargo build --release</code></td><td>full-speed optimized binary (debug builds are slow on purpose)</td></tr>
@@ -128,7 +128,7 @@ fn main() {
     </table>
     </div>
     <p>Run <code>fmt</code> and <code>clippy</code> before every commit and your code
-    will look senior from day one. Clippy in particular is a free mentor — it
+    will look senior from day one. Clippy in particular is a free mentor: it
     explains <em>why</em>.</p>
 
     <h2>Graduation 🎓🦀</h2>
@@ -137,16 +137,16 @@ fn main() {
     iterators, smart pointers, threads, modules, tests. That's not "beginner Rust."
     That's <em>Rust</em>. Where to go from here:</p>
     <ul class="checklist">
-      <li><strong>Read this site's own server</strong> — <code>src/main.rs</code> in this
+      <li><strong>Read this site's own server</strong>: <code>src/main.rs</code> in this
         project is a real threaded web server in ~150 lines of pure std, and you now
         know every concept in it. Best possible capstone read.</li>
-      <li><strong>Build something small you'd use</strong> — a todo CLI, a dice game,
+      <li><strong>Build something small you'd use</strong>: a todo CLI, a dice game,
         a file renamer. Finished beats perfect.</li>
-      <li><strong><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings</a></strong> —
+      <li><strong><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings</a></strong>:
         dozens of drill exercises to sharpen instincts.</li>
-      <li><strong><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></strong> —
+      <li><strong><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></strong>:
         the official deep-dive; after this course it will read easily.</li>
-      <li><strong>Join the crab pile</strong> — <a href="https://users.rust-lang.org" target="_blank" rel="noopener">users.rust-lang.org</a>
+      <li><strong>Join the crab pile</strong>: <a href="https://users.rust-lang.org" target="_blank" rel="noopener">users.rust-lang.org</a>
         is famously the friendliest forum in programming. Ask anything.</li>
     </ul>
 
@@ -199,14 +199,14 @@ mod tests {
     }
 }</code></pre>
         <p>Run it: <code>cargo run -- 84.50 3</code>. Notice the test for the
-        zero-people edge case — thinking of those is what "experienced" means. 🧠</p>
+        zero-people edge case: thinking of those is what "experienced" means. 🧠</p>
       </details>
     </div>
 
     <div class="callout tip">
       <span class="co-title">🎉 You did it!</span>
       All 17 lessons. Take the <a href="../quiz.html">Power Tools quiz</a> to make it
-      official, then go build something. Welcome to the Rustacean life —
+      official, then go build something. Welcome to the Rustacean life.
       Rusty is proud of you. 🦀🧡
     </div>
 

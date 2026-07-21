@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 6: Ownership — The Rusty School</title>
+<title>Lesson 6: Ownership - The Rusty School</title>
 <meta name="description" content="Rust ownership explained gently: moves, clones, scope, and why Rust needs no garbage collector.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
@@ -32,7 +32,7 @@
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 6 of 17</nav>
     <span class="badge l2">Level 2 · The Rust Way</span>
     <h1>Ownership 👑</h1>
-    <p class="lede muted">This is it — the idea that made Rust famous, the reason it
+    <p class="lede muted">This is it: the idea that made Rust famous, the reason it
     needs no garbage collector, and the reason it can't crash from memory bugs.
     Take this lesson slow. It's worth it.</p>
   </section>
@@ -41,11 +41,11 @@
     <h2>The problem every language must solve</h2>
     <p>
       Programs constantly create data in memory. Eventually that memory must be given
-      back — or the program bloats and dies. Before Rust, there were two options:
+      back, or the program bloats and dies. Before Rust, there were two options:
     </p>
     <ul>
       <li><strong>You free memory by hand</strong> (C, C++): fast, but humans forget.
-        Free too late — memory leak. Free too early and use it anyway — crash, or a
+        Free too late: memory leak. Free too early and use it anyway: crash, or a
         security hole. Remember the home page stat: ~70% of serious security bugs
         are exactly this.</li>
       <li><strong>A garbage collector cleans up</strong> (Python, Java, JavaScript, Go):
@@ -54,7 +54,7 @@
     </ul>
     <p>
       Rust found a third way: <strong>the compiler figures out, at compile time, the
-      exact moment each value is no longer needed</strong> — and frees it there.
+      exact moment each value is no longer needed</strong>, and frees it there.
       No janitor. No human error. To pull that off, Rust needs one simple system of
       rules. That system is ownership.
     </p>
@@ -71,7 +71,7 @@
 
     <h2>Rule 2 in action: scope is destiny</h2>
     <p>A <em>scope</em> is a region between braces <code>{ }</code>. When a variable's
-    scope ends, its value is cleaned up — instantly, predictably:</p>
+    scope ends, its value is cleaned up, instantly and predictably:</p>
 <pre><code>fn main() {
     {
         let toy = String::from("squeaky crab");
@@ -88,7 +88,7 @@
     let s1 = String::from("hello");
     let s2 = s1;                 // ownership MOVES from s1 to s2
 
-    println!("{s2}");            // ✅ fine — s2 owns it now
+    println!("{s2}");            // ✅ fine, s2 owns it now
     println!("{s1}");            // ❌ compile error!
 }</code></pre>
 <pre class="compiler"><code>error[E0382]: borrow of moved value: `s1`
@@ -103,7 +103,7 @@
       <strong>Why?!</strong> Think of the String as a balloon 🎈 and variables as hands.
       Rule 1 says only one hand may hold the string at a time. <code>let s2 = s1;</code>
       passes the balloon to the other hand. If Rust let <em>both</em> hands believe they
-      own it, both would try to pop it at scope's end — a <em>double free</em>, one of
+      own it, both would try to pop it at scope's end: a <em>double free</em>, one of
       the classic C crashes. Rust's answer: the old hand simply lets go. <code>s1</code>
       is done, and using it is a compile error, not a 3am production incident.
     </p>
@@ -113,7 +113,7 @@
     let s1 = String::from("hello");
     let s2 = s1.clone();   // an actual second copy, in new memory
 
-    println!("{s1} and {s2}");  // ✅ both valid — two values, two owners
+    println!("{s1} and {s2}");  // ✅ both valid: two values, two owners
 }</code></pre>
     <div class="callout tip">
       <span class="co-title">💡 Beginner's rule of thumb</span>
@@ -127,20 +127,20 @@
     <em>stack</em> (fast, fixed-size memory), so Rust copies them instead of moving:</p>
 <pre><code>fn main() {
     let a = 5;
-    let b = a;              // a plain copy — no move drama
+    let b = a;              // a plain copy, no move drama
     println!("{a} and {b}");  // ✅ both fine
 }</code></pre>
     <p>
-      Why the difference? A <code>String</code> keeps its text in <em>heap</em> memory —
-      the big, flexible warehouse — and only a claim ticket lives in the variable.
+      Why the difference? A <code>String</code> keeps its text in <em>heap</em> memory
+      (the big, flexible warehouse), and only a claim ticket lives in the variable.
       Copying tickets without copying the goods is exactly the double-free trap, so
       heap-backed values move. Simple values with no warehouse claim
       (<code>i32</code>, <code>bool</code>, <code>char</code>, <code>f64</code>…) are
-      "Copy types" — they just duplicate.
+      "Copy types": they just duplicate.
     </p>
 
     <h2>Functions move things too</h2>
-    <p>Passing a value into a function follows the same rule — the parameter becomes
+    <p>Passing a value into a function follows the same rule; the parameter becomes
     the new owner:</p>
 <pre><code>fn devour(snack: String) {
     println!("nom nom: {snack}");
@@ -154,17 +154,17 @@ fn main() {
     <p>
       Giving a value away every time you call a function would be exhausting, though.
       What if you could <em>lend</em> the cake without giving it up? That's exactly
-      what Lesson 7 is about — and it's where ownership starts feeling natural
+      what Lesson 7 is about, and it's where ownership starts feeling natural
       instead of strict.
     </p>
 
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Using a variable after assigning it elsewhere — "value borrowed here after
+        <li>Using a variable after assigning it elsewhere: "value borrowed here after
             move." Fix: <code>.clone()</code>, or read on to Lesson 7 and lend instead.</li>
-        <li>Expecting numbers to behave like Strings — they don't; they're Copy types.</li>
-        <li>Trying to memorize the memory theory before feeling it — do the
+        <li>Expecting numbers to behave like Strings: they don't; they're Copy types.</li>
+        <li>Trying to memorize the memory theory before feeling it. Do the
             exercises; hands teach faster than diagrams.</li>
       </ul>
     </div>
@@ -183,8 +183,8 @@ let num = 42;
 let copy = num;
 println!("{num}");</code></pre>
       <details class="solution"><summary>Reveal answer</summary>
-        <p><strong>A fails</strong> — <code>String</code> moves, so <code>word</code> is
-        invalid after the assignment. <strong>B compiles</strong> — <code>i32</code> is a
+        <p><strong>A fails</strong>: <code>String</code> moves, so <code>word</code> is
+        invalid after the assignment. <strong>B compiles</strong>: <code>i32</code> is a
         Copy type; <code>copy</code> is a duplicate, and <code>num</code> lives on.</p>
       </details>
     </div>
@@ -192,7 +192,7 @@ println!("{num}");</code></pre>
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
       <h4>Two fixes, your choice</h4>
-      <p>Make this compile two different ways — once with <code>clone</code>, once by
+      <p>Make this compile two different ways: once with <code>clone</code>, once by
       reordering the code so the move happens last.</p>
 <pre><code>fn main() {
     let motto = String::from("stay rusty");
@@ -221,7 +221,7 @@ println!("banner: {banner}");</code></pre>
       <p>Type out the <code>devour</code> example from above and confirm the error.
       Then change <code>devour</code> to <em>return</em> the String
       (<code>fn devour(snack: String) -&gt; String</code>) and hand ownership back with
-      <code>let cake = devour(cake);</code>. Clunky? Extremely. Remember this feeling —
+      <code>let cake = devour(cake);</code>. Clunky? Extremely. Remember this feeling;
       Lesson 7 exists to fix it.</p>
       <details class="solution"><summary>Reveal solution</summary>
 <pre><code>fn devour(snack: String) -&gt; String {

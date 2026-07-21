@@ -1,13 +1,13 @@
 # 🦀 The Rusty School
 
-**Learn Rust from absolute zero — no coding experience required.**
+**Learn Rust from absolute zero: no coding experience required.**
 
 The Rusty School is a self-contained, beginner-first Rust curriculum packaged as a
 website. It takes you from "what is a terminal?" to traits, lifetimes, and fearless
 concurrency, with interactive quizzes, hands-on exercises, cheat sheets, and lab
 setup guides for every operating system.
 
-And yes — **the website is served by a web server written in Rust** (see
+And yes, **the website is served by a web server written in Rust** (see
 [`src/main.rs`](src/main.rs)). The server has zero dependencies, is heavily
 commented, and doubles as the final reading exercise of the course.
 
@@ -23,7 +23,7 @@ commented, and doubles as the final reading exercise of the course.
 
 3. Open **http://localhost:7878** in your browser. Class is in session. 🎓
 
-No Rust installed yet? The site is plain HTML/CSS/JS — you can also just open
+No Rust installed yet? The site is plain HTML/CSS/JS, so you can also just open
 `docs/index.html` directly in a browser, or serve the `docs/` folder with any
 static file server.
 
@@ -31,7 +31,7 @@ static file server.
 
 | Where | What |
 |---|---|
-| `docs/index.html` | Home — why Rust, who uses it, games & apps built with Rust |
+| `docs/index.html` | Home: why Rust, who uses it, games & apps built with Rust |
 | `docs/setup.html` | Build your lab: macOS, Windows, Linux, or zero-install in the browser |
 | `docs/learn/` | The 17-lesson curriculum, from Hello World to concurrency |
 | `docs/quiz.html` | Interactive quizzes for each level, with explanations |
@@ -40,14 +40,14 @@ static file server.
 
 ### The curriculum
 
-- **Level 1 — Sprout 🌱** (total beginner): Hello World & Cargo, variables,
+- **Level 1 - Sprout 🌱** (total beginner): Hello World & Cargo, variables,
   data types, functions, control flow
-- **Level 2 — The Rust Way 🔧**: ownership, borrowing & references, structs,
+- **Level 2 - The Rust Way 🔧**: ownership, borrowing & references, structs,
   enums & pattern matching, collections, error handling
-- **Level 3 — Power Tools 🚀**: traits & generics, lifetimes, closures &
+- **Level 3 - Power Tools 🚀**: traits & generics, lifetimes, closures &
   iterators, smart pointers, concurrency, modules/testing/ecosystem
 
-Progress is tracked in your browser (localStorage) — lessons you complete get a
+Progress is tracked in your browser (localStorage): lessons you complete get a
 checkmark, and the curriculum page shows your overall progress.
 
 ## Running the tests
@@ -64,9 +64,9 @@ Everything under `docs/` is static, so deployment is trivial:
 
 - **GitHub Pages** (easiest): push this repo, then in the repo's
   *Settings → Pages*, choose *Deploy from a branch*, branch `main`, folder
-  `/docs`. Done — the site appears at `https://<user>.github.io/<repo>/`.
+  `/docs`. Done. The site appears at `https://<user>.github.io/<repo>/`.
 - **Netlify / Cloudflare Pages / Vercel**: point the publish directory at `docs/`.
-- **Any server**: copy `docs/` anywhere that can serve files — or run the Rust
+- **Any server**: copy `docs/` anywhere that can serve files, or run the Rust
   server on a box of your own.
 
 ## Project goals
@@ -74,4 +74,4 @@ Everything under `docs/` is static, so deployment is trivial:
 - Teach Rust to people with *very little* coding experience, without dumbing it down.
 - Explain **why** Rust is worth adopting, not just how to write it.
 - Be fun: mascots, analogies, quizzes, small wins everywhere.
-- Stay dependency-free and hackable — the whole site is readable source code.
+- Stay dependency-free and hackable: the whole site is readable source code.

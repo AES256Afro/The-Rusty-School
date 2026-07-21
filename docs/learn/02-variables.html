@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 2: Variables &amp; Mutability — The Rusty School</title>
-<meta name="description" content="Rust variables, mutability, constants, and shadowing — explained with labeled boxes.">
+<title>Lesson 2: Variables &amp; Mutability - The Rusty School</title>
+<meta name="description" content="Rust variables, mutability, constants, and shadowing, explained with labeled boxes.">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
 <link rel="stylesheet" href="../assets/style.css">
 <script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
@@ -32,7 +32,7 @@
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 2 of 17</nav>
     <span class="badge l1">Level 1 · Sprout</span>
     <h1>Variables &amp; Mutability 📦</h1>
-    <p class="lede muted">Programs need to remember things — scores, names, totals.
+    <p class="lede muted">Programs need to remember things: scores, names, totals.
     Variables are how. And Rust has a strong opinion about them that will surprise you.</p>
   </section>
 
@@ -69,7 +69,7 @@
   |
 help: consider making this binding mutable: `mut apples`</code></pre>
     <p>
-      Rust variables are <strong>immutable by default</strong> — sealed boxes.
+      Rust variables are <strong>immutable by default</strong>: sealed boxes.
       Why? Because a huge share of bugs come from data changing when you didn't
       expect it. If nothing can change unless you explicitly allow it, whole
       categories of bugs vanish. Safety by default is <em>the</em> Rust theme, and
@@ -80,12 +80,12 @@ help: consider making this binding mutable: `mut apples`</code></pre>
     <p>When you genuinely want a value to change, say so out loud with <code>mut</code>:</p>
 <pre><code>fn main() {
     let mut score = 0;
-    score = score + 10;  // ✅ allowed — we asked for a mutable box
+    score = score + 10;  // ✅ allowed, we asked for a mutable box
     score += 5;          // shorthand for score = score + 5
     println!("score: {score}");
 }</code></pre>
     <p>
-      Now anyone reading your code — including you, at 2am — knows exactly which
+      Now anyone reading your code (including you, at 2am) knows exactly which
       values can change and which are set in stone. It's documentation the compiler enforces.
     </p>
 
@@ -100,7 +100,7 @@ fn main() {
 }</code></pre>
 
     <h2>Shadowing: the box-swap trick 🎩</h2>
-    <p>You <em>can</em> reuse a name with a fresh <code>let</code>. That's not mutation —
+    <p>You <em>can</em> reuse a name with a fresh <code>let</code>. That's not mutation;
     it's a brand-new box wearing the old label:</p>
 <pre><code>fn main() {
     let message = "  hello  ";
@@ -109,7 +109,7 @@ fn main() {
     println!("{message}");
 }</code></pre>
     <p>
-      Notice the superpower: shadowing may even change the <em>type</em> — text became
+      Notice the superpower: shadowing may even change the <em>type</em>. Text became
       a number. Rustaceans use this for step-by-step transformations, so you don't need
       names like <code>message_trimmed_final_v2</code>.
     </p>
@@ -117,10 +117,10 @@ fn main() {
     <div class="callout warn">
       <span class="co-title">⚠️ Common stumbles</span>
       <ul style="margin:6px 0 0">
-        <li>Reassigning without <code>mut</code> — read the error; it literally suggests the fix.</li>
-        <li>Adding <code>mut</code> to everything "just in case" — resist! Default to immutable;
+        <li>Reassigning without <code>mut</code>: read the error; it literally suggests the fix.</li>
+        <li>Adding <code>mut</code> to everything "just in case": resist! Default to immutable;
         add <code>mut</code> only when the compiler asks and it makes sense.</li>
-        <li>Declaring a variable you never use — Rust warns you (prefix with <code>_</code>
+        <li>Declaring a variable you never use: Rust warns you (prefix with <code>_</code>
         like <code>_unused</code> to hush it on purpose).</li>
       </ul>
     </div>
@@ -167,7 +167,7 @@ fn main() {
     level += 1;
     println!("Level up! Now level {level}");
 }</code></pre>
-        <p>Typing the same thing three times felt silly, right? Good instinct —
+        <p>Typing the same thing three times felt silly, right? Good instinct:
         loops (Lesson 5) will fix that.</p>
       </details>
     </div>
@@ -175,7 +175,7 @@ fn main() {
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
       <h4>Predict the output</h4>
-      <p>Without running it — what does this print?</p>
+      <p>Without running it, what does this print?</p>
 <pre><code>fn main() {
     let x = 2;
     let x = x * x;
