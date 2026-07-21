@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 11: Error Handling — The Rusty School</title>
+<meta name="description" content="Rust error handling: panic!, Result, unwrap, expect, and the ? operator.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 11 of 17</nav>
+    <span class="badge l2">Level 2 · The Rust Way</span>
+    <h1>Error Handling 🚨</h1>
+    <p class="lede muted">Files go missing. Networks drop. Users type "banana" where a
+    number goes. Rust's philosophy: failure is normal, so put it in the type system —
+    honestly, visibly, impossible to forget.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Two kinds of trouble</h2>
+    <ul>
+      <li><strong>Unrecoverable</strong> — a bug. The program is in a state that should
+        be impossible. Rust <em>panics</em>: stops immediately with a message.</li>
+      <li><strong>Recoverable</strong> — expected trouble. A missing file, bad input.
+        The function returns a <code>Result</code> and the caller decides what to do.</li>
+    </ul>
+
+    <h2>Panic: pull the emergency brake 🛑</h2>
+<pre><code>fn main() {
+    let v = vec![1, 2, 3];
+    // println!("{}", v[99]);      // this line would panic
+    panic!("something impossible happened!");  // or panic on purpose
+}</code></pre>
+    <p>
+      A panic is loud, immediate, and points at the guilty line — a crash with a good
+      alibi. But most trouble isn't a bug; it's Tuesday. For that, Rust has something
+      much better.
+    </p>
+
+    <h2><code>Result</code>: failure as a value 📬</h2>
+    <p>You already know <code>Option</code> ("maybe a value"). <code>Result</code> is its
+    sibling: "a value <em>or an explanation of what went wrong</em>."</p>
+<pre><code>enum Result&lt;T, E&gt; {
+    Ok(T),     // it worked — here's the value
+    Err(E),    // it failed — here's the error
+}</code></pre>
+    <p>Functions that can fail return it, and the compiler makes callers face both cases:</p>
+<pre><code>fn parse_age(text: &amp;str) -&gt; Result&lt;u32, String&gt; {
+    match text.trim().parse::&lt;u32&gt;() {
+        Ok(n) if n &lt; 150 =&gt; Ok(n),
+        Ok(_) =&gt; Err(String::from("nobody is that old")),
+        Err(_) =&gt; Err(format!("'{text}' is not a number")),
+    }
+}
+
+fn main() {
+    for input in ["42", "banana", "9000"] {
+        match parse_age(input) {
+            Ok(age) =&gt; println!("age {age}, welcome!"),
+            Err(reason) =&gt; println!("rejected: {reason}"),
+        }
+    }
+}</code></pre>
+    <p>
+      Compare that with exceptions in other languages, where failure silently teleports
+      up the call stack until something (hopefully) catches it. In Rust, a function's
+      signature <em>tells you</em> it can fail, and forgetting to handle it is a
+      compile error, not a production outage.
+    </p>
+
+    <h2>The shortcuts: <code>unwrap</code> family</h2>
+<pre><code>let n: u32 = "42".parse().unwrap();        // Ok → 42, Err → PANIC 😬
+let n: u32 = "42".parse().expect("bad input"); // same, custom message
+let n: u32 = "banana".parse().unwrap_or(0);    // Err → fallback: 0</code></pre>
+    <div class="callout tip">
+      <span class="co-title">💡 House rules</span>
+      <code>unwrap()</code> in quick experiments: fine, everyone does it.
+      <code>expect("...")</code> when a failure would be a genuine bug: good — the message
+      helps future-you. <code>unwrap_or(default)</code> when there's a sensible fallback:
+      great. Bare <code>unwrap()</code> on user input in real code: how outages are born.
+    </div>
+
+    <h2>The star of the show: <code>?</code> ⭐</h2>
+    <p>
+      Real work is a chain of things that might fail: open the file, <em>then</em> read
+      it, <em>then</em> parse it. Matching every step drowns the logic in ceremony.
+      The <code>?</code> operator is Rust's elegant answer:
+    </p>
+<pre><code>use std::fs;
+
+fn read_config() -&gt; Result&lt;String, std::io::Error&gt; {
+    let raw = fs::read_to_string("config.txt")?;   // Err? return it upward.
+    let clean = raw.trim().to_string();            // Ok? keep going.
+    Ok(clean)
+}
+
+fn main() {
+    match read_config() {
+        Ok(cfg) =&gt; println!("config: {cfg}"),
+        Err(e) =&gt; println!("couldn't read config: {e}"),
+    }
+}</code></pre>
+    <p>
+      Each <code>?</code> means: <em>"if this failed, stop here and hand the error to my
+      caller; otherwise unwrap and continue."</em> The happy path reads top to bottom
+      like nothing could go wrong — while every failure is still handled. This is the
+      operator Rustaceans miss most in other languages.
+    </p>
+    <p>
+      One rule: <code>?</code> only works inside functions that themselves return a
+      <code>Result</code> (or <code>Option</code>) — the error needs somewhere to go.
+      That's why we wrote a helper function instead of using <code>?</code> directly
+      in plain <code>main</code>.
+    </p>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Using <code>?</code> in a function that returns nothing — the compiler will
+            ask "return the error <em>where</em>?" Wrap the logic in a
+            <code>Result</code>-returning function.</li>
+        <li>Forgetting to wrap the final success in <code>Ok(...)</code>.</li>
+        <li><code>unwrap()</code> on anything a user can influence.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Fortune teller, honest edition</h4>
+      <p>Write <code>fn lucky_number(text: &amp;str) -&gt; Result&lt;i32, String&gt;</code>: parse
+      the text into an <code>i32</code> (map the parse error to a friendly message), and
+      if the number is 13, return <code>Err("nope, not doing 13".to_string())</code>.
+      Test with <code>"7"</code>, <code>"13"</code> and <code>"crab"</code>.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn lucky_number(text: &amp;str) -&gt; Result&lt;i32, String&gt; {
+    let n: i32 = match text.trim().parse() {
+        Ok(n) =&gt; n,
+        Err(_) =&gt; return Err(format!("'{text}' isn't a number")),
+    };
+    if n == 13 {
+        Err(String::from("nope, not doing 13"))
+    } else {
+        Ok(n)
+    }
+}
+
+fn main() {
+    for t in ["7", "13", "crab"] {
+        match lucky_number(t) {
+            Ok(n) =&gt; println!("your lucky number: {n}"),
+            Err(e) =&gt; println!("error: {e}"),
+        }
+    }
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Chain with ?</h4>
+      <p>Write <code>fn add_strings(a: &amp;str, b: &amp;str) -&gt; Result&lt;i32, std::num::ParseIntError&gt;</code>
+      that parses both strings and returns their sum — using <code>?</code> twice and
+      zero <code>match</code> expressions.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn add_strings(a: &amp;str, b: &amp;str) -&gt; Result&lt;i32, std::num::ParseIntError&gt; {
+    let x: i32 = a.trim().parse()?;
+    let y: i32 = b.trim().parse()?;
+    Ok(x + y)
+}
+
+fn main() {
+    println!("{:?}", add_strings("20", "22"));   // Ok(42)
+    println!("{:?}", add_strings("20", "eel"));  // Err(...)
+}</code></pre>
+        <p>Two lines of logic, full error safety. That's the <code>?</code> lifestyle.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Judgment calls</h4>
+      <p>For each situation, pick your tool — <code>panic!</code>, <code>Result</code>,
+      or <code>unwrap_or(default)</code> — and say why: (a) a user mistypes their age in a
+      form; (b) your game's settings file is missing, and defaults exist; (c) an internal
+      function receives a negative array length — which should be impossible.</p>
+      <details class="solution"><summary>Reveal reasoning</summary>
+        <p>(a) <strong>Result</strong> — user input failing is normal; show a friendly
+        message and re-ask. (b) <strong>unwrap_or(default)</strong>-style fallback —
+        a missing optional file has an obvious recovery. (c) <strong>panic!</strong> —
+        that's a bug in your own code; crashing loudly at the source beats corrupting
+        data quietly downstream.</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🎓 Level 2 complete!</span>
+      Ownership, borrowing, structs, enums, collections, errors — that's the entire
+      heart of Rust. Prove it with the <a href="../quiz.html">Rust Way quiz</a>,
+      then on to the power tools. 🚀
+    </div>
+
+    <button class="complete-btn" data-lesson="11-errors">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="10-collections.html"><span class="dir">← Previous</span>Lesson 10: Collections</a>
+      <a class="next" href="12-traits.html"><span class="dir">Next →</span>Lesson 12: Traits &amp; Generics</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

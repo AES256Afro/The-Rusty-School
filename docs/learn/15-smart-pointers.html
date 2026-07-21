@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 15: Smart Pointers — The Rusty School</title>
+<meta name="description" content="Box, Rc, and RefCell explained gently: heap allocation, shared ownership, and interior mutability.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 15 of 17</nav>
+    <span class="badge l3">Level 3 · Power Tools</span>
+    <h1>Smart Pointers 📦🧠</h1>
+    <p class="lede muted">Ownership's rules are strict on purpose — but some programs
+    genuinely need more flexibility. Smart pointers bend the rules <em>safely</em>,
+    each in one specific, well-labeled way.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>What's a smart pointer?</h2>
+    <p>
+      A regular reference (<code>&amp;T</code>) just points at data. A <strong>smart
+      pointer</strong> is a small struct that points at data <em>and manages it</em> —
+      freeing it at the right moment, counting who's using it, or policing access.
+      You've secretly used two already: <code>String</code> and <code>Vec</code> both
+      own heap data and clean it up on scope exit. Today: the three famous ones.
+    </p>
+
+    <h2><code>Box&lt;T&gt;</code>: a simple crate for the warehouse 📦</h2>
+    <p><code>Box</code> moves a value to the heap and owns it there. One owner, freed at
+    scope end — ownership rules unchanged, just heap-flavored:</p>
+<pre><code>fn main() {
+    let boxed_num = Box::new(5);
+    println!("{}", *boxed_num + 1);   // * reaches into the box
+}   // box dropped → heap memory freed</code></pre>
+    <p>Why would you? The killer use case is <strong>recursive types</strong>. This
+    doesn't compile:</p>
+<pre><code>enum TodoList {
+    Item(String, TodoList),   // ❌ a list containing a list containing...
+    Done,
+}</code></pre>
+    <p>
+      The compiler must know how much memory a type needs — but this type contains
+      itself, so the math never ends ("infinite size", it will say). A <code>Box</code>
+      breaks the spiral, because a box is always just one pointer-size, no matter
+      what's inside:
+    </p>
+<pre><code>enum TodoList {
+    Item(String, Box&lt;TodoList&gt;),   // ✅ known size: text + one pointer
+    Done,
+}
+
+use TodoList::{Item, Done};
+
+fn main() {
+    let list = Item(String::from("learn Rust"),
+               Box::new(Item(String::from("feed Rusty"),
+               Box::new(Done))));
+
+    let mut current = &amp;list;
+    while let Item(task, next) = current {
+        println!("todo: {task}");
+        current = next;
+    }
+}</code></pre>
+
+    <h2><code>Rc&lt;T&gt;</code>: shared ownership, counted 🔢</h2>
+    <p>
+      Ownership rule #1 says one owner per value. But consider a song in three
+      playlists — who owns it? All of them, really; it should live until the
+      <em>last</em> playlist is gone. <code>Rc</code> (reference counted) does exactly
+      that: every <code>clone</code> increments a counter, every drop decrements it,
+      and the value is freed when the count hits zero.
+    </p>
+<pre><code>use std::rc::Rc;
+
+fn main() {
+    let song = Rc::new(String::from("🎵 Crab Rave"));
+
+    let playlist_a = Rc::clone(&amp;song);   // cheap: counts, doesn't copy
+    let playlist_b = Rc::clone(&amp;song);
+
+    println!("owners: {}", Rc::strong_count(&amp;song));  // 3
+    drop(playlist_a);
+    drop(playlist_b);
+    println!("owners: {}", Rc::strong_count(&amp;song));  // 1 — still alive
+}</code></pre>
+    <p>Note: <code>Rc</code> hands out <em>read-only</em> access — many owners who could
+    all write would be chaos (Lesson 7's law). And it's single-threaded only; its
+    thread-safe twin <code>Arc</code> stars in the next lesson.</p>
+
+    <h2><code>RefCell&lt;T&gt;</code>: the rules, checked at runtime 🕵️</h2>
+    <p>
+      Sometimes you genuinely need to mutate shared data, and you — not the compiler —
+      know it's safe. <code>RefCell</code> moves the borrow checking from compile time
+      to <strong>runtime</strong>: the same "many readers or one writer" law, enforced
+      while the program runs. Break it and the program panics, pointing at the crime.
+    </p>
+<pre><code>use std::cell::RefCell;
+
+fn main() {
+    let diary = RefCell::new(String::from("day 1."));
+
+    diary.borrow_mut().push_str(" found kelp.");  // runtime-checked write
+    println!("{}", diary.borrow());               // runtime-checked read
+
+    // But two writers at once?
+    let _a = diary.borrow_mut();
+    // let _b = diary.borrow_mut();   // 💥 PANIC: already borrowed
+}</code></pre>
+    <p>The classic combo is <code>Rc&lt;RefCell&lt;T&gt;&gt;</code> — many owners
+    (<code>Rc</code>) who can each mutate (<code>RefCell</code>), a favorite for graphs
+    and shared game state in single-threaded programs.</p>
+
+    <div class="callout tip">
+      <span class="co-title">🧭 Which one when?</span>
+      <strong>Default:</strong> plain ownership + borrows — reach for smart pointers only
+      when the compiler forces the issue.
+      <strong>Recursive type / "infinite size" error?</strong> <code>Box</code>.
+      <strong>Several owners, read-only?</strong> <code>Rc</code>.
+      <strong>Several owners who mutate (one thread)?</strong> <code>Rc&lt;RefCell&lt;T&gt;&gt;</code>.
+      <strong>Across threads?</strong> Next lesson. 😉
+    </div>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Using <code>Box</code> "for performance" everywhere — it adds indirection;
+            use it when the type system needs it, not as a lucky charm.</li>
+        <li>Holding a <code>borrow_mut()</code> guard too long, then borrowing again —
+            runtime panic. Keep RefCell borrows short and scoped.</li>
+        <li><code>song.clone()</code> vs <code>Rc::clone(&amp;song)</code> — both work, but
+            Rustaceans write the second to signal "just counting, not deep-copying."</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Break the infinite loop</h4>
+      <p>Type the boxless <code>TodoList</code> into the Playground and read the
+      "infinite size" error — including the compiler's suggested fix. Then apply it
+      and build a three-item list.</p>
+      <details class="solution"><summary>Reveal answer</summary>
+        <p>The compiler suggests exactly what this lesson did: "insert some indirection
+        (e.g., a <code>Box</code>, <code>Rc</code>, or <code>&amp;</code>) to break the
+        cycle." Even at the advanced level, error messages remain the best teacher —
+        that never stops being true.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Count the owners</h4>
+      <p>Create an <code>Rc&lt;Vec&lt;i32&gt;&gt;</code>, clone it twice inside an inner
+      <code>{ }</code> scope, printing <code>Rc::strong_count</code> before, during, and
+      after the scope. Predict the three numbers first, then run it.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use std::rc::Rc;
+
+fn main() {
+    let data = Rc::new(vec![1, 2, 3]);
+    println!("before: {}", Rc::strong_count(&amp;data)); // 1
+    {
+        let _a = Rc::clone(&amp;data);
+        let _b = Rc::clone(&amp;data);
+        println!("inside: {}", Rc::strong_count(&amp;data)); // 3
+    }
+    println!("after: {}", Rc::strong_count(&amp;data));  // 1
+}</code></pre>
+        <p>Scope ends → clones dropped → count falls. Deterministic, visible, no
+        garbage collector in sight.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>The shared scoreboard</h4>
+      <p>Two "views" of one scoreboard: create
+      <code>Rc&lt;RefCell&lt;Vec&lt;i32&gt;&gt;&gt;</code>, clone it into
+      <code>view_a</code> and <code>view_b</code>, push a score through each view, then
+      print the vector through the original handle. One value, three names, everybody
+      sees everything.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use std::rc::Rc;
+use std::cell::RefCell;
+
+fn main() {
+    let scores = Rc::new(RefCell::new(vec![100]));
+
+    let view_a = Rc::clone(&amp;scores);
+    let view_b = Rc::clone(&amp;scores);
+
+    view_a.borrow_mut().push(85);
+    view_b.borrow_mut().push(92);
+
+    println!("{:?}", scores.borrow());  // [100, 85, 92]
+}</code></pre>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="15-smart-pointers">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="14-iterators.html"><span class="dir">← Previous</span>Lesson 14: Closures &amp; Iterators</a>
+      <a class="next" href="16-concurrency.html"><span class="dir">Next →</span>Lesson 16: Fearless Concurrency</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

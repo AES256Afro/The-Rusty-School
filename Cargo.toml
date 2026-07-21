@@ -1,0 +1,14 @@
+[package]
+name = "rusty-school"
+version = "1.0.0"
+edition = "2021"
+description = "The Rusty School — a beginner-friendly Rust curriculum, served by a web server written in Rust itself."
+authors = ["The Rusty School"]
+
+# No dependencies! The whole server is built with Rust's standard library.
+# That means `cargo run` works instantly — no downloads, no waiting.
+[dependencies]
+
+[[bin]]
+name = "rusty-school"
+path = "src/main.rs"

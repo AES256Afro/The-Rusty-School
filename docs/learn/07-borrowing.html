@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 7: Borrowing &amp; References — The Rusty School</title>
+<meta name="description" content="References and borrowing in Rust: lending values without giving them away, and the two rules that prevent data races.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 7 of 17</nav>
+    <span class="badge l2">Level 2 · The Rust Way</span>
+    <h1>Borrowing &amp; References 🤝</h1>
+    <p class="lede muted">Last lesson, giving a value to a function meant losing it.
+    Ridiculous, right? Meet the fix: lending. This is where Rust starts feeling good.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Lending instead of giving: <code>&amp;</code></h2>
+    <p>
+      Put an ampersand in front of a value and you create a <strong>reference</strong> —
+      a way to <em>look at</em> a value without owning it. Think of a library book 📚:
+      you can read it, but the library still owns it, and you have to give it back.
+    </p>
+<pre><code>fn count_letters(text: &amp;String) -&gt; usize {
+    text.len()
+}   // the borrow ends here — nothing is freed, we never owned it
+
+fn main() {
+    let poem = String::from("crabs write free verse");
+    let n = count_letters(&amp;poem);   // lend it: &amp;poem
+
+    println!("{poem} has {n} letters");  // ✅ poem is still ours!
+}</code></pre>
+    <p>
+      Compare with Lesson 6's <code>devour</code>: no ownership lost, no clunky
+      hand-it-back dance. The <code>&amp;</code> appears in two places — the function
+      says "I accept borrowed Strings" (<code>&amp;String</code>), and the caller says
+      "here, borrow mine" (<code>&amp;poem</code>). This is called <strong>borrowing</strong>.
+    </p>
+
+    <h2>Borrowing with edit rights: <code>&amp;mut</code></h2>
+    <p>A plain <code>&amp;</code> reference is read-only. To let someone <em>modify</em>
+    your value without taking it, lend it mutably:</p>
+<pre><code>fn add_signature(letter: &amp;mut String) {
+    letter.push_str(" — sincerely, Rusty 🦀");
+}
+
+fn main() {
+    let mut letter = String::from("Dear ocean,");
+    add_signature(&amp;mut letter);      // lend with edit rights
+    println!("{letter}");            // changed, still ours
+}</code></pre>
+    <p>(The variable itself must be <code>mut</code> too — you can't lend edit rights
+    you don't have.)</p>
+
+    <h2>The two rules of borrowing 📜</h2>
+    <div class="callout info">
+      <span class="co-title">At any moment, you may have:</span>
+      <ul style="margin:6px 0 0">
+        <li>🟢 <strong>any number of read-only references</strong> (<code>&amp;T</code>), <em>or</em></li>
+        <li>🔴 <strong>exactly one mutable reference</strong> (<code>&amp;mut T</code>) — never both.</li>
+      </ul>
+      <p style="margin:8px 0 0">In short: <strong>many readers or one writer.</strong></p>
+    </div>
+    <p>
+      Why so strict? Imagine ten people silently reading a shared document while one
+      person rewrites it — chaos, confusion, readers seeing half-edited sentences.
+      Every data race and a whole family of crashes come from exactly that: reading
+      and writing the same data at once. Most languages let it happen and hope.
+      Rust makes it <em>unrepresentable</em>:
+    </p>
+<pre><code>fn main() {
+    let mut score = String::from("10 points");
+
+    let r1 = &amp;score;
+    let r2 = &amp;score;        // ✅ two readers, fine
+    println!("{r1} {r2}");
+
+    let w = &amp;mut score;     // ✅ readers are done — one writer OK
+    w.push_str("!!!");
+    println!("{w}");
+}</code></pre>
+    <p>But overlap a reader and a writer, and the compiler steps in:</p>
+<pre><code>let mut score = String::from("10 points");
+let reader = &amp;score;
+let writer = &amp;mut score;    // ❌ can't write while someone's reading
+println!("{reader}");</code></pre>
+<pre class="compiler"><code>error[E0502]: cannot borrow `score` as mutable because it is
+              also borrowed as immutable
+  |
+2 |     let reader = &amp;score;
+  |                  ------ immutable borrow occurs here
+3 |     let writer = &amp;mut score;
+  |                  ^^^^^^^^^^ mutable borrow occurs here
+4 |     println!("{reader}");
+  |               -------- immutable borrow later used here</code></pre>
+    <div class="callout tip">
+      <span class="co-title">💡 The usual fix: reorder</span>
+      A borrow ends after its last use. Finish reading <em>before</em> you start
+      writing — move <code>println!("{reader}")</code> above the <code>&amp;mut</code>
+      line and the example compiles. When the borrow checker complains, ask:
+      "can I finish one job before starting the next?" The answer is almost always yes.
+    </div>
+
+    <h2>Slices: borrowing a piece 🍰</h2>
+    <p>You can also borrow just a <em>portion</em> of something. This finally explains
+    <code>&amp;str</code> from Lesson 3 — it's a borrowed view into text:</p>
+<pre><code>fn main() {
+    let song = String::from("under the sea");
+    let word: &amp;str = &amp;song[6..9];    // borrow characters 6,7,8
+    println!("{word}");              // "the"
+
+    let numbers = [10, 20, 30, 40, 50];
+    let middle = &amp;numbers[1..4];     // borrow a window: [20, 30, 40]
+    println!("{middle:?}");
+}</code></pre>
+    <div class="callout info">
+      <span class="co-title">📝 Why functions take <code>&amp;str</code>, not <code>&amp;String</code></span>
+      A <code>&amp;str</code> can view a whole <code>String</code>, a piece of one, or a
+      <code>"literal"</code> — so <code>fn shout(text: &amp;str)</code> accepts all three.
+      It's the friendlier doorway, and Rust converts <code>&amp;String</code> to
+      <code>&amp;str</code> automatically. Idiom to remember: <strong>own a
+      <code>String</code>, borrow a <code>&amp;str</code></strong>.
+    </div>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Forgetting the <code>&amp;</code> at the call site — <code>count_letters(poem)</code>
+            <em>moves</em> the value; <code>count_letters(&amp;poem)</code> lends it.</li>
+        <li>Trying <code>&amp;mut</code> on a variable that isn't <code>mut</code>.</li>
+        <li>Two <code>&amp;mut</code> borrows alive at once — finish one job first.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Fix it with a borrow</h4>
+      <p>This is Lesson 6's broken cake program. Fix it by changing <code>devour</code>
+      to <em>borrow</em> instead of take — you'll change exactly two characters.</p>
+<pre><code>fn devour(snack: String) {
+    println!("nom nom: {snack}");
+}
+
+fn main() {
+    let cake = String::from("carrot cake");
+    devour(cake);
+    println!("{cake} is still here!");
+}</code></pre>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn devour(snack: &amp;String) {          // 1: accept a loan
+    println!("nom nom: {snack}");
+}
+
+fn main() {
+    let cake = String::from("carrot cake");
+    devour(&amp;cake);                   // 2: lend, don't give
+    println!("{cake} is still here!");
+}</code></pre>
+        <p>(Even more idiomatic: <code>snack: &amp;str</code> — see the note above.)</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>The decorator</h4>
+      <p>Write <code>fn decorate(s: &amp;mut String)</code> that wraps the text in
+      <code>✨</code> sparkles (hint: <code>push_str</code> adds to the end;
+      <code>insert_str(0, "✨")</code> adds to the front). Call it on a String of your
+      choice and print the result.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn decorate(s: &amp;mut String) {
+    s.insert_str(0, "✨ ");
+    s.push_str(" ✨");
+}
+
+fn main() {
+    let mut title = String::from("The Rusty School");
+    decorate(&amp;mut title);
+    println!("{title}");   // ✨ The Rusty School ✨
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Borrow-checker whisperer</h4>
+      <p>This won't compile. Rearrange the lines (don't delete any!) so it does.</p>
+<pre><code>fn main() {
+    let mut inventory = String::from("rope");
+    let peek = &amp;inventory;
+    inventory.push_str(", torch");
+    println!("peeked: {peek}");
+    println!("final: {inventory}");
+}</code></pre>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    let mut inventory = String::from("rope");
+    let peek = &amp;inventory;
+    println!("peeked: {peek}");        // finish reading FIRST
+    inventory.push_str(", torch");     // then write
+    println!("final: {inventory}");
+}</code></pre>
+        <p>The read-borrow <code>peek</code> ends at its last use, freeing
+        <code>inventory</code> to be modified. Many readers <em>or</em> one writer —
+        just not overlapping.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="07-borrowing">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="06-ownership.html"><span class="dir">← Previous</span>Lesson 6: Ownership</a>
+      <a class="next" href="08-structs.html"><span class="dir">Next →</span>Lesson 8: Structs &amp; Methods</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

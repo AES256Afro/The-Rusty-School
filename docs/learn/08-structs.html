@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 8: Structs &amp; Methods — The Rusty School</title>
+<meta name="description" content="Rust structs: bundle related data into your own types, then add methods with impl.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 8 of 17</nav>
+    <span class="badge l2">Level 2 · The Rust Way</span>
+    <h1>Structs &amp; Methods 🏗️</h1>
+    <p class="lede muted">Tuples bundle values by position. Structs bundle them by
+    <em>name</em> — and let you invent your own types that mean something.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Design your own type</h2>
+    <p>
+      Real programs aren't about loose numbers and strings — they're about
+      <em>players</em>, <em>invoices</em>, <em>crabs</em>. A <strong>struct</strong>
+      (structure) groups related data under one roof, each field with a name and a type:
+    </p>
+<pre><code>struct Crab {
+    name: String,
+    weight_kg: f64,
+    claws: u8,
+    is_rusty: bool,
+}
+
+fn main() {
+    let hero = Crab {
+        name: String::from("Rusty"),
+        weight_kg: 1.2,
+        claws: 2,
+        is_rusty: true,
+    };
+
+    println!("{} weighs {}kg", hero.name, hero.weight_kg);
+}</code></pre>
+    <p>
+      Dot syntax reads fields: <code>hero.name</code>. Mutating works if the whole
+      variable is <code>mut</code>: <code>hero.claws = 1;</code> (crab fights are rough).
+    </p>
+
+    <h2>Printing a whole struct: <code>derive</code></h2>
+    <p><code>println!("{hero}")</code> won't work — Rust doesn't presume how your type
+    should look. But ask nicely and the compiler writes a debug-printer for you:</p>
+<pre><code>#[derive(Debug)]
+struct Crab {
+    name: String,
+    weight_kg: f64,
+}
+
+fn main() {
+    let hero = Crab { name: String::from("Rusty"), weight_kg: 1.2 };
+    println!("{hero:?}");    // Crab { name: "Rusty", weight_kg: 1.2 }
+    println!("{hero:#?}");   // same, but pretty multi-line
+}</code></pre>
+    <p><code>#[derive(Debug)]</code> is an <em>attribute</em> — an instruction to the
+    compiler. You'll sprinkle this one on almost every struct you write; it's the
+    difference between debugging blind and debugging with eyes.</p>
+
+    <h2>Teaching your type tricks: <code>impl</code></h2>
+    <p>
+      Data is half the story. <strong>Methods</strong> are functions that belong to your
+      type, written in an <code>impl</code> (implementation) block. Their first parameter
+      is <code>&amp;self</code> — a borrow of the struct itself (Lesson 7 paying off already):
+    </p>
+<pre><code>#[derive(Debug)]
+struct Rectangle {
+    width: f64,
+    height: f64,
+}
+
+impl Rectangle {
+    // &amp;self = read-only borrow of this rectangle
+    fn area(&amp;self) -&gt; f64 {
+        self.width * self.height
+    }
+
+    fn is_square(&amp;self) -&gt; bool {
+        self.width == self.height
+    }
+
+    // &amp;mut self = this method modifies the rectangle
+    fn scale(&amp;mut self, factor: f64) {
+        self.width *= factor;
+        self.height *= factor;
+    }
+}
+
+fn main() {
+    let mut r = Rectangle { width: 3.0, height: 4.0 };
+    println!("area: {}", r.area());          // 12
+    println!("square? {}", r.is_square());   // false
+    r.scale(2.0);
+    println!("after scaling: {r:?}");        // 6 x 8
+}</code></pre>
+    <p>
+      The ownership rules you already know apply verbatim: <code>&amp;self</code> to
+      look, <code>&amp;mut self</code> to change, plain <code>self</code> (rare) to consume.
+    </p>
+
+    <h2>Constructors by convention: <code>new</code></h2>
+    <p>Functions in an <code>impl</code> block <em>without</em> <code>self</code> are
+    <strong>associated functions</strong> — called on the type itself. The classic is a
+    constructor named <code>new</code>:</p>
+<pre><code>impl Rectangle {
+    fn new(width: f64, height: f64) -&gt; Rectangle {
+        Rectangle { width, height }   // field shorthand: names match!
+    }
+
+    fn square(side: f64) -&gt; Rectangle {
+        Rectangle { width: side, height: side }
+    }
+}
+
+fn main() {
+    let r = Rectangle::new(3.0, 4.0);   // :: calls type-level functions
+    let s = Rectangle::square(5.0);
+    println!("{} and {}", r.area(), s.area());
+}</code></pre>
+    <p>You've seen this shape before: <code>String::from("hi")</code> is exactly an
+    associated function on <code>String</code>. Mystery retroactively solved. 🕵️</p>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Forgetting <code>#[derive(Debug)]</code> then wondering why <code>{:?}</code> errors.</li>
+        <li>Writing <code>self</code> instead of <code>&amp;self</code> — that <em>consumes</em>
+            the struct; the caller loses it. Borrow unless you mean it.</li>
+        <li>Calling a method with <code>Rectangle.area()</code> — methods use a value:
+            <code>r.area()</code>; associated functions use the type: <code>Rectangle::new(...)</code>.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Player card</h4>
+      <p>Define a <code>Player</code> struct with <code>name: String</code>,
+      <code>level: u32</code>, and <code>hp: i32</code>. Derive Debug, create one,
+      and print it prettily with <code>{:#?}</code>.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>#[derive(Debug)]
+struct Player {
+    name: String,
+    level: u32,
+    hp: i32,
+}
+
+fn main() {
+    let p = Player {
+        name: String::from("CrabLord99"),
+        level: 7,
+        hp: 100,
+    };
+    println!("{p:#?}");
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Give it behavior</h4>
+      <p>Add an <code>impl Player</code> block with: <code>take_damage(&amp;mut self, amount: i32)</code>
+      that subtracts from hp, and <code>is_alive(&amp;self) -&gt; bool</code>. Deal some
+      damage and report survival.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>impl Player {
+    fn take_damage(&amp;mut self, amount: i32) {
+        self.hp -= amount;
+    }
+
+    fn is_alive(&amp;self) -&gt; bool {
+        self.hp &gt; 0
+    }
+}
+
+fn main() {
+    let mut p = Player {
+        name: String::from("CrabLord99"),
+        level: 7,
+        hp: 100,
+    };
+    p.take_damage(120);
+    println!("{} alive? {}", p.name, p.is_alive()); // false 💀
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Constructor polish</h4>
+      <p>Add <code>Player::new(name: &amp;str) -&gt; Player</code> that starts every player
+      at level 1 with 100 hp. (Hint: convert with <code>name.to_string()</code>.)
+      Why is <code>&amp;str</code> the better parameter type here? (Lesson 7 knows.)</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>impl Player {
+    fn new(name: &amp;str) -&gt; Player {
+        Player {
+            name: name.to_string(),
+            level: 1,
+            hp: 100,
+        }
+    }
+}
+
+fn main() {
+    let p = Player::new("Rusty");
+    println!("{p:?}");
+}</code></pre>
+        <p><code>&amp;str</code> accepts string literals <em>and</em> borrowed Strings —
+        the flexible doorway. The struct still stores an owned <code>String</code>,
+        because the Player must own its own name.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="08-structs">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="07-borrowing.html"><span class="dir">← Previous</span>Lesson 7: Borrowing &amp; References</a>
+      <a class="next" href="09-enums.html"><span class="dir">Next →</span>Lesson 9: Enums &amp; Pattern Matching</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

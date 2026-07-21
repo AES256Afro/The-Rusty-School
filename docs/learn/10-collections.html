@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10: Collections — The Rusty School</title>
+<meta name="description" content="Vec, String and HashMap — Rust's workhorse collections, explained for beginners.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 10 of 17</nav>
+    <span class="badge l2">Level 2 · The Rust Way</span>
+    <h1>Collections 🗃️</h1>
+    <p class="lede muted">Arrays are fixed at birth. Real data grows and shrinks —
+    meet the three collections you'll use every single day.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2><code>Vec&lt;T&gt;</code>: the growable list</h2>
+    <p>A <strong>vector</strong> is an array that can grow. It lives on the heap
+    (Lesson 6!), owns its items, and frees them when it goes out of scope:</p>
+<pre><code>fn main() {
+    let mut todo: Vec&lt;String&gt; = Vec::new();     // empty, ready to grow
+    todo.push(String::from("learn Rust"));
+    todo.push(String::from("feed Rusty"));
+
+    let numbers = vec![10, 20, 30];             // vec! macro: prefilled
+
+    println!("first task: {}", todo[0]);
+    println!("all numbers: {numbers:?}");
+}</code></pre>
+    <p>The essentials:</p>
+<pre><code>let mut v = vec![1, 2, 3];
+v.push(4);                  // add to the end → [1, 2, 3, 4]
+let last = v.pop();         // remove from end → Some(4)
+println!("{}", v.len());    // 3
+println!("{}", v.contains(&amp;2)); // true</code></pre>
+
+    <h2>Reading safely: <code>[ ]</code> vs <code>.get()</code></h2>
+    <p>Two ways to read a position — one bold, one careful:</p>
+<pre><code>let v = vec![1, 2, 3];
+
+let a = v[0];        // bold: crashes ("panics") if out of bounds
+let b = v.get(99);   // careful: returns an Option — None here!
+
+match v.get(99) {
+    Some(n) =&gt; println!("found {n}"),
+    None =&gt; println!("nothing at 99, and nobody crashed"),
+}</code></pre>
+    <p>See what happened? <code>Option</code> from Lesson 9 isn't a special trick —
+    it's how the whole standard library talks about "maybe." Learn it once, use it
+    everywhere.</p>
+
+    <h2>Looping over vectors — with borrows</h2>
+<pre><code>let mut scores = vec![80, 95, 72];
+
+for s in &amp;scores {          // borrow each item to read
+    println!("score: {s}");
+}
+
+for s in &amp;mut scores {      // borrow mutably to change
+    *s += 5;                // * = "the value behind the reference"
+}
+println!("{scores:?}");     // [85, 100, 77]</code></pre>
+    <div class="callout tip">
+      <span class="co-title">💡 Why <code>&amp;scores</code> and not <code>scores</code>?</span>
+      Looping over <code>scores</code> directly <em>moves</em> the vector into the loop
+      (Lesson 6!) — gone afterwards. Borrow it (<code>&amp;scores</code>) and it's still
+      yours when the loop ends. The ownership rules aren't separate trivia; they're
+      the grammar of everything.
+    </div>
+
+    <h2><code>String</code>: the growable text</h2>
+    <p>Now we can finally tell the two-strings story properly:</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th></th><th><code>String</code></th><th><code>&amp;str</code></th></tr></thead>
+      <tbody>
+        <tr><td>owns its text?</td><td>yes — the book</td><td>no — a bookmark</td></tr>
+        <tr><td>can grow?</td><td>yes (<code>push_str</code>)</td><td>no</td></tr>
+        <tr><td>store it in a struct?</td><td>usually this</td><td>rarely</td></tr>
+        <tr><td>function parameters?</td><td>rarely</td><td>usually this</td></tr>
+      </tbody>
+    </table>
+    </div>
+<pre><code>let mut log = String::new();
+log.push_str("day 1: found kelp. ");
+log.push_str("day 2: ate kelp.");
+log.push('🦀');
+
+let name = "Rusty";
+let greeting = format!("Ahoy, {name}! Log: {log}");  // format! builds Strings
+println!("{greeting}");</code></pre>
+
+    <h2><code>HashMap</code>: key → value</h2>
+    <p>A dictionary: look things up by name instead of position.</p>
+<pre><code>use std::collections::HashMap;   // this one needs an import
+
+fn main() {
+    let mut high_scores = HashMap::new();
+    high_scores.insert(String::from("Rusty"), 98);
+    high_scores.insert(String::from("Chris"), 87);
+
+    // reading returns... an Option, of course
+    match high_scores.get("Rusty") {
+        Some(score) =&gt; println!("Rusty: {score}"),
+        None =&gt; println!("Rusty hasn't played yet"),
+    }
+
+    // the entry API: "get it, or insert a default" — then modify
+    *high_scores.entry(String::from("Dana")).or_insert(0) += 10;
+
+    for (name, score) in &amp;high_scores {
+        println!("{name}: {score}");
+    }
+}</code></pre>
+    <p>That <code>entry(...).or_insert(0)</code> line is the classic counter pattern —
+    perfect for tallying words, votes, or crabs per rockpool.</p>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li><code>v[i]</code> past the end — panic. Use <code>.get(i)</code> when unsure.</li>
+        <li>Pushing to a Vec that isn't <code>mut</code>.</li>
+        <li>Looping over a collection without <code>&amp;</code>, then using it after — moved!</li>
+        <li>Forgetting <code>use std::collections::HashMap;</code> at the top.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>The shopping list</h4>
+      <p>Build a <code>Vec&lt;String&gt;</code> shopping list: push three items, print them
+      numbered (hint: <code>for (i, item) in list.iter().enumerate()</code>), then
+      <code>pop()</code> one and print what came off.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    let mut list = Vec::new();
+    list.push(String::from("kelp"));
+    list.push(String::from("sea grapes"));
+    list.push(String::from("tiny hat"));
+
+    for (i, item) in list.iter().enumerate() {
+        println!("{}. {item}", i + 1);
+    }
+
+    if let Some(removed) = list.pop() {
+        println!("changed my mind about the {removed}");
+    }
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Grade book</h4>
+      <p>Make a <code>HashMap&lt;String, Vec&lt;i32&gt;&gt;</code> mapping student names to
+      their test scores. Add a few scores for two students (the entry API +
+      <code>.push()</code> is slick here), then print each student's average.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use std::collections::HashMap;
+
+fn main() {
+    let mut grades: HashMap&lt;String, Vec&lt;i32&gt;&gt; = HashMap::new();
+
+    grades.entry(String::from("Rusty")).or_insert(Vec::new()).push(95);
+    grades.entry(String::from("Rusty")).or_insert(Vec::new()).push(88);
+    grades.entry(String::from("Chris")).or_insert(Vec::new()).push(75);
+
+    for (name, scores) in &amp;grades {
+        let total: i32 = scores.iter().sum();
+        let avg = total as f64 / scores.len() as f64;
+        println!("{name}: average {avg:.1}");
+    }
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Word counter</h4>
+      <p>Count how often each word appears in <code>"the crab sees the sea and the sea sees the crab"</code>.
+      Hints: <code>text.split_whitespace()</code> gives the words; the entry-API counter
+      pattern does the rest.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use std::collections::HashMap;
+
+fn main() {
+    let text = "the crab sees the sea and the sea sees the crab";
+    let mut counts = HashMap::new();
+
+    for word in text.split_whitespace() {
+        *counts.entry(word).or_insert(0) += 1;
+    }
+
+    for (word, n) in &amp;counts {
+        println!("{word}: {n}");
+    }
+}</code></pre>
+        <p>Congratulations — this is a real text-analysis program, the seed of every
+        search engine. In eleven lines.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="10-collections">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="09-enums.html"><span class="dir">← Previous</span>Lesson 9: Enums &amp; Pattern Matching</a>
+      <a class="next" href="11-errors.html"><span class="dir">Next →</span>Lesson 11: Error Handling</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

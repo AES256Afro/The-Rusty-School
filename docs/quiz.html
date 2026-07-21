@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quizzes — The Rusty School</title>
+<meta name="description" content="Interactive Rust quizzes for every level, with instant feedback and explanations.">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="lesson-header">
+    <span class="kicker">Test yourself</span>
+    <h1>Quiz <span class="grad">time</span> 🧠</h1>
+    <p class="lede muted">
+      Instant feedback, friendly explanations, zero pressure. Wrong answers are
+      just future right answers — your best score is saved in your browser.
+    </p>
+  </section>
+
+  <div id="quiz-root" class="section" style="padding-top:10px"></div>
+</main>
+
+<script>
+window.RUSTY_QUIZZES = [
+  {
+    id: "level1",
+    title: "Sprout Quiz",
+    level: "Level 1 · Beginner",
+    levelClass: "l1",
+    blurb: "Hello World, variables, types, functions, and control flow.",
+    questions: [
+      {
+        q: "Which command creates a brand-new Rust project?",
+        options: ["<code>rust new my_project</code>", "<code>cargo new my_project</code>",
+                  "<code>rustup create my_project</code>", "<code>make my_project</code>"],
+        answer: 1,
+        explain: "<code>cargo</code> is Rust's build tool and project manager. <code>cargo new</code> creates the folder, a starter <code>main.rs</code>, and the <code>Cargo.toml</code> config file."
+      },
+      {
+        q: "Where does every Rust program begin running?",
+        options: ["The first line of the file", "<code>fn start()</code>",
+                  "<code>fn main()</code>", "Wherever you put <code>println!</code>"],
+        answer: 2,
+        explain: "<code>fn main()</code> is the entry point. When your program runs, Rust calls <code>main</code> first — everything grows from there."
+      },
+      {
+        q: "What happens when you compile this?",
+        code: "let apples = 5;\napples = 6;",
+        options: ["It prints 6", "Compile error — <code>apples</code> isn't mutable",
+                  "It prints 5", "The computer picks one at random"],
+        answer: 1,
+        explain: "Variables are <strong>immutable by default</strong> in Rust. To allow changes, declare it as <code>let mut apples = 5;</code>. The compiler even suggests this fix!"
+      },
+      {
+        q: "In <code>println!(\"hi\")</code>, what does the <code>!</code> mean?",
+        options: ["It's shouting", "It marks a macro, not a regular function",
+                  "It means 'not'", "It's optional decoration"],
+        answer: 1,
+        explain: "The <code>!</code> marks a <strong>macro</strong> — code that writes code at compile time. That's how <code>println!</code> can accept any number of arguments."
+      },
+      {
+        q: "Which type holds only <code>true</code> or <code>false</code>?",
+        options: ["<code>char</code>", "<code>i32</code>", "<code>bool</code>", "<code>f64</code>"],
+        answer: 2,
+        explain: "<code>bool</code> is Rust's true/false type — the fuel for every <code>if</code> and <code>while</code>."
+      },
+      {
+        q: "What does this print?",
+        code: "let x = 5;\nlet x = x + 1;\nprintln!(\"{x}\");",
+        options: ["Compile error", "5", "6", "Nothing"],
+        answer: 2,
+        explain: "This is <strong>shadowing</strong>: the second <code>let</code> creates a brand-new <code>x</code> that replaces the old one. Perfectly legal, prints <code>6</code>."
+      },
+      {
+        q: "What numbers does <code>for i in 0..3</code> loop over?",
+        options: ["0, 1, 2, 3", "1, 2, 3", "0, 1, 2", "3, 2, 1"],
+        answer: 2,
+        explain: "Ranges like <code>0..3</code> include the start and <em>exclude</em> the end: 0, 1, 2. Want the end too? Use <code>0..=3</code>."
+      },
+      {
+        q: "What does this function return?",
+        code: "fn double(n: i32) -> i32 {\n    n * 2\n}",
+        options: ["Nothing — there's no <code>return</code>", "<code>n * 2</code>, because the last expression is the return value",
+                  "It doesn't compile", "Always 0"],
+        answer: 1,
+        explain: "In Rust, the last expression in a function body (no semicolon!) is automatically the return value. <code>return</code> exists but is only needed for early exits."
+      }
+    ]
+  },
+  {
+    id: "level2",
+    title: "The Rust Way Quiz",
+    level: "Level 2 · Intermediate",
+    levelClass: "l2",
+    blurb: "Ownership, borrowing, structs, enums, collections, and error handling.",
+    questions: [
+      {
+        q: "What happens here?",
+        code: "let s1 = String::from(\"hello\");\nlet s2 = s1;\nprintln!(\"{s1}\");",
+        options: ["Prints <code>hello</code>", "Prints nothing",
+                  "Compile error — <code>s1</code> was moved to <code>s2</code>", "Prints <code>hello</code> twice"],
+        answer: 2,
+        explain: "Assigning a <code>String</code> <strong>moves</strong> ownership. After the move, <code>s1</code> is no longer valid — this is how Rust guarantees exactly one owner cleans up the memory. Use <code>s1.clone()</code> if you need two copies."
+      },
+      {
+        q: "How many mutable references to a value can exist at the same time?",
+        options: ["As many as you like", "Exactly one", "Two", "Zero — mutation is forbidden"],
+        answer: 1,
+        explain: "The borrowing rule: <strong>many readers OR one writer</strong>, never both. One <code>&amp;mut</code> at a time is what makes data races impossible."
+      },
+      {
+        q: "What is <code>Option&lt;T&gt;</code> for?",
+        options: ["Configuring the compiler", "Representing a value that might be absent — Rust's answer to <code>null</code>",
+                  "Making code optional to run", "Storing exactly two values"],
+        answer: 1,
+        explain: "Rust has no <code>null</code>. A maybe-missing value is <code>Some(value)</code> or <code>None</code>, and the compiler forces you to handle both — goodbye, null-pointer crashes."
+      },
+      {
+        q: "What are the two variants of <code>Result&lt;T, E&gt;</code>?",
+        options: ["<code>Yes</code> and <code>No</code>", "<code>Some</code> and <code>None</code>",
+                  "<code>Ok(value)</code> and <code>Err(error)</code>", "<code>Pass</code> and <code>Fail</code>"],
+        answer: 2,
+        explain: "<code>Result</code> is how Rust functions say 'this might fail': <code>Ok</code> carries the success value, <code>Err</code> carries the error. <code>Some/None</code> belong to <code>Option</code>."
+      },
+      {
+        q: "What does the <code>?</code> operator do after a <code>Result</code>?",
+        options: ["Asks the user a question", "Crashes the program on error",
+                  "Ignores the error", "If it's an <code>Err</code>, returns it to the caller; otherwise unwraps the <code>Ok</code> value"],
+        answer: 3,
+        explain: "<code>?</code> is error handling shorthand: success flows onward, failure is passed up to whoever called you. It keeps error-aware code almost as clean as error-free code."
+      },
+      {
+        q: "Which one <em>owns</em> its text: <code>String</code> or <code>&amp;str</code>?",
+        options: ["<code>&amp;str</code>", "<code>String</code>", "Both", "Neither"],
+        answer: 1,
+        explain: "<code>String</code> owns (and can grow) its data on the heap. <code>&amp;str</code> is just a borrowed view into text that lives somewhere else — like a bookmark, not the book."
+      },
+      {
+        q: "A <code>match</code> must be <em>exhaustive</em>. What does that mean?",
+        options: ["It must be tiring to write", "Every possible value must be covered by some arm",
+                  "It can only match numbers", "It must have exactly two arms"],
+        answer: 1,
+        explain: "The compiler checks that no case is forgotten — that's why adding a new enum variant instantly shows you every <code>match</code> that needs updating. The <code>_</code> arm means 'everything else'."
+      },
+      {
+        q: "How do you add <code>4</code> to the end of <code>let mut v = vec![1, 2, 3];</code>?",
+        options: ["<code>v.push(4)</code>", "<code>v.add(4)</code>",
+                  "<code>v += 4</code>", "<code>v.append(4)</code>"],
+        answer: 0,
+        explain: "<code>push</code> adds one element to the end of a <code>Vec</code>. (<code>append</code> exists too, but it merges a whole other vector.)"
+      }
+    ]
+  },
+  {
+    id: "level3",
+    title: "Power Tools Quiz",
+    level: "Level 3 · Advanced",
+    levelClass: "l3",
+    blurb: "Traits, generics, lifetimes, iterators, smart pointers, and threads.",
+    questions: [
+      {
+        q: "A Rust <em>trait</em> is closest to which idea?",
+        options: ["A variable that never changes", "A shared capability that different types can implement — like an interface",
+                  "A compiler warning", "A kind of loop"],
+        answer: 1,
+        explain: "A trait defines behavior — like <code>Summary</code> with a <code>summarize()</code> method — and any type can implement it. Functions can then accept 'anything that can summarize'."
+      },
+      {
+        q: "What does <code>#[derive(Debug)]</code> above a struct do?",
+        options: ["Turns on the debugger", "Auto-writes the code that lets you print the struct with <code>{:?}</code>",
+                  "Makes the struct slower", "Marks the struct as buggy"],
+        answer: 1,
+        explain: "<code>derive</code> asks the compiler to generate a trait implementation for you. <code>Debug</code> enables developer-friendly printing: <code>println!(\"{:?}\", my_struct)</code>."
+      },
+      {
+        q: "In <code>fn largest&lt;T: PartialOrd&gt;(list: &amp;[T]) -&gt; &amp;T</code>, what is <code>T: PartialOrd</code>?",
+        options: ["A lifetime", "A macro", "A trait bound — 'any type T, as long as it can be compared'", "A typo"],
+        answer: 2,
+        explain: "Generics say 'any type'; trait bounds narrow it to 'any type that can do X'. Here, <code>largest</code> works on slices of anything comparable with <code>&lt;</code> and <code>&gt;</code>."
+      },
+      {
+        q: "Lifetimes exist to prevent…",
+        options: ["Programs running too long", "Dangling references — using data after it's been destroyed",
+                  "Infinite loops", "Slow compile times"],
+        answer: 1,
+        explain: "A lifetime tracks how long borrowed data is valid. The borrow checker uses them to guarantee no reference ever outlives the data it points to — a classic crash in C, impossible in safe Rust."
+      },
+      {
+        q: "When do iterator adaptors like <code>map</code> and <code>filter</code> actually run?",
+        options: ["Immediately, line by line", "Only when a consumer like <code>collect()</code>, <code>sum()</code>, or a <code>for</code> loop asks for values",
+                  "At compile time", "In a background thread"],
+        answer: 1,
+        explain: "Iterators are <strong>lazy</strong>: adaptors just build a recipe. Nothing is computed until something consumes it — which lets Rust fuse the steps into one fast loop."
+      },
+      {
+        q: "What is <code>Box&lt;T&gt;</code> for?",
+        options: ["Storing a value on the heap with a single owner", "Sharing a value between threads",
+                  "Making a value immutable", "Packaging your app for release"],
+        answer: 0,
+        explain: "<code>Box</code> is the simplest smart pointer: it puts data on the heap and cleans it up when the box goes out of scope. Essential for recursive types and trait objects."
+      },
+      {
+        q: "You want several threads to share and modify one counter. Which combo do you reach for?",
+        options: ["<code>Rc&lt;RefCell&lt;i32&gt;&gt;</code>", "<code>Box&lt;i32&gt;</code>",
+                  "<code>Arc&lt;Mutex&lt;i32&gt;&gt;</code>", "A global variable"],
+        answer: 2,
+        explain: "<code>Arc</code> lets many threads co-own the value (atomic reference counting); <code>Mutex</code> makes sure only one thread mutates it at a time. <code>Rc</code> is the single-threaded cousin — the compiler won't let you send it across threads."
+      },
+      {
+        q: "What happens if two threads could mutate the same data without synchronization in safe Rust?",
+        options: ["A runtime warning", "It works, but slowly",
+                  "Undefined behavior, like in C++", "The program simply doesn't compile"],
+        answer: 3,
+        explain: "This is 'fearless concurrency': data races are caught at <em>compile time</em> by the ownership system. If it compiles, it's race-free."
+      }
+    ]
+  }
+];
+</script>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

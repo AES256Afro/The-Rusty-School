@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curriculum — The Rusty School</title>
+<meta name="description" content="The full Rusty School curriculum: 17 lessons from Hello World to fearless concurrency, with exercises and saved progress.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="lesson-header">
+    <span class="kicker">The curriculum</span>
+    <h1>Your <span class="grad">learning path</span> 🗺️</h1>
+    <p class="lede muted">
+      Seventeen bite-sized lessons across three levels. Each one has plain-English
+      explanations, runnable code, and exercises with hidden solutions. Finish a
+      lesson, hit <em>“Mark lesson complete,”</em> and watch the bar fill up.
+    </p>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="co-title">🍵 A good rhythm</span>
+    One lesson per sitting. Type the examples out yourself (no copy-paste — fingers
+    remember better than eyes), do the exercises, then take the level quiz when you
+    finish a level. No installs yet? Every example runs in the
+    <a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a>.
+  </div>
+
+  <!-- ============ LEVEL 1 ============ -->
+  <section class="section" id="level-1">
+    <h2><span class="badge l1">Level 1</span> &nbsp;Sprout 🌱 <span class="muted small">— total beginner, zero experience assumed</span></h2>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="01-hello-world" href="01-hello-world.html">
+        <span class="num">1</span>
+        <div><h3>Hello, World!</h3>
+        <p>Your first program, what a compiler actually is, and meeting Cargo.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="02-variables" href="02-variables.html">
+        <span class="num">2</span>
+        <div><h3>Variables &amp; Mutability</h3>
+        <p>Labeled boxes for data — and why Rust locks the lid by default.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="03-types" href="03-types.html">
+        <span class="num">3</span>
+        <div><h3>Data Types</h3>
+        <p>Numbers, text, booleans, tuples, and arrays — Rust's raw ingredients.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="04-functions" href="04-functions.html">
+        <span class="num">4</span>
+        <div><h3>Functions</h3>
+        <p>Reusable recipes: inputs, outputs, and Rust's expression trick.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="05-control-flow" href="05-control-flow.html">
+        <span class="num">5</span>
+        <div><h3>Control Flow</h3>
+        <p>Making decisions with <code>if</code>, repeating with loops and ranges.</p></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ LEVEL 2 ============ -->
+  <section class="section" id="level-2">
+    <h2><span class="badge l2">Level 2</span> &nbsp;The Rust Way 🔧 <span class="muted small">— the ideas that make Rust, Rust</span></h2>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="06-ownership" href="06-ownership.html">
+        <span class="num">6</span>
+        <div><h3>Ownership</h3>
+        <p>The big idea. One owner per value — and no garbage collector needed.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="07-borrowing" href="07-borrowing.html">
+        <span class="num">7</span>
+        <div><h3>Borrowing &amp; References</h3>
+        <p>Lending values without giving them away, and the two sacred rules.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="08-structs" href="08-structs.html">
+        <span class="num">8</span>
+        <div><h3>Structs &amp; Methods</h3>
+        <p>Bundle related data into your own types, then teach them tricks.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="09-enums" href="09-enums.html">
+        <span class="num">9</span>
+        <div><h3>Enums &amp; Pattern Matching</h3>
+        <p><code>Option</code>, <code>match</code>, and the end of null-pointer crashes.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="10-collections" href="10-collections.html">
+        <span class="num">10</span>
+        <div><h3>Collections</h3>
+        <p>Growable lists, owned text, and key-value maps: Vec, String, HashMap.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="11-errors" href="11-errors.html">
+        <span class="num">11</span>
+        <div><h3>Error Handling</h3>
+        <p><code>Result</code>, the <code>?</code> operator, and failing honestly.</p></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ LEVEL 3 ============ -->
+  <section class="section" id="level-3">
+    <h2><span class="badge l3">Level 3</span> &nbsp;Power Tools 🚀 <span class="muted small">— advanced Rust, gently</span></h2>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="12-traits" href="12-traits.html">
+        <span class="num">12</span>
+        <div><h3>Traits &amp; Generics</h3>
+        <p>Shared behavior and flexible code — Rust's answer to interfaces.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="13-lifetimes" href="13-lifetimes.html">
+        <span class="num">13</span>
+        <div><h3>Lifetimes</h3>
+        <p>The infamous <code>'a</code>, demystified with a library card.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="14-iterators" href="14-iterators.html">
+        <span class="num">14</span>
+        <div><h3>Closures &amp; Iterators</h3>
+        <p>Tiny functions in variables, and lazy assembly lines for data.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="15-smart-pointers" href="15-smart-pointers.html">
+        <span class="num">15</span>
+        <div><h3>Smart Pointers</h3>
+        <p><code>Box</code>, <code>Rc</code>, and <code>RefCell</code> — ownership power tools.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="16-concurrency" href="16-concurrency.html">
+        <span class="num">16</span>
+        <div><h3>Fearless Concurrency</h3>
+        <p>Threads, channels, and shared state — checked by the compiler.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="17-cargo" href="17-cargo.html">
+        <span class="num">17</span>
+        <div><h3>Cargo, Modules &amp; Tests</h3>
+        <p>Organize, test, and ship real projects — plus where to go next.</p></div>
+      </a>
+    </div>
+  </section>
+
+  <div class="callout info">
+    <span class="co-title">🏁 After each level</span>
+    Lock it in with the matching <a href="../quiz.html">level quiz</a>, and keep the
+    <a href="../cheatsheets.html">cheat sheets</a> open in a tab while you practice.
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

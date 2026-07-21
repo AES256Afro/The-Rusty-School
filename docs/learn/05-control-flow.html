@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 5: Control Flow — The Rusty School</title>
+<meta name="description" content="if/else, loops, while, for and ranges in Rust — how programs make decisions and repeat work.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 5 of 17</nav>
+    <span class="badge l1">Level 1 · Sprout</span>
+    <h1>Control Flow 🚦</h1>
+    <p class="lede muted">So far your programs run top to bottom, every line, once.
+    Real programs make choices and repeat things. Time to steer.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Making decisions: <code>if</code> / <code>else</code></h2>
+<pre><code>fn main() {
+    let temperature = 33;
+
+    if temperature &gt; 30 {
+        println!("Beach day! 🏖️");
+    } else if temperature &gt; 15 {
+        println!("Nice walking weather.");
+    } else {
+        println!("Hot cocoa time. ☕");
+    }
+}</code></pre>
+    <p>
+      The condition must be a real <code>bool</code> — Rust refuses the "0 means false"
+      trick from C and JavaScript, which quietly causes bugs there. And notice: no
+      parentheses needed around the condition. Clean.
+    </p>
+
+    <h2>Plot twist: <code>if</code> is an expression</h2>
+    <p>Remember the expression secret from Lesson 4? An <code>if</code> <em>produces a
+    value</em>, so you can assign it directly — no awkward "declare then maybe assign" dance:</p>
+<pre><code>let temperature = 33;
+let outfit = if temperature &gt; 30 { "swimsuit" } else { "jacket" };
+println!("Wear the {outfit}");</code></pre>
+    <p>Both branches must produce the same type — the compiler checks, of course.</p>
+
+    <h2>Repeating: three loops</h2>
+    <h3>1. <code>loop</code> — forever, until <code>break</code></h3>
+<pre><code>let mut countdown = 3;
+loop {
+    println!("{countdown}...");
+    countdown -= 1;
+    if countdown == 0 {
+        break;           // the only way out
+    }
+}
+println!("Liftoff! 🚀");</code></pre>
+
+    <h3>2. <code>while</code> — as long as something is true</h3>
+<pre><code>let mut fuel = 10;
+while fuel &gt; 0 {
+    println!("Flying... fuel: {fuel}");
+    fuel -= 3;
+}
+println!("Time to land.");</code></pre>
+
+    <h3>3. <code>for</code> — once per item (the one you'll use most)</h3>
+<pre><code>// Over a range: 1, 2, 3, 4 (the end is excluded!)
+for i in 1..5 {
+    println!("bottle #{i}");
+}
+
+// ..= includes the end: 1, 2, 3, 4, 5
+for i in 1..=5 {
+    println!("crab #{i}");
+}
+
+// Over a collection — no index bookkeeping, no off-by-one bugs
+let snacks = ["kelp", "algae", "plankton"];
+for snack in snacks {
+    println!("Rusty eats {snack}");
+}</code></pre>
+    <div class="callout tip">
+      <span class="co-title">💡 Which loop when?</span>
+      Know the items? <code>for</code>. Know the stop condition? <code>while</code>.
+      Waiting for something unpredictable (like user input)? <code>loop</code> +
+      <code>break</code>. When in doubt, <code>for</code>.
+    </div>
+
+    <h2>Sneak peek: <code>match</code> 🔮</h2>
+    <p>Rust has a fourth way to steer — a supercharged decision-maker you'll properly
+    meet in Lesson 9. A taste:</p>
+<pre><code>let dice = 4;
+match dice {
+    1 =&gt; println!("Ouch, a one."),
+    2 | 3 =&gt; println!("Meh."),
+    4..=5 =&gt; println!("Nice roll!"),
+    _ =&gt; println!("Six! Maximum crab energy! 🦀"),
+}</code></pre>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Expecting <code>1..5</code> to include 5 — it doesn't; use <code>1..=5</code>.</li>
+        <li>A <code>while</code> whose condition never becomes false — infinite loop.
+            (Press <code>Ctrl+C</code> in the terminal to rescue yourself.)</li>
+        <li>Using <code>if x = 5</code> instead of <code>if x == 5</code> — one <code>=</code>
+            assigns, two compare. Rust catches this; many languages don't.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>FizzBuzz, the classic</h4>
+      <p>Print numbers 1 to 20 — but for multiples of 3 print <code>Fizz</code>, for
+      multiples of 5 print <code>Buzz</code>, and for both print <code>FizzBuzz</code>.
+      (Hint: <code>n % 3 == 0</code> means "divisible by 3" — <code>%</code> gives the
+      division remainder. Check the "both" case first!)</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    for n in 1..=20 {
+        if n % 15 == 0 {
+            println!("FizzBuzz");
+        } else if n % 3 == 0 {
+            println!("Fizz");
+        } else if n % 5 == 0 {
+            println!("Buzz");
+        } else {
+            println!("{n}");
+        }
+    }
+}</code></pre>
+        <p>This tiny program is a real (in)famous interview question. You just did it
+        in lesson five. 🎉</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Sum of a range</h4>
+      <p>Use a <code>for</code> loop and a mutable total to add up every number from
+      1 to 100, then print it. (Legend says young Gauss did this in his head.)</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    let mut total = 0;
+    for n in 1..=100 {
+        total += n;
+    }
+    println!("{total}"); // 5050
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>The bouncing countdown</h4>
+      <p>Rewrite Lesson 2's level-up counter properly: start at level 1 and loop until
+      level 5, printing <code>"Level up! Now level N"</code> each time. Which loop fits best?</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    let mut level = 1;
+    while level &lt; 5 {
+        level += 1;
+        println!("Level up! Now level {level}");
+    }
+}
+
+// or, arguably cleaner:
+fn main() {
+    for level in 2..=5 {
+        println!("Level up! Now level {level}");
+    }
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🎓 Level 1 complete!</span>
+      You can now write real programs: variables, types, functions, decisions, loops.
+      Lock it in with the <a href="../quiz.html">Sprout Quiz</a> — then rest up.
+      Next level, we meet the idea that made Rust famous.
+    </div>
+
+    <button class="complete-btn" data-lesson="05-control-flow">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="04-functions.html"><span class="dir">← Previous</span>Lesson 4: Functions</a>
+      <a class="next" href="06-ownership.html"><span class="dir">Next →</span>Lesson 6: Ownership</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

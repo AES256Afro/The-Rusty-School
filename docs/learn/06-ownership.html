@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 6: Ownership — The Rusty School</title>
+<meta name="description" content="Rust ownership explained gently: moves, clones, scope, and why Rust needs no garbage collector.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 6 of 17</nav>
+    <span class="badge l2">Level 2 · The Rust Way</span>
+    <h1>Ownership 👑</h1>
+    <p class="lede muted">This is it — the idea that made Rust famous, the reason it
+    needs no garbage collector, and the reason it can't crash from memory bugs.
+    Take this lesson slow. It's worth it.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>The problem every language must solve</h2>
+    <p>
+      Programs constantly create data in memory. Eventually that memory must be given
+      back — or the program bloats and dies. Before Rust, there were two options:
+    </p>
+    <ul>
+      <li><strong>You free memory by hand</strong> (C, C++): fast, but humans forget.
+        Free too late — memory leak. Free too early and use it anyway — crash, or a
+        security hole. Remember the home page stat: ~70% of serious security bugs
+        are exactly this.</li>
+      <li><strong>A garbage collector cleans up</strong> (Python, Java, JavaScript, Go):
+        safe, but a background janitor costs memory and can pause your program at the
+        worst moment.</li>
+    </ul>
+    <p>
+      Rust found a third way: <strong>the compiler figures out, at compile time, the
+      exact moment each value is no longer needed</strong> — and frees it there.
+      No janitor. No human error. To pull that off, Rust needs one simple system of
+      rules. That system is ownership.
+    </p>
+
+    <h2>The three rules 📜</h2>
+    <div class="callout info">
+      <span class="co-title">The whole law of ownership</span>
+      <ol style="margin:6px 0 0">
+        <li>Every value has exactly <strong>one owner</strong> (a variable).</li>
+        <li>When the owner goes <strong>out of scope</strong>, the value is dropped (freed).</li>
+        <li>Assigning or passing the value <strong>moves</strong> ownership to the new place.</li>
+      </ol>
+    </div>
+
+    <h2>Rule 2 in action: scope is destiny</h2>
+    <p>A <em>scope</em> is a region between braces <code>{ }</code>. When a variable's
+    scope ends, its value is cleaned up — instantly, predictably:</p>
+<pre><code>fn main() {
+    {
+        let toy = String::from("squeaky crab");
+        println!("playing with {toy}");
+    } // ← toy's scope ends HERE: memory freed, automatically
+
+    // println!("{toy}"); // ❌ toy doesn't exist anymore
+}</code></pre>
+    <p>That's the entire garbage collector replacement: a closing brace.</p>
+
+    <h2>Rule 3 in action: the move 📦➡️</h2>
+    <p>Here's the moment that surprises everyone. Watch closely:</p>
+<pre><code>fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1;                 // ownership MOVES from s1 to s2
+
+    println!("{s2}");            // ✅ fine — s2 owns it now
+    println!("{s1}");            // ❌ compile error!
+}</code></pre>
+<pre class="compiler"><code>error[E0382]: borrow of moved value: `s1`
+  |
+2 |     let s1 = String::from("hello");
+  |         -- move occurs because `s1` has type `String`
+3 |     let s2 = s1;
+  |              -- value moved here
+5 |     println!("{s1}");
+  |               ^^^^ value borrowed here after move</code></pre>
+    <p>
+      <strong>Why?!</strong> Think of the String as a balloon 🎈 and variables as hands.
+      Rule 1 says only one hand may hold the string at a time. <code>let s2 = s1;</code>
+      passes the balloon to the other hand. If Rust let <em>both</em> hands believe they
+      own it, both would try to pop it at scope's end — a <em>double free</em>, one of
+      the classic C crashes. Rust's answer: the old hand simply lets go. <code>s1</code>
+      is done, and using it is a compile error, not a 3am production incident.
+    </p>
+
+    <h2>Want two balloons? <code>clone</code></h2>
+<pre><code>fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1.clone();   // an actual second copy, in new memory
+
+    println!("{s1} and {s2}");  // ✅ both valid — two values, two owners
+}</code></pre>
+    <div class="callout tip">
+      <span class="co-title">💡 Beginner's rule of thumb</span>
+      If the borrow checker is fighting you and you just want to move on:
+      <code>.clone()</code> is honest, safe, and fine. Optimizing away clones is a
+      hobby for later. Correct first, clever second.
+    </div>
+
+    <h2>Small stuff just copies 🍬</h2>
+    <p>Numbers, booleans, and chars are so small they live entirely on the
+    <em>stack</em> (fast, fixed-size memory), so Rust copies them instead of moving:</p>
+<pre><code>fn main() {
+    let a = 5;
+    let b = a;              // a plain copy — no move drama
+    println!("{a} and {b}");  // ✅ both fine
+}</code></pre>
+    <p>
+      Why the difference? A <code>String</code> keeps its text in <em>heap</em> memory —
+      the big, flexible warehouse — and only a claim ticket lives in the variable.
+      Copying tickets without copying the goods is exactly the double-free trap, so
+      heap-backed values move. Simple values with no warehouse claim
+      (<code>i32</code>, <code>bool</code>, <code>char</code>, <code>f64</code>…) are
+      "Copy types" — they just duplicate.
+    </p>
+
+    <h2>Functions move things too</h2>
+    <p>Passing a value into a function follows the same rule — the parameter becomes
+    the new owner:</p>
+<pre><code>fn devour(snack: String) {
+    println!("nom nom: {snack}");
+} // snack's scope ends → the String is freed here
+
+fn main() {
+    let cake = String::from("carrot cake");
+    devour(cake);              // ownership moves into the function...
+    // println!("{cake}");     // ❌ ...so cake is gone out here
+}</code></pre>
+    <p>
+      Giving a value away every time you call a function would be exhausting, though.
+      What if you could <em>lend</em> the cake without giving it up? That's exactly
+      what Lesson 7 is about — and it's where ownership starts feeling natural
+      instead of strict.
+    </p>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Using a variable after assigning it elsewhere — "value borrowed here after
+            move." Fix: <code>.clone()</code>, or read on to Lesson 7 and lend instead.</li>
+        <li>Expecting numbers to behave like Strings — they don't; they're Copy types.</li>
+        <li>Trying to memorize the memory theory before feeling it — do the
+            exercises; hands teach faster than diagrams.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Predict the verdict</h4>
+      <p>Which of these compiles? Decide first, then test both in the Playground.</p>
+<pre><code>// Program A
+let word = String::from("crab");
+let copy = word;
+println!("{word}");
+
+// Program B
+let num = 42;
+let copy = num;
+println!("{num}");</code></pre>
+      <details class="solution"><summary>Reveal answer</summary>
+        <p><strong>A fails</strong> — <code>String</code> moves, so <code>word</code> is
+        invalid after the assignment. <strong>B compiles</strong> — <code>i32</code> is a
+        Copy type; <code>copy</code> is a duplicate, and <code>num</code> lives on.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Two fixes, your choice</h4>
+      <p>Make this compile two different ways — once with <code>clone</code>, once by
+      reordering the code so the move happens last.</p>
+<pre><code>fn main() {
+    let motto = String::from("stay rusty");
+    let banner = motto;
+    println!("original: {motto}");
+    println!("banner: {banner}");
+}</code></pre>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>// Fix 1: clone
+let motto = String::from("stay rusty");
+let banner = motto.clone();
+println!("original: {motto}");
+println!("banner: {banner}");
+
+// Fix 2: use motto BEFORE moving it
+let motto = String::from("stay rusty");
+println!("original: {motto}");
+let banner = motto;
+println!("banner: {banner}");</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>The vanishing cake</h4>
+      <p>Type out the <code>devour</code> example from above and confirm the error.
+      Then change <code>devour</code> to <em>return</em> the String
+      (<code>fn devour(snack: String) -&gt; String</code>) and hand ownership back with
+      <code>let cake = devour(cake);</code>. Clunky? Extremely. Remember this feeling —
+      Lesson 7 exists to fix it.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn devour(snack: String) -&gt; String {
+    println!("nom nom: {snack}");
+    snack   // hand it back (expression, no semicolon!)
+}
+
+fn main() {
+    let cake = String::from("carrot cake");
+    let cake = devour(cake);   // ownership out, ownership back
+    println!("{cake} survived!");
+}</code></pre>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="06-ownership">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="05-control-flow.html"><span class="dir">← Previous</span>Lesson 5: Control Flow</a>
+      <a class="next" href="07-borrowing.html"><span class="dir">Next →</span>Lesson 7: Borrowing &amp; References</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

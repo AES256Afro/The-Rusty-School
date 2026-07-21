@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rusty School — Learn Rust from Zero</title>
+<meta name="description" content="A free, beginner-first Rust course: interactive lessons, quizzes, cheat sheets, and lab setup guides. From complete beginner to advanced.">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="kicker">A free course for absolute beginners</span>
+        <h1>Learn <span class="grad">Rust</span> without fear.</h1>
+        <p class="lede">
+          Rust is the language behind your browser, your favorite games, and the
+          cloud itself — famous for being fast <em>and</em> safe. The Rusty School
+          teaches it from absolute zero: no coding experience required, no
+          gatekeeping, and a friendly crab named Rusty by your side.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="learn/index.html">Start learning 🦀</a>
+          <a class="btn btn-ghost" href="setup.html">Set up your lab</a>
+        </div>
+        <div class="pill-stat">
+          <div class="stat"><span class="n">17</span><span class="l">lessons</span></div>
+          <div class="stat"><span class="n">3</span><span class="l">skill levels</span></div>
+          <div class="stat"><span class="n">40+</span><span class="l">exercises &amp; quizzes</span></div>
+          <div class="stat"><span class="n">100%</span><span class="l">free &amp; open</span></div>
+        </div>
+      </div>
+      <div class="hero-art">
+        <img src="assets/ferris.svg" alt="Rusty, a smiling cartoon crab">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHY RUST ============ -->
+  <section class="section" id="why">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Why learn Rust?</span>
+        <h2>The language the industry is betting on</h2>
+        <p>Rust isn't hype — it fixes real, expensive problems that older languages can't.</p>
+      </div>
+      <div class="grid cols-3">
+        <div class="card"><span class="emoji">🛡️</span>
+          <h3>Safe by design</h3>
+          <p>Microsoft and Chrome engineers found that roughly <strong>70% of their serious
+          security bugs</strong> were memory errors. Rust's compiler makes that entire
+          category of bug impossible — without a garbage collector.</p>
+        </div>
+        <div class="card"><span class="emoji">⚡</span>
+          <h3>Genuinely fast</h3>
+          <p>Rust compiles to native machine code and runs neck-and-neck with C and C++ —
+          the fastest languages there are. No interpreter, no pauses, tiny memory footprint.</p>
+        </div>
+        <div class="card"><span class="emoji">🧵</span>
+          <h3>Fearless concurrency</h3>
+          <p>Modern CPUs have many cores. Rust is the rare language whose compiler
+          <em>proves</em> your threads can't corrupt each other's data — data races
+          simply don't compile.</p>
+        </div>
+        <div class="card"><span class="emoji">🤝</span>
+          <h3>A compiler that coaches you</h3>
+          <p>Rust's error messages are famously helpful — they point at the problem,
+          explain it in plain English, and usually suggest the exact fix. It's like
+          pair-programming with a patient teacher.</p>
+        </div>
+        <div class="card"><span class="emoji">🧰</span>
+          <h3>World-class tooling</h3>
+          <p>One tool, <code>cargo</code>, builds your code, runs tests, manages packages,
+          and formats everything. No setup rabbit holes — it all just works, on every OS.</p>
+        </div>
+        <div class="card"><span class="emoji">💼</span>
+          <h3>Admired &amp; in demand</h3>
+          <p>Voted the <strong>most admired language</strong> in Stack Overflow's developer
+          survey for nearly a decade straight. Even the US government (CISA &amp; the White
+          House) now urges companies to adopt memory-safe languages like Rust.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHO USES IT ============ -->
+  <section class="section" id="who">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Trusted in production</span>
+        <h2>Who runs on Rust?</h2>
+        <p>You already use Rust every day — you just didn't know it.</p>
+      </div>
+      <div class="chip-row">
+        <span class="chip">☁️ AWS <small>— Firecracker VMs power Lambda</small></span>
+        <span class="chip">🪟 Microsoft <small>— rewriting Windows kernel parts</small></span>
+        <span class="chip">🤖 Google <small>— Rust in Android</small></span>
+        <span class="chip">🐧 Linux <small>— Rust in the kernel since 6.1</small></span>
+        <span class="chip">🦊 Mozilla <small>— Firefox's engine, Rust's birthplace</small></span>
+        <span class="chip">🎮 Discord <small>— rewrote hot services from Go</small></span>
+        <span class="chip">🌩️ Cloudflare <small>— Pingora proxy serves the web</small></span>
+        <span class="chip">📦 Dropbox <small>— file sync engine</small></span>
+        <span class="chip">🎨 Figma <small>— multiplayer server</small></span>
+        <span class="chip">🔐 1Password <small>— core security logic</small></span>
+        <span class="chip">📱 Signal <small>— cryptographic core</small></span>
+        <span class="chip">🤗 Hugging Face <small>— AI tokenizers</small></span>
+      </div>
+      <div class="callout tip">
+        <span class="co-title">💡 Why the sudden migration?</span>
+        These companies aren't rewriting millions of lines for fun. Memory bugs in C and
+        C++ cost them security breaches, crashes, and outages. Rust delivers the same
+        speed with a compiler that catches those bugs <em>before the code ever ships</em>.
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GAMES & APPS ============ -->
+  <section class="section" id="showcase">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Built with Rust</span>
+        <h2>Games made with Rust 🎮</h2>
+      </div>
+      <div class="grid cols-4">
+        <div class="card"><span class="emoji">🏰</span><h3>Tiny Glade</h3>
+          <p>The cozy castle-building hit — its gorgeous custom engine is pure Rust.</p></div>
+        <div class="card"><span class="emoji">⛰️</span><h3>Veloren</h3>
+          <p>A huge open-source multiplayer voxel RPG, built by volunteers in Rust.</p></div>
+        <div class="card"><span class="emoji">🐟</span><h3>Fish Folk: Jumpy</h3>
+          <p>A chaotic open-source pixel brawler from the Spicy Lobster collective.</p></div>
+        <div class="card"><span class="emoji">🏖️</span><h3>Sandspiel</h3>
+          <p>The viral falling-sand toy in your browser — Rust compiled to WebAssembly.</p></div>
+      </div>
+      <h3 style="margin-top:26px">Game engines &amp; tooling</h3>
+      <div class="chip-row">
+        <span class="chip">🕊️ Bevy <small>— the star Rust game engine</small></span>
+        <span class="chip">🦊 Fyrox <small>— engine with a full editor</small></span>
+        <span class="chip">🎯 Macroquad <small>— tiny &amp; beginner-friendly</small></span>
+        <span class="chip">🎲 godot-rust <small>— Rust inside Godot</small></span>
+        <span class="chip">🚀 Embark Studios <small>— AAA studio betting on Rust</small></span>
+      </div>
+      <div class="callout warn">
+        <span class="co-title">😄 Fun fact</span>
+        The survival game <em>Rust</em> is <strong>not</strong> written in Rust (it's C# on Unity).
+        The crab community finds this endlessly funny.
+      </div>
+
+      <div class="section-head" style="margin-top:36px">
+        <h2>Apps &amp; tools you might already use 🧑‍💻</h2>
+      </div>
+      <div class="grid cols-3">
+        <div class="card"><span class="emoji">⚡</span><h3>Zed &amp; friends</h3>
+          <p>The lightning-fast <strong>Zed</strong> editor, the <strong>Alacritty</strong> and
+          <strong>Warp</strong> terminals — all Rust, all famous for speed.</p></div>
+        <div class="card"><span class="emoji">🔎</span><h3>Modern CLI classics</h3>
+          <p><strong>ripgrep</strong>, <strong>bat</strong>, <strong>fd</strong>,
+          <strong>eza</strong>, <strong>starship</strong> — the beloved next-gen
+          command-line tools are a Rust family reunion.</p></div>
+        <div class="card"><span class="emoji">🐍</span><h3>Python's turbo engines</h3>
+          <p><strong>uv</strong> and <strong>ruff</strong> made Python packaging and linting
+          10–100× faster — by being written in Rust. Same story for the
+          <strong>Polars</strong> dataframe library.</p></div>
+        <div class="card"><span class="emoji">🦕</span><h3>Deno</h3>
+          <p>The modern JavaScript/TypeScript runtime from Node.js's original creator,
+          built on a Rust core.</p></div>
+        <div class="card"><span class="emoji">🖥️</span><h3>Tauri</h3>
+          <p>Build tiny, fast desktop apps with web tech and a Rust backend — the
+          lightweight alternative to Electron.</p></div>
+        <div class="card"><span class="emoji">🌐</span><h3>Firefox</h3>
+          <p>Rust was created at Mozilla, and Firefox's CSS and rendering engines
+          were its first big proving ground.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE PATH ============ -->
+  <section class="section" id="path">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Your journey</span>
+        <h2>From zero to Rustacean in three levels</h2>
+        <p>Short lessons, plain English, lots of little wins. Your progress is saved in your browser.</p>
+      </div>
+      <div class="grid cols-3">
+        <a class="card" href="learn/index.html#level-1">
+          <span class="badge l1">Level 1 · Sprout</span>
+          <h3>🌱 First steps</h3>
+          <p>What programming even is, Hello World, variables, types, functions, and
+          control flow. Zero experience needed.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-2">
+          <span class="badge l2">Level 2 · The Rust Way</span>
+          <h3>🔧 Think like Rust</h3>
+          <p>Ownership and borrowing (Rust's superpower), structs, enums, pattern
+          matching, collections, and real error handling.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-3">
+          <span class="badge l3">Level 3 · Power Tools</span>
+          <h3>🚀 Advanced Rust</h3>
+          <p>Traits, generics, lifetimes, iterators, smart pointers, fearless
+          concurrency, and shipping real projects with Cargo.</p>
+        </a>
+      </div>
+      <div class="callout info" style="margin-top:24px">
+        <span class="co-title">🧪 No installs needed to start</span>
+        You can write and run real Rust in your browser right now with the
+        <a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a> —
+        our <a href="setup.html#browser">zero-install guide</a> shows you how. When you're
+        ready, the full lab setup takes about ten minutes.
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

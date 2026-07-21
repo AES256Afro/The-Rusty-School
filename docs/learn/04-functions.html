@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 4: Functions — The Rusty School</title>
+<meta name="description" content="Rust functions: parameters, return values, and the expression secret.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 4 of 17</nav>
+    <span class="badge l1">Level 1 · Sprout</span>
+    <h1>Functions 🧑‍🍳</h1>
+    <p class="lede muted">A function is a recipe: give it ingredients, get back a dish.
+    Write it once, use it a thousand times.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Recipes with ingredients</h2>
+    <p>
+      You've been using a function since day one — <code>main</code>. Now let's write
+      our own. Parameters (the ingredients) go in the parentheses, and in Rust,
+      <strong>every parameter declares its type</strong>:
+    </p>
+<pre><code>fn greet(name: &amp;str, excitement: u8) {
+    println!("Hello, {name}{}", "!".repeat(excitement as usize));
+}
+
+fn main() {
+    greet("Rusty", 3);   // Hello, Rusty!!!
+    greet("Chris", 1);   // Hello, Chris!
+}</code></pre>
+    <p>
+      Why insist on types? Because it makes functions a <em>contract</em>. Anyone
+      calling <code>greet</code> knows exactly what it needs — and the compiler slams
+      the door on wrong ingredients before the program can run.
+    </p>
+
+    <h2>Giving something back: <code>-&gt;</code></h2>
+    <p>The arrow declares what type comes back out:</p>
+<pre><code>fn double(n: i32) -&gt; i32 {
+    n * 2
+}
+
+fn main() {
+    let answer = double(21);
+    println!("{answer}"); // 42
+}</code></pre>
+    <p>
+      Wait — where's the <code>return</code>? This is one of Rust's most elegant habits,
+      and it deserves its own section.
+    </p>
+
+    <h2>The expression secret ✨</h2>
+    <p>Rust code comes in two flavors:</p>
+    <ul>
+      <li>An <strong>expression</strong> <em>produces a value</em>: <code>5</code>,
+          <code>n * 2</code>, <code>double(21)</code>, even an <code>if</code> (soon!).</li>
+      <li>A <strong>statement</strong> <em>does something</em> and produces nothing:
+          <code>let x = 5;</code></li>
+    </ul>
+    <p>
+      The rule: <strong>if the last line of a function is an expression with no
+      semicolon, that value is returned automatically.</strong> Adding a semicolon
+      turns it into a statement — which returns nothing. One character changes everything:
+    </p>
+<pre><code>fn double(n: i32) -&gt; i32 {
+    n * 2    // ✅ expression → returned
+}
+
+fn broken_double(n: i32) -&gt; i32 {
+    n * 2;   // ❌ statement → returns nothing!
+}</code></pre>
+<pre class="compiler"><code>error[E0308]: mismatched types
+ --> src/main.rs:5:29
+  |
+5 | fn broken_double(n: i32) -&gt; i32 {
+  |    -------------            ^^^ expected `i32`, found `()`
+  |
+help: remove this semicolon to return this value</code></pre>
+    <p>
+      The compiler even knows the cure. (<code>()</code> — "unit" — is Rust's way of
+      saying "nothing here.") The <code>return</code> keyword still exists for leaving a
+      function <em>early</em>; for the final line, Rustaceans always use the bare expression.
+    </p>
+
+    <h2>Composing recipes</h2>
+    <p>Functions calling functions is how programs grow without becoming spaghetti:</p>
+<pre><code>fn area(width: f64, height: f64) -&gt; f64 {
+    width * height
+}
+
+fn price_per_m2(total: f64, w: f64, h: f64) -&gt; f64 {
+    total / area(w, h)
+}
+
+fn main() {
+    let cost = price_per_m2(1200.0, 4.0, 3.0);
+    println!("You're paying {cost} per square meter");
+}</code></pre>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>A semicolon on the final expression of a returning function — see above,
+            it's the classic.</li>
+        <li>Forgetting parameter types: <code>fn greet(name)</code> won't compile;
+            Rust needs <code>name: &amp;str</code>.</li>
+        <li>Type mismatch between what <code>-&gt;</code> promises and what the body
+            delivers — the error message will point right at it.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Temperature translator</h4>
+      <p>Write <code>fn to_fahrenheit(celsius: f64) -&gt; f64</code> using the formula
+      <code>c × 9 ÷ 5 + 32</code>, and print the result for 100°C. (Remember: use
+      <code>9.0</code> and <code>5.0</code> — no mixing integers and floats!)</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn to_fahrenheit(celsius: f64) -&gt; f64 {
+    celsius * 9.0 / 5.0 + 32.0
+}
+
+fn main() {
+    println!("100°C = {}°F", to_fahrenheit(100.0)); // 212°F
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Spot the bug</h4>
+      <p>Why doesn't this compile, and what's the one-character fix?</p>
+<pre><code>fn square(n: i32) -&gt; i32 {
+    n * n;
+}</code></pre>
+      <details class="solution"><summary>Reveal answer</summary>
+        <p>The semicolon turns <code>n * n</code> into a statement, so the function
+        returns <code>()</code> instead of the promised <code>i32</code>. Delete the
+        semicolon and the last expression becomes the return value.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Tip calculator</h4>
+      <p>Write <code>fn total_with_tip(bill: f64, tip_percent: f64) -&gt; f64</code>, then
+      use it to print the total for a 84.50 bill with an 18% tip.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn total_with_tip(bill: f64, tip_percent: f64) -&gt; f64 {
+    bill + bill * tip_percent / 100.0
+}
+
+fn main() {
+    let total = total_with_tip(84.50, 18.0);
+    println!("Total: {total:.2}"); // {:.2} = two decimal places
+}</code></pre>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="04-functions">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="03-types.html"><span class="dir">← Previous</span>Lesson 3: Data Types</a>
+      <a class="next" href="05-control-flow.html"><span class="dir">Next →</span>Lesson 5: Control Flow</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

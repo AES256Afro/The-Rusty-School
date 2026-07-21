@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheat Sheets — The Rusty School</title>
+<meta name="description" content="Printable Rust cheat sheets: syntax, types, ownership rules, collections, error handling, and Cargo commands.">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container sheet">
+  <section class="lesson-header">
+    <span class="kicker">Quick reference</span>
+    <h1>Cheat <span class="grad">sheets</span> 📋</h1>
+    <p class="lede muted">
+      Everything you keep forgetting, on one page. Print it
+      (<code>Ctrl/⌘+P</code> — we styled it for paper) or keep it in a tab.
+    </p>
+  </section>
+
+  <h2>⚡ Syntax essentials</h2>
+  <div class="sheet-grid">
+    <div class="card">
+      <h3>Variables</h3>
+<pre><code>let x = 5;            // immutable
+let mut y = 5;        // mutable
+y += 1;               // ok, y is mut
+const MAX: u32 = 100; // constant
+let x = x * 2;        // shadowing</code></pre>
+    </div>
+    <div class="card">
+      <h3>Functions</h3>
+<pre><code>fn add(a: i32, b: i32) -> i32 {
+    a + b   // last expression = return
+}
+
+fn greet(name: &str) {  // no return
+    println!("Hi, {name}!");
+}</code></pre>
+    </div>
+    <div class="card">
+      <h3>Control flow</h3>
+<pre><code>if x > 5 { ... } else { ... }
+
+let label = if x > 5 { "big" } else { "small" };
+
+for i in 0..10 { ... }      // 0 to 9
+for item in &my_vec { ... } // borrow items
+while x &lt; 100 { ... }
+loop { break; }             // forever, until break</code></pre>
+    </div>
+    <div class="card">
+      <h3>Printing</h3>
+<pre><code>println!("plain text");
+println!("value: {x}");        // inline var
+println!("sum: {}", a + b);    // expression
+println!("debug: {:?}", vec);  // Debug view
+println!("pretty: {:#?}", s);  // multi-line
+eprintln!("to stderr");</code></pre>
+    </div>
+  </div>
+
+  <h2>🔢 Common types</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Type</th><th>What it is</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>i32</code></td><td>whole numbers (default)</td><td><code>let n: i32 = -7;</code></td></tr>
+      <tr><td><code>u32 / usize</code></td><td>only-positive numbers / indexes</td><td><code>let len: usize = v.len();</code></td></tr>
+      <tr><td><code>f64</code></td><td>decimals (default float)</td><td><code>let pi = 3.14;</code></td></tr>
+      <tr><td><code>bool</code></td><td>true / false</td><td><code>let on = true;</code></td></tr>
+      <tr><td><code>char</code></td><td>one character (any emoji too)</td><td><code>let c = '🦀';</code></td></tr>
+      <tr><td><code>&amp;str</code></td><td>borrowed text view</td><td><code>let s = "hi";</code></td></tr>
+      <tr><td><code>String</code></td><td>owned, growable text</td><td><code>let s = String::from("hi");</code></td></tr>
+      <tr><td><code>(i32, bool)</code></td><td>tuple — mixed bundle</td><td><code>let t = (5, true);</code></td></tr>
+      <tr><td><code>[i32; 3]</code></td><td>array — fixed size</td><td><code>let a = [1, 2, 3];</code></td></tr>
+      <tr><td><code>Vec&lt;T&gt;</code></td><td>growable list</td><td><code>let v = vec![1, 2, 3];</code></td></tr>
+      <tr><td><code>Option&lt;T&gt;</code></td><td>maybe a value</td><td><code>Some(5)</code> / <code>None</code></td></tr>
+      <tr><td><code>Result&lt;T, E&gt;</code></td><td>success or failure</td><td><code>Ok(5)</code> / <code>Err(e)</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>🧠 Ownership &amp; borrowing — the whole law</h2>
+  <div class="sheet-grid">
+    <div class="card">
+      <h3>The three ownership rules</h3>
+      <ul class="checklist">
+        <li>Every value has exactly <strong>one owner</strong>.</li>
+        <li>When the owner goes out of scope, the value is <strong>dropped</strong> (freed).</li>
+        <li>Assigning or passing a heap value <strong>moves</strong> ownership (unless you <code>.clone()</code>).</li>
+      </ul>
+<pre><code>let s1 = String::from("hi");
+let s2 = s1;        // s1 MOVED into s2
+// println!("{s1}"); // ❌ error: s1 is gone
+let s3 = s2.clone(); // deep copy, both valid</code></pre>
+    </div>
+    <div class="card">
+      <h3>The two borrowing rules</h3>
+      <ul class="checklist">
+        <li>Any number of shared borrows <code>&amp;T</code>, <em>or</em> exactly one mutable borrow <code>&amp;mut T</code>.</li>
+        <li>No reference may outlive the data it points to.</li>
+      </ul>
+<pre><code>fn shout(msg: &String) { ... }      // reads
+fn extend(msg: &mut String) { ... } // edits
+
+let mut s = String::from("hi");
+shout(&s);        // lend it (read-only)
+extend(&mut s);   // lend it (writable)
+// s is still ours afterwards ✅</code></pre>
+    </div>
+  </div>
+
+  <h2>🧩 Pattern matching</h2>
+  <div class="sheet-grid">
+    <div class="card">
+      <h3>match</h3>
+<pre><code>match number {
+    0 => println!("zero"),
+    1 | 2 => println!("one or two"),
+    3..=9 => println!("3 through 9"),
+    n if n &lt; 0 => println!("negative"),
+    _ => println!("something else"),
+}</code></pre>
+    </div>
+    <div class="card">
+      <h3>Option &amp; Result patterns</h3>
+<pre><code>match find_user(id) {
+    Some(user) => greet(&user),
+    None => println!("no such user"),
+}
+
+if let Some(user) = find_user(id) {
+    greet(&user);   // only-one-case shortcut
+}
+
+let n: i32 = "42".parse()?;  // ? bubbles Err up
+let n = "42".parse().unwrap_or(0);</code></pre>
+    </div>
+  </div>
+
+  <h2>📚 Collections in practice</h2>
+  <div class="sheet-grid">
+    <div class="card">
+      <h3>Vec — a growable list</h3>
+<pre><code>let mut v = vec![1, 2, 3];
+v.push(4);                 // add to end
+let last = v.pop();        // Option&lt;i32&gt;
+let first = v.first();     // Option&lt;&i32&gt;
+let n = v[0];              // panics if empty!
+let n = v.get(0);          // safe: Option
+for x in &v { ... }        // iterate borrowed
+v.len();  v.is_empty();  v.contains(&2);</code></pre>
+    </div>
+    <div class="card">
+      <h3>String — owned text</h3>
+<pre><code>let mut s = String::from("Hello");
+s.push_str(", world");     // append &str
+s.push('!');               // append char
+let joined = format!("{s} x{n}");
+s.to_uppercase();  s.trim();  s.len();
+for word in s.split(' ') { ... }
+let num: i32 = "42".parse().unwrap();</code></pre>
+    </div>
+    <div class="card">
+      <h3>HashMap — key → value</h3>
+<pre><code>use std::collections::HashMap;
+
+let mut scores = HashMap::new();
+scores.insert("ferris", 100);
+let s = scores.get("ferris"); // Option&lt;&i32&gt;
+*scores.entry("crab").or_insert(0) += 1;
+for (name, score) in &scores { ... }</code></pre>
+    </div>
+    <div class="card">
+      <h3>Iterator one-liners</h3>
+<pre><code>let doubled: Vec&lt;i32&gt; =
+    v.iter().map(|x| x * 2).collect();
+
+let evens: Vec&lt;i32&gt; =
+    v.iter().filter(|x| *x % 2 == 0)
+            .cloned().collect();
+
+let total: i32 = v.iter().sum();
+let biggest = v.iter().max();   // Option
+v.iter().count();  v.iter().rev();
+v.iter().enumerate();  // (index, item)</code></pre>
+    </div>
+  </div>
+
+  <h2>🚨 Error handling</h2>
+  <div class="sheet-grid">
+    <div class="card">
+      <h3>The toolbox</h3>
+<pre><code>result.unwrap();      // crash on Err 😬
+result.expect("msg"); // crash with message
+result.unwrap_or(0);  // fallback value
+result.is_ok();       // just checking
+result?               // pass Err to caller
+option.ok_or("gone")? // Option → Result</code></pre>
+    </div>
+    <div class="card">
+      <h3>Propagating with ?</h3>
+<pre><code>use std::fs;
+
+fn read_config() -> Result&lt;String, std::io::Error&gt; {
+    let text = fs::read_to_string("cfg.txt")?;
+    Ok(text.trim().to_string())
+}
+// caller decides what a missing file means</code></pre>
+    </div>
+  </div>
+
+  <h2>📦 Cargo commands</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>cargo new my_app</code></td><td>create a new project</td></tr>
+      <tr><td><code>cargo run</code></td><td>compile + run in one step</td></tr>
+      <tr><td><code>cargo check</code></td><td>fast "does it compile?" (no binary)</td></tr>
+      <tr><td><code>cargo build --release</code></td><td>optimized build in <code>target/release</code></td></tr>
+      <tr><td><code>cargo test</code></td><td>run all tests</td></tr>
+      <tr><td><code>cargo add serde</code></td><td>add a dependency from crates.io</td></tr>
+      <tr><td><code>cargo fmt</code></td><td>auto-format all code</td></tr>
+      <tr><td><code>cargo clippy</code></td><td>the wise linter — catches bad patterns</td></tr>
+      <tr><td><code>cargo doc --open</code></td><td>build &amp; open docs for your code + deps</td></tr>
+      <tr><td><code>rustup update</code></td><td>update Rust itself</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>🧯 Borrow-checker survival guide</h2>
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>When the compiler complains…</h3>
+      <ul class="checklist">
+        <li><em>"value moved here"</em> → pass a reference <code>&amp;value</code> instead, or <code>.clone()</code> if you truly need a copy.</li>
+        <li><em>"cannot borrow as mutable more than once"</em> → shrink the scope: finish one borrow (often with <code>{ }</code> blocks) before starting the next.</li>
+        <li><em>"cannot borrow as mutable because also borrowed as immutable"</em> → stop reading before you start writing; reorder the code.</li>
+        <li><em>"does not live long enough"</em> → you're returning a reference to something that dies; return an owned <code>String</code>/<code>Vec</code> instead.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Beginner rules of thumb</h3>
+      <ul class="checklist">
+        <li>Functions should usually take <code>&amp;str</code> instead of <code>String</code>, and <code>&amp;[T]</code> instead of <code>Vec&lt;T&gt;</code>.</li>
+        <li>Reach for <code>.clone()</code> guilt-free while learning — correct first, optimal later.</li>
+        <li>Let the compiler drive: read the error, apply its suggestion, repeat.</li>
+        <li>When stuck, <code>cargo clippy</code> often knows the idiomatic fix.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout tip no-print" style="margin-top:30px">
+    <span class="co-title">🖨️ Make it paper</span>
+    Press <code>Ctrl/⌘ + P</code> — this page has a clean print layout on purpose.
+    Pin it above your desk like the periodic table of crab.
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 9: Enums &amp; Pattern Matching — The Rusty School</title>
+<meta name="description" content="Rust enums, match, Option, and how Rust ended null-pointer crashes.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 9 of 17</nav>
+    <span class="badge l2">Level 2 · The Rust Way</span>
+    <h1>Enums &amp; Pattern Matching 🎭</h1>
+    <p class="lede muted">Structs say "this AND that." Enums say "this OR that."
+    Together with <code>match</code>, they end one of computing's most expensive
+    mistakes: the null pointer.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>One of several possibilities</h2>
+    <p>An <strong>enum</strong> (enumeration) is a type whose value is exactly one of a
+    fixed set of <em>variants</em>:</p>
+<pre><code>enum Weather {
+    Sunny,
+    Cloudy,
+    Rainy,
+    Snowy,
+}
+
+fn main() {
+    let today = Weather::Rainy;
+}</code></pre>
+    <p>A <code>Weather</code> is never two of these, never none of these, never
+    "Purple" — the compiler guarantees it. That already kills a whole species of bug
+    (the stray string: <code>"rainy"</code> vs <code>"Rainy"</code> vs <code>"RAINY"</code>…).</p>
+
+    <h2>Variants can carry data 🎒</h2>
+    <p>Here's where Rust enums leave other languages behind — each variant can hold
+    its own cargo:</p>
+<pre><code>enum Message {
+    Quit,                       // no data
+    Move { x: i32, y: i32 },    // struct-like data
+    Write(String),              // one value
+    ChangeColor(u8, u8, u8),    // three values
+}</code></pre>
+    <p>A <code>Message</code> is one shape <em>or</em> another, each with exactly the
+    data that shape needs. Modeling "it's this or that, with different details" is
+    most of programming — enums make it native.</p>
+
+    <h2><code>match</code>: the pattern-matching powerhouse</h2>
+<pre><code>enum Weather {
+    Sunny,
+    Rainy,
+    Windy(u32),   // wind speed in km/h
+}
+
+fn advice(w: Weather) -&gt; String {
+    match w {
+        Weather::Sunny =&gt; String::from("Sunscreen. You're a crab."),
+        Weather::Rainy =&gt; String::from("You live in water. Proceed."),
+        Weather::Windy(speed) if speed &gt; 80 =&gt; {
+            String::from("Grip the rock. GRIP THE ROCK.")
+        }
+        Weather::Windy(speed) =&gt; format!("Breezy at {speed} km/h. Enjoy."),
+    }
+}
+
+fn main() {
+    println!("{}", advice(Weather::Windy(95)));
+}</code></pre>
+    <p>Three superpowers on display:</p>
+    <ul>
+      <li><strong>Destructuring</strong> — <code>Windy(speed)</code> pulls the cargo out
+        of the variant into a variable.</li>
+      <li><strong>Guards</strong> — <code>if speed &gt; 80</code> adds a condition to an arm.</li>
+      <li><strong>Exhaustiveness</strong> — delete the <code>Rainy</code> arm and the
+        program <em>won't compile</em>: "pattern <code>Weather::Rainy</code> not covered."
+        Add a new variant next year, and the compiler walks you to every
+        <code>match</code> that needs updating. That's refactoring with a safety net.</li>
+    </ul>
+    <p>The <code>_</code> pattern means "anything else" — useful, but use it sparingly:
+    every <code>_</code> is a place the compiler <em>stops</em> checking for you.</p>
+
+    <h2>The billion-dollar bug, and Rust's answer 💸</h2>
+    <p>
+      Tony Hoare, who invented the <em>null reference</em> in 1965, calls it his
+      "billion-dollar mistake" — decades of crashes from programs using a value that
+      turned out to be nothing. Most languages still live with it.
+      Rust simply… doesn't have null.
+    </p>
+    <p>Instead, "maybe a value" is an ordinary enum from the standard library:</p>
+<pre><code>enum Option&lt;T&gt; {    // T = any type (generics — Lesson 12)
+    Some(T),         // there IS a value, here it is
+    None,            // there is no value
+}</code></pre>
+    <p>Anything that might be absent is an <code>Option</code>, and <strong>the compiler
+    forces you to handle both cases before you can touch the value</strong>:</p>
+<pre><code>fn find_nickname(name: &amp;str) -&gt; Option&lt;String&gt; {
+    if name == "Christopher" {
+        Some(String::from("Chris"))
+    } else {
+        None
+    }
+}
+
+fn main() {
+    match find_nickname("Christopher") {
+        Some(nick) =&gt; println!("Call them {nick}"),
+        None =&gt; println!("No nickname on file."),
+    }
+}</code></pre>
+    <p>
+      You <em>cannot</em> forget the <code>None</code> case — it won't compile. The
+      null-pointer crash isn't "less likely" in Rust; it's grammatically impossible.
+    </p>
+
+    <h2>The one-case shortcut: <code>if let</code></h2>
+    <p>When you only care about one variant, a full <code>match</code> is ceremony.
+    <code>if let</code> is the shorthand:</p>
+<pre><code>let nickname = find_nickname("Christopher");
+
+if let Some(nick) = nickname {
+    println!("Call them {nick}");
+}
+// (optionally: } else { ... } for the None side)</code></pre>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Reaching for <code>.unwrap()</code> to skip the <code>None</code> case — it
+            crashes the program if the value is absent. Fine in toy code; in real code,
+            <code>match</code>, <code>if let</code>, or <code>unwrap_or(default)</code>.</li>
+        <li>Forgetting <code>Some(...)</code> when returning: <code>return nick;</code>
+            where <code>Some(nick)</code> is needed.</li>
+        <li>Overusing <code>_</code> arms — you're muting your best reviewer.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Traffic light</h4>
+      <p>Create an enum <code>Light</code> with <code>Red</code>, <code>Yellow</code>,
+      <code>Green</code>. Write <code>fn action(light: Light) -&gt; &amp;'static str</code>
+      using <code>match</code> (that <code>'static</code> is just "text built into the
+      program" — details in Lesson 13). Then try deleting one arm and read the error.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>enum Light {
+    Red,
+    Yellow,
+    Green,
+}
+
+fn action(light: Light) -&gt; &amp;'static str {
+    match light {
+        Light::Red =&gt; "stop",
+        Light::Yellow =&gt; "hurry up (kidding: slow down)",
+        Light::Green =&gt; "go",
+    }
+}
+
+fn main() {
+    println!("{}", action(Light::Yellow));
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Safe division</h4>
+      <p>Division by zero is nonsense — model it! Write
+      <code>fn divide(a: f64, b: f64) -&gt; Option&lt;f64&gt;</code> returning
+      <code>None</code> when <code>b == 0.0</code>. Call it twice (once with zero) and
+      <code>match</code> on both results.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn divide(a: f64, b: f64) -&gt; Option&lt;f64&gt; {
+    if b == 0.0 {
+        None
+    } else {
+        Some(a / b)
+    }
+}
+
+fn main() {
+    for (a, b) in [(10.0, 4.0), (1.0, 0.0)] {
+        match divide(a, b) {
+            Some(result) =&gt; println!("{a} / {b} = {result}"),
+            None =&gt; println!("{a} / {b} is undefined, friend"),
+        }
+    }
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Message dispatcher</h4>
+      <p>Using the <code>Message</code> enum from above, write a function that takes a
+      <code>Message</code> and describes it — e.g. <code>Move { x, y }</code> prints
+      "moving to (x, y)". Create one of each variant and dispatch them all.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+    ChangeColor(u8, u8, u8),
+}
+
+fn dispatch(msg: Message) {
+    match msg {
+        Message::Quit =&gt; println!("goodbye!"),
+        Message::Move { x, y } =&gt; println!("moving to ({x}, {y})"),
+        Message::Write(text) =&gt; println!("writing: {text}"),
+        Message::ChangeColor(r, g, b) =&gt; println!("color: #{r:02x}{g:02x}{b:02x}"),
+    }
+}
+
+fn main() {
+    dispatch(Message::Move { x: 3, y: 7 });
+    dispatch(Message::Write(String::from("hi")));
+    dispatch(Message::ChangeColor(247, 76, 0));
+    dispatch(Message::Quit);
+}</code></pre>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="09-enums">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="08-structs.html"><span class="dir">← Previous</span>Lesson 8: Structs &amp; Methods</a>
+      <a class="next" href="10-collections.html"><span class="dir">Next →</span>Lesson 10: Collections</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

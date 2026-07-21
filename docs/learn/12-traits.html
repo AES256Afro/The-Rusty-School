@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 12: Traits &amp; Generics — The Rusty School</title>
+<meta name="description" content="Rust traits and generics: shared behavior, trait bounds, and flexible code without duplication.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 12 of 17</nav>
+    <span class="badge l3">Level 3 · Power Tools</span>
+    <h1>Traits &amp; Generics 🧬</h1>
+    <p class="lede muted">Welcome to Level 3. First tool: writing code that works for
+    <em>many</em> types at once — without losing an ounce of safety or speed.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Traits: shared abilities</h2>
+    <p>
+      A <strong>trait</strong> describes something types can <em>do</em>. Think of it as
+      a badge 🎖️: "this type can be summarized," "this type can be compared," "this type
+      can be printed." You define the badge; any type can earn it:
+    </p>
+<pre><code>trait Describe {
+    fn describe(&amp;self) -&gt; String;
+
+    // traits can include default behavior, too
+    fn shout(&amp;self) -&gt; String {
+        self.describe().to_uppercase() + "!!!"
+    }
+}
+
+struct Crab { name: String }
+struct Wave { height_m: f64 }
+
+impl Describe for Crab {
+    fn describe(&amp;self) -&gt; String {
+        format!("a crab named {}", self.name)
+    }
+}
+
+impl Describe for Wave {
+    fn describe(&amp;self) -&gt; String {
+        format!("a {}m wave", self.height_m)
+    }
+}
+
+fn main() {
+    let rusty = Crab { name: String::from("Rusty") };
+    let big = Wave { height_m: 3.2 };
+    println!("{}", rusty.describe());
+    println!("{}", big.shout());   // default method, free of charge
+}</code></pre>
+    <p>
+      Two completely unrelated types now share a vocabulary. If a type skips a required
+      method, the compiler refuses the badge — a half-implemented interface can't exist.
+    </p>
+
+    <h2>Functions that accept "anything with the badge"</h2>
+<pre><code>fn announce(item: &amp;impl Describe) {
+    println!("📣 Behold: {}", item.describe());
+}
+
+fn main() {
+    announce(&amp;Crab { name: String::from("Rusty") });
+    announce(&amp;Wave { height_m: 1.5 });
+}</code></pre>
+    <p><code>&amp;impl Describe</code> reads exactly as it sounds: "a borrow of anything
+    that implements Describe." One function, every describable type, forever —
+    including types other people write next year.</p>
+
+    <h2>Generics: type placeholders</h2>
+    <p>
+      Sometimes the flexibility isn't about behavior but about <em>containers</em>.
+      You've been using generics all along: <code>Vec&lt;T&gt;</code>,
+      <code>Option&lt;T&gt;</code>, <code>Result&lt;T, E&gt;</code>. The <code>T</code> is
+      a placeholder filled in per use: <code>Vec&lt;i32&gt;</code>,
+      <code>Option&lt;String&gt;</code>. You can write your own:
+    </p>
+<pre><code>#[derive(Debug)]
+struct Pair&lt;T&gt; {
+    first: T,
+    second: T,
+}
+
+fn main() {
+    let numbers = Pair { first: 1, second: 2 };          // Pair&lt;i32&gt;
+    let words = Pair { first: "sea", second: "shell" };  // Pair&lt;&amp;str&gt;
+    println!("{numbers:?} {words:?}");
+}</code></pre>
+
+    <h2>Trait bounds: placeholders with standards</h2>
+    <p>
+      Now combine them. A generic function can demand its placeholder <em>have a badge</em>.
+      This is the pattern that unlocks most of Rust's standard library:
+    </p>
+<pre><code>fn largest&lt;T: PartialOrd&gt;(list: &amp;[T]) -&gt; &amp;T {
+    let mut biggest = &amp;list[0];
+    for item in list {
+        if item &gt; biggest {     // &gt; only works because T: PartialOrd
+            biggest = item;
+        }
+    }
+    biggest
+}
+
+fn main() {
+    println!("{}", largest(&amp;[3, 7, 2]));            // works on numbers
+    println!("{}", largest(&amp;['x', 'a', 'm']));      // and chars
+    println!("{}", largest(&amp;["kelp", "algae"]));    // and strings
+}</code></pre>
+    <p>
+      <code>T: PartialOrd</code> means "any type T that can be compared with
+      <code>&lt;</code> and <code>&gt;</code>." Remove the bound and the compiler
+      rejects the <code>&gt;</code> — it won't let you assume abilities a type might
+      not have. Maximum flexibility, zero leaps of faith.
+    </p>
+    <div class="callout info">
+      <span class="co-title">⚡ The free lunch</span>
+      Here's the magic: at compile time Rust generates a specialized copy of
+      <code>largest</code> for each type you use it with — as if you'd hand-written an
+      <code>i32</code> version and a <code>char</code> version. Generic code runs
+      <em>exactly as fast</em> as duplicated code. This is called
+      <em>zero-cost abstraction</em>, and it's a core reason Rust wins benchmarks.
+    </div>
+
+    <h2>Badges you've already met</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Trait</th><th>Grants</th><th>Usually earned by</th></tr></thead>
+      <tbody>
+        <tr><td><code>Debug</code></td><td>printing with <code>{:?}</code></td><td><code>#[derive(Debug)]</code></td></tr>
+        <tr><td><code>Clone</code></td><td><code>.clone()</code></td><td><code>#[derive(Clone)]</code></td></tr>
+        <tr><td><code>Copy</code></td><td>copy instead of move (Lesson 6!)</td><td><code>#[derive(Copy, Clone)]</code>, small types only</td></tr>
+        <tr><td><code>PartialEq</code></td><td><code>==</code> and <code>!=</code></td><td><code>#[derive(PartialEq)]</code></td></tr>
+        <tr><td><code>PartialOrd</code></td><td><code>&lt;</code> <code>&gt;</code> comparisons</td><td><code>#[derive(PartialOrd)]</code></td></tr>
+        <tr><td><code>Display</code></td><td>printing with <code>{}</code></td><td>written by hand — you choose the look</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>That mysterious <code>#[derive(...)]</code> from Lesson 8 was trait
+    implementation all along — the compiler writing badge paperwork for you.</p>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Common stumbles</span>
+      <ul style="margin:6px 0 0">
+        <li>Using <code>&gt;</code>, <code>==</code> or <code>{:?}</code> on a generic
+            <code>T</code> without the bound that grants it.</li>
+        <li>Forgetting <code>for</code> in <code>impl Describe for Crab</code>.</li>
+        <li>Deriving <code>Copy</code> on heap-owning types like <code>String</code> —
+            not allowed, and the compiler explains why.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Noise-makers</h4>
+      <p>Define a trait <code>MakesSound</code> with <code>fn sound(&amp;self) -&gt; String</code>.
+      Implement it for structs <code>Dog</code> and <code>Robot</code>, then write
+      <code>fn broadcast(thing: &amp;impl MakesSound)</code> that prints the sound three times.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>trait MakesSound {
+    fn sound(&amp;self) -&gt; String;
+}
+
+struct Dog;
+struct Robot;
+
+impl MakesSound for Dog {
+    fn sound(&amp;self) -&gt; String { String::from("woof") }
+}
+
+impl MakesSound for Robot {
+    fn sound(&amp;self) -&gt; String { String::from("beep-boop") }
+}
+
+fn broadcast(thing: &amp;impl MakesSound) {
+    let s = thing.sound();
+    println!("{s} {s} {s}!");
+}
+
+fn main() {
+    broadcast(&amp;Dog);
+    broadcast(&amp;Robot);
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Generic swap</h4>
+      <p>Write <code>fn swap&lt;T&gt;(pair: (T, T)) -&gt; (T, T)</code> that returns the tuple
+      reversed. Test it with numbers <em>and</em> with <code>&amp;str</code>s. Did you need
+      any trait bound? Why not?</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn swap&lt;T&gt;(pair: (T, T)) -&gt; (T, T) {
+    (pair.1, pair.0)
+}
+
+fn main() {
+    println!("{:?}", swap((1, 2)));          // (2, 1)
+    println!("{:?}", swap(("hi", "yo")));    // ("yo", "hi")
+}</code></pre>
+        <p>No bound needed — swapping only <em>moves</em> values around. Bounds are for
+        when you <em>use</em> abilities: compare, print, clone…</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>A proper Display</h4>
+      <p>Give Lesson 8's <code>Player</code> the <code>Display</code> badge by hand, so
+      <code>println!("{p}")</code> prints <code>CrabLord99 (level 7)</code>. Skeleton:</p>
+<pre><code>use std::fmt;
+
+impl fmt::Display for Player {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+        write!(f, "...")   // your format here
+    }
+}</code></pre>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use std::fmt;
+
+struct Player {
+    name: String,
+    level: u32,
+}
+
+impl fmt::Display for Player {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter) -&gt; fmt::Result {
+        write!(f, "{} (level {})", self.name, self.level)
+    }
+}
+
+fn main() {
+    let p = Player { name: String::from("CrabLord99"), level: 7 };
+    println!("{p}");   // CrabLord99 (level 7)
+}</code></pre>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="12-traits">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="11-errors.html"><span class="dir">← Previous</span>Lesson 11: Error Handling</a>
+      <a class="next" href="13-lifetimes.html"><span class="dir">Next →</span>Lesson 13: Lifetimes</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

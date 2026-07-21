@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Set Up Your Rust Lab — The Rusty School</title>
+<meta name="description" content="Step-by-step Rust setup guides for macOS, Windows, Linux — or start coding in your browser with zero installs.">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="lesson-header">
+    <span class="kicker">Setup guide</span>
+    <h1>Build your <span class="grad">Rust lab</span> 🧪</h1>
+    <p class="lede muted">
+      Pick your operating system below — or skip installs entirely and code in your
+      browser. Either way, you'll be running real Rust in about ten minutes.
+    </p>
+  </section>
+
+  <div class="tabs no-print">
+    <button class="tab-btn active" data-tab="mac">🍎 macOS</button>
+    <button class="tab-btn" data-tab="windows">🪟 Windows</button>
+    <button class="tab-btn" data-tab="linux">🐧 Linux</button>
+    <button class="tab-btn" data-tab="browser">🌐 Browser (no install)</button>
+  </div>
+
+  <!-- ================= macOS ================= -->
+  <section class="tab-panel active" id="tab-mac">
+    <h2>Rust on macOS</h2>
+    <ol class="steps">
+      <li>
+        <strong>Open the Terminal app</strong>
+        Press <code>⌘ + Space</code>, type <em>Terminal</em>, press Enter. This plain
+        text window is your new laboratory — you type commands, the Mac obeys.
+      </li>
+      <li>
+        <strong>Install Apple's command-line tools</strong>
+        Rust needs Apple's linker (the tool that glues compiled code into an app).
+        Paste this and press Enter — a dialog will guide you (takes a few minutes):
+<pre class="term"><code>xcode-select --install</code></pre>
+        If it says <em>"already installed"</em>, even better — skip ahead.
+      </li>
+      <li>
+        <strong>Install Rust with rustup</strong>
+        <code>rustup</code> is Rust's official installer and version manager. Paste:
+<pre class="term"><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+        Press Enter to accept the default installation. It installs everything into
+        your home folder — no admin password, easy to remove later.
+        <div class="callout tip"><span class="co-title">🍺 Homebrew user?</span>
+        <code>brew install rustup</code> followed by <code>rustup-init</code> works too.
+        Either route ends in the same place.</div>
+      </li>
+      <li>
+        <strong>Restart your terminal, then verify</strong>
+        Close the Terminal window, open a new one, and type:
+<pre class="term"><code>rustc --version
+cargo --version</code></pre>
+        Two version numbers = you're in. 🎉
+      </li>
+    </ol>
+  </section>
+
+  <!-- ================= Windows ================= -->
+  <section class="tab-panel" id="tab-windows">
+    <h2>Rust on Windows</h2>
+    <ol class="steps">
+      <li>
+        <strong>Download rustup-init.exe</strong>
+        Go to <a href="https://rustup.rs" target="_blank" rel="noopener">rustup.rs</a> and
+        download the 64-bit installer.
+      </li>
+      <li>
+        <strong>Run it and follow the prompts</strong>
+        Rust on Windows needs the <em>Microsoft C++ Build Tools</em> (the linker lives
+        there). The installer detects if they're missing and offers to install
+        them for you — say yes and grab a coffee; it's the longest step.
+      </li>
+      <li>
+        <strong>Choose the default installation</strong>
+        When the console window asks, press <code>1</code> then Enter for
+        <em>"Proceed with standard installation"</em>.
+      </li>
+      <li>
+        <strong>Open a fresh terminal and verify</strong>
+        Open <em>PowerShell</em> (or Windows Terminal) from the Start menu and type:
+<pre class="term"><code>rustc --version
+cargo --version</code></pre>
+        Two version numbers = mission accomplished. 🎉
+      </li>
+    </ol>
+    <div class="callout info"><span class="co-title">🐧 Prefer WSL?</span>
+    If you use the Windows Subsystem for Linux, open your WSL terminal and follow the
+    <strong>Linux</strong> tab instead — many Rustaceans on Windows work this way.</div>
+  </section>
+
+  <!-- ================= Linux ================= -->
+  <section class="tab-panel" id="tab-linux">
+    <h2>Rust on Linux</h2>
+    <ol class="steps">
+      <li>
+        <strong>Install a C compiler and linker</strong>
+        Rust uses your system's linker. One line, depending on your distro:
+<pre class="term"><code># Debian / Ubuntu / Mint
+sudo apt update && sudo apt install build-essential
+
+# Fedora
+sudo dnf group install c-development
+
+# Arch
+sudo pacman -S base-devel</code></pre>
+      </li>
+      <li>
+        <strong>Install Rust with rustup</strong>
+<pre class="term"><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+        Press Enter for the default install. Everything lands in <code>~/.cargo</code> and
+        <code>~/.rustup</code> — no root needed.
+        <div class="callout warn"><span class="co-title">📦 Why not <code>apt install rust</code>?</span>
+        Distro packages are often months out of date and don't ship <code>rustup</code>'s
+        easy updates. The official installer is the recommended path.</div>
+      </li>
+      <li>
+        <strong>Load Rust into your current shell</strong>
+<pre class="term"><code>source "$HOME/.cargo/env"</code></pre>
+        (New terminals do this automatically from now on.)
+      </li>
+      <li>
+        <strong>Verify</strong>
+<pre class="term"><code>rustc --version
+cargo --version</code></pre>
+        Two version numbers = welcome aboard. 🎉
+      </li>
+    </ol>
+  </section>
+
+  <!-- ================= Browser ================= -->
+  <section class="tab-panel" id="tab-browser">
+    <h2>Zero-install: Rust in your browser</h2>
+    <p>
+      Not ready to install anything? The official
+      <a href="https://play.rust-lang.org" target="_blank" rel="noopener"><strong>Rust Playground</strong></a>
+      runs real Rust on real servers, free, no account needed.
+    </p>
+    <ol class="steps">
+      <li>
+        <strong>Open the Playground</strong>
+        Visit <a href="https://play.rust-lang.org" target="_blank" rel="noopener">play.rust-lang.org</a>.
+        You'll see a code editor pre-loaded with a tiny program.
+      </li>
+      <li>
+        <strong>Press <em>Run</em></strong>
+        The output appears below the editor. That's it — you're compiling and running
+        Rust on a server somewhere, right now.
+      </li>
+      <li>
+        <strong>Use it with our lessons</strong>
+        Every code example on this site has a <em>copy</em> button. Copy, paste into the
+        Playground, press Run, then break it on purpose and see what the compiler says.
+        Breaking things safely is 80% of learning.
+      </li>
+    </ol>
+    <div class="callout tip"><span class="co-title">✅ Great for lessons 1–14</span>
+    The Playground is perfect for almost the whole curriculum. You'll only need a real
+    install for multi-file projects and to run this website's own Rust server —
+    by then you'll be ready.</div>
+  </section>
+
+  <hr class="soft">
+
+  <!-- ================= Editor ================= -->
+  <h2>Pick your editor 📝</h2>
+  <div class="grid cols-3">
+    <div class="card"><span class="emoji">🟦</span><h3>VS Code <span class="badge l1">recommended</span></h3>
+      <p>Free, works everywhere. Install the <strong>rust-analyzer</strong> extension and
+      you get autocomplete, inline errors, and hover documentation — a tutor inside your editor.</p></div>
+    <div class="card"><span class="emoji">⚡</span><h3>Zed</h3>
+      <p>A blazing-fast editor <em>written in Rust</em>, with Rust support built in.
+      Poetic, really.</p></div>
+    <div class="card"><span class="emoji">🧠</span><h3>RustRover / Helix</h3>
+      <p>JetBrains' dedicated Rust IDE (free for non-commercial use), or Helix if you
+      like living in the terminal — also written in Rust.</p></div>
+  </div>
+
+  <hr class="soft">
+
+  <!-- ================= First project ================= -->
+  <h2>Your first project (2 minutes) 🚀</h2>
+  <p>Installed? Let's make sure everything works end to end.</p>
+<pre class="term"><code># 1. Create a brand-new project called hello_rusty
+cargo new hello_rusty
+
+# 2. Step inside it
+cd hello_rusty
+
+# 3. Compile and run it
+cargo run</code></pre>
+  <p>You should see:</p>
+<pre class="term"><code>   Compiling hello_rusty v0.1.0
+    Finished `dev` profile [unoptimized + debuginfo]
+     Running `target/debug/hello_rusty`
+Hello, world!</code></pre>
+  <p>
+    That's a real, compiled, native program — and you just built it.
+    Head to <a href="learn/01-hello-world.html"><strong>Lesson 1</strong></a> to find out
+    what those files actually do.
+  </p>
+
+  <hr class="soft">
+
+  <!-- ================= Troubleshooting ================= -->
+  <h2>Troubleshooting 🔧</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Symptom</th><th>Likely fix</th></tr></thead>
+    <tbody>
+      <tr><td><code>command not found: cargo</code></td>
+          <td>Open a <em>new</em> terminal window (the installer edits your shell config,
+          which only loads on startup). On Linux/macOS you can also run
+          <code>source "$HOME/.cargo/env"</code>.</td></tr>
+      <tr><td><code>linker `cc` not found</code></td>
+          <td>The C build tools are missing. macOS: <code>xcode-select --install</code>.
+          Linux: install <code>build-essential</code> (or your distro's equivalent).
+          Windows: re-run rustup and accept the Visual Studio Build Tools.</td></tr>
+      <tr><td>Corporate proxy / offline</td>
+          <td>rustup respects <code>https_proxy</code> environment variables — ask your IT
+          team. Or use the browser Playground while you sort it out.</td></tr>
+      <tr><td>Old Rust version</td>
+          <td>One command updates everything: <code>rustup update</code>.</td></tr>
+      <tr><td>Want it gone?</td>
+          <td><code>rustup self uninstall</code> removes Rust completely. (We'll miss you.)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout tip">
+    <span class="co-title">🎓 Lab ready?</span>
+    Time for class: <a href="learn/index.html"><strong>start the curriculum →</strong></a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

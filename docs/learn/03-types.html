@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3: Data Types — The Rusty School</title>
+<meta name="description" content="Rust's basic data types: integers, floats, booleans, characters, strings, tuples, and arrays.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 3 of 17</nav>
+    <span class="badge l1">Level 1 · Sprout</span>
+    <h1>Data Types 🔢</h1>
+    <p class="lede muted">Numbers, text, yes/no switches — every value in Rust has a
+    type, and the compiler always knows which one. Meet the raw ingredients.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Why types matter</h2>
+    <p>
+      A <strong>type</strong> tells the computer what kind of thing a value is and how
+      much memory it needs. Adding two numbers makes sense; adding a number to the word
+      <em>"banana"</em> doesn't. Rust checks all of this <em>before</em> your program
+      runs, so type mix-ups can never crash it later.
+    </p>
+    <p>
+      Usually you don't even write types — Rust <strong>infers</strong> them from
+      context. But you can always be explicit with a colon:
+    </p>
+<pre><code>let lucky = 7;        // Rust infers: i32
+let lucky: i8 = 7;    // you insist: a tiny i8</code></pre>
+
+    <h2>Whole numbers: the integer family</h2>
+    <p>Integers come in sizes (how many bits of memory) and two flavors:
+    <code>i</code> for signed (can be negative), <code>u</code> for unsigned (never negative).</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Type</th><th>Range</th><th>Use it for…</th></tr></thead>
+      <tbody>
+        <tr><td><code>i32</code></td><td>±2.1 billion</td><td><strong>the default</strong> — almost everything</td></tr>
+        <tr><td><code>i64</code></td><td>±9.2 quintillion</td><td>very big counts, timestamps</td></tr>
+        <tr><td><code>u8</code></td><td>0 to 255</td><td>bytes, color channels</td></tr>
+        <tr><td><code>u32</code></td><td>0 to 4.3 billion</td><td>counts that can't be negative</td></tr>
+        <tr><td><code>usize</code></td><td>machine-sized</td><td>indexes and lengths of collections</td></tr>
+      </tbody>
+    </table>
+    </div>
+<pre><code>let population: u32 = 8_000_000;  // underscores = readable
+let depth: i32 = -11_034;         // negative needs a signed type</code></pre>
+
+    <h2>Decimal numbers: floats</h2>
+<pre><code>let pi = 3.14159;      // f64 — the default, double precision
+let ratio: f32 = 0.5;  // f32 — half the memory, less precise</code></pre>
+    <div class="callout warn">
+      <span class="co-title">⚠️ Oil and water</span>
+      Rust never mixes types silently. <code>let sum = 5 + 0.5;</code> is an error —
+      is that integer math or decimal math? You decide, with a cast:
+      <code>5 as f64 + 0.5</code>. Explicit beats surprising.
+    </div>
+
+    <h2>true / false: <code>bool</code></h2>
+<pre><code>let is_hungry = true;
+let has_snacks = false;
+let panic_time = is_hungry &amp;&amp; !has_snacks; // && = AND, ! = NOT, || = OR
+println!("Panic? {panic_time}");</code></pre>
+    <p>Booleans fuel every decision your program makes — they're the answer to every
+    comparison: <code>5 &gt; 3</code> is <code>true</code>, <code>x == y</code> asks "equal?",
+    <code>x != y</code> asks "different?".</p>
+
+    <h2>Single characters: <code>char</code></h2>
+<pre><code>let grade = 'A';      // single quotes for chars
+let crab = '🦀';      // yes, emoji are chars — Rust speaks Unicode
+let heart = '❤';</code></pre>
+
+    <h2>Text: <code>&amp;str</code> (for now)</h2>
+<pre><code>let greeting = "Hello, sailor!"; // double quotes for text</code></pre>
+    <p>
+      Text in double quotes is a <em>string literal</em>, type <code>&amp;str</code>.
+      Rust actually has two string types — the other is <code>String</code> — and the
+      difference is one of the most interesting stories in the language. It needs
+      ownership (Lesson 6) to make sense, so we'll park it until Lesson 10.
+      For now, double quotes just work.
+    </p>
+
+    <h2>Bundles: tuples and arrays</h2>
+    <p><strong>Tuples</strong> group a few values of <em>any</em> mix of types — like one
+    row on a scoreboard:</p>
+<pre><code>let player = ("Rusty", 42, true);  // name, score, is_online
+let (name, score, online) = player;      // unpack all at once
+println!("{name} scored {score} (online: {online})");
+println!("score again: {}", player.1);   // or grab by position: .0, .1, .2</code></pre>
+    <p><strong>Arrays</strong> hold a <em>fixed</em> number of values of the <em>same</em>
+    type — like an egg carton:</p>
+<pre><code>let tides = [1.2, 0.8, 1.5, 0.9];
+let first = tides[0];              // positions start at ZERO
+let week = [0; 7];                 // shortcut: seven zeros
+println!("first tide: {first}, days: {}", week.len());</code></pre>
+    <div class="callout info">
+      <span class="co-title">🛡️ Safety, even here</span>
+      Ask for <code>tides[99]</code> and Rust stops the program with a clear message
+      instead of silently reading random memory like C would. That silent reading —
+      a <em>buffer overflow</em> — is one of the most exploited security bugs
+      in history. In Rust, it's simply not a thing.
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Type detective</h4>
+      <p>Without running it, name the type of each variable:</p>
+<pre><code>let a = 42;
+let b = 42.0;
+let c = '4';
+let d = "42";
+let e = 4 &gt; 2;</code></pre>
+      <details class="solution"><summary>Reveal answers</summary>
+        <p><code>a</code>: <code>i32</code> (integer default) · <code>b</code>: <code>f64</code>
+        (float default) · <code>c</code>: <code>char</code> (single quotes) ·
+        <code>d</code>: <code>&amp;str</code> (double quotes) · <code>e</code>: <code>bool</code>
+        (a comparison's answer is always true/false).</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Trading card</h4>
+      <p>Make a tuple for a creature: name (<code>&amp;str</code>), power level
+      (<code>i32</code>), and legendary status (<code>bool</code>). Unpack it and print a
+      sentence like <code>Krabby has power 9000 (legendary: true)</code>.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    let card = ("Krabby", 9000, true);
+    let (name, power, legendary) = card;
+    println!("{name} has power {power} (legendary: {legendary})");
+}</code></pre>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Meal plan</h4>
+      <p>Create an array of three meal names. Print the first and last elements —
+      using <code>.len()</code> to find the last index (careful: positions start at zero!).</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    let meals = ["pancakes", "ramen", "tacos"];
+    println!("breakfast: {}", meals[0]);
+    println!("dinner: {}", meals[meals.len() - 1]);
+}</code></pre>
+        <p>Forgetting the <code>- 1</code> asks for index 3 in a 3-item array (positions
+        0, 1, 2) — try it and read the panic message. Now you've seen Rust's bounds
+        checking with your own eyes.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="03-types">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="02-variables.html"><span class="dir">← Previous</span>Lesson 2: Variables &amp; Mutability</a>
+      <a class="next" href="04-functions.html"><span class="dir">Next →</span>Lesson 4: Functions</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

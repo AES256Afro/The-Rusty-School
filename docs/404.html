@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>404 — The Rusty School</title>
+<link rel="icon" type="image/svg+xml" href="/assets/ferris.svg">
+<link rel="stylesheet" href="/assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="/assets/app.js"></script>
+</head>
+<body>
+<main class="container center" style="padding-top:70px">
+  <img src="/assets/ferris.svg" alt="Rusty the crab looking confused" style="width:220px">
+  <h1><span class="grad">404</span> — page not found</h1>
+  <p class="muted" style="max-width:34em;margin:10px auto">
+    Rusty scuttled all over the seafloor but couldn't find that page.<br>
+    In Rust terms: the lookup returned <code>None</code> — and unlike other languages,
+    we handle that case gracefully. 😉
+  </p>
+<pre style="max-width:430px;margin:24px auto;text-align:left"><code>match find_page(url) {
+    Some(page) => render(page),
+    None => println!("You are here 🦀"),
+}</code></pre>
+  <a class="btn btn-primary" href="/">Back to school 🏠</a>
+</main>
+</body>
+</html>
