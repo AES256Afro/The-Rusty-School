@@ -86,6 +86,20 @@
       li.innerHTML = '<a href="' + prefix + 'privacy.html">Privacy</a>';
       footList.appendChild(li);
     }
+    // License line at the very bottom of every footer, from one place.
+    const footer = document.querySelector(".site-footer");
+    if (footer && !footer.querySelector(".license-line")) {
+      const wrap = document.createElement("div");
+      wrap.className = "container";
+      wrap.innerHTML =
+        '<p class="license-line">Code ' +
+        '<a href="https://github.com/AES256Afro/The-Rusty-School/blob/main/LICENSE-MIT" target="_blank" rel="noopener">MIT</a> OR ' +
+        '<a href="https://github.com/AES256Afro/The-Rusty-School/blob/main/LICENSE-APACHE" target="_blank" rel="noopener">Apache-2.0</a>' +
+        ' · Course content ' +
+        '<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>' +
+        ' · Code examples in lessons are MIT/Apache too, so copy away.</p>';
+      footer.appendChild(wrap);
+    }
     // highlight the current page in the nav
     const here = location.pathname.replace(/\/index\.html$/, "/");
     document.querySelectorAll(".main-nav a").forEach((a) => {

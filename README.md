@@ -80,6 +80,18 @@ See [ROADMAP.md](ROADMAP.md) for the expansion plan: runnable in-page examples,
 a project workshop track, specialist courses (web, games, async, embedded), and
 a classroom mode for teaching groups.
 
+## License
+
+Two licenses, split the way educational projects usually split them:
+
+- **Code** (the Rust server, API functions, site JS/CSS, tooling, and every
+  code example inside the course): dual-licensed under
+  [MIT](LICENSE-MIT) OR [Apache-2.0](LICENSE-APACHE), the Rust ecosystem's
+  standard. Copy any snippet into any project, commercial or not.
+- **Course content** (lesson text, puzzles, quizzes, specs, prose, artwork):
+  [CC BY-NC-SA 4.0](LICENSE-CONTENT.md). Share it, translate it, teach with it,
+  with credit; no commercial use, and adaptations stay under the same license.
+
 ## Project goals
 
 - Teach Rust to people with *very little* coding experience, without dumbing it down.
