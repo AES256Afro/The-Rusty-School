@@ -663,7 +663,11 @@
     const err = params.get("error");
     if (err) {
       const el = document.getElementById("auth-error");
-      el.textContent = "⚠️ " + (AUTH_ERRORS[err] || "Sign-in failed. Please try again.");
+      let msg = "⚠️ " + (AUTH_ERRORS[err] || "Sign-in failed. Please try again.");
+      const from = params.get("from");
+      const detail = params.get("detail");
+      if (from) msg += " [" + from + (detail ? ": " + detail : "") + "]";
+      el.textContent = msg;
       el.hidden = false;
     }
 

@@ -11,8 +11,12 @@ import {
   STATE_COOKIE,
 } from "../../_lib.js";
 
-function fail(reason) {
-  return redirect("/account.html?error=" + encodeURIComponent(reason), {
+function fail(reason, detail) {
+  const params = new URLSearchParams({ error: reason, from: "github" });
+  if (detail) {
+    params.set("detail", String(detail).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 40));
+  }
+  return redirect("/account.html?" + params.toString(), {
     "Set-Cookie": clearCookieHeader(STATE_COOKIE, "/api/auth"),
   });
 }
@@ -42,7 +46,9 @@ export async function onRequestGet(context) {
     }),
   });
   const tokenData = await tokenResp.json().catch(() => ({}));
-  if (!tokenData.access_token) return fail("token-exchange-failed");
+  if (!tokenData.access_token) {
+    return fail("token-exchange-failed", tokenData.error || tokenResp.status);
+  }
 
   const profileResp = await fetch("https://api.github.com/user", {
     headers: {
