@@ -54,6 +54,11 @@
       nav.insertBefore(acct, nav.querySelector(".theme-toggle"));
     }
     const footList = document.querySelector(".site-footer .cols ul");
+    if (footList && !footList.querySelector('a[href$="glossary.html"]')) {
+      const li = document.createElement("li");
+      li.innerHTML = '<a href="' + prefix + 'glossary.html">Glossary</a>';
+      footList.appendChild(li);
+    }
     if (footList && !footList.querySelector('a[href$="privacy.html"]')) {
       const li = document.createElement("li");
       li.innerHTML = '<a href="' + prefix + 'privacy.html">Privacy</a>';
@@ -436,6 +441,49 @@
     if (fromHash && document.getElementById("tab-" + fromHash)) activate(fromHash, false);
   }
 
+  /* ---------------- glossary filter ---------------- */
+  function initGlossary() {
+    const input = document.getElementById("gloss-filter");
+    const list = document.getElementById("gloss-list");
+    if (!input || !list) return;
+
+    const terms = [];
+    let dt = null;
+    [...list.children].forEach((el) => {
+      if (el.tagName === "DT") {
+        dt = { term: el, defs: [], text: el.textContent.toLowerCase() };
+        terms.push(dt);
+      } else if (el.tagName === "DD" && dt) {
+        dt.defs.push(el);
+        dt.text += " " + el.textContent.toLowerCase();
+      }
+    });
+
+    const countEl = document.getElementById("gloss-count");
+    const emptyEl = document.getElementById("gloss-empty");
+    const total = terms.length;
+
+    function apply() {
+      const q = input.value.trim().toLowerCase();
+      let shown = 0;
+      terms.forEach((t) => {
+        const match = !q || t.text.includes(q);
+        t.term.hidden = !match;
+        t.defs.forEach((d) => (d.hidden = !match));
+        if (match) shown++;
+      });
+      if (countEl) {
+        countEl.textContent = q
+          ? shown + " of " + total + " terms"
+          : total + " terms, all of them defined in a lesson";
+      }
+      if (emptyEl) emptyEl.hidden = shown !== 0;
+    }
+
+    input.addEventListener("input", apply);
+    apply();
+  }
+
   /* ---------------- running code (The Rusty Playground) ----------------
      Snippets execute on the official Rust Playground via our /api/run
      proxy. Boilerplate cargo lines are trimmed from stderr so beginners
@@ -708,5 +756,6 @@
     initImpactBanner();
     initAccount(me);
     initPlayground();
+    initGlossary();
   });
 })();
