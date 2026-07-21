@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 11 of 17</nav>
     <span class="badge l2">Level 2 · The Rust Way</span>
@@ -162,7 +163,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Fortune teller, honest edition</h4>
+      <h3>Fortune teller, honest edition</h3>
       <p>Write <code>fn lucky_number(text: &amp;str) -&gt; Result&lt;i32, String&gt;</code>: parse
       the text into an <code>i32</code> (map the parse error to a friendly message), and
       if the number is 13, return <code>Err("nope, not doing 13".to_string())</code>.
@@ -193,7 +194,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Chain with ?</h4>
+      <h3>Chain with ?</h3>
       <p>Write <code>fn add_strings(a: &amp;str, b: &amp;str) -&gt; Result&lt;i32, std::num::ParseIntError&gt;</code>
       that parses both strings and returns their sum, using <code>?</code> twice and
       zero <code>match</code> expressions.</p>
@@ -214,7 +215,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Judgment calls</h4>
+      <h3>Judgment calls</h3>
       <p>For each situation, pick your tool (<code>panic!</code>, <code>Result</code>,
       or <code>unwrap_or(default)</code>) and say why: (a) a user mistypes their age in a
       form; (b) your game's settings file is missing, and defaults exist; (c) an internal
@@ -247,11 +248,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -260,7 +261,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

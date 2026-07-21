@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 15 of 17</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
@@ -172,7 +173,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Break the infinite loop</h4>
+      <h3>Break the infinite loop</h3>
       <p>Type the boxless <code>TodoList</code> into the Playground and read the
       "infinite size" error, including the compiler's suggested fix. Then apply it
       and build a three-item list.</p>
@@ -186,7 +187,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Count the owners</h4>
+      <h3>Count the owners</h3>
       <p>Create an <code>Rc&lt;Vec&lt;i32&gt;&gt;</code>, clone it twice inside an inner
       <code>{ }</code> scope, printing <code>Rc::strong_count</code> before, during, and
       after the scope. Predict the three numbers first, then run it.</p>
@@ -210,7 +211,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>The shared scoreboard</h4>
+      <h3>The shared scoreboard</h3>
       <p>Two "views" of one scoreboard: create
       <code>Rc&lt;RefCell&lt;Vec&lt;i32&gt;&gt;&gt;</code>, clone it into
       <code>view_a</code> and <code>view_b</code>, push a score through each view, then
@@ -246,11 +247,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -259,7 +260,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

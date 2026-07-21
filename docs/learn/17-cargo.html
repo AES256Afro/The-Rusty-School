@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 17 of 17 · Final lesson! 🎓</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
@@ -167,7 +168,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Final Exercise</span>
-      <h4>Ship a real program</h4>
+      <h3>Ship a real program</h3>
       <p>Build a <strong>tip-splitting CLI</strong>: a <code>calc</code> module with
       <code>total_with_tip</code> and <code>split_between</code> functions (both with
       tests!), and a <code>main</code> that reads the bill from
@@ -237,11 +238,11 @@ mod tests {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -250,7 +251,7 @@ mod tests {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

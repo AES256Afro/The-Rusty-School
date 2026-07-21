@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 12 of 17</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
@@ -191,7 +192,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Noise-makers</h4>
+      <h3>Noise-makers</h3>
       <p>Define a trait <code>MakesSound</code> with <code>fn sound(&amp;self) -&gt; String</code>.
       Implement it for structs <code>Dog</code> and <code>Robot</code>, then write
       <code>fn broadcast(thing: &amp;impl MakesSound)</code> that prints the sound three times.</p>
@@ -225,7 +226,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Generic swap</h4>
+      <h3>Generic swap</h3>
       <p>Write <code>fn swap&lt;T&gt;(pair: (T, T)) -&gt; (T, T)</code> that returns the tuple
       reversed. Test it with numbers <em>and</em> with <code>&amp;str</code>s. Did you need
       any trait bound? Why not?</p>
@@ -245,7 +246,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>A proper Display</h4>
+      <h3>A proper Display</h3>
       <p>Give Lesson 8's <code>Player</code> the <code>Display</code> badge by hand, so
       <code>println!("{p}")</code> prints <code>CrabLord99 (level 7)</code>. Skeleton:</p>
 <pre><code>use std::fmt;
@@ -288,11 +289,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -301,7 +302,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

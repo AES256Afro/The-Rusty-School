@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 10 of 17</nav>
     <span class="badge l2">Level 2 · The Rust Way</span>
@@ -165,7 +166,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>The shopping list</h4>
+      <h3>The shopping list</h3>
       <p>Build a <code>Vec&lt;String&gt;</code> shopping list: push three items, print them
       numbered (hint: <code>for (i, item) in list.iter().enumerate()</code>), then
       <code>pop()</code> one and print what came off.</p>
@@ -189,7 +190,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Grade book</h4>
+      <h3>Grade book</h3>
       <p>Make a <code>HashMap&lt;String, Vec&lt;i32&gt;&gt;</code> mapping student names to
       their test scores. Add a few scores for two students (the entry API +
       <code>.push()</code> is slick here), then print each student's average.</p>
@@ -214,7 +215,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Word counter</h4>
+      <h3>Word counter</h3>
       <p>Count how often each word appears in <code>"the crab sees the sea and the sea sees the crab"</code>.
       Hints: <code>text.split_whitespace()</code> gives the words; the entry-API counter
       pattern does the rest.</p>
@@ -250,11 +251,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -263,7 +264,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 13 of 17</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
@@ -178,7 +179,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Feel the error</h4>
+      <h3>Feel the error</h3>
       <p>Type the "short-lived" example from the top of this lesson into the Playground
       and read the full error. Then fix it by moving the <code>println!</code> inside
       the inner braces. Why does that satisfy the checker?</p>
@@ -191,7 +192,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Shortest, not longest</h4>
+      <h3>Shortest, not longest</h3>
       <p>Write <code>fn shortest&lt;'a&gt;(a: &amp;'a str, b: &amp;'a str) -&gt; &amp;'a str</code>
       returning the shorter string, and prove it works. (Mostly muscle memory;
       that's the point.)</p>
@@ -208,7 +209,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>The impossible function</h4>
+      <h3>The impossible function</h3>
       <p>Explain why this can <em>never</em> compile, no matter what lifetime
       annotations you add. Then write the version that works.</p>
 <pre><code>fn make_greeting() -&gt; &amp;str {
@@ -238,11 +239,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -251,7 +252,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

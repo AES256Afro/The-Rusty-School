@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -43,7 +44,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 1 of 3</nav>
     <span class="badge build">Project · after Level 1</span>
@@ -283,7 +284,7 @@ fn main() {
 
     <div class="exercise">
       <span class="ex-label">Stretch goals</span>
-      <h4>Make it yours</h4>
+      <h3>Make it yours</h3>
       <ul>
         <li><strong>Limit the guesses.</strong> Five tries, then the game reveals the
           number and you lose.</li>
@@ -317,11 +318,11 @@ fn main() {
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="../learn/index.html">Curriculum</a></li>
         <li><a href="index.html">Project workshop</a></li>
@@ -331,7 +332,7 @@ fn main() {
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Foundations 1 of 5</nav>
     <span class="badge l0">Level 0 · Foundations</span>
@@ -152,7 +153,7 @@
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Meet your own kitchen</h4>
+      <h3>Meet your own kitchen</h3>
       <p>Open your machine's task viewer (macOS: Activity Monitor, Windows: Task
       Manager, Linux: <code>htop</code> or System Monitor). Find: how many programs
       are running right now, which one uses the most memory, and how many CPU cores
@@ -167,7 +168,7 @@
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Binary by hand</h4>
+      <h3>Binary by hand</h3>
       <p>Binary is just place values doubling: 1, 2, 4, 8, 16, 32... So
       <code>101010</code> means 32 + 8 + 2 = 42. Decode these: <code>1000</code>,
       <code>1111</code>, <code>100000</code>. Then write your age in binary.</p>
@@ -181,7 +182,7 @@
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Explain it forward</h4>
+      <h3>Explain it forward</h3>
       <p>Teaching locks in learning. Explain to a friend (or a rubber duck, or your
       cat) what happens between double-clicking an app and it appearing on screen,
       using the kitchen analogy. One minute, out loud.</p>
@@ -205,11 +206,11 @@
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -218,7 +219,7 @@
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

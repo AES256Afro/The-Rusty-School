@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 1 of 17</nav>
     <span class="badge l1">Level 1 · Sprout</span>
@@ -156,7 +157,7 @@ cargo run               # compile + run</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Introduce yourself</h4>
+      <h3>Introduce yourself</h3>
       <p>Change the program so it prints your name on one line and your favorite food
       on the next. Two <code>println!</code> calls, two lines of output.</p>
       <details class="solution"><summary>Reveal solution</summary>
@@ -169,7 +170,7 @@ cargo run               # compile + run</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Become a code-breaker</h4>
+      <h3>Become a code-breaker</h3>
       <p>Sabotage your program three different ways (remove the <code>!</code>, remove a
       quote mark, remove a brace) and run it each time. Read each error out loud.
       Which one gave the most helpful hint?</p>
@@ -182,7 +183,7 @@ cargo run               # compile + run</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>ASCII crab</h4>
+      <h3>ASCII crab</h3>
       <p>Use several <code>println!</code> lines to print a little crab scene. Get
       creative. Emoji work in Rust strings, by the way: <code>🦀</code> is fair game.</p>
       <details class="solution"><summary>Reveal solution</summary>
@@ -206,11 +207,11 @@ cargo run               # compile + run</code></pre>
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -219,7 +220,7 @@ cargo run               # compile + run</code></pre>
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>

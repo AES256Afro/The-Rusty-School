@@ -27,6 +27,7 @@
 </head>
 <body>
 
+<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container">
     <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
@@ -42,7 +43,7 @@
   </div>
 </header>
 
-<main class="container narrow">
+<main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Foundations 2 of 5</nav>
     <span class="badge l0">Level 0 · Foundations</span>
@@ -158,7 +159,7 @@ src/main.rs                                     # relative: from where you are
 
     <div class="exercise">
       <span class="ex-label">Exercise 1</span>
-      <h4>Terminal scavenger hunt</h4>
+      <h3>Terminal scavenger hunt</h3>
       <p>Open a terminal. Using only <code>pwd</code>, <code>ls</code>, and
       <code>cd</code>: find your Desktop folder, list what is on it, then come back
       to your home folder (<code>cd ~</code>). Narrate your position out loud as you
@@ -174,7 +175,7 @@ cd ~           # home again</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 2</span>
-      <h4>Build your lab bench</h4>
+      <h3>Build your lab bench</h3>
       <p>Still in the terminal: create a folder called <code>rusty-lab</code> in your
       home folder. This is where all your course projects will live. Then step
       inside it and confirm where you are.</p>
@@ -190,7 +191,7 @@ pwd            # /Users/you/rusty-lab</code></pre>
 
     <div class="exercise">
       <span class="ex-label">Exercise 3</span>
-      <h4>Translate the jargon</h4>
+      <h3>Translate the jargon</h3>
       <p>Rewrite this sentence in plain English: "The crate's API had a breaking
       change, so our binary hit a runtime bug until we updated the dependency."</p>
       <details class="solution"><summary>Reveal translation</summary>
@@ -212,11 +213,11 @@ pwd            # /Users/you/rusty-lab</code></pre>
 <footer class="site-footer">
   <div class="container cols">
     <div>
-      <h4>🦀 The Rusty School</h4>
+      <h2>🦀 The Rusty School</h2>
       <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
     </div>
     <div>
-      <h4>School</h4>
+      <h2>School</h2>
       <ul>
         <li><a href="index.html">Curriculum</a></li>
         <li><a href="../setup.html">Lab setup</a></li>
@@ -225,7 +226,7 @@ pwd            # /Users/you/rusty-lab</code></pre>
       </ul>
     </div>
     <div>
-      <h4>Official Rust resources</h4>
+      <h2>Official Rust resources</h2>
       <ul>
         <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
         <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
