@@ -2,7 +2,7 @@
 
 The Rusty School today: a 22-lesson curriculum (Foundations through Fearless
 Concurrency), quizzes, cheat sheets, lab setup guides, progress tracking, and a
-zero-dependency Rust web server, live at [cybercard.net](https://cybercard.net).
+zero-dependency Rust web server, live at [rustyschool.com](https://rustyschool.com).
 
 This roadmap is the broad, ambitious version of what it can become: a place where
 someone goes from "never touched a terminal" to shipping real Rust software, and

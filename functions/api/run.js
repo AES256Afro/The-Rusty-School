@@ -41,7 +41,7 @@ export async function onRequestPost(context) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "the-rusty-school (https://cybercard.net)",
+        "User-Agent": "the-rusty-school (https://rustyschool.com)",
       },
       body: JSON.stringify({
         channel: "stable",

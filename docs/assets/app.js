@@ -553,7 +553,7 @@
     } catch {
       renderRunResult(outEl, {
         error: "Couldn't reach the playground. On the local dev server, running " +
-          "code needs the live site: cybercard.net",
+          "code needs the live site: rustyschool.com",
       });
     } finally {
       if (button) button.disabled = false;
