@@ -263,6 +263,42 @@ pre.compiler::before {
 }
 pre.compiler code { color: #eec9b0; }
 
+/* ---------- playground & run buttons ---------- */
+.run-btn { right: 76px; }
+.run-out {
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm); padding: 12px 18px;
+  font-family: var(--mono); font-size: 0.82rem; line-height: 1.5;
+  white-space: pre-wrap; word-break: break-word;
+  margin: -0.7em 0 1.1em;
+}
+.run-out .run-ok { color: #d5e8d0; display: block; }
+.run-out .run-warn { color: #d8c08a; display: block; margin-top: 6px; }
+.run-out .run-err { color: #ffb4a8; display: block; }
+.run-out .run-hint { color: var(--tok-com); margin-top: 8px; font-style: italic; }
+.pg-toolbar { display: flex; align-items: center; gap: 10px; margin: 8px 0 14px; flex-wrap: wrap; }
+.pg-select {
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  font: inherit; font-size: 0.92rem; padding: 8px 12px;
+}
+.pg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 860px) { .pg-grid { grid-template-columns: 1fr; } }
+.pg-editor {
+  font-family: var(--mono); font-size: 0.9rem; line-height: 1.55; tab-size: 4;
+  background: var(--code-bg); color: #e8ddd0;
+  border: 1px solid var(--code-border); border-radius: var(--radius-sm);
+  padding: 16px 18px; width: 100%; min-height: 440px; resize: vertical;
+}
+.pg-editor:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.pg-output-wrap { display: flex; flex-direction: column; }
+.pg-output-label { text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.7rem; margin: 0 0 6px 2px; }
+.pg-output { flex: 1; min-height: 440px; margin: 0; white-space: pre-wrap; word-break: break-word; }
+.pg-output .run-ok { color: #d5e8d0; display: block; }
+.pg-output .run-warn { color: #d8c08a; display: block; margin-top: 6px; }
+.pg-output .run-err { color: #ffb4a8; display: block; }
+.pg-output .run-hint { color: var(--tok-com); margin-top: 8px; font-style: italic; }
+
 /* ---------- callouts ---------- */
 .callout {
   border: 1px solid var(--border); border-left: 4px solid var(--accent);

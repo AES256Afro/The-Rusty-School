@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Rusty Playground - The Rusty School</title>
+<meta name="description" content="Write and run real Rust in your browser: The Rusty School's embedded playground, powered by the official Rust Playground.">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">Home</a>
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="lesson-header">
+    <span class="kicker">Write real Rust, right here</span>
+    <h1>The Rusty <span class="grad">Playground</span> ⚡</h1>
+    <p class="lede muted">
+      Type Rust on the left, press Run, watch it compile and execute. No installs,
+      no account, nothing saved. Break things on purpose; that's the curriculum.
+    </p>
+  </section>
+
+  <div class="pg-toolbar no-print">
+    <label class="muted small" for="pg-example">Start from:&nbsp;</label>
+    <select id="pg-example" class="pg-select">
+      <option value="hello">Hello, World!</option>
+      <option value="variables">Variables &amp; shadowing</option>
+      <option value="fizzbuzz">FizzBuzz</option>
+      <option value="ownership">Ownership move</option>
+      <option value="match">Enums &amp; match</option>
+      <option value="iterators">Iterator pipeline</option>
+      <option value="threads">Threads &amp; channels</option>
+    </select>
+    <span style="flex:1"></span>
+    <button class="btn btn-primary btn-small" id="pg-run" type="button">▶ Run (Ctrl+Enter)</button>
+  </div>
+
+  <div class="pg-grid">
+    <textarea id="pg-editor" class="pg-editor" spellcheck="false" aria-label="Rust code editor"></textarea>
+    <div class="pg-output-wrap">
+      <div class="pg-output-label muted small">Output</div>
+      <pre class="pg-output" id="pg-output"><code class="nohl">Press Run to compile your program. 🦀</code></pre>
+    </div>
+  </div>
+
+  <div class="callout info" style="margin-top:22px">
+    <span class="co-title">⚙️ How this works (and a small courtesy)</span>
+    Your code is compiled and executed by the official
+    <a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a>,
+    the same free service that powers the run buttons in Rust's own documentation.
+    Nothing you type here is stored by The Rusty School. Two courtesies: don't
+    paste anything secret, and don't hammer Run in a loop; it's a shared community
+    service. 💛
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

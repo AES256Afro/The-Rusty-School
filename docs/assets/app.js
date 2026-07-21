@@ -41,6 +41,12 @@
     // Account link in the nav and Privacy link in the footer are injected
     // here so all thirty-odd static pages pick them up from one place.
     const prefix = location.pathname.includes("/learn/") ? "../" : "";
+    if (nav && !nav.querySelector('a[href$="playground.html"]')) {
+      const pg = document.createElement("a");
+      pg.href = prefix + "playground.html";
+      pg.textContent = "Playground";
+      nav.insertBefore(pg, nav.querySelector(".theme-toggle"));
+    }
     if (nav && !nav.querySelector('a[href$="account.html"]')) {
       const acct = document.createElement("a");
       acct.href = prefix + "account.html";
@@ -137,6 +143,25 @@
         });
       });
       pre.appendChild(btn);
+
+      // runnable examples (anything with fn main) get a ▶ run button that
+      // executes right here in the page via the playground proxy
+      if (!skip && code.textContent.includes("fn main(")) {
+        const runBtn = document.createElement("button");
+        runBtn.className = "copy-btn run-btn";
+        runBtn.type = "button";
+        runBtn.textContent = "▶ run";
+        runBtn.addEventListener("click", () => {
+          let out = pre.nextElementSibling;
+          if (!out || !out.classList.contains("run-out")) {
+            out = document.createElement("div");
+            out.className = "run-out";
+            pre.insertAdjacentElement("afterend", out);
+          }
+          executeRust(code.textContent, out, runBtn);
+        });
+        pre.appendChild(runBtn);
+      }
     });
   }
 
@@ -411,6 +436,110 @@
     if (fromHash && document.getElementById("tab-" + fromHash)) activate(fromHash, false);
   }
 
+  /* ---------------- running code (The Rusty Playground) ----------------
+     Snippets execute on the official Rust Playground via our /api/run
+     proxy. Boilerplate cargo lines are trimmed from stderr so beginners
+     see their output and real errors, not the build chatter. */
+  const BOILERPLATE = /^(\s+Compiling playground|\s+Finished `|\s+Running `)/;
+
+  function renderRunResult(el, result) {
+    el.innerHTML = "";
+    if (result.error) {
+      el.appendChild(runLine("⚠️ " + result.error, "run-err"));
+      return;
+    }
+    const stderr = (result.stderr || "")
+      .split("\n")
+      .filter((l) => !BOILERPLATE.test(l))
+      .join("\n")
+      .trim();
+    if (result.success) {
+      const out = (result.stdout || "").replace(/\s+$/, "");
+      el.appendChild(runLine(out.length ? out : "(the program ran, with no output)", "run-ok"));
+      if (stderr) el.appendChild(runLine(stderr, "run-warn"));
+    } else {
+      el.appendChild(runLine(stderr || "compilation failed", "run-err"));
+      const hint = document.createElement("div");
+      hint.className = "run-hint";
+      hint.textContent = "Compiler errors are directions, not punishments. Read from the top. 🦀";
+      el.appendChild(hint);
+    }
+  }
+
+  function runLine(text, cls) {
+    const span = document.createElement("span");
+    span.className = cls;
+    span.textContent = text;
+    return span;
+  }
+
+  async function executeRust(code, outEl, button) {
+    outEl.innerHTML = "";
+    outEl.appendChild(runLine("⏳ Compiling on the Rust Playground…", "run-warn"));
+    if (button) button.disabled = true;
+    try {
+      const resp = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, edition: "2024" }),
+      });
+      const result = await resp.json().catch(() => ({ error: "unreadable response" }));
+      renderRunResult(outEl, result);
+    } catch {
+      renderRunResult(outEl, {
+        error: "Couldn't reach the playground. On the local dev server, running " +
+          "code needs the live site: cybercard.net",
+      });
+    } finally {
+      if (button) button.disabled = false;
+    }
+  }
+
+  const PG_EXAMPLES = {
+    hello: 'fn main() {\n    println!("Hello, world! 🦀");\n}\n',
+    variables:
+      'fn main() {\n    let crabs = 10;          // immutable\n    let mut snacks = 3;      // mutable\n    snacks += 1;\n\n    let crabs = crabs * 2;   // shadowing: a brand-new binding\n    println!("{crabs} crabs sharing {snacks} snacks");\n}\n',
+    fizzbuzz:
+      'fn main() {\n    for n in 1..=20 {\n        if n % 15 == 0 {\n            println!("FizzBuzz");\n        } else if n % 3 == 0 {\n            println!("Fizz");\n        } else if n % 5 == 0 {\n            println!("Buzz");\n        } else {\n            println!("{n}");\n        }\n    }\n}\n',
+    ownership:
+      'fn main() {\n    let s1 = String::from("hello");\n    let s2 = s1;              // ownership MOVES to s2\n\n    // println!("{s1}");      // uncomment me and read the error!\n    println!("{s2}");\n\n    let s3 = s2.clone();      // a real copy: both stay valid\n    println!("{s2} and {s3}");\n}\n',
+    match:
+      'enum Weather {\n    Sunny,\n    Rainy,\n    Windy(u32),  // wind speed in km/h\n}\n\nfn main() {\n    let today = Weather::Windy(95);\n\n    match today {\n        Weather::Sunny => println!("Sunscreen. You are a crab."),\n        Weather::Rainy => println!("You live in water. Proceed."),\n        Weather::Windy(s) if s > 80 => println!("GRIP THE ROCK ({s} km/h)"),\n        Weather::Windy(s) => println!("Breezy at {s} km/h."),\n    }\n}\n',
+    iterators:
+      'fn main() {\n    let catch_g = vec![12, 7, 30, 5, 18];\n\n    let keepers: Vec<i32> = catch_g\n        .iter()\n        .filter(|w| **w >= 10)\n        .map(|w| w * 2)\n        .collect();\n\n    println!("{keepers:?}");\n}\n',
+    threads:
+      'use std::sync::mpsc;\nuse std::thread;\n\nfn main() {\n    let (tx, rx) = mpsc::channel();\n\n    for worker in 0..3 {\n        let tx = tx.clone();\n        thread::spawn(move || {\n            tx.send(format!("worker {worker} reporting in")).unwrap();\n        });\n    }\n    drop(tx);\n\n    for message in rx {\n        println!("📨 {message}");\n    }\n}\n',
+  };
+
+  function initPlayground() {
+    const editor = document.getElementById("pg-editor");
+    if (!editor) return;
+    const output = document.getElementById("pg-output");
+    const runBtn = document.getElementById("pg-run");
+    const picker = document.getElementById("pg-example");
+
+    editor.value = PG_EXAMPLES.hello;
+    picker.addEventListener("change", () => {
+      editor.value = PG_EXAMPLES[picker.value] || PG_EXAMPLES.hello;
+      editor.focus();
+    });
+
+    // Tab inserts spaces instead of leaving the editor.
+    editor.addEventListener("keydown", (e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const s = editor.selectionStart;
+        editor.setRangeText("    ", s, editor.selectionEnd, "end");
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        executeRust(editor.value, output, runBtn);
+      }
+    });
+
+    runBtn.addEventListener("click", () => executeRust(editor.value, output, runBtn));
+  }
+
   /* ---------------- accounts & progress sync ----------------
      Optional sign-in (GitHub/Google) syncs progress across devices.
      Everything here degrades gracefully: with no API (local dev server)
@@ -574,5 +703,6 @@
     initQuizzes();
     initImpactBanner();
     initAccount(me);
+    initPlayground();
   });
 })();
