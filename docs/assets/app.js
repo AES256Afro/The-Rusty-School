@@ -148,7 +148,13 @@
       render();
       btn.addEventListener("click", (e) => {
         const set = getDone();
-        if (set.has(id)) { set.delete(id); } else { set.add(id); confetti(e.clientX, e.clientY); }
+        if (set.has(id)) {
+          set.delete(id);
+        } else {
+          set.add(id);
+          confetti(e.clientX, e.clientY);
+          reportCompletion(id);
+        }
         saveDone(set);
         render();
       });
@@ -172,6 +178,46 @@
           : doneCount + " of " + cards.length + " lessons complete. Keep going!";
       }
     }
+  }
+
+  /* ---------------- impact counter (anonymous) ----------------
+     When a lesson is completed for the first time in this browser, ping
+     the stats API once. No cookies, no identifiers, and users with
+     Do Not Track enabled are never counted. The home page banner reads
+     the public total back. Everything fails silently when the API is
+     absent (for example on the local Rust dev server). */
+  function dntEnabled() {
+    return navigator.doNotTrack === "1" || window.doNotTrack === "1";
+  }
+
+  function reportCompletion(id) {
+    if (dntEnabled()) return;
+    let counted;
+    try { counted = new Set(JSON.parse(localStorage.getItem("rusty-counted") || "[]")); }
+    catch { counted = new Set(); }
+    if (counted.has(id)) return;
+    counted.add(id);
+    localStorage.setItem("rusty-counted", JSON.stringify([...counted]));
+    fetch("/api/complete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lesson: id }),
+      keepalive: true,
+    }).catch(() => {});
+  }
+
+  function initImpactBanner() {
+    const el = document.getElementById("impact-banner");
+    if (!el) return;
+    fetch("/api/stats")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && data.total > 0) {
+          el.querySelector(".n").textContent = data.total.toLocaleString();
+          el.hidden = false;
+        }
+      })
+      .catch(() => {});
   }
 
   /* ---------------- confetti ---------------- */
@@ -354,6 +400,7 @@
     initProgress();
     initQuizzes();
     initTabs();
+    initImpactBanner();
     const themeBtn = document.querySelector(".theme-toggle");
     if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
   });
