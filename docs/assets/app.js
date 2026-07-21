@@ -214,6 +214,8 @@
       .then((data) => {
         if (data && data.total > 0) {
           el.querySelector(".n").textContent = data.total.toLocaleString();
+          const lbl = el.querySelector(".lbl");
+          if (lbl) lbl.textContent = data.total === 1 ? "lesson completed" : "lessons completed";
           el.hidden = false;
         }
       })
