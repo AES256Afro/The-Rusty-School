@@ -55,6 +55,14 @@
       if (learn) learn.insertAdjacentElement("afterend", build);
       else nav.insertBefore(build, nav.querySelector(".theme-toggle"));
     }
+    if (nav && !navLabels.includes("Dojo")) {
+      const dojo = document.createElement("a");
+      dojo.href = prefix + "dojo.html";
+      dojo.textContent = "Dojo";
+      const buildLink = [...nav.querySelectorAll("a")].find((a) => a.textContent.trim() === "Build");
+      if (buildLink) buildLink.insertAdjacentElement("afterend", dojo);
+      else nav.insertBefore(dojo, nav.querySelector(".theme-toggle"));
+    }
     if (nav && !nav.querySelector('a[href$="playground.html"]')) {
       const pg = document.createElement("a");
       pg.href = prefix + "playground.html";
@@ -501,6 +509,187 @@
     apply();
   }
 
+  /* ---------------- the Rust Dojo ----------------
+     36 verified puzzles in 6 belts. Puzzle data is embedded in dojo.html
+     (window.RUSTY_DOJO); every snippet was compiled and run before
+     publishing. Solved state shares the rusty-done set with lessons,
+     using dojo- prefixed ids, so it syncs to accounts like everything
+     else. Dojo puzzles deliberately do NOT ping the public counter:
+     the home page banner counts lessons only, and stays honest. */
+  const DOJO_BELTS = [
+    ["white",  "White Belt",  "first stances: variables, printing, loops"],
+    ["yellow", "Yellow Belt", "functions and flow"],
+    ["orange", "Orange Belt", "the ownership trials"],
+    ["green",  "Green Belt",  "structs, enums, collections"],
+    ["brown",  "Brown Belt",  "errors, traits, iterators"],
+    ["black",  "Black Belt",  "lifetimes, closures, threads"],
+  ];
+  const DOJO_TYPE = {
+    predict: "🔮 Predict the output",
+    fix: "🔧 Fix it",
+    bug: "🐛 Find the bug",
+  };
+
+  function dojoOpenInPlayground(code) {
+    localStorage.setItem("pg-pending", code);
+    location.href = "playground.html";
+  }
+
+  function initDojo() {
+    const rootEl = document.getElementById("dojo-root");
+    if (!rootEl || !window.RUSTY_DOJO) return;
+    const puzzles = window.RUSTY_DOJO;
+
+    DOJO_BELTS.forEach(([key, name, subtitle]) => {
+      const mine = puzzles.filter((p) => p.belt === key);
+      if (!mine.length) return;
+
+      const section = document.createElement("section");
+      section.className = "section belt-section";
+      section.dataset.belt = key;
+
+      const h2 = document.createElement("h2");
+      h2.innerHTML =
+        '<span class="belt-badge belt-' + key + '">' + name + "</span> " +
+        '<span class="muted small">' + subtitle + "</span> " +
+        '<span class="belt-count muted small"></span>';
+      section.appendChild(h2);
+
+      mine.forEach((p) => {
+        const card = document.createElement("article");
+        card.className = "card dojo-card";
+        card.dataset.puzzle = "dojo-" + p.id;
+
+        const head = document.createElement("div");
+        head.className = "dojo-head";
+        head.innerHTML =
+          '<span class="dojo-type">' + (DOJO_TYPE[p.type] || p.type) + "</span>" +
+          "<h3>" + p.title + "</h3>";
+        card.appendChild(head);
+
+        const task = document.createElement("p");
+        task.className = "muted dojo-task";
+        task.textContent = p.task;
+        card.appendChild(task);
+
+        const pre = document.createElement("pre");
+        const code = document.createElement("code");
+        code.textContent = p.code;
+        pre.appendChild(code);
+        card.appendChild(pre);
+
+        const actions = document.createElement("div");
+        actions.className = "dojo-actions";
+
+        if (p.type !== "predict") {
+          const train = document.createElement("button");
+          train.type = "button";
+          train.className = "btn btn-ghost btn-small";
+          train.textContent = "🥋 Train in the Playground";
+          train.addEventListener("click", () => dojoOpenInPlayground(p.code));
+          actions.appendChild(train);
+        }
+
+        const hint = document.createElement("details");
+        hint.className = "hint";
+        hint.innerHTML =
+          "<summary>Hint</summary>" +
+          '<div class="hint-body"><p></p></div>';
+        hint.querySelector("p").textContent = p.hint;
+        actions.appendChild(hint);
+
+        const sol = document.createElement("details");
+        sol.className = "hint dojo-solution";
+        const solLabel = p.type === "predict" ? "Reveal the answer" : "Reveal the solution";
+        sol.innerHTML = "<summary>" + solLabel + "</summary>" +
+          '<div class="hint-body"></div>';
+        const body = sol.querySelector(".hint-body");
+        if (p.solution) {
+          const spre = document.createElement("pre");
+          const scode = document.createElement("code");
+          scode.textContent = p.solution;
+          spre.appendChild(scode);
+          body.appendChild(spre);
+        }
+        const outLabel = document.createElement("p");
+        outLabel.className = "muted small";
+        outLabel.textContent = p.type === "predict" ? "It prints:" : "The fixed version prints:";
+        body.appendChild(outLabel);
+        const opre = document.createElement("pre");
+        opre.className = "term";
+        const ocode = document.createElement("code");
+        ocode.className = "nohl";
+        ocode.textContent = p.expected;
+        opre.appendChild(ocode);
+        body.appendChild(opre);
+        const expl = document.createElement("p");
+        expl.textContent = p.explain;
+        body.appendChild(expl);
+        actions.appendChild(sol);
+
+        const solved = document.createElement("button");
+        solved.type = "button";
+        solved.className = "btn btn-ghost btn-small dojo-solved-btn";
+        solved.addEventListener("click", (e) => {
+          const set = getDone();
+          const id = card.dataset.puzzle;
+          if (set.has(id)) {
+            set.delete(id);
+          } else {
+            set.add(id);
+            confetti(e.clientX, e.clientY);
+          }
+          saveDone(set);
+          pushProgress();
+          refreshDojo();
+        });
+        actions.appendChild(solved);
+
+        card.appendChild(actions);
+        section.appendChild(card);
+      });
+
+      rootEl.appendChild(section);
+    });
+
+    function refreshDojo() {
+      const done = getDone();
+      let total = 0;
+      let solvedCount = 0;
+      document.querySelectorAll(".dojo-card").forEach((card) => {
+        total++;
+        const isDone = done.has(card.dataset.puzzle);
+        if (isDone) solvedCount++;
+        card.classList.toggle("solved", isDone);
+        const btn = card.querySelector(".dojo-solved-btn");
+        btn.textContent = isDone ? "✓ Solved" : "Mark solved";
+        btn.classList.toggle("is-solved", isDone);
+      });
+      document.querySelectorAll(".belt-section").forEach((section) => {
+        const cards = section.querySelectorAll(".dojo-card");
+        const solvedHere = [...cards].filter((c) => done.has(c.dataset.puzzle)).length;
+        section.querySelector(".belt-count").textContent = solvedHere + " of " + cards.length + " solved";
+        const badge = section.querySelector(".belt-badge");
+        const earnedNow = solvedHere === cards.length;
+        if (earnedNow && !badge.classList.contains("earned")) {
+          badge.classList.add("earned");
+        } else if (!earnedNow) {
+          badge.classList.remove("earned");
+        }
+      });
+      const fill = document.getElementById("dojo-fill");
+      const label = document.getElementById("dojo-label");
+      if (fill) fill.style.width = Math.round((solvedCount / total) * 100) + "%";
+      if (label) {
+        label.textContent = solvedCount === total
+          ? "All " + total + " puzzles solved. Black belt. Bow to the crab. 🥋🦀"
+          : solvedCount + " of " + total + " puzzles solved";
+      }
+    }
+
+    refreshDojo();
+  }
+
   /* ---------------- running code (The Rusty Playground) ----------------
      Snippets execute on the official Rust Playground via our /api/run
      proxy. Boilerplate cargo lines are trimmed from stderr so beginners
@@ -583,7 +772,14 @@
     const runBtn = document.getElementById("pg-run");
     const picker = document.getElementById("pg-example");
 
-    editor.value = PG_EXAMPLES.hello;
+    // A dojo puzzle may have sent code over for repair.
+    const pending = localStorage.getItem("pg-pending");
+    if (pending) {
+      editor.value = pending;
+      localStorage.removeItem("pg-pending");
+    } else {
+      editor.value = PG_EXAMPLES.hello;
+    }
     picker.addEventListener("change", () => {
       editor.value = PG_EXAMPLES[picker.value] || PG_EXAMPLES.hello;
       editor.focus();
@@ -696,10 +892,14 @@
       if (me.avatar) avatar.src = me.avatar; else avatar.style.display = "none";
       document.getElementById("acct-name").textContent = me.name || "Rustacean";
       document.getElementById("acct-provider").textContent = me.provider;
-      const doneCount = (me.progress && me.progress.done ? me.progress.done.length : 0);
-      document.getElementById("acct-progress").innerHTML =
-        "📚 <strong>" + doneCount + " lesson" + (doneCount === 1 ? "" : "s") +
-        "</strong> synced to your account.";
+      const allDone = (me.progress && me.progress.done) || [];
+      const lessonCount = allDone.filter((d) => !d.startsWith("dojo-")).length;
+      const puzzleCount = allDone.filter((d) => d.startsWith("dojo-")).length;
+      let summary = "📚 <strong>" + lessonCount + " lesson" + (lessonCount === 1 ? "" : "s") + "</strong>";
+      if (puzzleCount > 0) {
+        summary += " and <strong>" + puzzleCount + " dojo puzzle" + (puzzleCount === 1 ? "" : "s") + "</strong>";
+      }
+      document.getElementById("acct-progress").innerHTML = summary + " synced to your account.";
       document.getElementById("acct-sync-note").textContent =
         "Progress syncs automatically whenever you complete a lesson or quiz on any signed-in device.";
 
@@ -761,6 +961,7 @@
   document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     initNav();
+    initDojo();   // before initCode, so generated puzzles get highlighting and run buttons
     initCode();
     initTabs();
     const themeBtn = document.querySelector(".theme-toggle");

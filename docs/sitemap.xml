@@ -36,6 +36,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://rustyschool.com/dojo</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://rustyschool.com/glossary</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
