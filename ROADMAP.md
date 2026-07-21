@@ -54,6 +54,36 @@ ownable program, applying the curriculum with progressively less hand-holding.
 Each project ships with: a spec ("build this"), staged hints (collapsed, like
 exercise solutions), a reference implementation, and "stretch goals" for the bold.
 
+### Ambitious Rust assignments (the signature stuff)
+
+Assignments no other beginner course has, leaning into what makes this school
+unique:
+
+- **Publish a crate.** Every graduate publishes one small, real crate to
+  crates.io (a word generator, a unit converter, anything). Being a published
+  open-source author is a rite of passage and a resume line.
+- **First PR week.** A guided assignment to land one real pull request on an
+  open-source Rust project (rustlings and this school itself both welcome
+  first-timers). Teaches forks, branches, review culture, and courage.
+- **Borrow-checker dojo.** A page of "broken on purpose" programs ranked like
+  chess puzzles (10 kyu to black belt). Fix each until it compiles. Timed mode
+  for the competitive.
+- **The performance lab.** Take a slow Python script (provided), port it to
+  Rust, and benchmark honestly. Students publish their own speedup number and
+  learn profiling along the way.
+- **The security lab.** Demonstrate a buffer overflow in C in a sandbox, then
+  show the same code refusing to compile in Rust. Follow with hands-on
+  RustCrypto exercises: hash passwords properly, encrypt a file, verify a
+  signature. Memory safety stops being abstract.
+- **Crab Jam.** A recurring 48-hour game jam (Macroquad or Bevy) with a theme,
+  a gallery of entries, and zero prizes except glory and a custom Ferris badge.
+- **Advent of Rust.** Each December, a curated companion guide to Advent of
+  Code with Rust-flavored hints, run as a community event.
+- **The capstone of capstones.** Rebuild this school's own web server from a
+  spec, extend it (logging, caching, JSON API), and submit it as a PR to a
+  dedicated showcase repo. The school literally teaches students to rebuild
+  itself.
+
 ## Phase 3: Specialist tracks (courses 3 to 6)
 
 Parallel mini-courses after the core, each 6 to 10 lessons, each ending in a
@@ -79,8 +109,23 @@ Chris's stated goal is to teach others. This phase turns the site from a course
 into a school. Cloudflare Workers + KV/D1 (already in the account, free tier)
 can power all of it without abandoning the static site.
 
-- **Accounts & synced progress:** optional sign-in; progress and quiz scores
-  follow the student across devices. LocalStorage remains the no-account default.
+- **Accounts & synced progress (GitHub + Google SSO):** optional sign-in via
+  OAuth so progress, quiz scores, and certificates follow the student across
+  devices. LocalStorage remains the no-account default; signing in merges local
+  progress into the profile. Implementation sketch: a Cloudflare Worker handles
+  the OAuth dance, stores only the provider id, display name, avatar, and a
+  progress JSON in D1, and sets a signed session cookie. No passwords ever
+  stored, no email marketing, a plain-English privacy page, and one-click
+  export/delete of your data. Scope check: this is roughly a focused week of
+  work, not a moonshot, and it is the right architecture (the static site stays
+  static; the Worker only augments it).
+- **The impact counter:** a "students helped" banner on the home page backed by
+  real numbers. Phase A needs no accounts at all: the site pings a Worker on
+  each lesson completion (an anonymous counter increment, no personal data,
+  respecting Do Not Track), and the home page shows "N lessons completed
+  worldwide." Once accounts exist, add "N students, N courses finished, N
+  countries." Honest counters only: numbers a student could audit from the
+  public repo's Worker code.
 - **Classroom mode:** a teacher creates a class code; students join; the teacher
   sees a dashboard of everyone's lesson progress and quiz scores, and can set
   "due by Friday" checkpoints. This is the feature that makes the school usable
@@ -106,6 +151,53 @@ can power all of it without abandoning the static site.
 - **A yearly "Crab Cohort":** a scheduled 8-week community run-through of the
   curriculum with shared deadlines, using classroom mode. Cohorts finish courses
   at 5 to 10 times the rate of solo learners.
+
+---
+
+## The bigger campus: beyond Rust
+
+The engine under this school (lesson template, quiz engine, progress tracking,
+cheat sheets, the deploy pipeline) is subject-agnostic. Each new subject is a
+"school" in the same campus: same design system, own color accent, own mascot,
+shared accounts and certificates. Candidate schools, roughly in order of
+audience overlap:
+
+### Programming schools
+
+- **The Terminal School (Linux & shell):** from `cd` to shell scripting, ssh,
+  cron, and building a home server. The single most transferable tech skill.
+- **The Web School (HTML, CSS, JavaScript):** students inspect and rebuild
+  pages of this very site as the running example, ending with each student
+  shipping a personal site on their own Cloudflare Pages.
+- **The Python School:** the friendly generalist language, taught as a contrast
+  ("here is the same program in Rust and Python; here is when to pick which"),
+  covering scripting, automation, and data basics.
+- **The Data School (SQL & spreadsheets):** queries, joins, and honest charts.
+  Pairs naturally with a future D1-backed classroom dashboard.
+- **The C School (short, advanced):** a guided tour of manual memory management
+  so students viscerally understand what Rust automated. Best taken after
+  Level 3, like visiting a museum of beautiful, dangerous machinery.
+
+### Non-programming tech schools
+
+- **The Network School:** how the internet actually works: DNS, HTTP, TLS,
+  routing. Lab: trace this site's own path from GitHub push to Cloudflare edge
+  to browser. Students already own every piece of the demo.
+- **The Security School:** threat modeling for humans, password managers,
+  2FA, phishing recognition, encryption literacy, then hands-on basics
+  (hashing, certificates). A natural sibling to the Rust security lab.
+- **The Hardware School:** build a PC, understand specs honestly, set up a
+  Raspberry Pi homelab, and meet microcontrollers (bridging to the embedded
+  Rust track).
+- **The Ops School (Docker, CI/CD, cloud):** containers, pipelines, and
+  deploying things that stay up, using this repo's own auto-deploy as lesson
+  one.
+- **The AI School (literacy, not hype):** how models work at a high level,
+  prompting well, when to trust output, running a local model, and using AI as
+  a learning tool without letting it do your homework.
+
+Rule for the campus: a new school launches only when its Level 1 is genuinely
+excellent. Better one deep school than five shallow ones.
 
 ---
 
