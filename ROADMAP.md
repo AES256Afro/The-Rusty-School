@@ -15,9 +15,15 @@ value-per-effort; each phase is shippable on its own.
 
 Small additions that multiply the value of what already exists.
 
-- **Run code in the page.** Wire the "copy" buttons to the Rust Playground's
-  execute API so examples and exercises run inside the lesson, output and all.
-  This is the single highest-impact upgrade: it turns every lesson into a lab.
+- **Run code in the page: "The Rusty Playground."** A playground page with our
+  editor and theme, plus Run buttons on lesson examples, executing via the
+  official Rust Playground's public API (the same backend mdBook's run buttons
+  use, with credit given). Compiling untrusted code needs real sandboxed
+  servers, which Workers cannot do, so borrowing the official backend is the
+  honest first step. If traffic ever outgrows polite use of their API, stage
+  two is self-hosting the open-source playground backend (github.com/rust-lang/
+  rust-playground) on a small VPS. This is the single highest-impact upgrade:
+  it turns every lesson into a lab.
 - **Per-lesson mini-quizzes.** Two or three questions at the end of each lesson
   (the quiz engine already supports it), plus a Foundations quiz.
 - **Glossary.** An A-to-Z page of every term the course defines, each entry
