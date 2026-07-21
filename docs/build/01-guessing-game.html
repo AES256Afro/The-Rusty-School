@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 1: Number Guessing Game - The Rusty School</title>
+<meta name="description" content="Build a number guessing game in Rust from a spec, with staged hints and a reference solution.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 1 of 3</nav>
+    <span class="badge build">Project · after Level 1</span>
+    <h1>Number Guessing Game 🎯</h1>
+    <p class="lede muted">
+      The computer picks a secret number. You guess. It tells you higher or lower
+      until you get it. Simple to describe, and it will teach you more than the
+      last three lessons combined, because this time nobody is holding the pen.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p>Build a program that:</p>
+      <ul>
+        <li>Picks a secret whole number between 1 and 100.</li>
+        <li>Asks the player to guess, over and over.</li>
+        <li>After each guess, prints <code>Too low!</code>, <code>Too high!</code>, or
+          a congratulation.</li>
+        <li>Stops when the player wins, telling them how many guesses it took.</li>
+        <li>Does not crash when the player types <code>banana</code> instead of a number.
+          It says something friendly and asks again.</li>
+      </ul>
+    </div>
+
+    <div class="callout warn">
+      <span class="co-title">🛠️ This one needs a real install</span>
+      Reading keyboard input needs a terminal, so the browser playground will not
+      work here. If you have not set up your lab yet, the
+      <a href="../setup.html">setup guide</a> takes about ten minutes. Start with:
+<pre class="term"><code>cd ~/rusty-lab
+cargo new guessing_game
+cd guessing_game
+cargo run</code></pre>
+    </div>
+
+    <h2>What you already know</h2>
+    <p>
+      Everything you need is in Levels 1 and 2, except two small new things.
+      Rather than make you hunt for them, here they are:
+    </p>
+
+    <h3>Reading a line of input</h3>
+<pre><code>use std::io;
+
+fn main() {
+    let mut input = String::new();
+    io::stdin()
+        .read_line(&amp;mut input)
+        .expect("failed to read line");
+
+    println!("you typed: {}", input.trim());
+}</code></pre>
+    <p>
+      Note the <code>&amp;mut input</code>: you are lending the String to
+      <code>read_line</code> so it can fill it in (Lesson 7 in the wild). And
+      <code>.trim()</code> matters, because the text arrives with the Enter
+      keypress still attached to the end.
+    </p>
+
+    <h3>A random number</h3>
+    <p>The standard library has no random numbers, so we borrow a crate. In your
+    project folder:</p>
+<pre class="term"><code>cargo add rand</code></pre>
+<pre><code>use rand::prelude::*;
+
+fn main() {
+    let secret: u32 = rand::rng().random_range(1..=100);
+    println!("shh, it's {secret}");
+}</code></pre>
+    <p>
+      That is your first real dependency. You just used the same mechanism that
+      professional Rust projects use every day.
+    </p>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ You will meet older code for this</span>
+      Most tutorials and Stack Overflow answers written before 2025 use
+      <code>rand::thread_rng()</code> and <code>.gen_range()</code>. Those names were
+      retired in newer versions of the crate, so that code no longer compiles.
+      The modern spellings are <code>rand::rng()</code> and
+      <code>.random_range()</code>, shown above.
+      <br><br>
+      This is worth internalizing beyond this project: <strong>libraries change,
+      and the internet remembers old versions forever.</strong> When example code
+      fails, check the crate's own current documentation on
+      <a href="https://docs.rs/rand" target="_blank" rel="noopener">docs.rs</a>
+      before assuming you made the mistake. Reading the real docs is a senior
+      habit you can start today.
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">💡 Now go build it</span>
+      Seriously: close this tab and try. Come back only when you are stuck, and
+      take only the smallest hint that unsticks you. The hints below go from
+      gentle nudge to full code.
+    </div>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: I don't know where to start</summary>
+        <div class="hint-body">
+          <p>Build it in stages, running after each one. Never write the whole
+          thing before testing.</p>
+          <ol>
+            <li>Print a welcome message. Run it. (Yes, really.)</li>
+            <li>Generate the secret number and print it temporarily so you can see it.</li>
+            <li>Read one guess and print it back.</li>
+            <li>Compare the guess to the secret and print higher or lower.</li>
+            <li>Wrap it in a loop.</li>
+            <li>Handle bad input.</li>
+            <li>Remove that temporary print of the secret.</li>
+          </ol>
+          <p>Each step is small. That is the actual professional technique, not a
+          beginner's crutch.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: How do I turn the typed text into a number?</summary>
+        <div class="hint-body">
+          <p>Text goes in, a number must come out, and it might fail. That shape
+          is a <code>Result</code> (Lesson 11):</p>
+<pre><code>let guess: u32 = input.trim().parse().expect("not a number!");</code></pre>
+          <p>That works but crashes on bad input, which the spec forbids. Keep it
+          for now to get the game working, then come back and fix it with
+          Hint 5.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: How do I compare and loop?</summary>
+        <div class="hint-body">
+          <p>You can compare with plain <code>if</code>, but Rust has something
+          made exactly for this, and it reads beautifully:</p>
+<pre><code>use std::cmp::Ordering;
+
+match guess.cmp(&amp;secret) {
+    Ordering::Less =&gt; println!("Too low!"),
+    Ordering::Greater =&gt; println!("Too high!"),
+    Ordering::Equal =&gt; println!("You got it!"),
+}</code></pre>
+          <p>For the loop, use <code>loop { ... }</code> and <code>break</code> when
+          the guess is <code>Equal</code>. Remember that <code>break</code> can live
+          inside a <code>match</code> arm.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: My input keeps repeating the first guess</summary>
+        <div class="hint-body">
+          <p>Classic bug, and a good one to hit. <code>read_line</code>
+          <em>appends</em> to the String rather than replacing it. If you create
+          <code>input</code> once outside the loop, it grows like
+          <code>"5\n7\n12\n"</code> and parsing fails.</p>
+          <p>Fix: create a fresh <code>String::new()</code> inside the loop each
+          time, or call <code>input.clear()</code> before each read.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 5: How do I stop it crashing on "banana"?</summary>
+        <div class="hint-body">
+          <p>Replace <code>.expect(...)</code> with a <code>match</code> on the
+          <code>Result</code>, and use <code>continue</code> to go round the loop
+          again:</p>
+<pre><code>let guess: u32 = match input.trim().parse() {
+    Ok(number) =&gt; number,
+    Err(_) =&gt; {
+        println!("That's not a number. Try again!");
+        continue;
+    }
+};</code></pre>
+          <p>This is the single most useful pattern in beginner Rust: turn a
+          possible failure into either a value or a fresh attempt.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 6: Just show me the whole thing</summary>
+        <div class="hint-body">
+          <p>Fine, but try running yours first, even broken. Comparing a broken
+          attempt with a working one teaches far more than reading alone.</p>
+<pre><code>use rand::prelude::*;
+use std::cmp::Ordering;
+use std::io;
+
+fn main() {
+    println!("🦀 Guess my number! (1 to 100)");
+
+    let secret: u32 = rand::rng().random_range(1..=100);
+    let mut attempts = 0;
+
+    loop {
+        println!("Your guess:");
+
+        let mut input = String::new();
+        io::stdin()
+            .read_line(&amp;mut input)
+            .expect("failed to read line");
+
+        let guess: u32 = match input.trim().parse() {
+            Ok(number) =&gt; number,
+            Err(_) =&gt; {
+                println!("That's not a number. Try again!");
+                continue;
+            }
+        };
+
+        attempts += 1;
+
+        match guess.cmp(&amp;secret) {
+            Ordering::Less =&gt; println!("Too low!"),
+            Ordering::Greater =&gt; println!("Too high!"),
+            Ordering::Equal =&gt; {
+                println!("You got it in {attempts} guesses! 🎉");
+                break;
+            }
+        }
+    }
+}</code></pre>
+        </div>
+      </details>
+
+    </div>
+
+    <h2>Did you build it? 🎉</h2>
+    <p>
+      Then you have written a complete, interactive program with input handling,
+      state, a game loop, and graceful error recovery. That is not a toy in any
+      meaningful sense; it is the skeleton of every interactive program there is.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h4>Make it yours</h4>
+      <ul>
+        <li><strong>Limit the guesses.</strong> Five tries, then the game reveals the
+          number and you lose.</li>
+        <li><strong>Difficulty levels.</strong> Ask "easy, medium, or hard?" at the
+          start and set the range to 1-50, 1-100, or 1-1000.</li>
+        <li><strong>Warmer and colder.</strong> If a guess is within 5 of the secret,
+          say "you're burning up!"</li>
+        <li><strong>Play again?</strong> After a win, ask whether to start a new round,
+          and keep a running tally of games won.</li>
+        <li><strong>Reverse it.</strong> You think of a number, and the computer guesses
+          using binary search while you answer higher or lower. Watch it win in
+          seven guesses every time.</li>
+      </ul>
+      <details class="solution"><summary>Reveal a hint for "limit the guesses"</summary>
+        <p>You already count <code>attempts</code>. After incrementing it, check
+        <code>if attempts &gt;= 5</code>, print the secret, and <code>break</code>.
+        The whole feature is three lines, which is a nice lesson in itself: once
+        the structure is right, features get cheap.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="build-01-guessing-game">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="index.html"><span class="dir">← Back</span>Project Workshop</a>
+      <a class="next" href="02-tip-splitter.html"><span class="dir">Next →</span>Project 2: Tip Splitter CLI</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

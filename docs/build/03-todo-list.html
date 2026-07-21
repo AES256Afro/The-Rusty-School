@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 3: Todo List - The Rusty School</title>
+<meta name="description" content="Build a Rust todo app that remembers tasks between runs: structs, vectors, file storage, and enums.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 3 of 3</nav>
+    <span class="badge build">Project · after Level 2</span>
+    <h1>Todo List 📝</h1>
+    <p class="lede muted">
+      Your first program that remembers. Everything so far forgot everything the
+      moment it exited; this one writes to a file and picks up where it left off.
+      That single change is what separates a toy from an application.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p>Build a command-line todo app:</p>
+<pre class="term"><code>$ cargo run -- add "learn Rust"
+Added: learn Rust
+
+$ cargo run -- add "feed Rusty"
+Added: feed Rusty
+
+$ cargo run -- list
+  1. [ ] learn Rust
+  2. [ ] feed Rusty
+
+$ cargo run -- done 1
+Nice work: learn Rust
+
+$ cargo run -- list
+  1. [x] learn Rust
+  2. [ ] feed Rusty</code></pre>
+      <p>Requirements:</p>
+      <ul>
+        <li>Commands: <code>add &lt;text&gt;</code>, <code>list</code>,
+          <code>done &lt;number&gt;</code>, and <code>remove &lt;number&gt;</code>.</li>
+        <li>Tasks survive between runs, saved in a plain text file.</li>
+        <li>A task is a <strong>struct</strong> with its text and whether it is done.</li>
+        <li>Unknown commands and bad task numbers produce helpful messages, never a crash.</li>
+        <li>A missing or empty save file is treated as an empty list, not an error.</li>
+      </ul>
+    </div>
+
+    <h2>The one new thing: files</h2>
+    <p>Two functions cover everything you need, and both return <code>Result</code>
+    because the disk can always say no:</p>
+<pre><code>use std::fs;
+
+// write (creates or overwrites)
+fs::write("todos.txt", "some text\n").expect("could not save");
+
+// read
+let contents = fs::read_to_string("todos.txt").expect("could not read");</code></pre>
+    <p>
+      Note that a missing file is an <code>Err</code>, not an empty string. Your
+      first run has no file, so handle that case deliberately:
+      <code>unwrap_or_default()</code> turns "no file" into "empty string", which
+      is exactly the behavior the spec asks for.
+    </p>
+
+    <div class="callout tip">
+      <span class="co-title">💡 Design decision, yours to make</span>
+      You must invent a format for the file. That is a real engineering choice,
+      and the hints suggest one, but any format you can write and read back is
+      correct. Inventing formats is a normal part of the job.
+    </div>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: What shape should the data have?</summary>
+        <div class="hint-body">
+<pre><code>#[derive(Debug)]
+struct Task {
+    text: String,
+    done: bool,
+}</code></pre>
+          <p>The whole list is then a <code>Vec&lt;Task&gt;</code>. Everything the
+          program does is one of: load the Vec from disk, change it, save it back.
+          Holding that sentence in your head makes the rest mostly typing.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: What file format should I use?</summary>
+        <div class="hint-body">
+          <p>One task per line, with a marker and the text separated by a
+          character that will not appear in normal text:</p>
+<pre class="term"><code>1|learn Rust
+0|feed Rusty</code></pre>
+          <p>Saving becomes: for each task, write <code>1</code> or <code>0</code>,
+          a pipe, then the text. Loading becomes: for each line,
+          <code>split_once('|')</code> and rebuild the struct.</p>
+          <p><code>split_once</code> returns an <code>Option&lt;(&amp;str, &amp;str)&gt;</code>,
+          which is perfect: a malformed line simply yields <code>None</code> and can
+          be skipped rather than crashing the program.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: How do I load and save?</summary>
+        <div class="hint-body">
+<pre><code>fn load() -&gt; Vec&lt;Task&gt; {
+    let contents = fs::read_to_string("todos.txt").unwrap_or_default();
+    contents
+        .lines()
+        .filter_map(|line| {
+            let (flag, text) = line.split_once('|')?;
+            Some(Task {
+                text: text.to_string(),
+                done: flag == "1",
+            })
+        })
+        .collect()
+}
+
+fn save(tasks: &amp;[Task]) {
+    let mut out = String::new();
+    for task in tasks {
+        let flag = if task.done { "1" } else { "0" };
+        out.push_str(&amp;format!("{flag}|{}\n", task.text));
+    }
+    fs::write("todos.txt", out).expect("could not save your todos");
+}</code></pre>
+          <p><code>filter_map</code> is a lovely trick here: it runs a closure that
+          returns <code>Option</code> and silently drops the <code>None</code>s. Bad
+          lines vanish, good lines become tasks, in one pass.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: How do I dispatch the commands?</summary>
+        <div class="hint-body">
+          <p>Match on the first argument as a string slice, and use
+          <code>as_str()</code> so the patterns can be plain literals:</p>
+<pre><code>let args: Vec&lt;String&gt; = env::args().collect();
+let command = args.get(1).map(|s| s.as_str()).unwrap_or("list");
+
+match command {
+    "add" =&gt; { /* ... */ }
+    "list" =&gt; { /* ... */ }
+    "done" =&gt; { /* ... */ }
+    "remove" =&gt; { /* ... */ }
+    other =&gt; println!("Unknown command '{other}'. Try: add, list, done, remove"),
+}</code></pre>
+          <p>Defaulting to <code>list</code> when no command is given is a small
+          kindness that makes the tool feel finished.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 5: Task numbers keep breaking</summary>
+        <div class="hint-body">
+          <p>Two traps, both classic:</p>
+          <ul>
+            <li><strong>Humans count from 1, Rust counts from 0.</strong> Display
+              <code>index + 1</code>, and subtract 1 from what the user types.</li>
+            <li><strong>Never index straight into the Vec.</strong>
+              <code>tasks[99]</code> panics. Use <code>tasks.get_mut(i)</code> and
+              handle <code>None</code>:</li>
+          </ul>
+<pre><code>match tasks.get_mut(number - 1) {
+    Some(task) =&gt; {
+        task.done = true;
+        println!("Nice work: {}", task.text);
+    }
+    None =&gt; println!("There's no task {number}."),
+}</code></pre>
+          <p>Also guard against <code>number == 0</code>, since
+          <code>0 - 1</code> on an unsigned integer panics with an overflow.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 6: Show me the whole program</summary>
+        <div class="hint-body">
+<pre><code>use std::env;
+use std::fs;
+
+#[derive(Debug)]
+struct Task {
+    text: String,
+    done: bool,
+}
+
+const FILE: &amp;str = "todos.txt";
+
+fn load() -&gt; Vec&lt;Task&gt; {
+    fs::read_to_string(FILE)
+        .unwrap_or_default()
+        .lines()
+        .filter_map(|line| {
+            let (flag, text) = line.split_once('|')?;
+            Some(Task { text: text.to_string(), done: flag == "1" })
+        })
+        .collect()
+}
+
+fn save(tasks: &amp;[Task]) {
+    let mut out = String::new();
+    for task in tasks {
+        let flag = if task.done { "1" } else { "0" };
+        out.push_str(&amp;format!("{flag}|{}\n", task.text));
+    }
+    fs::write(FILE, out).expect("could not save your todos");
+}
+
+fn list(tasks: &amp;[Task]) {
+    if tasks.is_empty() {
+        println!("Nothing to do. Suspicious. 🦀");
+        return;
+    }
+    for (i, task) in tasks.iter().enumerate() {
+        let mark = if task.done { "x" } else { " " };
+        println!("  {}. [{}] {}", i + 1, mark, task.text);
+    }
+}
+
+fn parse_number(args: &amp;[String]) -&gt; Option&lt;usize&gt; {
+    let raw: usize = args.get(2)?.parse().ok()?;
+    if raw == 0 { None } else { Some(raw) }
+}
+
+fn main() {
+    let args: Vec&lt;String&gt; = env::args().collect();
+    let command = args.get(1).map(|s| s.as_str()).unwrap_or("list");
+    let mut tasks = load();
+
+    match command {
+        "add" =&gt; {
+            let text = args[2..].join(" ");
+            if text.trim().is_empty() {
+                println!("What should I add? Try: add \"buy kelp\"");
+            } else {
+                println!("Added: {text}");
+                tasks.push(Task { text, done: false });
+                save(&amp;tasks);
+            }
+        }
+        "list" =&gt; list(&amp;tasks),
+        "done" =&gt; match parse_number(&amp;args).and_then(|n| tasks.get_mut(n - 1).map(|t| (n, t))) {
+            Some((_, task)) =&gt; {
+                task.done = true;
+                println!("Nice work: {}", task.text);
+                save(&amp;tasks);
+            }
+            None =&gt; println!("Which task? Try: done 1"),
+        },
+        "remove" =&gt; match parse_number(&amp;args) {
+            Some(n) if n &lt;= tasks.len() =&gt; {
+                let removed = tasks.remove(n - 1);
+                println!("Removed: {}", removed.text);
+                save(&amp;tasks);
+            }
+            _ =&gt; println!("Which task? Try: remove 1"),
+        },
+        other =&gt; println!("Unknown command '{other}'. Try: add, list, done, remove"),
+    }
+}</code></pre>
+          <p>Notice <code>args[2..].join(" ")</code> in the add branch: it lets
+          <code>add buy some kelp</code> work without quotes, by gluing all the
+          remaining arguments back together.</p>
+        </div>
+      </details>
+
+    </div>
+
+    <h2>You built an application 🎉</h2>
+    <p>
+      Persistence is the line between a program and a tool. Yours now survives
+      restarts, handles a file that might not exist, refuses to crash on bad
+      input, and does something you might actually use. That is the same shape as
+      software people pay for; the rest is scale and polish.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h4>Make it yours</h4>
+      <ul>
+        <li><strong>Priorities.</strong> Add an enum <code>Priority { Low, Normal, High }</code>
+          to the struct, show high-priority tasks with a 🔥, and sort the list.</li>
+        <li><strong>Save somewhere sensible.</strong> Right now the file lands wherever
+          you ran the command. Put it in the home directory instead so the tool
+          works from anywhere.</li>
+        <li><strong>Real JSON.</strong> Try <code>cargo add serde --features derive</code>
+          and <code>cargo add serde_json</code>, then <code>#[derive(Serialize, Deserialize)]</code>
+          on your struct. Your hand-rolled format disappears into two function calls.
+          This is the crate that half the Rust ecosystem depends on.</li>
+        <li><strong>Undo.</strong> Keep a backup copy before each save so
+          <code>undo</code> can restore the previous state.</li>
+        <li><strong>Due dates.</strong> Add <code>cargo add chrono</code> and show what's
+          overdue in red.</li>
+      </ul>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🎓 What now?</span>
+      Three projects down. The honest next step is not another tutorial: pick
+      something small that <em>you</em> want to exist and build it with no guide at
+      all. That is the moment you stop being a student of Rust and start being a
+      programmer who uses it. More workshop projects are coming, but do not wait
+      for them.
+    </div>
+
+    <button class="complete-btn" data-lesson="build-03-todo-list">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="02-tip-splitter.html"><span class="dir">← Previous</span>Project 2: Tip Splitter CLI</a>
+      <a class="next" href="index.html"><span class="dir">Finish →</span>Back to the workshop</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

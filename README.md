@@ -34,6 +34,9 @@ static file server.
 | `docs/index.html` | Home: why Rust, who uses it, games & apps built with Rust |
 | `docs/setup.html` | Build your lab: macOS, Windows, Linux, or zero-install in the browser |
 | `docs/learn/` | The 22-lesson curriculum, from "what is a computer?" to concurrency |
+| `docs/build/` | The Project Workshop: build real programs from a spec |
+| `docs/playground.html` | Write and run Rust in the browser |
+| `docs/glossary.html` | Every term the course defines, A to Z |
 | `docs/quiz.html` | Interactive quizzes for each level, with explanations |
 | `docs/cheatsheets.html` | Printable cheat sheets: syntax, ownership, collections, Cargo |
 | `src/main.rs` | The Rust web server that serves it all (and teaches while doing it) |

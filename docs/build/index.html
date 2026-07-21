@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Workshop - The Rusty School</title>
+<meta name="description" content="Build real Rust programs from a spec, with staged hints and reference solutions. The cure for tutorial hell.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="lesson-header">
+    <span class="kicker">Stop following, start building</span>
+    <h1>The Project <span class="grad">Workshop</span> 🛠️</h1>
+    <p class="lede muted">
+      Lessons teach you the language. Projects teach you to program. Here you get
+      a spec, not a script: build the thing yourself, reach for a hint only when
+      you're stuck, and compare with a reference solution at the end.
+    </p>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+  </section>
+
+  <div class="callout warn">
+    <span class="co-title">⚠️ This will feel harder than the lessons</span>
+    That is the entire point, and it is not a sign you learned badly. Staring at
+    an empty file is a skill of its own, and the only way to build it is to stare
+    at a few. Struggle for a while before opening a hint; the struggle is where
+    the learning happens.
+  </div>
+
+  <section class="section">
+    <h2>Projects</h2>
+    <div class="grid cols-2">
+
+      <a class="card lesson-card project-card" data-lesson="build-01-guessing-game" href="01-guessing-game.html">
+        <span class="num">P1</span>
+        <div>
+          <h3>Number Guessing Game</h3>
+          <p>The classic first program: the computer picks a number, you guess, it
+          says higher or lower. Loops, user input, and <code>match</code>.</p>
+          <div class="meta">
+            <span class="difficulty"><span>●</span><span class="off">●</span><span class="off">●</span></span>
+            <span>after Level 1</span>
+            <span>~45 min</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card lesson-card project-card" data-lesson="build-02-tip-splitter" href="02-tip-splitter.html">
+        <span class="num">P2</span>
+        <div>
+          <h3>Tip Splitter CLI</h3>
+          <p>A real command-line tool that reads arguments, does honest money math,
+          and fails gracefully when someone types nonsense.</p>
+          <div class="meta">
+            <span class="difficulty"><span>●</span><span>●</span><span class="off">●</span></span>
+            <span>after Level 2</span>
+            <span>~1 hour</span>
+          </div>
+        </div>
+      </a>
+
+      <a class="card lesson-card project-card" data-lesson="build-03-todo-list" href="03-todo-list.html">
+        <span class="num">P3</span>
+        <div>
+          <h3>Todo List</h3>
+          <p>Your first program that remembers things between runs: structs,
+          vectors, and reading and writing a real file.</p>
+          <div class="meta">
+            <span class="difficulty"><span>●</span><span>●</span><span class="off">●</span></span>
+            <span>after Level 2</span>
+            <span>~1.5 hours</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="card project-card" style="opacity:0.65">
+        <span class="badge build">Coming soon</span>
+        <h3 style="margin-top:8px">More projects on the way</h3>
+        <p>Flashcard Quizzer, Text Adventure, Word Counter Pro, and the capstone:
+        rebuilding this website's own Rust web server from a spec.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="co-title">🎓 How to use the workshop</span>
+    <ol style="margin:8px 0 0">
+      <li><strong>Read the spec, then close this tab.</strong> Open your editor and
+        try. Getting it wrong first is normal and useful.</li>
+      <li><strong>Hints are a ladder, not an elevator.</strong> They go from a gentle
+        nudge to actual code. Take the smallest one that unsticks you.</li>
+      <li><strong>Compare at the end.</strong> The reference solution is one valid
+        answer, not the only one. If yours works and reads clearly, yours is right.</li>
+      <li><strong>Then break it.</strong> Every project has stretch goals. That's where
+        it stops being homework and starts being yours.</li>
+    </ol>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
