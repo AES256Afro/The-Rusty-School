@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations 4: Standards &amp; Conventions - The Rusty School</title>
+<meta name="description" content="Naming conventions, formatting, semantic versioning, documentation, licenses, and the unwritten rules of good code.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Foundations 4 of 5</nav>
+    <span class="badge l0">Level 0 · Foundations</span>
+    <h1>Standards &amp; Conventions 📏</h1>
+    <p class="lede muted">Code is read far more often than it is written. The
+    industry's conventions exist so that any programmer can open any project and
+    feel at home. Learn them early and your code looks professional from day one.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Why conventions matter</h2>
+    <p>
+      Imagine a library where every shelf used a different sorting system. That is a
+      codebase without conventions. Conventions are not bureaucracy; they are
+      <strong>kindness to the next reader</strong>, and the next reader is usually
+      you, three months from now, at midnight, hunting a bug.
+    </p>
+
+    <h2>Naming things 🏷️</h2>
+    <p>Different languages chose different casing styles, and each community treats
+    its choice as law. Rust's rules:</p>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Thing</th><th>Style</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>variables &amp; functions</td><td>snake_case</td><td><code>player_score</code>, <code>calculate_tip</code></td></tr>
+        <tr><td>types (structs, enums, traits)</td><td>UpperCamelCase</td><td><code>PlayerScore</code>, <code>TrafficLight</code></td></tr>
+        <tr><td>constants</td><td>SCREAMING_SNAKE_CASE</td><td><code>MAX_PLAYERS</code></td></tr>
+        <tr><td>crates &amp; files</td><td>snake_case or kebab-case</td><td><code>my_game</code>, <code>rusty-school</code></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      Beyond casing: names should say what a thing <em>is</em> or <em>does</em>.
+      <code>days_until_launch</code> beats <code>d</code>. The compiler does not
+      care. Humans care enormously.
+    </p>
+
+    <h2>Formatting: let the robot do it 🤖</h2>
+    <p>
+      Where do braces go? Tabs or spaces? Programmers wasted decades arguing. The
+      modern answer: an <strong>auto-formatter</strong> rewrites your code into the
+      community's one agreed style, and everyone moves on with their lives. In Rust:
+    </p>
+<pre class="term"><code>cargo fmt      # reformat the whole project, perfectly, in a second
+cargo clippy   # the linter: flags working-but-unidiomatic code and explains better ways</code></pre>
+    <p>
+      A <strong>linter</strong> like clippy goes beyond layout: it spots patterns
+      that work but smell ("you wrote a loop where <code>.sum()</code> would do").
+      Treat clippy as a free senior colleague. Run both before every commit and your
+      code reviews will be about ideas, never about commas.
+    </p>
+
+    <h2>Semantic versioning: what 1.4.2 means 🔢</h2>
+    <p>
+      Software versions look like <code>MAJOR.MINOR.PATCH</code>, and the numbers
+      are a promise called <strong>semver</strong>:
+    </p>
+    <ul class="checklist">
+      <li><strong>PATCH</strong> (1.4.2 → 1.4.3): bug fixes only. Safe to update, always.</li>
+      <li><strong>MINOR</strong> (1.4.2 → 1.5.0): new features, nothing existing breaks.</li>
+      <li><strong>MAJOR</strong> (1.4.2 → 2.0.0): breaking changes. Read the notes before updating.</li>
+    </ul>
+    <p>
+      A <code>0.x</code> version means "still finding its shape, anything may
+      change." When Cargo lists <code>rand = "0.9"</code> in
+      <code>Cargo.toml</code>, this grammar is what the numbers speak. Rust itself
+      takes the promise unusually seriously: code that compiled on Rust 1.0 in 2015
+      still compiles today.
+    </p>
+
+    <h2>Documentation: the README and friends 📖</h2>
+    <p>
+      Every project's front door is a <strong>README</strong> file: what this is,
+      how to run it, how to help. Beyond that, Rust has documentation comments:
+      write <code>///</code> above a function and <code>cargo doc</code> builds a
+      documentation website from your comments automatically. The beautiful std
+      library docs you will use daily are generated exactly this way. Rule of thumb:
+      <em>document why, let the code say what</em>.
+    </p>
+
+    <h2>Licenses: the legal layer of open source ⚖️</h2>
+    <p>
+      Public code is not automatically free to use; the <strong>license</strong>
+      file grants permission. You mostly need to recognize three families:
+    </p>
+    <ul>
+      <li><strong>MIT / Apache-2.0</strong>: "use this for almost anything, keep the
+        credit notice." Business-friendly. The Rust ecosystem's default is
+        dual-licensing under both.</li>
+      <li><strong>GPL</strong>: "use freely, but derivative software must also share
+        its source." Powers Linux.</li>
+      <li><strong>No license file</strong>: legally means all rights reserved. Look
+        but do not touch.</li>
+    </ul>
+
+    <h2>The three-letter philosophies 🧭</h2>
+    <p>You will hear these acronyms in every code review of your life:</p>
+    <ul class="checklist">
+      <li><strong>DRY</strong> (Don't Repeat Yourself): if you paste the same code a
+        third time, extract a function. One place to fix, not five.</li>
+      <li><strong>KISS</strong> (Keep It Simple): the clever one-liner loses to the
+        boring five-liner everyone understands. Simple survives.</li>
+      <li><strong>YAGNI</strong> (You Aren't Gonna Need It): build what today needs,
+        not what tomorrow might. Speculative features are where projects go to die.</li>
+    </ul>
+    <div class="callout tip">
+      <span class="co-title">💡 Held loosely</span>
+      These are guardrails, not commandments, and they even conflict at times
+      (deduplicating too aggressively can violate KISS). Experienced engineers
+      quote them, then use judgment. You will develop that judgment by building.
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Fix the names</h4>
+      <p>These compile but break Rust convention. Correct each one:
+      <code>let PlayerHealth = 100;</code> ·
+      <code>fn CheckCollision() {}</code> ·
+      <code>struct game_state {}</code> ·
+      <code>let max_retries_constant = 3;</code> (it never changes)</p>
+      <details class="solution"><summary>Reveal solutions</summary>
+        <p><code>let player_health = 100;</code> ·
+        <code>fn check_collision() {}</code> ·
+        <code>struct GameState {}</code> ·
+        <code>const MAX_RETRIES: u32 = 3;</code>. Bonus: the Rust compiler actually
+        warns about most of these. Convention is built into the tools.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Read the version tea leaves</h4>
+      <p>Your project depends on <code>serde 1.0.219</code>. For each new release,
+      decide: update casually, or read the changelog first?
+      (a) 1.0.220 · (b) 1.1.0 · (c) 2.0.0 · (d) a different crate at 0.3.1 → 0.4.0</p>
+      <details class="solution"><summary>Reveal answers</summary>
+        <p>(a) patch: update casually. (b) minor: safe, skim the new features for
+        fun. (c) major: read the migration notes before touching it. (d) 0.x minor
+        bumps may break by convention: treat like a major, read first.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Audit a real project</h4>
+      <p>Open any popular Rust repo on GitHub (try <code>rust-lang/rustlings</code>).
+      Find its README, its LICENSE (which family?), its version number, and one
+      <code>///</code> doc comment in the source. Five minutes of detective work.</p>
+      <details class="solution"><summary>Reveal what you will find</summary>
+        <p>Rustlings: a thorough README with setup steps, dual MIT/Apache-2.0
+        licensing (the Rust custom), a semver version in <code>Cargo.toml</code>,
+        and doc comments throughout the source. Every convention from this lesson,
+        live in the wild.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="f4-standards">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="f3-git.html"><span class="dir">← Previous</span>Foundations 3: Version Control &amp; Git</a>
+      <a class="next" href="f5-mindset.html"><span class="dir">Next →</span>Foundations 5: The Programmer's Mindset</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

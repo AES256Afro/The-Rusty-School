@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations 5: The Programmer's Mindset - The Rusty School</title>
+<meta name="description" content="Debugging method, asking good questions, the Unix philosophy, escaping tutorial hell, and the culture of the Rust community.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Foundations 5 of 5</nav>
+    <span class="badge l0">Level 0 · Foundations</span>
+    <h1>The Programmer's Mindset 🧘</h1>
+    <p class="lede muted">Syntax is the easy part. What separates people who learn to
+    program from people who quit is a handful of mental habits. Here they are,
+    stated plainly, so you can borrow them instead of discovering them the hard way.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Errors are the curriculum</h2>
+    <p>
+      Beginners believe errors mean they are failing. Professionals know errors
+      <em>are the job</em>: an experienced programmer sees hundreds a day and treats
+      each as a clue, not a verdict. The entire skill is a calm loop:
+    </p>
+    <ol class="steps">
+      <li><strong>Read the error, slowly, out loud.</strong>
+        Not a glance: an actual read. Rust's messages usually contain the diagnosis
+        and the cure. Half of all beginner despair is skipping this step.</li>
+      <li><strong>Reproduce it.</strong>
+        Can you make it happen on demand? A bug you can trigger reliably is already
+        half caught.</li>
+      <li><strong>Shrink it.</strong>
+        Delete or comment out everything unrelated until the smallest possible code
+        still shows the problem. Nine times out of ten, the act of shrinking reveals
+        the cause by itself.</li>
+      <li><strong>Explain it to the duck. 🦆</strong>
+        Programmers genuinely keep rubber ducks on their desks. Explaining the
+        problem out loud, line by line, to a duck (or cat, or patient friend) forces
+        your brain to check its own assumptions. The bug frequently surrenders
+        mid-sentence.</li>
+    </ol>
+
+    <h2>How to ask for help (the skill nobody teaches) 🙋</h2>
+    <p>
+      Everyone gets stuck. The difference is how you ask. A question that respects
+      the reader's time gets answered in minutes; a vague one sinks. The format the
+      whole industry converged on:
+    </p>
+    <ul class="checklist">
+      <li><strong>Goal</strong>: "I am trying to make X happen."</li>
+      <li><strong>Code</strong>: the smallest snippet that shows the problem (you
+        already shrank it, right?), as text, never a screenshot.</li>
+      <li><strong>Expected vs actual</strong>: "I expected 42, I got a panic," with
+        the full error pasted.</li>
+      <li><strong>What you tried</strong>: two or three things, and what happened.</li>
+    </ul>
+    <p>
+      Write that and something wonderful happens: about half the time you solve it
+      yourself before pressing send. The write-up <em>is</em> the debugging. And when
+      you do send it, to the
+      <a href="https://users.rust-lang.org" target="_blank" rel="noopener">Rust users forum</a>
+      or a Discord, you will get real help, because you handed people a puzzle
+      instead of a fog.
+    </p>
+
+    <h2>Philosophies worth stealing 🏛️</h2>
+    <ul>
+      <li><strong>The Unix philosophy:</strong> build small tools that each do one
+        thing well, then combine them. It is why the terminal commands you learned
+        snap together like LEGO, and it scales up: good functions, good modules, and
+        good programs all follow it.</li>
+      <li><strong>Make it work, make it right, make it fast. In that order.</strong>
+        First a crude version that runs, then clean it up, then (only if needed)
+        optimize. Beginners who aim for perfect-and-fast on draft one ship nothing.
+        Remember the course's standing advice: <code>.clone()</code> guilt-free now,
+        optimize later. That is this philosophy wearing Rust clothes.</li>
+      <li><strong>Perfect is the enemy of shipped.</strong> A finished small project
+        teaches more than an abandoned masterpiece. Finish things. Finishing is a
+        muscle.</li>
+      <li><strong>Strong opinions, loosely held.</strong> Care about your craft,
+        argue for your approach, and change your mind gracefully when shown better.
+        The best engineers you will meet are the easiest to correct.</li>
+    </ul>
+
+    <h2>Escaping tutorial hell 🔥</h2>
+    <p>
+      There is a trap with a name: <strong>tutorial hell</strong>, where you complete
+      course after course, feel productive, and cannot build anything alone. The
+      escape is uncomfortable and simple: <strong>build things slightly beyond your
+      comfort zone, without instructions.</strong> The moment you finish Level 1
+      here, stop and build something tiny that is <em>yours</em>: a tip calculator,
+      a dice roller, an insult generator. It will be harder than the lessons. That
+      difficulty is the actual learning. The lessons exist to make your own building
+      possible, not to replace it.
+    </p>
+
+    <h2>About feeling like a fraud 🎭</h2>
+    <p>
+      At some point soon you will think: "real programmers understand all of this;
+      I am just pattern-matching and looking things up." Two facts. One: every
+      programmer alive looks things up constantly, daily, forever. The senior
+      engineer next to you has fifteen browser tabs of documentation open right now.
+      Two: this feeling has a name (imposter syndrome), almost everyone has it, and
+      its presence usually means you are growing, not failing. The bar for "real
+      programmer" is: you write programs. You already qualify.
+    </p>
+
+    <h2>The community you are joining 🦀</h2>
+    <p>
+      Programming cultures differ. Rust's is famously, deliberately warm: the
+      community adopted a Code of Conduct from day one, the compiler's error
+      messages are studied by other languages as models of kindness, and beginner
+      questions on the forums get patient, thorough answers. "We are all learning"
+      is the house style. Match that energy: be generous with credit, gentle in
+      review, and honest about what you do not know. Six months from now, answer one
+      beginner's question. That is how the culture continues, and teaching, as this
+      whole school proves, is the best way to learn.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Practice the ask</h4>
+      <p>Here is a broken scenario: "My program crashes when I run it with no
+      input." Write a full help request for it using the four-part format (goal,
+      code, expected vs actual, what you tried). Invent plausible details.</p>
+      <details class="solution"><summary>Reveal a model answer</summary>
+        <p>"<strong>Goal:</strong> read a number from the user and double it.
+        <strong>Code:</strong> [six-line snippet].
+        <strong>Expected vs actual:</strong> expected a reprompt on empty input; got
+        a panic: <code>called unwrap() on an Err value</code>.
+        <strong>Tried:</strong> checked the input is not empty (still panics on
+        letters), read the <code>parse</code> docs (saw it returns a Result, unsure
+        how to handle it)." Notice that writing it basically diagnoses it: the
+        unwrap on user input is the culprit, which is exactly what Lesson 11
+        teaches.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>Adopt a duck</h4>
+      <p>Find a rubber duck, plush crab, or any object with a face. Put it next to
+      your keyboard. This is now your debugging partner for the whole course. Give
+      it a name. (Yes, really. It works, and every professional who laughs at this
+      has one.)</p>
+      <details class="solution"><summary>Reveal the science-ish</summary>
+        <p>Explaining code aloud engages different processing than reading it
+        silently: assumptions become sentences, and false sentences are much easier
+        to notice than false assumptions. The duck is a trick for switching brains.
+        Rusty suggests naming it Ferris Jr.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Commit to a project</h4>
+      <p>Write one sentence in your <code>rusty-lab/notes.md</code>: the first tiny
+      project you will build alone after Level 1, and commit it with git. Make it
+      small enough to finish in an evening. You now have a contract with yourself,
+      under version control.</p>
+      <details class="solution"><summary>Reveal good candidates</summary>
+        <p>A tip splitter, a "which crab are you?" quiz, a countdown to a date you
+        care about, a random dinner picker, a password strength checker. Small,
+        personal, finishable. The best first project is the one you will actually
+        finish.</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🎓 Foundations complete!</span>
+      You know what a computer is, you can drive a terminal, you have a time
+      machine, you speak the conventions, and you carry the mindset. Now the real
+      fun: <a href="01-hello-world.html"><strong>Lesson 1: Hello, World! →</strong></a>
+    </div>
+
+    <button class="complete-btn" data-lesson="f5-mindset">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="f4-standards.html"><span class="dir">← Previous</span>Foundations 4: Standards &amp; Conventions</a>
+      <a class="next" href="01-hello-world.html"><span class="dir">Next →</span>Lesson 1: Hello, World!</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

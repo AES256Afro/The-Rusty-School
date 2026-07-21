@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundations 3: Version Control &amp; Git - The Rusty School</title>
+<meta name="description" content="Why every programmer uses version control, how git thinks in snapshots, and your first repository.">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">Home</a>
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Foundations 3 of 5</nav>
+    <span class="badge l0">Level 0 · Foundations</span>
+    <h1>Version Control &amp; Git 🕰️</h1>
+    <p class="lede muted">Every professional project on Earth sits inside version
+    control. It is the industry's shared time machine, safety net, and collaboration
+    tool, and its name is git.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>The problem: "final_v2_REAL_final.rs"</h2>
+    <p>
+      You have lived this: an essay saved as <em>final</em>, then <em>final2</em>,
+      then <em>final-ACTUALLY</em>. Now imagine a project with a thousand files and
+      five people editing simultaneously for years. Chaos, unless the history itself
+      is managed by a tool. That tool category is <strong>version control</strong>,
+      and <strong>git</strong> (created in 2005 by the creator of Linux) won the
+      category so completely that it is effectively the only one you need.
+    </p>
+
+    <h2>How git thinks: snapshots 📸</h2>
+    <p>
+      A folder managed by git is called a <strong>repository</strong> (repo). As you
+      work, you periodically tell git: "this is a moment worth remembering." Git
+      photographs the entire project state. That snapshot is a
+      <strong>commit</strong>, and it records what changed, when, who did it, and a
+      message saying why. The chain of commits is your project's story, and you can:
+    </p>
+    <ul class="checklist">
+      <li>Look at any file as it was at any moment in history.</li>
+      <li>See exactly what changed between two moments, line by line (a <strong>diff</strong>).</li>
+      <li>Undo mistakes by returning to a known-good snapshot.</li>
+      <li>Experiment fearlessly on a <strong>branch</strong> (a parallel timeline), then <strong>merge</strong> it back if the experiment works.</li>
+    </ul>
+    <p>
+      That last one changes how you build. Fear of breaking things is the biggest
+      brake on beginners; git removes the fear. Nothing committed is ever truly lost.
+    </p>
+
+    <h2>Your five commands</h2>
+    <p>Git has a hundred commands. Daily life uses about five:</p>
+<pre class="term"><code>git init                       # start tracking this folder (once per project)
+git status                     # what changed since the last snapshot?
+git add .                      # stage everything changed ("put it on the tray")
+git commit -m "Add scoring"    # snapshot the tray, with a message
+git log --oneline              # show the story so far</code></pre>
+    <p>
+      The two-step rhythm (add, then commit) exists so you can choose exactly what
+      goes into each snapshot. Small, well-named commits read like a diary:
+      "Add player struct", "Fix crash on empty input", "Level 2 complete".
+    </p>
+
+    <h2>GitHub: where repos live together 🌍</h2>
+    <p>
+      Git works entirely on your machine. <strong>GitHub</strong> (and cousins like
+      GitLab) adds a shared home in the cloud: you <strong>push</strong> your
+      commits up, teammates <strong>pull</strong> them down, and strangers can read
+      your open-source code. GitHub is also the world's largest programmer
+      portfolio: when Rustaceans say "check my GitHub," they mean their public work.
+    </p>
+    <p>
+      Collaboration happens through <strong>pull requests</strong> (PRs): "here is a
+      branch with my proposed change, please review it." Teammates comment line by
+      line, request tweaks, and finally merge. Nearly every improvement to Rust
+      itself, to Firefox, and to this very site's dependencies arrived as a PR.
+      This site lives at
+      <a href="https://github.com/AES256Afro/The-Rusty-School" target="_blank" rel="noopener">github.com/AES256Afro/The-Rusty-School</a>,
+      and every push automatically republishes cybercard.net. That workflow (push
+      to deploy) is modern standard practice, and you already own it.
+    </p>
+
+    <div class="callout tip">
+      <span class="co-title">💡 The habit that makes you employable</span>
+      From today: every project you start, even toys, gets <code>git init</code> and
+      small commits with honest messages. In six months you will have a public
+      history proving you build things. Employers genuinely read these.
+    </div>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Words that scare beginners (and should not)</span>
+      <ul style="margin:6px 0 0">
+        <li><strong>merge conflict</strong>: two timelines edited the same line; git
+          asks a human to choose. Annoying, routine, fixable in minutes.</li>
+        <li><strong>clone</strong>: download a full copy of a repo, history included.</li>
+        <li><strong>.gitignore</strong>: a list of files git should not track
+          (build outputs like Rust's <code>target/</code> folder).</li>
+        <li><strong>main</strong>: the default branch name, the official timeline.</li>
+      </ul>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 1</span>
+      <h4>Your first repository</h4>
+      <p>In your <code>rusty-lab</code> folder, create a file called
+      <code>notes.md</code> with one sentence about why you are learning Rust. Then:
+      init, add, commit with a good message, and view the log.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre class="term"><code>cd ~/rusty-lab
+echo "Learning Rust to build fast, safe things." &gt; notes.md
+git init
+git status                          # see notes.md as untracked
+git add .
+git commit -m "Start my Rust journey"
+git log --oneline                   # one commit: your first!</code></pre>
+        <p>(If git asks for your name and email the first time, follow its two
+        suggested <code>git config</code> commands and commit again.)</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 2</span>
+      <h4>The time machine, demonstrated</h4>
+      <p>Edit <code>notes.md</code> (add a second line), commit again, then run
+      <code>git log --oneline</code> and <code>git diff HEAD~1</code> (compare with
+      one commit ago). Read the diff: green lines were added, red removed.</p>
+      <details class="solution"><summary>Reveal what you should see</summary>
+        <p>Two commits in the log, newest on top. The diff shows your second line
+        prefixed with <code>+</code>. You just read history like a professional
+        reviewer reads a pull request.</p>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise 3</span>
+      <h4>Visit the source of this school</h4>
+      <p>Open this site's GitHub repo in your browser. Find: the commit history, the
+      <code>docs/</code> folder holding this exact page, and the commit message that
+      mentions em dashes. History is public, and now you can read it.</p>
+      <details class="solution"><summary>Reveal where to look</summary>
+        <p>On the repo page, the clock-like "commits" link shows history. Browse
+        <code>docs/learn/</code> and you will find <code>f3-git.html</code>, the very
+        file you are reading, itself version-controlled. It is repositories all the
+        way down.</p>
+      </details>
+    </div>
+
+    <button class="complete-btn" data-lesson="f3-git">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="f2-toolbox.html"><span class="dir">← Previous</span>Foundations 2: The Programmer's Toolbox</a>
+      <a class="next" href="f4-standards.html"><span class="dir">Next →</span>Foundations 4: Standards &amp; Conventions</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>🦀 The Rusty School</h4>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h4>School</h4>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Official Rust resources</h4>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
