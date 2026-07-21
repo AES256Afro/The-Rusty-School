@@ -138,7 +138,7 @@ p { margin: 0.8em 0; }
 .main-nav { display: flex; gap: 4px; margin-left: auto; align-items: center; }
 .main-nav a {
   color: var(--text-muted); font-weight: 600; font-size: 0.94rem;
-  padding: 7px 12px; border-radius: 8px;
+  padding: 7px 12px; border-radius: 8px; white-space: nowrap;
 }
 .main-nav a:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
 .main-nav a.active { color: var(--accent-bright); background: color-mix(in srgb, var(--accent) 14%, transparent); }
@@ -154,7 +154,7 @@ p { margin: 0.8em 0; }
   border-radius: 8px; color: var(--text); font-size: 1.2rem;
   width: 38px; height: 36px; cursor: pointer;
 }
-@media (max-width: 780px) {
+@media (max-width: 960px) {
   .nav-burger { display: block; margin-left: auto; }
   .main-nav {
     display: none; position: absolute; top: 62px; left: 0; right: 0;
@@ -365,6 +365,38 @@ pre.compiler code { color: #eec9b0; }
   display: flex; gap: 12px; align-items: center;
   font-size: 0.82rem; color: var(--text-muted); margin-top: 8px;
 }
+
+/* ---------- the Rust Dojo ---------- */
+.belt-badge {
+  display: inline-block; font-size: 0.82rem; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 999px; border: 2px solid transparent;
+  vertical-align: middle;
+}
+.belt-white  { background: #efe9e2; color: #3a2f26; }
+.belt-yellow { background: #ffd75e; color: #4a3500; }
+.belt-orange { background: var(--accent); color: #fff; }
+.belt-green  { background: #5a9e33; color: #fff; }
+.belt-brown  { background: #8a5a34; color: #fff; }
+.belt-black  { background: #111; color: #f4ebe2; border-color: #4a4a4a; }
+.belt-badge.earned { box-shadow: 0 0 0 3px var(--accent-soft); }
+.belt-badge.earned::after { content: " ★"; }
+.belt-count { margin-left: 6px; }
+
+.dojo-card { margin: 14px 0; }
+.dojo-card.solved { border-color: var(--green); }
+.dojo-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.dojo-head h3 { margin: 0; }
+.dojo-type {
+  font-size: 0.74rem; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--accent-soft);
+  background: var(--surface-2); border: 1px solid var(--border);
+  padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+}
+.dojo-task { margin: 8px 0 10px; font-size: 0.96rem; }
+.dojo-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-top: 4px; }
+.dojo-actions .hint { flex: 1 1 100%; margin: 0; }
+.dojo-solved-btn.is-solved { border-color: var(--green); color: var(--green); }
 
 /* ---------- glossary ---------- */
 .gloss-filter {
