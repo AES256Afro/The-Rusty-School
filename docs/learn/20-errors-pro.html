@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 20: Error Handling Like a Pro - The Rusty School</title>
+<meta name="description" content="Design real error types in Rust: Display, the Error trait, From conversions, Box&lt;dyn Error&gt;, and the thiserror and anyhow crates.">
+<link rel="canonical" href="https://rustyschool.com/learn/20-errors-pro">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Lesson 20: Error Handling Like a Pro - The Rusty School">
+<meta property="og:description" content="Design real error types in Rust: Display, the Error trait, From conversions, Box&lt;dyn Error&gt;, and the thiserror and anyhow crates.">
+<meta property="og:url" content="https://rustyschool.com/learn/20-errors-pro">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 20: Error Handling Like a Pro - The Rusty School">
+<meta name="twitter:description" content="Design real error types in Rust: Display, the Error trait, From conversions, Box&lt;dyn Error&gt;, and the thiserror and anyhow crates.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 20 of 23</nav>
+    <span class="badge l4">Level 4 · Deep Cuts</span>
+    <h1>Error Handling Like a Pro 🧰</h1>
+    <p class="lede muted">Lesson 11 taught you <code>Result</code> and <code>?</code>.
+    This lesson teaches what the pros actually ship: error types that explain
+    themselves, convert into each other, and tell the user what to do about it.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Your own error type, by hand 🔨</h2>
+    <p>
+      <code>String</code> errors work, but an <strong>enum</strong> of everything
+      that can go wrong is better: callers can match on it, and the compiler
+      knows every failure mode. Making it a proper citizen takes two traits,
+      <code>Display</code> (how it reads) and <code>Error</code> (the marker
+      every error type shares):
+    </p>
+<pre><code>use std::fmt;
+
+#[derive(Debug)]
+enum ConfigError {
+    Missing(String),
+    NotANumber(String),
+}
+
+impl fmt::Display for ConfigError {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+        match self {
+            ConfigError::Missing(key) =&gt; write!(f, "missing setting '{key}'"),
+            ConfigError::NotANumber(v) =&gt; write!(f, "'{v}' is not a number"),
+        }
+    }
+}
+
+impl std::error::Error for ConfigError {}
+
+fn port_from(line: Option&lt;&amp;str&gt;) -&gt; Result&lt;u16, ConfigError&gt; {
+    let raw = line.ok_or(ConfigError::Missing("port".to_string()))?;
+    raw.parse().map_err(|_| ConfigError::NotANumber(raw.to_string()))
+}
+
+fn main() {
+    println!("{:?}", port_from(Some("7878")));
+    println!("{}", port_from(Some("crab")).unwrap_err());
+    println!("{}", port_from(None).unwrap_err());
+}</code></pre>
+    <p>
+      Notice the error messages name the actual key and the actual bad value.
+      That is the difference between a log line you curse at and one that fixes
+      itself: <strong>an error is a message to a future debugger, probably you.</strong>
+    </p>
+
+    <h2>Mixing error types: Box&lt;dyn Error&gt; 📦</h2>
+    <p>
+      Real functions fail in several unrelated ways: the file read fails with an
+      <code>io::Error</code>, the parse fails with a <code>ParseIntError</code>.
+      A trait object (Lesson 15 knowledge!) accepts them all, and <code>?</code>
+      converts automatically:
+    </p>
+<pre><code>use std::error::Error;
+use std::fs;
+
+fn first_line_number(path: &amp;str) -&gt; Result&lt;i64, Box&lt;dyn Error&gt;&gt; {
+    let text = fs::read_to_string(path)?;                     // io::Error
+    let first = text.lines().next().ok_or("file is empty")?;  // &amp;str
+    let n: i64 = first.trim().parse()?;                       // ParseIntError
+    Ok(n)
+}
+
+fn main() {
+    fs::write("number.txt", "42\n").expect("demo setup failed");
+    match first_line_number("number.txt") {
+        Ok(n) =&gt; println!("got {n}"),
+        Err(e) =&gt; println!("error: {e}"),
+    }
+    match first_line_number("Cargo.toml") {
+        Ok(n) =&gt; println!("got {n}"),
+        Err(e) =&gt; println!("error: {e}"),
+    }
+}</code></pre>
+    <p>
+      Three different error types flow through one <code>?</code> pipeline.
+      The tradeoff: callers can no longer match on exactly what failed. Which
+      brings us to the two crates the whole ecosystem settled on.
+    </p>
+
+    <h2>thiserror: for code others call 📚</h2>
+    <p>
+      That hand-written <code>Display</code> impl was boilerplate, and the
+      <code>thiserror</code> crate (<code>cargo add thiserror</code>) generates
+      it from attributes:
+    </p>
+<pre><code>use thiserror::Error;
+
+#[derive(Debug, Error)]
+enum ConfigError {
+    #[error("missing setting '{0}'")]
+    Missing(String),
+    #[error("'{0}' is not a number")]
+    NotANumber(String),
+    #[error("could not read the config file")]
+    Io(#[from] std::io::Error),
+}
+
+fn main() {
+    println!("{}", ConfigError::Missing("port".into()));
+    println!("{}", ConfigError::NotANumber("crab".into()));
+
+    let io_err: ConfigError = std::io::Error::other("disk on fire").into();
+    println!("{io_err}");
+}</code></pre>
+    <p>
+      Same enum, a tenth of the code. The <code>#[from]</code> attribute is the
+      quiet star: it writes the conversion that lets <code>?</code> turn an
+      <code>io::Error</code> into your <code>ConfigError::Io</code> automatically,
+      while keeping the original error attached as the <em>source</em> underneath.
+    </p>
+
+    <h2>anyhow: for code only you call 🎒</h2>
+    <p>
+      Applications mostly just want errors to bubble up to <code>main</code>
+      wearing a good explanation. <code>anyhow</code>
+      (<code>cargo add anyhow</code>) gives you one flexible error type plus the
+      killer feature, <strong>context</strong>:
+    </p>
+<pre><code>use anyhow::{Context, Result};
+use std::fs;
+
+fn read_port(path: &amp;str) -&gt; Result&lt;u16&gt; {
+    let text = fs::read_to_string(path)
+        .with_context(|| format!("could not read {path}"))?;
+    let port = text
+        .trim()
+        .parse()
+        .context("the port file should contain just a number")?;
+    Ok(port)
+}
+
+fn main() {
+    fs::write("port.txt", "7878").expect("demo setup failed");
+    println!("port: {}", read_port("port.txt").expect("should work"));
+
+    if let Err(e) = read_port("missing.txt") {
+        println!("{e:#}");
+    }
+}</code></pre>
+<pre class="term"><code>port: 7878
+could not read missing.txt: No such file or directory (os error 2)</code></pre>
+    <p>
+      Each <code>context</code> call wraps the error in another layer of story,
+      and <code>{e:#}</code> prints the whole chain. The rule the ecosystem
+      converged on: <strong>libraries use thiserror</strong> (callers need to
+      match), <strong>applications use anyhow</strong> (humans need to read).
+      This site's own Cloudflare Functions follow the application style.
+    </p>
+
+    <h2>So when do you panic? 💥</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Situation</th><th>Reach for</th></tr></thead>
+      <tbody>
+        <tr><td>The user gave bad input</td><td><code>Result</code>, always. Bad input is normal life.</td></tr>
+        <tr><td>A file, network, or database let you down</td><td><code>Result</code>, with context added.</td></tr>
+        <tr><td>A bug: "this can never happen" happened</td><td><code>panic!</code> or <code>unreachable!</code>. Crashing honestly beats corrupting data.</td></tr>
+        <tr><td>Examples, prototypes, tests</td><td><code>unwrap</code>/<code>expect</code> are fine. Ship code prefers <code>expect("why this is safe")</code>.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise</span>
+      <h3>The temperature parser</h3>
+      <p>Write <code>parse_temp(input: &amp;str) -&gt; Result&lt;f64, TempError&gt;</code>
+      that reads <code>"21C"</code> or <code>"70F"</code> and returns degrees
+      Celsius. Design a <code>thiserror</code> enum with three variants: empty
+      input, missing unit, and not-a-number. Every message must include the
+      offending text. Test it on <code>["21C", "70F", "", "hotC", "30"]</code>.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use thiserror::Error;
+
+#[derive(Debug, Error, PartialEq)]
+enum TempError {
+    #[error("empty input")]
+    Empty,
+    #[error("'{0}' needs a unit: end with C or F")]
+    NoUnit(String),
+    #[error("'{0}' is not a number")]
+    BadNumber(String),
+}
+
+fn parse_temp(input: &amp;str) -&gt; Result&lt;f64, TempError&gt; {
+    let s = input.trim();
+    if s.is_empty() {
+        return Err(TempError::Empty);
+    }
+    let (num, unit) = s.split_at(s.len() - 1);
+    match unit {
+        "C" | "c" | "F" | "f" =&gt; {
+            let value: f64 = num
+                .trim()
+                .parse()
+                .map_err(|_| TempError::BadNumber(num.trim().to_string()))?;
+            if matches!(unit, "F" | "f") {
+                Ok((value - 32.0) * 5.0 / 9.0)
+            } else {
+                Ok(value)
+            }
+        }
+        _ =&gt; Err(TempError::NoUnit(s.to_string())),
+    }
+}
+
+fn main() {
+    for input in ["21C", "70F", "", "hotC", "30"] {
+        match parse_temp(input) {
+            Ok(c) =&gt; println!("{input:&gt;5} -&gt; {c:.1}°C"),
+            Err(e) =&gt; println!("{input:&gt;5} -&gt; error: {e}"),
+        }
+    }
+}</code></pre>
+        <p>Look at the output for <code>"hotC"</code> versus <code>"30"</code>:
+        different mistakes get different, specific advice. That is the whole
+        craft. Also sneaky: Lesson 19's <code>matches!</code> and or-patterns
+        doing real work already. 🌡️</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🧠 The takeaway</span>
+      Beginners handle errors to stop the compiler complaining. Pros design
+      errors as part of the interface: enums when callers decide, context when
+      humans read, panics only for impossible states. Your error messages are
+      the user manual nobody skips.
+    </div>
+
+    <button class="complete-btn" data-lesson="20-errors-pro">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="19-patterns.html"><span class="dir">← Previous</span>Lesson 19: Pattern Matching Mastery</a>
+      <a class="next" href="21-async.html"><span class="dir">Next →</span>Lesson 21: Async Rust</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

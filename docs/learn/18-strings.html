@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 18: Strings, For Real This Time - The Rusty School</title>
+<meta name="description" content="String vs &amp;str, UTF-8, why Rust will not let you index a string, and the string methods you will actually use.">
+<link rel="canonical" href="https://rustyschool.com/learn/18-strings">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Lesson 18: Strings, For Real This Time - The Rusty School">
+<meta property="og:description" content="String vs &amp;str, UTF-8, why Rust will not let you index a string, and the string methods you will actually use.">
+<meta property="og:url" content="https://rustyschool.com/learn/18-strings">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 18: Strings, For Real This Time - The Rusty School">
+<meta name="twitter:description" content="String vs &amp;str, UTF-8, why Rust will not let you index a string, and the string methods you will actually use.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 18 of 23</nav>
+    <span class="badge l4">Level 4 · Deep Cuts</span>
+    <h1>Strings, For Real This Time 🧵</h1>
+    <p class="lede muted">Every language makes strings look simple. Rust makes them
+    look exactly as complicated as they really are, which feels rude until the day
+    a user named José shows up and your program does not crash.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>The two strings, one more time 👯</h2>
+    <p>
+      You have been using both since Level 2. Now let's name the difference
+      precisely. <code>&amp;str</code> is a <strong>view</strong> into text that
+      lives somewhere else: fixed size, borrowed, cheap. <code>String</code> is
+      <strong>owned, growable</strong> text on the heap, like a <code>Vec</code>
+      of characters you can push onto:
+    </p>
+<pre><code>fn main() {
+    let s: &amp;str = "hello";                 // borrowed view, fixed size
+    let mut owned: String = s.to_string(); // owned, growable
+    owned.push_str(", world");
+    println!("{owned}");
+}</code></pre>
+    <p>
+      The rule of thumb you will use forever: <strong>take <code>&amp;str</code> as
+      a function parameter, return <code>String</code> when you build new text.</strong>
+      A <code>&amp;String</code> automatically shrinks into a <code>&amp;str</code> when
+      passed, so functions that accept <code>&amp;str</code> accept everything.
+    </p>
+
+    <h2>UTF-8: bytes are not letters 🌍</h2>
+    <p>
+      Here is the part most languages hide. Text is stored as <strong>UTF-8</strong>
+      bytes, and one on-screen character can take 1, 2, 3, or 4 bytes. An
+      <code>e</code> is one byte; an <code>è</code> is two; the crab 🦀 is four:
+    </p>
+<pre><code>fn main() {
+    let word = "crème brûlée 🦀";
+    println!("chars: {}", word.chars().count());
+    println!("bytes: {}", word.len());
+    for c in "héy".chars() {
+        print!("[{c}]");
+    }
+    println!();
+}</code></pre>
+<pre class="term"><code>chars: 14
+bytes: 20</code></pre>
+    <p>
+      Notice <code>.len()</code> counts <em>bytes</em>, not letters. Fourteen visible
+      characters, twenty bytes. Languages that pretend these are the same number
+      work great right up until they meet the real world.
+    </p>
+
+    <h2>Why you cannot index a string 🚫</h2>
+    <p>
+      In many languages <code>word[0]</code> gives you the first letter. Rust
+      refuses to compile it, and now you know why: <code>word[0]</code> would be
+      the first <em>byte</em>, which might be only a third of a letter. Rust will
+      not hand you a third of a letter. You can slice by byte <em>ranges</em>,
+      but only on character boundaries:
+    </p>
+<pre><code>fn main() {
+    let word = "crème";
+    let first = &amp;word[0..1];   // fine: 'c' is exactly 1 byte
+    println!("first: {first}");
+    let accent = &amp;word[2..4];  // fine: 'è' occupies bytes 2 and 3
+    println!("accent: {accent}");
+    // let broken = &amp;word[0..3]; // ❌ panics: byte 3 is the middle of 'è'
+}</code></pre>
+    <p>
+      Uncomment that last line and run it: the panic message even tells you which
+      character you sliced through. When you actually want "the first letter,"
+      say what you mean: <code>word.chars().next()</code> gives an
+      <code>Option&lt;char&gt;</code>, honest as always.
+    </p>
+
+    <div class="callout info">
+      <span class="co-title">🔬 Deeper still: graphemes</span>
+      Even <code>char</code> is not the full story. Some emoji, like family emoji
+      or flags, are several <code>char</code>s glued together into one visible
+      symbol, called a <em>grapheme cluster</em>. When that matters (cursors,
+      text editors), the <code>unicode-segmentation</code> crate handles it.
+      For most programs, <code>chars()</code> is exactly right.
+    </div>
+
+    <h2>The methods you will actually use 🛠️</h2>
+<pre><code>fn main() {
+    let raw = "  42, rust, crab  ";
+    let clean = raw.trim();
+    for part in clean.split(", ") {
+        println!("part: {part}");
+    }
+
+    let n: i32 = "42".parse().expect("not a number");
+    println!("doubled: {}", n * 2);
+
+    println!("{}", "rust is safe".replace("safe", "fast AND safe"));
+    println!("{}", clean.contains("crab"));
+}</code></pre>
+    <p>
+      The greatest hits: <code>trim</code>, <code>split</code> and
+      <code>split_whitespace</code>, <code>parse</code>, <code>replace</code>,
+      <code>contains</code>, <code>starts_with</code>, <code>to_uppercase</code>.
+      Almost all of them return <em>new</em> values and leave the original alone,
+      which by now should feel very Rust.
+    </p>
+
+    <h2>Building strings 🧱</h2>
+<pre><code>fn main() {
+    let words = vec!["fearless", "concurrency"];
+
+    let joined = words.join(" ");
+    println!("{joined}");
+
+    let mut banner = String::new();
+    banner.push_str("🦀 ");
+    banner.push_str(&amp;joined);
+    banner.push('!');
+    println!("{banner}");
+
+    let shouted: String = joined.to_uppercase();
+    println!("{shouted}");
+}</code></pre>
+    <p>
+      <code>push_str</code> appends a string slice, <code>push</code> appends a
+      single <code>char</code>, <code>join</code> glues a list together, and
+      <code>format!</code> (which you have used since Lesson 1) builds a
+      <code>String</code> from anything printable. That is 95% of real string work.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise</span>
+      <h3>The word flipper</h3>
+      <p>Take the sentence <code>"rust makes strings honest"</code> and print it
+      with every word reversed but the word order kept:
+      <code>tsur sekam sgnirts tsenoh</code>. You will want
+      <code>split_whitespace</code>, <code>chars().rev()</code>, and two
+      <code>collect</code>s.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn main() {
+    let sentence = "rust makes strings honest";
+    let reversed: Vec&lt;String&gt; = sentence
+        .split_whitespace()
+        .map(|word| word.chars().rev().collect())
+        .collect();
+    println!("{}", reversed.join(" "));
+}</code></pre>
+        <p>Two collects doing two jobs: the inner one gathers reversed
+        <code>char</code>s into a <code>String</code>, the outer one gathers the
+        words into a <code>Vec</code>. And because you used <code>chars()</code>
+        instead of bytes, it even survives <code>"héllo wörld"</code>. 🎉</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🧠 The takeaway</span>
+      Rust strings feel strict because text <em>is</em> hard, and Rust refuses to
+      pretend otherwise. The payoff: the whole category of "works in the demo,
+      breaks on the first accented name" bugs simply does not exist here.
+    </div>
+
+    <button class="complete-btn" data-lesson="18-strings">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="17-cargo.html"><span class="dir">← Previous</span>Lesson 17: Cargo, Modules &amp; Tests</a>
+      <a class="next" href="19-patterns.html"><span class="dir">Next →</span>Lesson 19: Pattern Matching Mastery</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

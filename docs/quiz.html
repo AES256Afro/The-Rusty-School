@@ -326,6 +326,71 @@ window.RUSTY_QUIZZES = [
         explain: "This is 'fearless concurrency': data races are caught at <em>compile time</em> by the ownership system. If it compiles, it's race-free."
       }
     ]
+  },
+  {
+    id: "level4",
+    title: "Deep Cuts Quiz",
+    level: "Level 4 · Deep Cuts",
+    levelClass: "l4",
+    blurb: "Strings and UTF-8, advanced patterns, error design, async, unsafe, and performance.",
+    questions: [
+      {
+        q: "For <code>let word = \"crème\";</code>, what does <code>word.len()</code> return?",
+        options: ["5, the number of letters", "6, the number of bytes, because 'è' takes two",
+                  "It doesn't compile: strings have no len()", "Always 24, the size of the String struct"],
+        answer: 1,
+        explain: "<code>.len()</code> counts <strong>bytes</strong>, not characters. UTF-8 stores 'è' in two bytes, so five visible letters occupy six bytes. Count letters with <code>word.chars().count()</code>."
+      },
+      {
+        q: "Why won't Rust compile <code>word[0]</code> on a string?",
+        options: ["Strings are immutable", "Byte 0 might be only a fraction of a character, and Rust won't hand you a fraction of a letter",
+                  "Indexing is only for numbers", "It does compile, but it's slow"],
+        answer: 1,
+        explain: "One on-screen character can span up to 4 bytes in UTF-8. <code>word.chars().next()</code> says what you actually mean and returns an honest <code>Option&lt;char&gt;</code>."
+      },
+      {
+        q: "In the pattern <code>Shape::Circle { radius: r @ 1..=3 }</code>, what does the <code>@</code> do?",
+        options: ["Marks the pattern as async", "Tests that radius is 1 to 3 AND binds the actual value to <code>r</code>",
+                  "Matches any radius except 1 to 3", "It's an email address"],
+        answer: 1,
+        explain: "A range pattern alone matches but forgets the value. <code>@</code> lets you test and keep it in one stroke: 'a radius in 1..=3, and call it r'."
+      },
+      {
+        q: "The ecosystem's rule of thumb for error crates is…",
+        options: ["anyhow everywhere", "thiserror everywhere",
+                  "thiserror for libraries (callers match on variants), anyhow for applications (humans read context)", "Neither: always hand-write Display"],
+        answer: 2,
+        explain: "A library's errors are part of its API, so callers need a real enum: <code>thiserror</code>. An application mostly bubbles errors up to a human, so one flexible type with <code>.context()</code> wins: <code>anyhow</code>."
+      },
+      {
+        q: "What does calling an <code>async fn</code> do, by itself?",
+        options: ["Runs it on a background thread", "Runs it immediately",
+                  "Nothing yet: it returns a lazy future that only runs when awaited", "Blocks until it finishes"],
+        answer: 2,
+        explain: "Futures are lazy, exactly like Lesson 14's iterators. No <code>.await</code>, no work. The compiler even warns about an unused future."
+      },
+      {
+        q: "Three downloads take 250ms, 150ms, and 100ms. Roughly how long does <code>tokio::join!</code> on all three take?",
+        options: ["500ms: they still run one at a time", "About 250ms: the longest one, because the waits overlap",
+                  "100ms: the shortest one", "It depends on the number of CPU cores"],
+        answer: 1,
+        explain: "<code>join!</code> drives all three futures concurrently, so total time is the <em>longest</em> wait, not the sum. Waiting overlaps for free; that is async's whole reason to exist."
+      },
+      {
+        q: "Inside an <code>unsafe</code> block, which of these is STILL enforced?",
+        options: ["Nothing: it's C now", "Only the type system",
+                  "Ownership, borrowing, and types: unsafe only adds five specific abilities, like dereferencing raw pointers", "Only memory allocation"],
+        answer: 2,
+        explain: "<code>unsafe</code> is a fence, not a free-for-all. The borrow checker and type system keep working; you just gain five extra powers (raw pointer derefs, unsafe calls, and friends) that YOU now vouch for."
+      },
+      {
+        q: "Your Rust program feels slow. What's the first thing to check?",
+        options: ["Rewrite the hot loop in unsafe", "Add more threads",
+                  "That you're measuring a <code>--release</code> build, then profile before guessing", "Switch to a different language"],
+        answer: 2,
+        explain: "Debug builds can be 1000x slower: this course measured 72ms debug vs 55µs release for the same sum. Flip the flag, then let a profiler tell you where the time actually goes. The hot spot is never where you guessed."
+      }
+    ]
   }
 ];
 </script>

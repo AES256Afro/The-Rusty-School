@@ -58,6 +58,9 @@
 
   <dl class="gloss" id="gloss-list">
 
+    <dt>anyhow</dt>
+    <dd>The go-to crate for error handling in <em>applications</em>: one flexible error type plus <code>.context()</code> to wrap errors in human-readable story. <a href="learn/20-errors-pro.html">Lesson 20</a></dd>
+
     <dt>API</dt>
     <dd>The set of functions or endpoints some code offers for others to call. A library has an API; so does a web service. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
 
@@ -69,6 +72,9 @@
 
     <dt>Array</dt>
     <dd>A fixed-size collection of values of the same type, written <code>[1, 2, 3]</code>. For a growable list, use a <code>Vec</code>. <a href="learn/03-types.html">Lesson 3</a></dd>
+
+    <dt>async / await</dt>
+    <dd><code>async</code> marks a function that can pause while it waits; <code>.await</code> marks where. The machinery behind every Rust web service. <a href="learn/21-async.html">Lesson 21</a></dd>
 
     <dt>Binary (executable)</dt>
     <dd>The compiled, runnable output of your program, as opposed to the source code you wrote. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
@@ -151,8 +157,14 @@
     <dt>f64</dt>
     <dd>The default type for decimal numbers. <a href="learn/03-types.html">Lesson 3</a></dd>
 
+    <dt>FFI</dt>
+    <dd><em>Foreign function interface:</em> calling code written in other languages, usually C, via <code>extern "C"</code> blocks. Every such call is <code>unsafe</code>. <a href="learn/22-unsafe.html">Lesson 22</a></dd>
+
     <dt>Function</dt>
     <dd>A named, reusable block of instructions, declared with <code>fn</code>. <a href="learn/04-functions.html">Lesson 4</a></dd>
+
+    <dt>Future</dt>
+    <dd>The value an <code>async fn</code> returns: a description of work that runs only when <code>.await</code>ed. Lazy, like iterators. <a href="learn/21-async.html">Lesson 21</a></dd>
 
     <dt>Garbage collector</dt>
     <dd>A background process that frees unused memory in some languages. Rust does not need one; ownership handles it. <a href="learn/06-ownership.html">Lesson 6</a></dd>
@@ -165,6 +177,9 @@
 
     <dt>GitHub</dt>
     <dd>A website hosting git repositories, for collaboration and as a public portfolio. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>Grapheme cluster</dt>
+    <dd>One visible symbol that may be several <code>char</code>s glued together, like some emoji. The layer of text above <code>char</code>. <a href="learn/18-strings.html">Lesson 18</a></dd>
 
     <dt>HashMap</dt>
     <dd>A collection mapping keys to values, like a dictionary. <a href="learn/10-collections.html">Lesson 10</a></dd>
@@ -199,6 +214,9 @@
     <dt>match</dt>
     <dd>Rust's pattern-matching decision maker. It must be exhaustive: every possible case covered. <a href="learn/09-enums.html">Lesson 9</a></dd>
 
+    <dt>Match guard</dt>
+    <dd>An extra <code>if</code> bolted onto a match arm: <code>x if x % 2 == 0</code>. The pattern grabs the value, the guard gets a vote. <a href="learn/19-patterns.html">Lesson 19</a></dd>
+
     <dt>Memory safety</dt>
     <dd>Freedom from bugs like use-after-free and buffer overflows. Rust guarantees it at compile time. <a href="learn/06-ownership.html">Lesson 6</a></dd>
 
@@ -223,6 +241,9 @@
     <dt>Option</dt>
     <dd>The enum for a value that may be absent: <code>Some(value)</code> or <code>None</code>. Rust's replacement for null. <a href="learn/09-enums.html">Lesson 9</a></dd>
 
+    <dt>Or-pattern</dt>
+    <dd>Matching any of several patterns in one arm: <code>10 | 20 | 30</code>. <a href="learn/19-patterns.html">Lesson 19</a></dd>
+
     <dt>Ownership</dt>
     <dd>Rust's core idea: every value has one owner, and is freed when that owner goes out of scope. <a href="learn/06-ownership.html">Lesson 6</a></dd>
 
@@ -232,8 +253,14 @@
     <dt>Path</dt>
     <dd>An address for a file or folder, written with slashes. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
 
+    <dt>Profiling</dt>
+    <dd>Measuring where a program actually spends its time instead of guessing. Tools: <code>cargo flamegraph</code>, criterion. <a href="learn/23-performance.html">Lesson 23</a></dd>
+
     <dt>Pull request</dt>
     <dd>A proposed change offered for review before merging. How most open-source contribution happens. <a href="learn/f3-git.html">Foundations 3</a></dd>
+
+    <dt>Raw pointer</dt>
+    <dd><code>*const T</code> / <code>*mut T</code>: an address with no safety promises, like C pointers. Creating one is safe; dereferencing needs <code>unsafe</code>. <a href="learn/22-unsafe.html">Lesson 22</a></dd>
 
     <dt>Rc</dt>
     <dd><em>Reference counted.</em> Allows several owners of one value in a single thread; freed when the last one goes. <a href="learn/15-smart-pointers.html">Lesson 15</a></dd>
@@ -244,6 +271,9 @@
     <dt>RefCell</dt>
     <dd>Moves borrow checking from compile time to runtime, allowing mutation through a shared handle. <a href="learn/15-smart-pointers.html">Lesson 15</a></dd>
 
+    <dt>Release build</dt>
+    <dd><code>cargo build --release</code>: full optimization on. Debug builds can be 1000x slower; never benchmark without this flag. <a href="learn/23-performance.html">Lesson 23</a></dd>
+
     <dt>Repository (repo)</dt>
     <dd>A folder whose history git tracks. <a href="learn/f3-git.html">Foundations 3</a></dd>
 
@@ -251,7 +281,7 @@
     <dd>The enum for an operation that may fail: <code>Ok(value)</code> or <code>Err(error)</code>. <a href="learn/11-errors.html">Lesson 11</a></dd>
 
     <dt>Runtime</dt>
-    <dd>While the program is running, as opposed to compile time. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
+    <dd>While the program is running, as opposed to compile time. In async Rust the word also means the task scheduler, like tokio. <a href="learn/f2-toolbox.html">Foundations 2</a></dd>
 
     <dt>Scope</dt>
     <dd>The region between braces where a variable exists. Values are dropped when their scope ends. <a href="learn/06-ownership.html">Lesson 6</a></dd>
@@ -289,8 +319,14 @@
     <dt>Test</dt>
     <dd>Code that checks your code, marked <code>#[test]</code> and run with <code>cargo test</code>. <a href="learn/17-cargo.html">Lesson 17</a></dd>
 
+    <dt>thiserror</dt>
+    <dd>The go-to crate for error types in <em>libraries</em>: derive <code>Display</code> and conversions from attributes on your error enum. <a href="learn/20-errors-pro.html">Lesson 20</a></dd>
+
     <dt>Thread</dt>
     <dd>An independent stream of execution, letting a program use several CPU cores. <a href="learn/16-concurrency.html">Lesson 16</a></dd>
+
+    <dt>tokio</dt>
+    <dd>The standard async <em>runtime</em>: the scheduler that pauses and resumes thousands of tasks on a handful of threads. <a href="learn/21-async.html">Lesson 21</a></dd>
 
     <dt>Trait</dt>
     <dd>A shared capability that types can implement, like an interface. <a href="learn/12-traits.html">Lesson 12</a></dd>
@@ -304,8 +340,14 @@
     <dt>Type</dt>
     <dd>What kind of thing a value is, determining what you can do with it and how much memory it needs. <a href="learn/03-types.html">Lesson 3</a></dd>
 
+    <dt>unsafe</dt>
+    <dd>A fenced block granting exactly five extra powers (raw pointer derefs, unsafe calls, and friends) that you now vouch for. Ownership and types stay checked. <a href="learn/22-unsafe.html">Lesson 22</a></dd>
+
     <dt>unwrap</dt>
     <dd>Takes the value out of an <code>Option</code> or <code>Result</code>, crashing if there isn't one. Convenient in experiments, risky in real code. <a href="learn/11-errors.html">Lesson 11</a></dd>
+
+    <dt>UTF-8</dt>
+    <dd>How Rust stores text: one character takes 1 to 4 bytes, so byte count and letter count differ, and you cannot index a string. <a href="learn/18-strings.html">Lesson 18</a></dd>
 
     <dt>Variable</dt>
     <dd>A named place holding a value, created with <code>let</code>. <a href="learn/02-variables.html">Lesson 2</a></dd>
@@ -323,7 +365,7 @@
     <dd><em>You Aren't Gonna Need It.</em> Build what today needs, not what tomorrow might. <a href="learn/f4-standards.html">Foundations 4</a></dd>
 
     <dt>Zero-cost abstraction</dt>
-    <dd>High-level code that compiles down to machine code as fast as hand-written low-level code. Generics and iterators are both examples. <a href="learn/12-traits.html">Lesson 12</a></dd>
+    <dd>High-level code that compiles down to machine code as fast as hand-written low-level code. Generics and iterators are both examples, and Lesson 23 verifies the claim with a stopwatch. <a href="learn/12-traits.html">Lesson 12</a> · <a href="learn/23-performance.html">Lesson 23</a></dd>
 
     <dt>? (question mark operator)</dt>
     <dd>Shorthand for error handling: return the error to the caller, or unwrap the success and continue. <a href="learn/11-errors.html">Lesson 11</a></dd>

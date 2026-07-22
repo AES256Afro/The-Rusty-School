@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 19: Pattern Matching Mastery - The Rusty School</title>
+<meta name="description" content="Destructuring, guards, or-patterns, @ bindings, if let, let else, while let, and the matches! macro: Rust's pattern language in full.">
+<link rel="canonical" href="https://rustyschool.com/learn/19-patterns">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Lesson 19: Pattern Matching Mastery - The Rusty School">
+<meta property="og:description" content="Destructuring, guards, or-patterns, @ bindings, if let, let else, while let, and the matches! macro: Rust's pattern language in full.">
+<meta property="og:url" content="https://rustyschool.com/learn/19-patterns">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 19: Pattern Matching Mastery - The Rusty School">
+<meta name="twitter:description" content="Destructuring, guards, or-patterns, @ bindings, if let, let else, while let, and the matches! macro: Rust's pattern language in full.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 19 of 23</nav>
+    <span class="badge l4">Level 4 · Deep Cuts</span>
+    <h1>Pattern Matching Mastery 🎯</h1>
+    <p class="lede muted">You met <code>match</code> in Lesson 9 and have leaned on
+    it ever since. Time to see the whole toolbox: patterns are a small language
+    hiding inside Rust, and fluency in it is what makes code read like prose.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Patterns are everywhere, not just in match 📍</h2>
+    <p>
+      Surprise: every <code>let</code> you have ever written was a pattern.
+      <code>let x = 5</code> matches the value against the pattern <code>x</code>,
+      which happens to always succeed. But patterns can take things apart:
+    </p>
+<pre><code>struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let p = Point { x: 3, y: 7 };
+    let Point { x, y } = p;        // one line, both fields out
+    println!("x={x} y={y}");
+
+    let (name, score) = ("rusty", 98);
+    println!("{name} scored {score}");
+}</code></pre>
+    <p>
+      This is called <strong>destructuring</strong>: the pattern mirrors the shape
+      of the data, and the pieces fall out into variables. Function parameters can
+      do it too: <code>fn show((x, y): (i32, i32))</code> is a pattern in disguise.
+    </p>
+
+    <h2>Ranges, ors, and guards 🎚️</h2>
+<pre><code>fn main() {
+    for n in [0, 3, 7, 30, 42, 99] {
+        let label = match n {
+            0 =&gt; "zero",
+            1..=9 =&gt; "single digit",
+            10 | 20 | 30 =&gt; "a round number we like",
+            x if x % 2 == 0 =&gt; "even",
+            _ =&gt; "odd",
+        };
+        println!("{n}: {label}");
+    }
+}</code></pre>
+    <p>
+      Three new tricks in one match. <code>1..=9</code> matches a whole
+      <strong>range</strong>. <code>10 | 20 | 30</code> is an
+      <strong>or-pattern</strong>: any of these. And <code>x if x % 2 == 0</code>
+      is a <strong>guard</strong>: the pattern grabs the value, then the
+      <code>if</code> gets a vote. Arms are checked top to bottom, first winner
+      takes it, which is why <code>30</code> says "round" and not "even".
+    </p>
+
+    <h2>Naming what you match: the @ binding 🏷️</h2>
+    <p>
+      A range pattern matches but forgets the actual value. The <code>@</code>
+      sign lets you test <em>and</em> keep it, and patterns nest as deep as your
+      data does:
+    </p>
+<pre><code>enum Shape {
+    Circle { radius: u32 },
+    Rect { w: u32, h: u32 },
+}
+
+fn main() {
+    let shapes = [
+        Shape::Circle { radius: 2 },
+        Shape::Circle { radius: 40 },
+        Shape::Rect { w: 5, h: 5 },
+        Shape::Rect { w: 3, h: 8 },
+    ];
+
+    for shape in &amp;shapes {
+        match shape {
+            Shape::Circle { radius: r @ 1..=3 } =&gt; println!("small circle, radius {r}"),
+            Shape::Circle { radius } =&gt; println!("big circle, radius {radius}"),
+            Shape::Rect { w, h } if w == h =&gt; println!("square, {w} by {h}"),
+            Shape::Rect { w, h } =&gt; println!("rectangle, {w} by {h}"),
+        }
+    }
+}</code></pre>
+    <p>
+      Read the first arm out loud: "a Circle whose radius is 1 to 3, and call that
+      radius <code>r</code>." The compiler still checks you covered every shape.
+      That guarantee, <strong>exhaustiveness</strong>, is the quiet superpower:
+      add a <code>Triangle</code> variant next month and every match in the
+      project that forgot about it becomes a compile error, not a 3am bug.
+    </p>
+
+    <h2>The one-pattern family: if let, let else, while let 👨‍👩‍👧</h2>
+    <p>
+      A full <code>match</code> is overkill when you care about one shape.
+      Rust has three shortcuts, and you will meet all of them in real code:
+    </p>
+<pre><code>fn first_word(s: &amp;str) -&gt; Option&lt;&amp;str&gt; {
+    s.split_whitespace().next()
+}
+
+fn main() {
+    let input = "hello world";
+
+    if let Some(word) = first_word(input) {
+        println!("first word: {word}");
+    }
+
+    let Some(word) = first_word(input) else {
+        println!("no words at all!");
+        return;
+    };
+    println!("definitely have: {word}");
+
+    let mut stack = vec![1, 2, 3];
+    while let Some(top) = stack.pop() {
+        println!("popped {top}");
+    }
+}</code></pre>
+    <p>
+      <code>if let</code>: "if it fits this pattern, do this."
+      <code>let else</code>: "it must fit, or we bail out right here," which keeps
+      the happy path unindented. <code>while let</code>: "keep going as long as it
+      fits," the idiomatic way to drain anything. All three are just
+      <code>match</code> wearing comfortable clothes.
+    </p>
+
+    <h2>matches!: a pattern as a yes/no question ✅</h2>
+<pre><code>fn main() {
+    let ch = 'k';
+    println!("lowercase letter? {}", matches!(ch, 'a'..='z'));
+
+    let maybe: Option&lt;i32&gt; = Some(4);
+    if matches!(maybe, Some(n) if n % 2 == 0) {
+        println!("an even number is hiding in there");
+    }
+}</code></pre>
+    <p>
+      <code>matches!</code> turns any pattern, guards included, into a
+      <code>bool</code>. Perfect inside <code>filter</code> calls and
+      <code>if</code> conditions where a full match would be noise.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise</span>
+      <h3>The tiny text adventure</h3>
+      <p>Write <code>fn respond(cmd: &amp;str) -&gt; String</code> that understands
+      <code>"go &lt;direction&gt;"</code> (north/south/east/west only),
+      <code>"take &lt;item&gt;"</code>, and <code>"quit"</code>, with friendly
+      replies for everything else. Use <code>split_once(' ')</code> and one
+      <code>match</code> with or-patterns, an <code>@</code> binding, and a guard.
+      Feed it a few commands from <code>main</code>.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>fn respond(cmd: &amp;str) -&gt; String {
+    match cmd.trim().split_once(' ') {
+        None if cmd.trim() == "quit" =&gt; "bye! 👋".to_string(),
+        None =&gt; format!("just '{}'? I need a verb and a noun", cmd.trim()),
+        Some(("go", dir @ ("north" | "south" | "east" | "west"))) =&gt; {
+            format!("you march {dir}")
+        }
+        Some(("go", other)) =&gt; format!("'{other}' is not a direction"),
+        Some(("take", item)) =&gt; format!("you take the {item}"),
+        Some((verb, _)) =&gt; format!("I do not know how to '{verb}'"),
+    }
+}
+
+fn main() {
+    for cmd in ["go north", "go up", "take lamp", "dance wildly", "quit"] {
+        println!("&gt; {cmd}");
+        println!("{}", respond(cmd));
+    }
+}</code></pre>
+        <p>One match, six behaviors, no nested ifs, and the compiler guarantees
+        no command falls through unanswered. This shape, "parse a little, match a
+        lot," is the backbone of every command-line tool and network protocol
+        parser ever written in Rust. 🗺️</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🧠 The takeaway</span>
+      Reach for the smallest tool that says what you mean: <code>matches!</code>
+      for a yes/no, <code>if let</code> for one case, <code>let else</code> for
+      "must be", <code>while let</code> for draining, full <code>match</code> when
+      every case deserves an answer. Your future reviewers will know exactly what
+      you meant at a glance.
+    </div>
+
+    <button class="complete-btn" data-lesson="19-patterns">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="18-strings.html"><span class="dir">← Previous</span>Lesson 18: Strings, For Real This Time</a>
+      <a class="next" href="20-errors-pro.html"><span class="dir">Next →</span>Lesson 20: Error Handling Like a Pro</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 21: Async Rust - The Rusty School</title>
+<meta name="description" content="async, await, futures, and tokio: how Rust waits for thousands of things at once on a handful of threads.">
+<link rel="canonical" href="https://rustyschool.com/learn/21-async">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Lesson 21: Async Rust - The Rusty School">
+<meta property="og:description" content="async, await, futures, and tokio: how Rust waits for thousands of things at once on a handful of threads.">
+<meta property="og:url" content="https://rustyschool.com/learn/21-async">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 21: Async Rust - The Rusty School">
+<meta name="twitter:description" content="async, await, futures, and tokio: how Rust waits for thousands of things at once on a handful of threads.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 21 of 23</nav>
+    <span class="badge l4">Level 4 · Deep Cuts</span>
+    <h1>Async Rust 🌊</h1>
+    <p class="lede muted">Threads (Lesson 16) are for working on many things at
+    once. Async is for <em>waiting</em> on many things at once, and most of what
+    servers do all day is wait. This is the machinery behind every Rust web
+    service you have heard of.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>The problem: waiting is not working ⏳</h2>
+    <p>
+      Picture a web server handling 10,000 connections. Almost all of them are
+      just... waiting. Waiting for the network, waiting for the database, waiting
+      for a slow phone on hotel wifi. One thread per connection means 10,000
+      mostly-sleeping threads, and threads are not free: each costs memory and
+      scheduling work. Async flips the model: a <em>handful</em> of threads juggle
+      thousands of paused tasks, and a task only occupies a thread while it is
+      actually doing something.
+    </p>
+    <p>
+      The kitchen version: a thread-per-task cook stands motionless in front of
+      each oven until it dings. An async cook puts six dishes in six ovens and
+      does whatever is ready next. Same cook, six times the dinner.
+    </p>
+
+    <h2>async, await, and a runtime 🎬</h2>
+    <p>
+      Two keywords and one new dependency. Marking a function <code>async</code>
+      means "this can pause while it waits"; <code>.await</code> marks the places
+      where it may pause. And because pausing and resuming tasks needs a
+      scheduler, async Rust uses a <strong>runtime</strong>: the standard choice
+      is <a href="https://tokio.rs" target="_blank" rel="noopener">tokio</a>
+      (<code>cargo add tokio --features full</code>):
+    </p>
+<pre><code>use std::time::Duration;
+use tokio::time::sleep;
+
+#[tokio::main]
+async fn main() {
+    println!("brewing coffee...");
+    sleep(Duration::from_millis(300)).await;
+    println!("coffee ready ☕");
+}</code></pre>
+    <p>
+      <code>#[tokio::main]</code> starts the runtime and hands it your
+      <code>async fn main</code>. Note it is tokio's <code>sleep</code>, not
+      <code>std::thread::sleep</code>: the async version releases the thread to
+      do other work while the timer runs. Blocking calls inside async code are
+      the classic beginner bug; inside <code>async fn</code>, reach for the
+      <code>tokio::</code> flavor of things.
+    </p>
+
+    <h2>Futures are lazy 😴</h2>
+    <p>
+      Calling an async function does <em>not run it</em>. It returns a
+      <strong>future</strong>: a value representing work that could happen.
+      Nothing moves until you <code>.await</code> it:
+    </p>
+<pre><code>async fn say_hi() {
+    println!("hi from the future");
+}
+
+#[tokio::main]
+async fn main() {
+    let future = say_hi();                  // nothing printed yet!
+    println!("future created, not started");
+    future.await;                           // NOW it runs
+}</code></pre>
+<pre class="term"><code>future created, not started
+hi from the future</code></pre>
+    <p>
+      This is Lesson 14's lazy iterators all over again: a description of work,
+      run only when consumed. If an async function seems to "do nothing," check
+      whether anything ever awaited it. The compiler even warns you.
+    </p>
+
+    <h2>The payoff: real concurrency 🚀</h2>
+    <p>
+      Awaiting things one after another is still sequential. The magic word is
+      <code>tokio::join!</code>, which drives several futures <em>at the same
+      time</em> and finishes when they all have:
+    </p>
+<pre><code>use std::time::{Duration, Instant};
+use tokio::time::sleep;
+
+async fn cook(dish: &amp;str, ms: u64) {
+    sleep(Duration::from_millis(ms)).await;
+    println!("{dish} done after {ms}ms");
+}
+
+#[tokio::main]
+async fn main() {
+    let start = Instant::now();
+    tokio::join!(
+        cook("eggs", 300),
+        cook("toast", 200),
+        cook("coffee", 100),
+    );
+    println!("breakfast ready in {:?} (not 600ms!)", start.elapsed());
+}</code></pre>
+    <p>
+      Three waits, 600ms of total sleeping, roughly 300ms on the clock: the cost
+      of the <em>longest</em> wait, not the sum. That one line is why async
+      exists. For a task that should run off on its own while you continue,
+      <code>tokio::spawn</code> hands back a handle you can await later:
+    </p>
+<pre><code>#[tokio::main]
+async fn main() {
+    let handle = tokio::spawn(async {
+        let mut total: u64 = 0;
+        for n in 1..=1_000_000 {
+            total += n;
+        }
+        total
+    });
+
+    println!("main keeps going while the task works");
+
+    let sum = handle.await.expect("the task panicked");
+    println!("sum = {sum}");
+}</code></pre>
+
+    <h2>Threads or async? 🤔</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Your workload is mostly...</th><th>Reach for</th><th>Because</th></tr></thead>
+      <tbody>
+        <tr><td>Waiting (network, disk, timers, many connections)</td><td>async + tokio</td><td>thousands of cheap paused tasks per thread</td></tr>
+        <tr><td>Computing (number crunching, image processing)</td><td>threads (Lesson 16)</td><td>CPUs do the work; async adds nothing to pure math</td></tr>
+        <tr><td>A simple CLI or script</td><td>neither</td><td>sequential code is easier to read; concurrency must earn its keep</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      The ecosystem built on this: <code>axum</code> and <code>actix-web</code>
+      for servers, <code>reqwest</code> for HTTP clients, <code>sqlx</code> for
+      databases. All of them are "async all the way down," which is why nearly
+      every Rust job posting mentions tokio. Fun fact for perspective: this
+      site's own little server uses plain threads, and for a tiny site that is
+      the correct choice. Tools, not fashion.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise</span>
+      <h3>The download race</h3>
+      <p>Write <code>async fn download(name: &amp;str, ms: u64) -&gt; String</code>
+      that sleeps for <code>ms</code> milliseconds and returns a label. "Download"
+      <code>a.png</code> (250ms), <code>b.png</code> (150ms), and <code>c.png</code>
+      (100ms) twice: once one-at-a-time with three awaits, once with
+      <code>tokio::join!</code>. Print both elapsed times with
+      <code>Instant</code> and explain the difference to your rubber duck.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use std::time::{Duration, Instant};
+use tokio::time::sleep;
+
+async fn download(name: &amp;str, ms: u64) -&gt; String {
+    sleep(Duration::from_millis(ms)).await;
+    format!("{name} ({ms}ms)")
+}
+
+#[tokio::main]
+async fn main() {
+    let start = Instant::now();
+    download("a.png", 250).await;
+    download("b.png", 150).await;
+    download("c.png", 100).await;
+    println!("one at a time: {:?}", start.elapsed());
+
+    let start = Instant::now();
+    let (a, b, c) = tokio::join!(
+        download("a.png", 250),
+        download("b.png", 150),
+        download("c.png", 100),
+    );
+    println!("got {a}, {b}, {c}");
+    println!("all at once: {:?}", start.elapsed());
+}</code></pre>
+        <p>Roughly 500ms sequential, roughly 250ms concurrent: the longest
+        download alone. Notice <code>join!</code> hands back all three results
+        as a tuple, in the order you wrote them, no matter which finished
+        first. 🏁</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🧠 The takeaway</span>
+      Async is for waiting on many things with few threads. Futures are lazy
+      until awaited, <code>join!</code> overlaps the waits, and blocking inside
+      async code is the cardinal sin. Learn this model once and axum, reqwest,
+      and every Rust service codebase suddenly read like plain Rust.
+    </div>
+
+    <button class="complete-btn" data-lesson="21-async">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="20-errors-pro.html"><span class="dir">← Previous</span>Lesson 20: Error Handling Like a Pro</a>
+      <a class="next" href="22-unsafe.html"><span class="dir">Next →</span>Lesson 22: Unsafe &amp; FFI</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

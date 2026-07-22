@@ -50,14 +50,15 @@ What is different about it:
   five short lessons on what a CPU and memory actually are, how to use a
   terminal, what git is, naming conventions, and the debugging mindset. No code
   at all in that level.
-- **22 lessons** from Hello World through ownership, lifetimes, and threads.
+- **28 lessons** from Hello World through ownership and lifetimes to async,
+  unsafe, and performance.
 - **Run buttons on the examples.** Most code samples execute right in the page
   (it proxies to the official Rust Playground API, so thanks to the Rust infra
   team for that).
 - **A project workshop.** Three projects so far where you get a spec instead of
   a tutorial, plus a hint ladder that goes from a gentle nudge to full code, so
   you choose how much help you take.
-- Quizzes, a 90-term glossary linked back to lessons, and printable cheat sheets.
+- Quizzes, a 100+ term glossary linked back to lessons, and printable cheat sheets.
 
 Free, no ads, no tracking, no account required (sign-in only exists to sync
 progress across devices, and it does not even ask your provider for your email).
@@ -131,13 +132,13 @@ before publishing. Feedback and corrections welcome.
 
 > I built a free Rust course aimed at people who have never programmed:
 > https://rustyschool.com. Level 0 covers computers, terminals, and git before any
-> code, then 22 lessons through to concurrency, plus runnable examples and a
+> code, then 28 lessons through to async and unsafe, plus runnable examples and a
 > project workshop. Would genuinely appreciate corrections.
 
 **LinkedIn:**
 
 > I built The Rusty School, a free course that teaches Rust from absolute zero:
-> no prior programming assumed. 22 lessons, in-browser runnable examples, and a
+> no prior programming assumed. 28 lessons, in-browser runnable examples, and a
 > project workshop where you build real programs from a spec.
 >
 > The part I enjoyed most: the site is served by a web server written in Rust,
@@ -158,8 +159,8 @@ before publishing. Feedback and corrections welcome.
 
 **Description:**
 
-> A free, beginner-first Rust course. 22 lessons from zero programming
-> experience to concurrency, with runnable examples, quizzes, and a project
+> A free, beginner-first Rust course. 28 lessons from zero programming
+> experience to async and unsafe, with runnable examples, quizzes, and a project
 > workshop. Served by a dependency-free Rust web server.
 
 **Website:** https://rustyschool.com

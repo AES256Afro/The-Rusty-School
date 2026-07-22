@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 22: Unsafe &amp; FFI - The Rusty School</title>
+<meta name="description" content="What unsafe actually permits, raw pointers, calling C from Rust, and how safe wrappers contain the blast radius.">
+<link rel="canonical" href="https://rustyschool.com/learn/22-unsafe">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Lesson 22: Unsafe &amp; FFI - The Rusty School">
+<meta property="og:description" content="What unsafe actually permits, raw pointers, calling C from Rust, and how safe wrappers contain the blast radius.">
+<meta property="og:url" content="https://rustyschool.com/learn/22-unsafe">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 22: Unsafe &amp; FFI - The Rusty School">
+<meta name="twitter:description" content="What unsafe actually permits, raw pointers, calling C from Rust, and how safe wrappers contain the blast radius.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 22 of 23</nav>
+    <span class="badge l4">Level 4 · Deep Cuts</span>
+    <h1>Unsafe &amp; FFI 🧨</h1>
+    <p class="lede muted">The keyword with the scariest reputation in Rust, and
+    the most misunderstood. <code>unsafe</code> is not a cheat code that turns
+    Rust into C. It is a contract, and it is how Rust talks to the entire
+    outside world.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>What unsafe actually means 📜</h2>
+    <p>
+      Some true things cannot be proven by the borrow checker. The classic
+      example: taking two mutable references into different halves of one array
+      is perfectly fine, but the checker cannot always see that they never
+      overlap. <code>unsafe</code> is you telling the compiler:
+      <em>"I have checked the part you cannot. Hold me to everything else."</em>
+    </p>
+    <p>Inside an <code>unsafe</code> block you gain exactly <strong>five</strong>
+    extra abilities, and not one more:</p>
+    <ul class="checklist">
+      <li>Dereference a raw pointer</li>
+      <li>Call an <code>unsafe</code> function (including foreign C functions)</li>
+      <li>Implement an <code>unsafe</code> trait</li>
+      <li>Access or modify a mutable <code>static</code> variable</li>
+      <li>Access the fields of a <code>union</code></li>
+    </ul>
+    <p>
+      Everything else still applies. Ownership: still checked. Borrows: still
+      checked. Types: still checked. <code>unsafe</code> does not turn off Rust;
+      it turns off one very specific safety net, inside a clearly fenced area
+      you can grep for.
+    </p>
+
+    <h2>Raw pointers 📌</h2>
+    <p>
+      References (<code>&amp;T</code>, <code>&amp;mut T</code>) are pointers with
+      seatbelts: always valid, always aligned, aliasing rules enforced. Raw
+      pointers (<code>*const T</code>, <code>*mut T</code>) are the pointers C
+      has: just an address, no promises. <em>Making</em> one is safe;
+      <em>reading through it</em> is where the contract begins:
+    </p>
+<pre><code>fn main() {
+    let x = 42;
+    let p = &amp;raw const x;      // creating a raw pointer is safe
+    unsafe {
+        // reading through it is not: that needs the keyword
+        println!("x through a raw pointer: {}", *p);
+    }
+}</code></pre>
+    <p>
+      Why the split? Because pointer arithmetic and address juggling are fine to
+      <em>compute</em>. Only the dereference can explode, so only the dereference
+      needs the fence around it.
+    </p>
+
+    <h2>The safety comment: unsafe culture 📝</h2>
+    <p>
+      An <code>unsafe fn</code> says "calling me has conditions." The conditions
+      go in a <code># Safety</code> doc section, and every call site writes a
+      <code>// SAFETY:</code> comment proving it meets them. This convention is
+      near-universal in serious Rust code, and clippy can enforce it:
+    </p>
+<pre><code>/// # Safety
+/// `i` must be less than `slice.len()`.
+unsafe fn peek(slice: &amp;[i32], i: usize) -&gt; i32 {
+    unsafe { *slice.get_unchecked(i) }
+}
+
+fn main() {
+    let nums = [10, 20, 30];
+    // SAFETY: 1 &lt; nums.len(), which is 3
+    let n = unsafe { peek(&amp;nums, 1) };
+    println!("{n}");
+}</code></pre>
+
+    <h2>Safe abstractions: the real pattern 🧯</h2>
+    <p>
+      Here is the move that makes Rust work: wrap the unsafe part in a function
+      whose <em>interface</em> makes misuse impossible, and nobody upstream ever
+      touches the keyword. You have been using such wrappers all along:
+    </p>
+<pre><code>fn main() {
+    let mut v = [1, 2, 3, 4, 5, 6];
+    let (left, right) = v.split_at_mut(3);  // two &amp;mut into one array!
+    left[0] = 100;
+    right[0] = 400;
+    println!("{v:?}");
+}</code></pre>
+    <p>
+      <code>split_at_mut</code> contains <code>unsafe</code> internally (the
+      borrow checker cannot prove the halves are disjoint, but the bounds check
+      can), yet the function itself is safe to call: there is no input that makes
+      it misbehave. <code>Vec</code>, <code>String</code>, <code>Mutex</code>,
+      every collection you have used is unsafe machinery behind a safe interface.
+      <strong>The standard library is proof that the pattern scales.</strong>
+    </p>
+
+    <h2>FFI: calling C 🌉</h2>
+    <p>
+      FFI, the <em>foreign function interface</em>, is how Rust calls code
+      written in other languages. Declare the foreign function's signature in an
+      <code>extern "C"</code> block, and Rust can call straight into any C
+      library on the system. All foreign calls are unsafe by definition: the C
+      compiler made no Rust promises:
+    </p>
+<pre><code>unsafe extern "C" {
+    fn abs(input: i32) -&gt; i32;
+}
+
+fn main() {
+    // SAFETY: C's abs reads one integer and returns one integer
+    let n = unsafe { abs(-3) };
+    println!("|-3| = {n}");
+}</code></pre>
+    <p>
+      That is a real call into the C standard library, no crate needed. This
+      door swings both ways (<code>extern "C" fn</code> plus
+      <code>#[unsafe(no_mangle)]</code> exports Rust <em>to</em> C), and it is
+      exactly how Rust is creeping into the Linux kernel, Firefox, and decades-old
+      codebases: one wrapped C library at a time, safe interfaces spreading
+      outward.
+    </p>
+
+    <div class="callout info">
+      <span class="co-title">🔬 Trust, but verify</span>
+      The <code>miri</code> tool (<code>rustup component add miri</code>, then
+      <code>cargo miri run</code>) interprets your program and catches undefined
+      behavior in unsafe code at runtime: use-after-free, out-of-bounds reads,
+      the works. If you write unsafe code, miri is your conscience.
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise</span>
+      <h3>Wrap C's sharp edge</h3>
+      <p>C's <code>abs</code> has a genuine trap: calling it on
+      <code>INT_MIN</code> (Rust's <code>i32::MIN</code>) is undefined behavior,
+      because <code>-i32::MIN</code> does not fit in an <code>i32</code>. Write a
+      <em>safe</em> wrapper <code>fn safe_abs(n: i32) -&gt; Option&lt;i32&gt;</code>
+      that refuses the poison value and proves its call with a
+      <code>// SAFETY:</code> comment. Test both cases.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>unsafe extern "C" {
+    fn abs(input: i32) -&gt; i32;
+}
+
+/// C's abs is undefined behavior on INT_MIN, so the safe wrapper refuses it.
+fn safe_abs(n: i32) -&gt; Option&lt;i32&gt; {
+    if n == i32::MIN {
+        return None;
+    }
+    // SAFETY: abs is well-defined for every value except i32::MIN,
+    // which we just excluded
+    Some(unsafe { abs(n) })
+}
+
+fn main() {
+    println!("{:?}", safe_abs(-7));
+    println!("{:?}", safe_abs(i32::MIN));
+}</code></pre>
+        <p>This tiny function is the whole philosophy in miniature: a dangerous
+        thing, a guard that makes the danger unreachable, and a safe signature
+        so callers cannot get it wrong. Congratulations, you just built your
+        first safe abstraction over C. 🧱 (In real code you would just call
+        Rust's built-in <code>n.checked_abs()</code>, which returns exactly this
+        <code>Option</code>.)</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🧠 The takeaway</span>
+      <code>unsafe</code> is a fence, not a free-for-all: five extra powers,
+      grep-able boundaries, safety comments as receipts, and safe wrappers so
+      the danger never leaks upstream. Most Rustaceans ship for years without
+      writing any. Now, when you finally need it, you know the rules of the
+      contract.
+    </div>
+
+    <button class="complete-btn" data-lesson="22-unsafe">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="21-async.html"><span class="dir">← Previous</span>Lesson 21: Async Rust</a>
+      <a class="next" href="23-performance.html"><span class="dir">Next →</span>Lesson 23: Performance &amp; Profiling</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

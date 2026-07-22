@@ -44,7 +44,7 @@
 
 <main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
-    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 17 of 17 · Final lesson! 🎓</nav>
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 17 of 23 · Core path complete! 🎓</nav>
     <span class="badge l3">Level 3 · Power Tools</span>
     <h1>Cargo, Modules &amp; Tests 🚢</h1>
     <p class="lede muted">You can write real Rust. The last skill is <em>shipping</em>
@@ -120,12 +120,15 @@ test result: ok. 2 passed; 0 failed</code></pre>
       here's the beloved <code>rand</code>:
     </p>
 <pre class="term"><code>cargo add rand</code></pre>
-<pre><code>use rand::Rng;   // trait import, Lesson 12 knowledge!
+<pre><code>use rand::prelude::*;   // trait imports, Lesson 12 knowledge!
 
 fn main() {
-    let roll = rand::thread_rng().gen_range(1..=6);
+    let roll = rand::rng().random_range(1..=6);
     println!("🎲 you rolled {roll}");
 }</code></pre>
+    <p class="muted small">Older tutorials write <code>rand::thread_rng()</code> and
+    <code>.gen_range()</code>; those names were renamed in 2025. When a tutorial
+    and the compiler disagree, trust <a href="https://docs.rs" target="_blank" rel="noopener">docs.rs</a>.</p>
     <p>Names worth knowing for later: <code>serde</code> (JSON),
     <code>clap</code> (command-line interfaces), <code>tokio</code> (async),
     <code>axum</code> (web servers), <code>bevy</code> (games).</p>
@@ -220,16 +223,18 @@ mod tests {
 
     <div class="callout tip">
       <span class="co-title">🎉 You did it!</span>
-      All 17 lessons. Take the <a href="../quiz.html">Power Tools quiz</a> to make it
-      official, then go build something. Welcome to the Rustacean life.
-      Rusty is proud of you. 🦀🧡
+      The full core path, all 17 lessons. Take the <a href="../quiz.html">Power Tools
+      quiz</a> to make it official, then go build something. And when you are
+      hungry for more, <strong>Level 4: Deep Cuts</strong> is waiting: strings for
+      real, pattern mastery, professional error handling, async, unsafe, and
+      performance. Welcome to the Rustacean life. Rusty is proud of you. 🦀🧡
     </div>
 
     <button class="complete-btn" data-lesson="17-cargo">Mark lesson complete</button>
 
     <div class="lesson-nav">
       <a href="16-concurrency.html"><span class="dir">← Previous</span>Lesson 16: Fearless Concurrency</a>
-      <a class="next" href="index.html"><span class="dir">Finish →</span>Back to the curriculum</a>
+      <a class="next" href="18-strings.html"><span class="dir">Next →</span>Lesson 18: Strings, For Real This Time</a>
     </div>
   </div>
 </main>

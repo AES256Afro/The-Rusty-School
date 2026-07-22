@@ -244,6 +244,7 @@ a.chip:hover { border-color: var(--accent); text-decoration: none; transform: tr
 .badge.l1 { background: rgba(143, 206, 95, 0.16); color: var(--green); }
 .badge.l2 { background: rgba(255, 180, 84, 0.16); color: var(--accent-soft); }
 .badge.l3 { background: rgba(111, 183, 255, 0.16); color: var(--blue); }
+.badge.l4 { background: rgba(255, 107, 107, 0.16); color: var(--red); }
 
 /* ---------- code ---------- */
 code {
