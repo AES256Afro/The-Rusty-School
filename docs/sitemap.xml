@@ -31,6 +31,36 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://rustyschool.com/build/04-flashcards</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/build/05-adventure</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/build/06-word-counter</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/build/07-markdown</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/build/08-rustle</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/build/09-server</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://rustyschool.com/cheatsheets</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>

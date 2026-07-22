@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 7: Markdown Converter - The Rusty School</title>
+<meta name="description" content="Build a Markdown-to-HTML converter in Rust: string slicing, a line-based state machine, HTML escaping, and honest edge cases.">
+<link rel="canonical" href="https://rustyschool.com/build/07-markdown">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Project 7: Markdown Converter - The Rusty School">
+<meta property="og:description" content="Build a Markdown-to-HTML converter in Rust: string slicing, a line-based state machine, HTML escaping, and honest edge cases.">
+<meta property="og:url" content="https://rustyschool.com/build/07-markdown">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 7: Markdown Converter - The Rusty School">
+<meta name="twitter:description" content="Build a Markdown-to-HTML converter in Rust: string slicing, a line-based state machine, HTML escaping, and honest edge cases.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 7 of 9</nav>
+    <span class="badge build">Project · after Level 4</span>
+    <h1>Markdown Converter 📝</h1>
+    <p class="lede muted">
+      Turn <code>README.md</code> into a web page with a program you wrote.
+      This is a real parser with real edge cases, and it is Lesson 18's string
+      mastery earning its keep. Every static site generator started life as
+      exactly this project.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p><code>cargo run -- notes.md</code> writes <code>notes.html</code>, converting:</p>
+      <div class="table-wrap">
+      <table>
+        <thead><tr><th>Markdown</th><th>HTML</th></tr></thead>
+        <tbody>
+          <tr><td><code># / ## / ### Title</code></td><td><code>&lt;h1&gt;</code> / <code>&lt;h2&gt;</code> / <code>&lt;h3&gt;</code></td></tr>
+          <tr><td><code>**bold**</code></td><td><code>&lt;strong&gt;bold&lt;/strong&gt;</code></td></tr>
+          <tr><td><code>*italic*</code></td><td><code>&lt;em&gt;italic&lt;/em&gt;</code></td></tr>
+          <tr><td><code>`code`</code></td><td><code>&lt;code&gt;code&lt;/code&gt;</code></td></tr>
+          <tr><td><code>- item</code> lines</td><td>a <code>&lt;ul&gt;</code> of <code>&lt;li&gt;</code>s</td></tr>
+          <tr><td>any other text</td><td><code>&lt;p&gt;...&lt;/p&gt;</code></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>Requirements:</p>
+      <ul>
+        <li><code>&amp;</code>, <code>&lt;</code>, and <code>&gt;</code> in the source are
+          <strong>escaped</strong> so they display as text instead of becoming HTML.</li>
+        <li>Consecutive <code>- </code> lines share one list; the <code>&lt;ul&gt;</code>
+          closes when the bullets stop.</li>
+        <li>An unpaired marker (<code>2 ** 3</code> with no closing) is left
+          alone, not mangled.</li>
+        <li>The conversion functions have <strong>at least four unit tests</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🧪 Playground-friendly</span>
+      All the interesting logic is string-to-string, so build and test
+      <code>convert()</code> in the <a href="../playground.html">Playground</a>
+      first. Only the final file in, file out step needs a real project.
+    </div>
+
+    <h2>The design: two layers</h2>
+    <p>
+      Markdown has <strong>block</strong> structure (headings, lists, paragraphs:
+      decided line by line) and <strong>inline</strong> structure (bold, italic,
+      code: decided inside a line). Split the problem exactly there:
+      <code>convert()</code> walks lines and decides blocks;
+      <code>convert_inline()</code> handles emphasis within a line. Two small
+      problems instead of one hairy one.
+    </p>
+    <p>Two std tools carry the block layer:</p>
+<pre><code>if let Some(text) = trimmed.strip_prefix("## ") {
+    // it's an h2, and `text` is everything after the marker
+}</code></pre>
+    <p>
+      And <code>find</code>, which returns <code>Option&lt;usize&gt;</code>, the
+      byte position of a substring, powering the inline layer.
+    </p>
+
+    <div class="callout warn">
+      <span class="co-title">⚠️ Escape first, always</span>
+      Escape <code>&amp;</code> before <code>&lt;</code> and <code>&gt;</code>, and escape
+      <em>before</em> inserting your own tags, or you will escape the tags you just
+      added. Ordering bugs like this are the daily bread of text processing;
+      meet yours in a toy project.
+    </div>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: The block loop skeleton</summary>
+        <div class="hint-body">
+<pre><code>fn convert(markdown: &amp;str) -&gt; String {
+    let mut html = String::new();
+    let mut in_list = false;
+
+    for line in markdown.lines() {
+        let trimmed = line.trim();
+        // 1. if in_list and this line is not a bullet: close the ul
+        // 2. try ### , then ## , then #  (order matters!)
+        // 3. try "- "  (open the ul if not already in one)
+        // 4. blank line: skip
+        // 5. otherwise: a paragraph
+    }
+    // don't forget: close the ul if the file ends mid-list
+    html
+}</code></pre>
+          <p>Why try <code>###</code> before <code>#</code>? Because
+          <code>strip_prefix("# ")</code> would happily match a <code>###</code>
+          line's first character and turn your h3 into an h1 with two stray
+          hashes. Most-specific first.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: The escape function</summary>
+        <div class="hint-body">
+<pre><code>fn escape_html(text: &amp;str) -&gt; String {
+    text.replace('&amp;', "&amp;amp;").replace('&lt;', "&amp;lt;").replace('&gt;', "&amp;gt;")
+}</code></pre>
+          <p>The <code>&amp;</code> replacement must come first. If <code>&lt;</code>
+          went first, the <code>&amp;lt;</code> it produces would then get its
+          <code>&amp;</code> escaped into <code>&amp;amp;lt;</code>. Try it on paper;
+          this is the project's first ordering trap and it is a classic.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: Converting **pairs** into tags</summary>
+        <div class="hint-body">
+          <p>One function handles bold, italic, and code, because they are all
+          "find a pair of markers, wrap what's between":</p>
+<pre><code>fn convert_pairs(text: &amp;str, marker: &amp;str, open: &amp;str, close: &amp;str) -&gt; String {
+    let mut result = String::new();
+    let mut rest = text;
+    loop {
+        let Some(start) = rest.find(marker) else { break };
+        let after_open = &amp;rest[start + marker.len()..];
+        let Some(len) = after_open.find(marker) else { break };
+
+        // adjacent markers with nothing between them are not emphasis
+        if len == 0 {
+            result.push_str(&amp;rest[..start + marker.len()]);
+            rest = after_open;
+            continue;
+        }
+
+        result.push_str(&amp;rest[..start]);
+        result.push_str(open);
+        result.push_str(&amp;after_open[..len]);
+        result.push_str(close);
+        rest = &amp;after_open[len + marker.len()..];
+    }
+    result.push_str(rest);
+    result
+}</code></pre>
+          <p>Then <code>convert_inline</code> is three calls: <code>**</code> first,
+          then <code>*</code>, then <code>`</code>. Bold before italic, or the single
+          stars inside <code>**</code> get claimed first. Ordering trap number two.</p>
+          <p>That <code>len == 0</code> branch? Our first draft did not have it, and
+          the test caught <code>2 ** 3</code> becoming an empty
+          <code>&lt;em&gt;&lt;/em&gt;</code>: the italic pass was eating the leftover
+          double star. Tests exist for exactly this.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: The full reference solution</summary>
+        <div class="hint-body">
+<pre><code>use std::env;
+use std::fs;
+use std::process;
+
+/// Replace pairs of `marker` with an opening and closing tag, in turn.
+fn convert_pairs(text: &amp;str, marker: &amp;str, open: &amp;str, close: &amp;str) -&gt; String {
+    let mut result = String::new();
+    let mut rest = text;
+    loop {
+        let Some(start) = rest.find(marker) else { break };
+        let after_open = &amp;rest[start + marker.len()..];
+        let Some(len) = after_open.find(marker) else { break };
+
+        if len == 0 {
+            result.push_str(&amp;rest[..start + marker.len()]);
+            rest = after_open;
+            continue;
+        }
+
+        result.push_str(&amp;rest[..start]);
+        result.push_str(open);
+        result.push_str(&amp;after_open[..len]);
+        result.push_str(close);
+        rest = &amp;after_open[len + marker.len()..];
+    }
+    result.push_str(rest);
+    result
+}
+
+fn escape_html(text: &amp;str) -&gt; String {
+    text.replace('&amp;', "&amp;amp;").replace('&lt;', "&amp;lt;").replace('&gt;', "&amp;gt;")
+}
+
+fn convert_inline(text: &amp;str) -&gt; String {
+    let mut out = escape_html(text);
+    out = convert_pairs(&amp;out, "**", "&lt;strong&gt;", "&lt;/strong&gt;");
+    out = convert_pairs(&amp;out, "*", "&lt;em&gt;", "&lt;/em&gt;");
+    out = convert_pairs(&amp;out, "`", "&lt;code&gt;", "&lt;/code&gt;");
+    out
+}
+
+fn convert(markdown: &amp;str) -&gt; String {
+    let mut html = String::new();
+    let mut in_list = false;
+
+    for line in markdown.lines() {
+        let trimmed = line.trim();
+
+        if in_list &amp;&amp; !trimmed.starts_with("- ") {
+            html.push_str("&lt;/ul&gt;\n");
+            in_list = false;
+        }
+
+        if let Some(text) = trimmed.strip_prefix("### ") {
+            html.push_str(&amp;format!("&lt;h3&gt;{}&lt;/h3&gt;\n", convert_inline(text)));
+        } else if let Some(text) = trimmed.strip_prefix("## ") {
+            html.push_str(&amp;format!("&lt;h2&gt;{}&lt;/h2&gt;\n", convert_inline(text)));
+        } else if let Some(text) = trimmed.strip_prefix("# ") {
+            html.push_str(&amp;format!("&lt;h1&gt;{}&lt;/h1&gt;\n", convert_inline(text)));
+        } else if let Some(text) = trimmed.strip_prefix("- ") {
+            if !in_list {
+                html.push_str("&lt;ul&gt;\n");
+                in_list = true;
+            }
+            html.push_str(&amp;format!("  &lt;li&gt;{}&lt;/li&gt;\n", convert_inline(text)));
+        } else if trimmed.is_empty() {
+            // blank line: paragraph break, nothing to emit
+        } else {
+            html.push_str(&amp;format!("&lt;p&gt;{}&lt;/p&gt;\n", convert_inline(trimmed)));
+        }
+    }
+    if in_list {
+        html.push_str("&lt;/ul&gt;\n");
+    }
+    html
+}
+
+fn main() {
+    let args: Vec&lt;String&gt; = env::args().collect();
+    let Some(path) = args.get(1) else {
+        eprintln!("usage: mdconvert &lt;file.md&gt;");
+        process::exit(1);
+    };
+
+    let markdown = match fs::read_to_string(path) {
+        Ok(m) =&gt; m,
+        Err(e) =&gt; {
+            eprintln!("could not read {path}: {e}");
+            process::exit(1);
+        }
+    };
+
+    let html = convert(&amp;markdown);
+    let out_path = path.replace(".md", ".html");
+    fs::write(&amp;out_path, &amp;html).expect("could not write output");
+    println!("wrote {out_path} ({} bytes)", html.len());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn headings_convert() {
+        assert_eq!(convert("# Title"), "&lt;h1&gt;Title&lt;/h1&gt;\n");
+        assert_eq!(convert("## Sub"), "&lt;h2&gt;Sub&lt;/h2&gt;\n");
+    }
+
+    #[test]
+    fn bold_italic_code() {
+        assert_eq!(convert_inline("a **b** c"), "a &lt;strong&gt;b&lt;/strong&gt; c");
+        assert_eq!(convert_inline("a *b* c"), "a &lt;em&gt;b&lt;/em&gt; c");
+        assert_eq!(convert_inline("run `cargo`"), "run &lt;code&gt;cargo&lt;/code&gt;");
+    }
+
+    #[test]
+    fn html_is_escaped() {
+        assert_eq!(convert_inline("1 &lt; 2 &amp; 3"), "1 &amp;lt; 2 &amp;amp; 3");
+    }
+
+    #[test]
+    fn lists_open_and_close() {
+        let html = convert("- one\n- two\n\ndone");
+        assert_eq!(html, "&lt;ul&gt;\n  &lt;li&gt;one&lt;/li&gt;\n  &lt;li&gt;two&lt;/li&gt;\n&lt;/ul&gt;\n&lt;p&gt;done&lt;/p&gt;\n");
+    }
+
+    #[test]
+    fn unclosed_marker_left_alone() {
+        assert_eq!(convert_inline("2 ** 3"), "2 ** 3");
+    }
+}</code></pre>
+          <p>Convert your own project's README, open the result in a browser, and
+          enjoy the fact that a program you wrote just published a document.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h3>Make it yours</h3>
+      <ul>
+        <li><strong>Links.</strong> <code>[text](url)</code> into
+          <code>&lt;a href="url"&gt;text&lt;/a&gt;</code>: two <code>find</code>s and some
+          slicing.</li>
+        <li><strong>Code blocks.</strong> Toggle a "raw mode" on ``` lines: inside
+          it, escape but do not convert, and wrap in
+          <code>&lt;pre&gt;&lt;code&gt;</code>.</li>
+        <li><strong>A full page.</strong> Wrap the output in a proper HTML skeleton
+          with a <code>&lt;style&gt;</code> block, and your converter becomes a
+          one-file static site generator.</li>
+        <li><strong>Numbered lists.</strong> <code>1. </code> lines into
+          <code>&lt;ol&gt;</code>: your <code>in_list</code> flag needs to grow up into
+          an enum (None, Bullets, Numbers). Feel how state machines evolve.</li>
+        <li><strong>Watch mode.</strong> Loop forever, re-converting whenever the
+          file's <code>fs::metadata</code> modified time changes.</li>
+      </ul>
+    </div>
+
+    <button class="complete-btn" data-lesson="build-07-markdown">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="06-word-counter.html"><span class="dir">← Previous</span>Project 6: Word Counter Pro</a>
+      <a class="next" href="08-rustle.html"><span class="dir">Next →</span>Project 8: rustle, a mini grep</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

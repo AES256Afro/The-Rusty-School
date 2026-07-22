@@ -46,17 +46,19 @@ Small additions that multiply the value of what already exists.
 The cure for tutorial hell: a second track where every module builds a complete,
 ownable program, applying the curriculum with progressively less hand-holding.
 
-1. **Number Guessing Game** (Level 1 skills): input, loops, match
-2. **Tip Splitter CLI** (functions, floats, args): the Lesson 17 capstone, expanded
-3. **Todo List** (structs, Vec, files): first persistent data
-4. **Flashcard Quizzer** (HashMap, Result): reads its own card files; students
-   make decks for other subjects they study
-5. **Text Adventure** (enums, ownership): rooms, items, and a tiny game loop
-6. **Word Counter Pro** (iterators, closures): real text analytics with sorting
-7. **Multi-threaded Password Cracker Demo** (concurrency): educational brute-force
-   of a toy hash, showing cores scale
-8. **Build Your Own Web Server** (capstone): recreate this site's own
-   `src/main.rs` from scratch, then extend it (logging, caching, a JSON endpoint)
+1. **Number Guessing Game** (Level 1 skills): input, loops, match ✅ shipped
+2. **Tip Splitter CLI** (functions, floats, args) ✅ shipped
+3. **Todo List** (structs, Vec, files): first persistent data ✅ shipped
+4. **Flashcard Quizzer** (structs, files, retry rounds) ✅ shipped
+5. **Text Adventure** (enums, HashMap, pattern matching) ✅ shipped
+6. **Word Counter Pro** (iterators, HashMap, sorting, tests) ✅ shipped
+7. **Markdown Converter** (string mastery, a real parser) ✅ shipped
+8. **rustle, a mini grep** (lifetimes for real, flags, stderr) ✅ shipped
+9. **Build Your Own Web Server** (capstone): recreate this site's own
+   `src/main.rs` from a spec ✅ shipped. Still open: the extension ideas
+   (logging, thread pool, a JSON endpoint) live on as stretch goals, and the
+   **Multi-threaded Password Cracker Demo** (concurrency: educational
+   brute-force of a toy hash, showing cores scale) is queued for a future batch.
 
 Each project ships with: a spec ("build this"), staged hints (collapsed, like
 exercise solutions), a reference implementation, and "stretch goals" for the bold.

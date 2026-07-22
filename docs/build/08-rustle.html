@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 8: rustle, a mini grep - The Rusty School</title>
+<meta name="description" content="Build your own grep in Rust: lifetimes in a real signature, flags, stderr, exit codes, and a well-tested search core.">
+<link rel="canonical" href="https://rustyschool.com/build/08-rustle">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Project 8: rustle, a mini grep - The Rusty School">
+<meta property="og:description" content="Build your own grep in Rust: lifetimes in a real signature, flags, stderr, exit codes, and a well-tested search core.">
+<meta property="og:url" content="https://rustyschool.com/build/08-rustle">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 8: rustle, a mini grep - The Rusty School">
+<meta name="twitter:description" content="Build your own grep in Rust: lifetimes in a real signature, flags, stderr, exit codes, and a well-tested search core.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 8 of 9</nav>
+    <span class="badge build">Project · after Level 3</span>
+    <h1>rustle: a mini grep 🔍</h1>
+    <p class="lede muted">
+      <code>grep</code> has been finding text in files since 1973, and today the
+      fastest one in the world (<code>ripgrep</code>) is written in Rust. You are
+      going to build the humble family starter: <code>rustle</code>, with line
+      numbers, a flag, and a search core you can prove correct.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+<pre class="term"><code>$ cargo run -- rust log.txt -i
+   1: Rust is safe
+   2: trust the compiler
+2 matching line(s) in log.txt</code></pre>
+      <p>Requirements:</p>
+      <ul>
+        <li>Arguments: a pattern, a file path, and an optional <code>-i</code> flag
+          (any position) for case-insensitive search.</li>
+        <li>Matching lines print with <strong>right-aligned line numbers</strong>,
+          followed by a match count.</li>
+        <li>Missing arguments or an unreadable file: message on stderr, exit code 1.</li>
+        <li>The search logic is a pure function with <strong>at least three unit
+          tests</strong>, including one proving the <code>-i</code> flag works.</li>
+      </ul>
+    </div>
+
+    <div class="callout info">
+      <span class="co-title">📖 A rite of passage</span>
+      The Rust Book's chapter 12 builds a minigrep too, and this project makes a
+      great companion to it: same spirit, different design decisions. Building
+      yours first makes reading theirs twice as interesting.
+    </div>
+
+    <h2>The one new thing: a lifetime you actually need</h2>
+    <p>
+      Lesson 13 promised lifetimes would eventually matter in your own code.
+      Today is the day. Your search function takes the text and returns
+      <em>slices of that same text</em>, and the signature must say so:
+    </p>
+<pre><code>fn search&lt;'a&gt;(pattern: &amp;str, text: &amp;'a str, ignore_case: bool) -&gt; Vec&lt;(usize, &amp;'a str)&gt;</code></pre>
+    <p>
+      Read it aloud: "the returned line slices live as long as <code>text</code>
+      does, and notably <em>not</em> as long as <code>pattern</code>." Without the
+      <code>'a</code>, the compiler cannot tell which input the output borrows
+      from. With it, the whole function returns matches <strong>without copying a
+      single line</strong>. That is the zero-copy trick underlying ripgrep's
+      speed, in one signature.
+    </p>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: How do I handle the -i flag anywhere in the args?</summary>
+        <div class="hint-body">
+          <p>Separate flags from positional arguments in one pass, then check you
+          got exactly two positionals:</p>
+<pre><code>struct Config {
+    pattern: String,
+    path: String,
+    ignore_case: bool,
+}
+
+fn parse_args(args: &amp;[String]) -&gt; Result&lt;Config, String&gt; {
+    let mut positional = Vec::new();
+    let mut ignore_case = false;
+    for arg in &amp;args[1..] {
+        if arg == "-i" {
+            ignore_case = true;
+        } else {
+            positional.push(arg.clone());
+        }
+    }
+    match positional.len() {
+        2 =&gt; Ok(Config {
+            pattern: positional[0].clone(),
+            path: positional[1].clone(),
+            ignore_case,
+        }),
+        _ =&gt; Err(String::from("usage: rustle &lt;pattern&gt; &lt;file&gt; [-i]")),
+    }
+}</code></pre>
+          <p>This is how every argument parser works underneath, and writing one
+          by hand once makes <code>clap</code> feel earned instead of magical.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: The search function</summary>
+        <div class="hint-body">
+          <p><code>enumerate</code> numbers the lines (from 0, so add 1), and one
+          iterator chain does the rest:</p>
+<pre><code>fn search&lt;'a&gt;(pattern: &amp;str, text: &amp;'a str, ignore_case: bool) -&gt; Vec&lt;(usize, &amp;'a str)&gt; {
+    let needle = if ignore_case { pattern.to_lowercase() } else { pattern.to_string() };
+    text.lines()
+        .enumerate()
+        .filter(|(_, line)| {
+            if ignore_case {
+                line.to_lowercase().contains(&amp;needle)
+            } else {
+                line.contains(&amp;needle)
+            }
+        })
+        .map(|(i, line)| (i + 1, line))
+        .collect()
+}</code></pre>
+          <p>Lowercasing the needle once <em>outside</em> the loop instead of per
+          line: a tiny Lesson 23 instinct already paying off.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: The full reference solution</summary>
+        <div class="hint-body">
+<pre><code>use std::env;
+use std::fs;
+use std::process;
+
+struct Config {
+    pattern: String,
+    path: String,
+    ignore_case: bool,
+}
+
+fn parse_args(args: &amp;[String]) -&gt; Result&lt;Config, String&gt; {
+    let mut positional = Vec::new();
+    let mut ignore_case = false;
+    for arg in &amp;args[1..] {
+        if arg == "-i" {
+            ignore_case = true;
+        } else {
+            positional.push(arg.clone());
+        }
+    }
+    match positional.len() {
+        2 =&gt; Ok(Config {
+            pattern: positional[0].clone(),
+            path: positional[1].clone(),
+            ignore_case,
+        }),
+        _ =&gt; Err(String::from("usage: rustle &lt;pattern&gt; &lt;file&gt; [-i]")),
+    }
+}
+
+/// Return (line number, line) for every line containing the pattern.
+fn search&lt;'a&gt;(pattern: &amp;str, text: &amp;'a str, ignore_case: bool) -&gt; Vec&lt;(usize, &amp;'a str)&gt; {
+    let needle = if ignore_case { pattern.to_lowercase() } else { pattern.to_string() };
+    text.lines()
+        .enumerate()
+        .filter(|(_, line)| {
+            if ignore_case {
+                line.to_lowercase().contains(&amp;needle)
+            } else {
+                line.contains(&amp;needle)
+            }
+        })
+        .map(|(i, line)| (i + 1, line))
+        .collect()
+}
+
+fn main() {
+    let args: Vec&lt;String&gt; = env::args().collect();
+    let config = match parse_args(&amp;args) {
+        Ok(c) =&gt; c,
+        Err(msg) =&gt; {
+            eprintln!("{msg}");
+            process::exit(1);
+        }
+    };
+
+    let text = match fs::read_to_string(&amp;config.path) {
+        Ok(t) =&gt; t,
+        Err(e) =&gt; {
+            eprintln!("could not read {}: {e}", config.path);
+            process::exit(1);
+        }
+    };
+
+    let matches = search(&amp;config.pattern, &amp;text, config.ignore_case);
+    for (number, line) in &amp;matches {
+        println!("{number:&gt;4}: {line}");
+    }
+    println!("{} matching line(s) in {}", matches.len(), config.path);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn finds_exact_matches() {
+        let text = "safe fast\nproductive\nfast and safe";
+        assert_eq!(search("fast", text, false), vec![(1, "safe fast"), (3, "fast and safe")]);
+    }
+
+    #[test]
+    fn case_sensitive_by_default() {
+        assert_eq!(search("Rust", "rust\ntrust", false), Vec::&lt;(usize, &amp;str)&gt;::new());
+    }
+
+    #[test]
+    fn ignore_case_flag_works() {
+        let text = "Rust\ntrust\nRUSTY";
+        assert_eq!(search("rust", text, true), vec![(1, "Rust"), (2, "trust"), (3, "RUSTY")]);
+    }
+
+    #[test]
+    fn parse_args_rejects_missing() {
+        let args = vec!["rustle".to_string(), "pattern".to_string()];
+        assert!(parse_args(&amp;args).is_err());
+    }
+}</code></pre>
+          <p>Try it on real prey: <code>cargo run -- fn src/main.rs</code> searches
+          its own source. A tool that can read itself always feels like a
+          milestone.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h3>Make it yours</h3>
+      <ul>
+        <li><strong>-n to count only.</strong> Print just the number, like
+          <code>grep -c</code>.</li>
+        <li><strong>-v to invert.</strong> Show lines that do NOT match. One
+          <code>!</code>, if your design is clean.</li>
+        <li><strong>Multiple files.</strong> Search every file given, prefixing
+          matches with the filename.</li>
+        <li><strong>Highlight the match.</strong> Wrap the matched part in ANSI color
+          codes (<code>\x1b[31m</code> ... <code>\x1b[0m</code>) and feel like a real
+          tool.</li>
+        <li><strong>Then meet the champion.</strong> Install
+          <a href="https://github.com/BurntSushi/ripgrep" target="_blank" rel="noopener">ripgrep</a>
+          and read its README with new eyes: everything it brags about, you now
+          have vocabulary for.</li>
+      </ul>
+    </div>
+
+    <button class="complete-btn" data-lesson="build-08-rustle">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="07-markdown.html"><span class="dir">← Previous</span>Project 7: Markdown Converter</a>
+      <a class="next" href="09-server.html"><span class="dir">Next →</span>Project 9: The Capstone</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 4: Flashcard Quizzer - The Rusty School</title>
+<meta name="description" content="Build a flashcard study tool in Rust: file loading, shuffling, an input loop, and cards that come back until you know them.">
+<link rel="canonical" href="https://rustyschool.com/build/04-flashcards">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Project 4: Flashcard Quizzer - The Rusty School">
+<meta property="og:description" content="Build a flashcard study tool in Rust: file loading, shuffling, an input loop, and cards that come back until you know them.">
+<meta property="og:url" content="https://rustyschool.com/build/04-flashcards">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 4: Flashcard Quizzer - The Rusty School">
+<meta name="twitter:description" content="Build a flashcard study tool in Rust: file loading, shuffling, an input loop, and cards that come back until you know them.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 4 of 9</nav>
+    <span class="badge build">Project · after Level 2</span>
+    <h1>Flashcard Quizzer 🃏</h1>
+    <p class="lede muted">
+      Build the tool this school would use to study itself: flashcards from a
+      file, asked in random order, and the ones you miss come back around until
+      you get every single one. A study app you will actually use.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p>Build a program that:</p>
+      <ul>
+        <li>Loads flashcards from <code>cards.txt</code>, one card per line, in the
+          format <code>question|answer</code>.</li>
+        <li>Shuffles them and asks each question, reading the answer from the keyboard.</li>
+        <li>Accepts answers <strong>case-insensitively</strong>, with surrounding
+          spaces ignored.</li>
+        <li>Shows the correct answer whenever you miss, and reports a round score.</li>
+        <li>Then <strong>re-asks only the cards you missed</strong>, round after
+          round, until every card has been answered correctly.</li>
+        <li>Treats a missing or empty <code>cards.txt</code> as a friendly message,
+          not a crash.</li>
+      </ul>
+    </div>
+
+    <div class="callout warn">
+      <span class="co-title">🛠️ This one needs a real install</span>
+      Keyboard input needs a terminal, so the browser playground will not work
+      here. The <a href="../setup.html">setup guide</a> takes about ten minutes if
+      your lab is not ready yet. Start with:
+<pre class="term"><code>cd ~/rusty-lab
+cargo new flashcards
+cd flashcards
+cargo add rand</code></pre>
+    </div>
+
+    <h2>The two new things</h2>
+
+    <h3>Shuffling a Vec</h3>
+    <p>The <code>rand</code> crate you met in Project 1 also shuffles:</p>
+<pre><code>use rand::prelude::*;
+
+let mut cards = vec!["a", "b", "c"];
+cards.shuffle(&amp;mut rand::rng());</code></pre>
+
+    <h3>Prompting on the same line</h3>
+    <p>
+      <code>println!</code> always ends the line. To show a <code>&gt; </code>
+      prompt and let the user type <em>next to it</em>, use <code>print!</code>
+      plus a flush (output is buffered until a newline unless you push it out
+      yourself):
+    </p>
+<pre><code>use std::io::{self, Write};
+
+print!("&gt; ");
+io::stdout().flush().expect("could not flush");</code></pre>
+
+    <div class="callout tip">
+      <span class="co-title">💡 You know the rest</span>
+      A <code>Card</code> struct, reading a file with <code>unwrap_or_default</code>,
+      <code>split_once('|')</code> with <code>filter_map</code>: this is Project 3's
+      loading pattern in new clothes. Go build it before opening any hints.
+    </div>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: What shape should the data have?</summary>
+        <div class="hint-body">
+<pre><code>struct Card {
+    question: String,
+    answer: String,
+}</code></pre>
+          <p>The deck is a <code>Vec&lt;Card&gt;</code>. The program is: load, shuffle,
+          loop over cards asking each one, collect the misses, repeat on the
+          misses until none remain.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: How do I load the deck?</summary>
+        <div class="hint-body">
+          <p>Exactly like Project 3's todo file, with a different separator payload:</p>
+<pre><code>fn load(path: &amp;str) -&gt; Vec&lt;Card&gt; {
+    fs::read_to_string(path)
+        .unwrap_or_default()
+        .lines()
+        .filter_map(|line| {
+            let (q, a) = line.split_once('|')?;
+            Some(Card {
+                question: q.trim().to_string(),
+                answer: a.trim().to_string(),
+            })
+        })
+        .collect()
+}</code></pre>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: How do I compare answers fairly?</summary>
+        <div class="hint-body">
+          <p>Trim the input, then compare without caring about case:</p>
+<pre><code>input.trim().eq_ignore_ascii_case(&amp;card.answer)</code></pre>
+          <p>Put the whole ask-and-check into one function returning
+          <code>bool</code>: <code>fn ask(card: &amp;Card) -&gt; bool</code>. Both the
+          first round and the retry rounds can then share it.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: How do the retry rounds work?</summary>
+        <div class="hint-body">
+          <p>Collect <em>references</em> to missed cards in a <code>Vec</code>,
+          then loop while it is not empty, building a fresh
+          <code>still_missed</code> each round:</p>
+<pre><code>let mut missed = Vec::new();
+for card in &amp;cards {
+    if !ask(card) { missed.push(card); }
+}
+
+while !missed.is_empty() {
+    let mut still_missed = Vec::new();
+    for card in missed {
+        if !ask(card) { still_missed.push(card); }
+    }
+    missed = still_missed;
+}</code></pre>
+          <p>Note <code>missed</code> holds <code>&amp;Card</code>, not clones. The
+          borrow checker allows it because the deck itself never changes after
+          loading. When a design avoids mutation, borrowing gets easy: that is
+          not luck, it is a pattern worth noticing.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 5: The full reference solution</summary>
+        <div class="hint-body">
+<pre><code>use rand::prelude::*;
+use std::fs;
+use std::io::{self, Write};
+
+struct Card {
+    question: String,
+    answer: String,
+}
+
+fn load(path: &amp;str) -&gt; Vec&lt;Card&gt; {
+    fs::read_to_string(path)
+        .unwrap_or_default()
+        .lines()
+        .filter_map(|line| {
+            let (q, a) = line.split_once('|')?;
+            Some(Card {
+                question: q.trim().to_string(),
+                answer: a.trim().to_string(),
+            })
+        })
+        .collect()
+}
+
+fn ask(card: &amp;Card) -&gt; bool {
+    print!("Q: {}\n&gt; ", card.question);
+    io::stdout().flush().expect("could not flush");
+    let mut input = String::new();
+    io::stdin().read_line(&amp;mut input).expect("could not read");
+    input.trim().eq_ignore_ascii_case(&amp;card.answer)
+}
+
+fn main() {
+    let mut cards = load("cards.txt");
+    if cards.is_empty() {
+        println!("No cards found. Put 'question|answer' lines in cards.txt");
+        return;
+    }
+    cards.shuffle(&amp;mut rand::rng());
+
+    let mut missed = Vec::new();
+    for card in &amp;cards {
+        if ask(card) {
+            println!("✅ correct!\n");
+        } else {
+            println!("❌ it was: {}\n", card.answer);
+            missed.push(card);
+        }
+    }
+    println!("Round 1 score: {} / {}", cards.len() - missed.len(), cards.len());
+
+    while !missed.is_empty() {
+        println!("\nRetrying the {} you missed:", missed.len());
+        let mut still_missed = Vec::new();
+        for card in missed {
+            if ask(card) {
+                println!("✅ got it this time!\n");
+            } else {
+                println!("❌ it was: {}\n", card.answer);
+                still_missed.push(card);
+            }
+        }
+        missed = still_missed;
+    }
+    println!("🎉 Every card answered correctly. Session complete.");
+}</code></pre>
+          <p>Seed <code>cards.txt</code> with this course: <code>What keyword makes
+          a variable changeable?|mut</code> and so on. Studying Rust with a tool
+          you wrote in Rust is peak Rusty School. 🦀</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h3>Make it yours</h3>
+      <ul>
+        <li><strong>Decks.</strong> Take the filename from <code>env::args()</code>
+          so you can keep <code>rust.txt</code>, <code>spanish.txt</code>, ...</li>
+        <li><strong>Streaks.</strong> Track consecutive correct answers and celebrate
+          at 5 and 10.</li>
+        <li><strong>Leitner lite.</strong> Save each card's miss count back to the
+          file (Project 3 skills) and ask the most-missed cards first next session.</li>
+        <li><strong>Multiple answers.</strong> Let the answer field hold
+          <code>ferris/crab</code> and accept either.</li>
+        <li><strong>Timed mode.</strong> Show how long the session took with
+          <code>std::time::Instant</code> (Lesson 23).</li>
+      </ul>
+    </div>
+
+    <button class="complete-btn" data-lesson="build-04-flashcards">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="03-todo-list.html"><span class="dir">← Previous</span>Project 3: Todo List</a>
+      <a class="next" href="05-adventure.html"><span class="dir">Next →</span>Project 5: Text Adventure</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
