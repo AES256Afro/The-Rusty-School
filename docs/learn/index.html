@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum - The Rusty School</title>
-<meta name="description" content="The full Rusty School curriculum: 17 lessons from Hello World to fearless concurrency, with exercises and saved progress.">
+<meta name="description" content="The full Rusty School curriculum: 28 lessons from Hello World to async, unsafe, and profiling, with exercises and saved progress.">
 <link rel="canonical" href="https://rustyschool.com/learn/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Rusty School">
 <meta property="og:title" content="Curriculum - The Rusty School">
-<meta property="og:description" content="The full Rusty School curriculum: 17 lessons from Hello World to fearless concurrency, with exercises and saved progress.">
+<meta property="og:description" content="The full Rusty School curriculum: 28 lessons from Hello World to async, unsafe, and profiling, with exercises and saved progress.">
 <meta property="og:url" content="https://rustyschool.com/learn/">
 <meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Curriculum - The Rusty School">
-<meta name="twitter:description" content="The full Rusty School curriculum: 17 lessons from Hello World to fearless concurrency, with exercises and saved progress.">
+<meta name="twitter:description" content="The full Rusty School curriculum: 28 lessons from Hello World to async, unsafe, and profiling, with exercises and saved progress.">
 <meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
 <meta name="theme-color" content="#f74c00">
 <link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
@@ -47,7 +47,7 @@
     <span class="kicker">The curriculum</span>
     <h1>Your <span class="grad">learning path</span> 🗺️</h1>
     <p class="lede muted">
-      Twenty-two bite-sized lessons across four levels, starting before code even
+      Twenty-eight bite-sized lessons across five levels, starting before code even
       begins. Each one has plain-English explanations, runnable examples, and
       exercises with hidden solutions. Finish a lesson, hit
       <em>“Mark lesson complete,”</em> and watch the bar fill up.
@@ -200,6 +200,43 @@
         <span class="num">17</span>
         <div><h3>Cargo, Modules &amp; Tests</h3>
         <p>Organize, test, and ship real projects, plus where to go next.</p></div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ LEVEL 4 ============ -->
+  <section class="section" id="level-4">
+    <h2><span class="badge l4">Level 4</span> &nbsp;Deep Cuts 🕳️ <span class="muted small">- graduate electives: the topics behind the curtain</span></h2>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="18-strings" href="18-strings.html">
+        <span class="num">18</span>
+        <div><h3>Strings, For Real This Time</h3>
+        <p>UTF-8, bytes vs chars, why you cannot index a string, and the methods that matter.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="19-patterns" href="19-patterns.html">
+        <span class="num">19</span>
+        <div><h3>Pattern Matching Mastery</h3>
+        <p>Guards, or-patterns, <code>@</code> bindings, <code>let else</code>, and <code>matches!</code>.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="20-errors-pro" href="20-errors-pro.html">
+        <span class="num">20</span>
+        <div><h3>Error Handling Like a Pro</h3>
+        <p>Design real error types with <code>thiserror</code> and <code>anyhow</code>.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="21-async" href="21-async.html">
+        <span class="num">21</span>
+        <div><h3>Async Rust</h3>
+        <p><code>async</code>, <code>await</code>, futures, and tokio: waiting on thousands of things at once.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="22-unsafe" href="22-unsafe.html">
+        <span class="num">22</span>
+        <div><h3>Unsafe &amp; FFI</h3>
+        <p>What <code>unsafe</code> really permits, calling C, and safe wrappers around danger.</p></div>
+      </a>
+      <a class="card lesson-card" data-lesson="23-performance" href="23-performance.html">
+        <span class="num">23</span>
+        <div><h3>Performance &amp; Profiling</h3>
+        <p>Release builds, honest measurement, allocation costs, and zero-cost abstractions.</p></div>
       </a>
     </div>
   </section>

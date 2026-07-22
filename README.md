@@ -33,7 +33,7 @@ static file server.
 |---|---|
 | `docs/index.html` | Home: why Rust, who uses it, games & apps built with Rust |
 | `docs/setup.html` | Build your lab: macOS, Windows, Linux, or zero-install in the browser |
-| `docs/learn/` | The 22-lesson curriculum, from "what is a computer?" to concurrency |
+| `docs/learn/` | The 28-lesson curriculum, from "what is a computer?" to async, unsafe, and profiling |
 | `docs/build/` | The Project Workshop: build real programs from a spec |
 | `docs/playground.html` | Write and run Rust in the browser |
 | `docs/glossary.html` | Every term the course defines, A to Z |

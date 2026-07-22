@@ -1,7 +1,8 @@
 # 🗺️ The Rusty School: Roadmap
 
-The Rusty School today: a 22-lesson curriculum (Foundations through Fearless
-Concurrency), quizzes, cheat sheets, lab setup guides, progress tracking, and a
+The Rusty School today: a 28-lesson curriculum (Foundations through the Level 4
+Deep Cuts: strings, patterns, error design, async, unsafe, and performance),
+quizzes, cheat sheets, lab setup guides, progress tracking, and a
 zero-dependency Rust web server, live at [rustyschool.com](https://rustyschool.com).
 
 This roadmap is the broad, ambitious version of what it can become: a place where
@@ -101,8 +102,8 @@ deployable artifact.
 - **Game Dev with Bevy:** entities and components, sprites, input, collisions,
   sound; capstone is a finished, distributable 2D game (crab platformer,
   obviously).
-- **Async Rust:** what async actually is (the restaurant pager analogy), tokio,
-  channels revisited, a concurrent web scraper, a chat server.
+- **Async Rust:** the fundamentals shipped as Lesson 21 (Deep Cuts); this track
+  goes further: channels revisited, a concurrent web scraper, a chat server.
 - **Embedded & Hardware:** Rust on a $6 Raspberry Pi Pico or micro:bit: blink an
   LED, read a sensor, build a tiny gadget. Physical results are rocket fuel for
   motivation.

@@ -136,6 +136,36 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://rustyschool.com/learn/18-strings</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/learn/19-patterns</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/learn/20-errors-pro</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/learn/21-async</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/learn/22-unsafe</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/learn/23-performance</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://rustyschool.com/learn/f1-computers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>

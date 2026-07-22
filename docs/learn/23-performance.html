@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 23: Performance &amp; Profiling - The Rusty School</title>
+<meta name="description" content="Debug vs release builds, measuring honestly, the real cost of clones and allocations, and why Rust's iterators are free.">
+<link rel="canonical" href="https://rustyschool.com/learn/23-performance">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Lesson 23: Performance &amp; Profiling - The Rusty School">
+<meta property="og:description" content="Debug vs release builds, measuring honestly, the real cost of clones and allocations, and why Rust's iterators are free.">
+<meta property="og:url" content="https://rustyschool.com/learn/23-performance">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 23: Performance &amp; Profiling - The Rusty School">
+<meta name="twitter:description" content="Debug vs release builds, measuring honestly, the real cost of clones and allocations, and why Rust's iterators are free.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="index.html">Learn</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 23 of 23 · Deep Cuts complete! 🏆</nav>
+    <span class="badge l4">Level 4 · Deep Cuts</span>
+    <h1>Performance &amp; Profiling 🏎️</h1>
+    <p class="lede muted">People pick Rust for speed, then measure nothing and
+    guess everything. This lesson is about the stopwatch: what actually costs
+    time, what is folklore, and how to know the difference.</p>
+  </section>
+
+  <div class="lesson-body">
+    <h2>Rule zero: release mode 🏁</h2>
+    <p>
+      <code>cargo run</code> builds with no optimization so it compiles fast and
+      debugs nicely. <code>cargo run --release</code> turns the optimizer loose.
+      The difference is not subtle:
+    </p>
+<pre><code>use std::time::Instant;
+
+fn main() {
+    let start = Instant::now();
+    let sum: u64 = (1..=10_000_000).sum();
+    println!("sum = {sum}");
+    println!("took {:?}", start.elapsed());
+}</code></pre>
+    <p>
+      On the machine this course was written on: <strong>72ms in debug, 55µs in
+      release</strong>. Over a thousand times faster, from one flag. Every
+      "Rust is slow" thread on the internet contains at least one person
+      benchmarking a debug build. Never judge speed without
+      <code>--release</code>. (The playground's Run button uses debug mode, so
+      run these locally to see release numbers.)
+    </p>
+
+    <h2>What actually costs: allocations and clones 💸</h2>
+    <p>
+      CPUs add numbers absurdly fast. What is comparatively slow is asking the
+      allocator for heap memory and copying data around. That is why
+      <code>.clone()</code> deserves a raised eyebrow in a loop:
+    </p>
+<pre><code>use std::time::Instant;
+
+fn total_len_take(words: Vec&lt;String&gt;) -&gt; usize {
+    words.iter().map(|w| w.len()).sum()
+}
+
+fn total_len_borrow(words: &amp;[String]) -&gt; usize {
+    words.iter().map(|w| w.len()).sum()
+}
+
+fn main() {
+    let words: Vec&lt;String&gt; = (0..200_000).map(|n| format!("word number {n}")).collect();
+
+    let start = Instant::now();
+    let a = total_len_take(words.clone());  // clones 200,000 strings first
+    println!("clone + take: {:?}", start.elapsed());
+
+    let start = Instant::now();
+    let b = total_len_borrow(&amp;words);       // just lends them
+    println!("borrow:       {:?}", start.elapsed());
+
+    assert_eq!(a, b);
+}</code></pre>
+    <p>
+      In release mode: <strong>3.7ms for the cloning version, 74µs for the
+      borrowing one</strong>, fifty times faster. All those Level 2 borrowing
+      rules were never just about safety: every <code>&amp;</code> you write is
+      also a copy you did not make. Ownership <em>is</em> the performance model.
+    </p>
+
+    <h2>Folklore vs the stopwatch ⏱️</h2>
+    <p>
+      Classic advice says: if you know a <code>Vec</code>'s final size, create it
+      with <code>Vec::with_capacity(n)</code> so it never has to reallocate as it
+      grows. True! But measure what that is worth:
+    </p>
+<pre><code>use std::time::Instant;
+
+fn main() {
+    let n = 1_000_000;
+
+    let start = Instant::now();
+    let mut sized = Vec::with_capacity(n);
+    for i in 0..n {
+        sized.push(i);
+    }
+    println!("pre-sized:        {:?}", start.elapsed());
+
+    let start = Instant::now();
+    let mut grown = Vec::new();
+    for i in 0..n {
+        grown.push(i);
+    }
+    println!("growing as we go: {:?}", start.elapsed());
+
+    assert_eq!(grown, sized);
+}</code></pre>
+    <p>
+      On this machine, release mode: <strong>0.9ms pre-sized, 1.1ms growing</strong>.
+      A real win, but a modest one, because <code>Vec</code> doubles its capacity
+      each time it grows, so a million pushes trigger only about twenty
+      reallocations. And a dirty secret: swap the order of those two blocks and
+      the numbers shift, because the first block warms up the allocator for the
+      second. Benchmarking is <em>hard</em>, folklore is often stale, and the
+      only trustworthy answer comes from measuring <em>your</em> code, both
+      orders, several runs.
+    </p>
+
+    <h2>Zero-cost abstractions, verified 🎁</h2>
+    <p>
+      "Zero-cost abstraction" is Rust's most famous promise: the pretty
+      high-level version compiles to the same machine code as the manual loop.
+      You do not have to take that on faith:
+    </p>
+<pre><code>fn main() {
+    let nums: Vec&lt;i64&gt; = (1..=1_000).collect();
+
+    let mut total = 0;
+    for n in &amp;nums {
+        if n % 3 == 0 {
+            total += n * n;
+        }
+    }
+
+    let total2: i64 = nums.iter().filter(|n| *n % 3 == 0).map(|n| n * n).sum();
+
+    assert_eq!(total, total2);
+    println!("both ways agree: {total}");
+}</code></pre>
+    <p>
+      In release builds these produce essentially identical assembly; the
+      optimizer fuses <code>filter</code> and <code>map</code> into one loop,
+      and often vectorizes it. Write whichever version is clearer, which is
+      usually the iterator chain. In garbage-collected languages, "pretty" code
+      has a tax; in Rust it does not, and that is precisely why companies
+      rewrite hot paths in it.
+    </p>
+
+    <h2>The real toolbox 🧰</h2>
+    <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tool</th><th>What it answers</th></tr></thead>
+      <tbody>
+        <tr><td><code>std::time::Instant</code></td><td>"roughly how long does this take?" - built in, good enough to start</td></tr>
+        <tr><td><a href="https://github.com/bheisler/criterion.rs" target="_blank" rel="noopener">criterion</a></td><td>proper benchmarks: many runs, statistics, "did my change actually help?"</td></tr>
+        <tr><td><a href="https://github.com/flamegraph-rs/flamegraph" target="_blank" rel="noopener">cargo flamegraph</a></td><td>"where does the time GO?" - a picture of your program's hot spots</td></tr>
+        <tr><td><a href="https://github.com/sharkdp/hyperfine" target="_blank" rel="noopener">hyperfine</a></td><td>timing whole programs against each other, warm-up handled for you</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      The workflow pros actually follow: <strong>make it work, make it right,
+      then profile before making it fast.</strong> The hot spot is nearly never
+      where you guessed, and optimizing the wrong thing costs clarity for nothing.
+    </p>
+
+    <div class="exercise">
+      <span class="ex-label">Exercise</span>
+      <h3>The 200x data structure</h3>
+      <p>Build a "library" of 5,000 book titles and a 5,000-title wishlist, then
+      count how many wishlist titles the library owns, twice: once with
+      <code>library.contains(...)</code> (a <code>Vec</code> scan per lookup),
+      once by first collecting the library into a
+      <code>HashSet</code>. Time both. Before you run it: write down your guess.</p>
+      <details class="solution"><summary>Reveal solution</summary>
+<pre><code>use std::collections::HashSet;
+use std::time::Instant;
+
+fn main() {
+    let library: Vec&lt;String&gt; = (0..5_000).map(|n| format!("book-{n}")).collect();
+    let wishlist: Vec&lt;String&gt; = (0..5_000).map(|n| format!("book-{}", n * 2)).collect();
+
+    let start = Instant::now();
+    let slow = wishlist.iter().filter(|w| library.contains(w)).count();
+    println!("Vec::contains: {slow} owned, {:?}", start.elapsed());
+
+    let start = Instant::now();
+    let shelf: HashSet&lt;&amp;String&gt; = library.iter().collect();
+    let fast = wishlist.iter().filter(|w| shelf.contains(w)).count();
+    println!("HashSet:       {fast} owned, {:?}", start.elapsed());
+}</code></pre>
+        <p>Release mode on this machine: <strong>21ms vs 95µs, about 220 times
+        faster</strong>, and the gap widens with size. The Vec version does 25
+        million string comparisons; the HashSet does 5,000 hash lookups. No
+        clever trick beats picking the right data structure, which is why
+        Lesson 10 introduced <code>HashMap</code> right after <code>Vec</code>. 📚</p>
+      </details>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🎓 Deep Cuts complete!</span>
+      That is the whole curriculum: 23 lessons, from "what is a CPU" to reading
+      assembly-level promises with a stopwatch in hand. Take the
+      <a href="../quiz.html">Deep Cuts quiz</a>, then the only thing left is the
+      <a href="../build/index.html">Project Workshop</a> and the wide open world.
+      Rusty has never been prouder. 🦀🧡
+    </div>
+
+    <button class="complete-btn" data-lesson="23-performance">Mark lesson complete</button>
+
+    <div class="lesson-nav">
+      <a href="22-unsafe.html"><span class="dir">← Previous</span>Lesson 22: Unsafe &amp; FFI</a>
+      <a class="next" href="index.html"><span class="dir">Finish →</span>Back to the curriculum</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Lab setup</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
