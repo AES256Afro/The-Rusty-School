@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 5: Text Adventure - The Rusty School</title>
+<meta name="description" content="Build a tiny text adventure in Rust: rooms in a HashMap-powered world, an inventory, and a command parser made of match.">
+<link rel="canonical" href="https://rustyschool.com/build/05-adventure">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Project 5: Text Adventure - The Rusty School">
+<meta property="og:description" content="Build a tiny text adventure in Rust: rooms in a HashMap-powered world, an inventory, and a command parser made of match.">
+<meta property="og:url" content="https://rustyschool.com/build/05-adventure">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 5: Text Adventure - The Rusty School">
+<meta name="twitter:description" content="Build a tiny text adventure in Rust: rooms in a HashMap-powered world, an inventory, and a command parser made of match.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 5 of 9</nav>
+    <span class="badge build">Project · after Level 2</span>
+    <h1>Text Adventure 🗺️</h1>
+    <p class="lede muted">
+      Rusty lost the golden claw somewhere along the shore, and you are going to
+      build the world it is hiding in. Rooms, exits, items, an inventory, and a
+      parser that understands you: a whole game, no graphics required.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p>Build a game that plays like this:</p>
+<pre class="term"><code>🦀 THE LOST CLAW: a tiny adventure
+
+The Beach
+Warm sand, gentle waves. A trail of tiny claw prints leads north.
+
+&gt; go north
+The Tide Pools
+Rocky pools full of starfish. Paths lead north and east; the beach is south.
+You see: seaweed snack
+
+&gt; take seaweed snack
+You take the seaweed snack.</code></pre>
+      <p>Requirements:</p>
+      <ul>
+        <li>At least <strong>five rooms</strong>, each with a name, a description,
+          exits, and possibly items lying around.</li>
+        <li>Commands: <code>go &lt;direction&gt;</code>, <code>look</code>,
+          <code>take &lt;item&gt;</code>, <code>inventory</code>, <code>quit</code>.</li>
+        <li>Taking an item <strong>removes it from the room</strong> and adds it to
+          your inventory.</li>
+        <li>A win condition: taking a specific item ends the game in glory.</li>
+        <li>Bad directions, missing items, and nonsense commands all get friendly
+          replies, never crashes.</li>
+      </ul>
+    </div>
+
+    <div class="callout warn">
+      <span class="co-title">🛠️ Terminal required</span>
+      Keyboard input again, so play happens in your real terminal:
+<pre class="term"><code>cd ~/rusty-lab
+cargo new adventure
+cd adventure</code></pre>
+      No dependencies this time. The whole world fits in the standard library.
+    </div>
+
+    <h2>The one new idea: rooms point at each other</h2>
+    <p>
+      Here is the design problem that makes this project interesting. Each room
+      needs to know its neighbors, but Rust's ownership rules (Lesson 6) make
+      "structs holding references to each other" genuinely hard. The classic
+      solution is beautifully simple: <strong>keep every room in one
+      <code>Vec</code>, and let exits store index numbers instead of
+      references.</strong>
+    </p>
+<pre><code>use std::collections::HashMap;
+
+struct Room {
+    name: &amp;'static str,
+    description: &amp;'static str,
+    exits: HashMap&lt;&amp;'static str, usize&gt;,  // "north" -&gt; index into the Vec
+    items: Vec&lt;&amp;'static str&gt;,
+}</code></pre>
+    <p>
+      Your position in the world is just <code>let mut here: usize = 0;</code>.
+      Moving is <code>here = new_index</code>. This indices-instead-of-references
+      trick is everywhere in real Rust: game engines, graphs, compilers. You are
+      learning it on a beach with a snack. 🌊
+    </p>
+    <p>One convenience worth knowing, a quick way to build a small map:</p>
+<pre><code>let exits = HashMap::from([("south", 0), ("north", 2)]);</code></pre>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: What is the overall shape?</summary>
+        <div class="hint-body">
+          <p>Three pieces of state and one loop:</p>
+<pre><code>let mut world: Vec&lt;Room&gt; = build_world();
+let mut here: usize = 0;
+let mut inventory: Vec&lt;&amp;str&gt; = Vec::new();
+
+loop {
+    // print a prompt, read a line
+    // parse it, match on the command
+    // update state, print what happened
+}</code></pre>
+          <p>Write <code>build_world()</code> as its own function returning the
+          <code>Vec&lt;Room&gt;</code>: world data in one place, game logic in
+          another.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: How do I parse commands?</summary>
+        <div class="hint-body">
+          <p>This is Lesson 19's pattern-matching exercise, now with somewhere to
+          live. Lowercase the input, <code>split_once(' ')</code>, then match:</p>
+<pre><code>let cmd = input.trim().to_lowercase();
+
+match cmd.split_once(' ') {
+    None if cmd == "quit" =&gt; { break; }
+    None if cmd == "look" =&gt; { /* describe the room */ }
+    None if cmd == "inventory" =&gt; { /* list what you carry */ }
+    Some(("go", direction)) =&gt; { /* try to move */ }
+    Some(("take", item)) =&gt; { /* try to pick it up */ }
+    _ =&gt; println!("I don't understand '{cmd}'."),
+}</code></pre>
+          <p>Note that <code>take seaweed snack</code> works for free:
+          <code>split_once</code> only splits at the <em>first</em> space, so the
+          item name keeps its spaces.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: How does moving work?</summary>
+        <div class="hint-body">
+<pre><code>Some(("go", direction)) =&gt; match world[here].exits.get(direction) {
+    Some(&amp;next) =&gt; {
+        here = next;
+        describe(&amp;world[here]);
+    }
+    None =&gt; println!("You can't go {direction} from here."),
+},</code></pre>
+          <p><code>exits.get</code> returns an <code>Option&lt;&amp;usize&gt;</code>;
+          the <code>&amp;next</code> pattern reaches through the reference and copies
+          the number out. A <code>describe(room: &amp;Room)</code> helper keeps the
+          printing in one place for both <code>go</code> and <code>look</code>.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: How does take work without angering the borrow checker?</summary>
+        <div class="hint-body">
+          <p>Find the item's position first, then remove by index:</p>
+<pre><code>Some(("take", item)) =&gt; {
+    let room = &amp;mut world[here];
+    match room.items.iter().position(|i| *i == item) {
+        Some(index) =&gt; {
+            let taken = room.items.remove(index);
+            println!("You take the {taken}.");
+            inventory.push(taken);
+            if taken == "golden claw" {
+                println!("\n🎉 YOU WIN! 🦀");
+                break;
+            }
+        }
+        None =&gt; println!("There is no {item} here."),
+    }
+}</code></pre>
+          <p><code>position</code> then <code>remove</code> is the idiomatic
+          "find and take out of a Vec" two-step. The removed value moves
+          straight into your inventory: ownership transfer you can watch.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 5: The full reference solution</summary>
+        <div class="hint-body">
+<pre><code>use std::collections::HashMap;
+use std::io::{self, Write};
+
+struct Room {
+    name: &amp;'static str,
+    description: &amp;'static str,
+    exits: HashMap&lt;&amp;'static str, usize&gt;,
+    items: Vec&lt;&amp;'static str&gt;,
+}
+
+fn build_world() -&gt; Vec&lt;Room&gt; {
+    vec![
+        Room {
+            name: "The Beach",
+            description: "Warm sand, gentle waves. A trail of tiny claw prints leads north.",
+            exits: HashMap::from([("north", 1)]),
+            items: vec![],
+        },
+        Room {
+            name: "The Tide Pools",
+            description: "Rocky pools full of starfish. Paths lead north and east; the beach is south.",
+            exits: HashMap::from([("south", 0), ("north", 2), ("east", 3)]),
+            items: vec!["seaweed snack"],
+        },
+        Room {
+            name: "The Kelp Forest",
+            description: "Towering kelp sways overhead. Something glints in a cave to the east.",
+            exits: HashMap::from([("south", 1), ("east", 4)]),
+            items: vec![],
+        },
+        Room {
+            name: "The Shipwreck",
+            description: "An old hull half-buried in sand. The tide pools are back west.",
+            exits: HashMap::from([("west", 1)]),
+            items: vec!["rusty key"],
+        },
+        Room {
+            name: "The Glittering Cave",
+            description: "Bioluminescent walls light up a small pedestal.",
+            exits: HashMap::from([("west", 2)]),
+            items: vec!["golden claw"],
+        },
+    ]
+}
+
+fn describe(room: &amp;Room) {
+    println!("{}\n{}", room.name, room.description);
+    if !room.items.is_empty() {
+        println!("You see: {}", room.items.join(", "));
+    }
+}
+
+fn main() {
+    let mut world = build_world();
+    let mut here = 0;
+    let mut inventory: Vec&lt;&amp;str&gt; = Vec::new();
+
+    println!("🦀 THE LOST CLAW: a tiny adventure");
+    println!("Rusty lost the golden claw. Find it! (commands: go/look/take/inventory/quit)\n");
+    describe(&amp;world[here]);
+
+    loop {
+        print!("\n&gt; ");
+        io::stdout().flush().expect("could not flush");
+        let mut input = String::new();
+        if io::stdin().read_line(&amp;mut input).expect("could not read") == 0 {
+            break; // end of input
+        }
+        let cmd = input.trim().to_lowercase();
+
+        match cmd.split_once(' ') {
+            None if cmd == "quit" =&gt; {
+                println!("Goodbye, adventurer.");
+                break;
+            }
+            None if cmd == "look" =&gt; {
+                describe(&amp;world[here]);
+                let mut exits: Vec&lt;&amp;str&gt; = world[here].exits.keys().copied().collect();
+                exits.sort();
+                println!("Exits: {}", exits.join(", "));
+            }
+            None if cmd == "inventory" =&gt; {
+                if inventory.is_empty() {
+                    println!("You are carrying nothing.");
+                } else {
+                    println!("You are carrying: {}", inventory.join(", "));
+                }
+            }
+            Some(("go", direction)) =&gt; match world[here].exits.get(direction) {
+                Some(&amp;next) =&gt; {
+                    here = next;
+                    describe(&amp;world[here]);
+                }
+                None =&gt; println!("You can't go {direction} from here."),
+            },
+            Some(("take", item)) =&gt; {
+                let room = &amp;mut world[here];
+                match room.items.iter().position(|i| *i == item) {
+                    Some(index) =&gt; {
+                        let taken = room.items.remove(index);
+                        println!("You take the {taken}.");
+                        inventory.push(taken);
+                        if taken == "golden claw" {
+                            println!("\n🎉 You found Rusty's golden claw! YOU WIN! 🦀");
+                            break;
+                        }
+                    }
+                    None =&gt; println!("There is no {item} here."),
+                }
+            }
+            _ =&gt; println!("I don't understand '{cmd}'. Try: go &lt;direction&gt;, look, take &lt;item&gt;, inventory, quit."),
+        }
+    }
+}</code></pre>
+          <p>Why sort the exits before printing? <code>HashMap</code> makes no
+          promises about order, so without the sort the exits list shuffles
+          between runs. Small detail, real lesson.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h3>Make it yours</h3>
+      <ul>
+        <li><strong>Locked doors.</strong> The Glittering Cave should really require
+          the rusty key from the Shipwreck: check the inventory before allowing
+          <code>go east</code>.</li>
+        <li><strong>drop &lt;item&gt;.</strong> The reverse of take. Watch ownership
+          flow back the other way.</li>
+        <li><strong>A wandering NPC.</strong> A seagull that moves to a random
+          adjacent room each turn and squawks if it sees you (bring back
+          <code>rand</code>).</li>
+        <li><strong>Load the world from a file.</strong> Design a text format for
+          rooms (Project 3 skills) so anyone can write adventures without touching
+          the code. That split, engine versus data, is how real games are built.</li>
+        <li><strong>Turn counter.</strong> Report how many commands victory took, and
+          taunt accordingly.</li>
+      </ul>
+    </div>
+
+    <button class="complete-btn" data-lesson="build-05-adventure">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="04-flashcards.html"><span class="dir">← Previous</span>Project 4: Flashcard Quizzer</a>
+      <a class="next" href="06-word-counter.html"><span class="dir">Next →</span>Project 6: Word Counter Pro</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

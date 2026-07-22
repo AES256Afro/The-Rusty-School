@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 6: Word Counter Pro - The Rusty School</title>
+<meta name="description" content="Build a word-frequency analyzer in Rust: iterator chains, HashMap counting, custom sorting, and unit tests.">
+<link rel="canonical" href="https://rustyschool.com/build/06-word-counter">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Project 6: Word Counter Pro - The Rusty School">
+<meta property="og:description" content="Build a word-frequency analyzer in Rust: iterator chains, HashMap counting, custom sorting, and unit tests.">
+<meta property="og:url" content="https://rustyschool.com/build/06-word-counter">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 6: Word Counter Pro - The Rusty School">
+<meta name="twitter:description" content="Build a word-frequency analyzer in Rust: iterator chains, HashMap counting, custom sorting, and unit tests.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 6 of 9</nav>
+    <span class="badge build">Project · after Level 3</span>
+    <h1>Word Counter Pro 📊</h1>
+    <p class="lede muted">
+      Feed it any text file and it tells you the shape of the writing: lines,
+      words, characters, and the words used most. This is the project where
+      iterator chains stop being a lesson topic and start being how you think.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p>Build a command-line tool that runs like this:</p>
+<pre class="term"><code>$ cargo run -- speech.txt 3
+📄 speech.txt
+  lines:        42
+  words:        310
+  characters:   1804
+  unique words: 187
+
+  top 3 words:
+      12  the
+       9  rust
+       7  and</code></pre>
+      <p>Requirements:</p>
+      <ul>
+        <li>Takes a filename and an optional top-N (default 10) from the arguments.</li>
+        <li>Counting is <strong>case-insensitive</strong> (<code>Crab</code> and
+          <code>crab</code> are the same word) and ignores surrounding punctuation
+          (<code>"crab!"</code> counts as <code>crab</code>).</li>
+        <li>The top list is sorted by count, <strong>ties broken alphabetically</strong>,
+          counts right-aligned.</li>
+        <li>A missing file or missing argument prints a helpful message to
+          <em>stderr</em> and exits with a non-zero code.</li>
+        <li>The counting logic lives in functions with <strong>at least three unit
+          tests</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🧪 Playground-friendly, mostly</span>
+      No keyboard input here, so you can prototype the counting functions in the
+      <a href="../playground.html">Playground</a> with a hardcoded string, then
+      move to a real project for the file and argument handling.
+    </div>
+
+    <h2>The two new things</h2>
+
+    <h3>Complaining properly</h3>
+    <p>
+      Real tools print errors to <strong>stderr</strong>, not stdout, and exit
+      with a code so scripts can tell success from failure:
+    </p>
+<pre><code>use std::process;
+
+eprintln!("usage: wordcount &lt;file&gt; [top_n]");
+process::exit(1);</code></pre>
+
+    <h3>Sorting by two things at once</h3>
+    <p>
+      <code>sort_by</code> takes a closure comparing two elements. Chain
+      comparisons with <code>.then(...)</code>: if the first is a tie, the second
+      decides:
+    </p>
+<pre><code>pairs.sort_by(|a, b| b.1.cmp(&amp;a.1).then(a.0.cmp(&amp;b.0)));
+//             count, descending ^^^   ^^^ then word, ascending</code></pre>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: How do I clean a word?</summary>
+        <div class="hint-body">
+          <p><code>trim_matches</code> with a closure strips unwanted characters
+          from both ends:</p>
+<pre><code>fn clean_word(raw: &amp;str) -&gt; String {
+    raw.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase()
+}</code></pre>
+          <p>Note it can return an empty string (for input like <code>---</code>),
+          so skip empties when counting. Why only trim the <em>ends</em>? So
+          <code>don't</code> keeps its apostrophe. Text is sneaky; Lesson 18
+          warned you.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: How do I count into a HashMap?</summary>
+        <div class="hint-body">
+          <p>The entry pattern from Lesson 10, at the center of the whole tool:</p>
+<pre><code>fn count_words(text: &amp;str) -&gt; HashMap&lt;String, u32&gt; {
+    let mut counts = HashMap::new();
+    for raw in text.split_whitespace() {
+        let word = clean_word(raw);
+        if !word.is_empty() {
+            *counts.entry(word).or_insert(0) += 1;
+        }
+    }
+    counts
+}</code></pre>
+          <p>Keeping this a pure function (text in, map out) is what makes it
+          testable without any files.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: How do I get the top N?</summary>
+        <div class="hint-body">
+          <p>A HashMap has no order, so convert to a Vec of pairs, sort, truncate:</p>
+<pre><code>fn top_words(counts: &amp;HashMap&lt;String, u32&gt;, n: usize) -&gt; Vec&lt;(String, u32)&gt; {
+    let mut pairs: Vec&lt;(String, u32)&gt; = counts
+        .iter()
+        .map(|(w, c)| (w.clone(), *c))
+        .collect();
+    pairs.sort_by(|a, b| b.1.cmp(&amp;a.1).then(a.0.cmp(&amp;b.0)));
+    pairs.truncate(n);
+    pairs
+}</code></pre>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: How do I line up the output?</summary>
+        <div class="hint-body">
+          <p>Format specifiers pad for you: <code>{count:&gt;6}</code> right-aligns
+          the count in six columns. That is the whole trick behind pretty tables:</p>
+<pre><code>for (word, count) in top_words(&amp;counts, top_n) {
+    println!("  {count:&gt;6}  {word}");
+}</code></pre>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 5: The full reference solution</summary>
+        <div class="hint-body">
+<pre><code>use std::collections::HashMap;
+use std::env;
+use std::fs;
+use std::process;
+
+fn clean_word(raw: &amp;str) -&gt; String {
+    raw.trim_matches(|c: char| !c.is_alphanumeric()).to_lowercase()
+}
+
+fn count_words(text: &amp;str) -&gt; HashMap&lt;String, u32&gt; {
+    let mut counts = HashMap::new();
+    for raw in text.split_whitespace() {
+        let word = clean_word(raw);
+        if !word.is_empty() {
+            *counts.entry(word).or_insert(0) += 1;
+        }
+    }
+    counts
+}
+
+fn top_words(counts: &amp;HashMap&lt;String, u32&gt;, n: usize) -&gt; Vec&lt;(String, u32)&gt; {
+    let mut pairs: Vec&lt;(String, u32)&gt; = counts
+        .iter()
+        .map(|(w, c)| (w.clone(), *c))
+        .collect();
+    // most frequent first; ties broken alphabetically
+    pairs.sort_by(|a, b| b.1.cmp(&amp;a.1).then(a.0.cmp(&amp;b.0)));
+    pairs.truncate(n);
+    pairs
+}
+
+fn main() {
+    let args: Vec&lt;String&gt; = env::args().collect();
+    let Some(path) = args.get(1) else {
+        eprintln!("usage: wordcount &lt;file&gt; [top_n]");
+        process::exit(1);
+    };
+    let top_n: usize = args.get(2).and_then(|s| s.parse().ok()).unwrap_or(10);
+
+    let text = match fs::read_to_string(path) {
+        Ok(t) =&gt; t,
+        Err(e) =&gt; {
+            eprintln!("could not read {path}: {e}");
+            process::exit(1);
+        }
+    };
+
+    let counts = count_words(&amp;text);
+    let total_words: u32 = counts.values().sum();
+
+    println!("📄 {path}");
+    println!("  lines:        {}", text.lines().count());
+    println!("  words:        {total_words}");
+    println!("  characters:   {}", text.chars().count());
+    println!("  unique words: {}", counts.len());
+    println!("\n  top {top_n} words:");
+    for (word, count) in top_words(&amp;counts, top_n) {
+        println!("  {count:&gt;6}  {word}");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cleans_punctuation_and_case() {
+        assert_eq!(clean_word("Hello,"), "hello");
+        assert_eq!(clean_word("(rust)"), "rust");
+        assert_eq!(clean_word("---"), "");
+    }
+
+    #[test]
+    fn counts_are_case_insensitive() {
+        let counts = count_words("Crab crab CRAB! ocean");
+        assert_eq!(counts["crab"], 3);
+        assert_eq!(counts["ocean"], 1);
+    }
+
+    #[test]
+    fn top_words_sorts_by_count_then_alpha() {
+        let counts = count_words("b b a a c");
+        let top = top_words(&amp;counts, 2);
+        assert_eq!(top, vec![("a".to_string(), 2), ("b".to_string(), 2)]);
+    }
+}</code></pre>
+          <p>Run it on something fun: your own <code>main.rs</code>, a downloaded
+          book from Project Gutenberg, or this course's launch post. Note
+          <code>.chars().count()</code> instead of <code>.len()</code> for the
+          character count: Lesson 18 paying rent already.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h3>Make it yours</h3>
+      <ul>
+        <li><strong>Stop words.</strong> Skip boring words (the, a, and, of) with a
+          <code>HashSet</code>, behind a <code>--no-stop</code> flag.</li>
+        <li><strong>Multiple files.</strong> Accept many paths and print a combined
+          report plus a per-file table.</li>
+        <li><strong>Histogram.</strong> After each top word, print a bar of
+          <code>#</code> characters scaled to its count.</li>
+        <li><strong>Reading level.</strong> Average word length and average sentence
+          length (split on <code>.</code> <code>!</code> <code>?</code>) make a crude
+          complexity score.</li>
+        <li><strong>Speed check.</strong> Time it on a big book with
+          <code>Instant</code> (Lesson 23), then try <code>--release</code> and
+          enjoy the difference.</li>
+      </ul>
+    </div>
+
+    <button class="complete-btn" data-lesson="build-06-word-counter">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="05-adventure.html"><span class="dir">← Previous</span>Project 5: Text Adventure</a>
+      <a class="next" href="07-markdown.html"><span class="dir">Next →</span>Project 7: Markdown Converter</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

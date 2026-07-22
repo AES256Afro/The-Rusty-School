@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 9: The Capstone, Build the Server - The Rusty School</title>
+<meta name="description" content="The capstone: rebuild this website's own web server in pure std Rust. TCP, HTTP, threads, security checks, and tests.">
+<link rel="canonical" href="https://rustyschool.com/build/09-server">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Project 9: The Capstone, Build the Server - The Rusty School">
+<meta property="og:description" content="The capstone: rebuild this website's own web server in pure std Rust. TCP, HTTP, threads, security checks, and tests.">
+<meta property="og:url" content="https://rustyschool.com/build/09-server">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 9: The Capstone, Build the Server - The Rusty School">
+<meta name="twitter:description" content="The capstone: rebuild this website's own web server in pure std Rust. TCP, HTTP, threads, security checks, and tests.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ferris.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="index.html">Build</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 9 of 9 · The Capstone 🏔️</nav>
+    <span class="badge build">Project · after Level 4</span>
+    <h1>Build the Server 🚢</h1>
+    <p class="lede muted">
+      The website you are reading is served by a web server written in Rust with
+      zero dependencies. For your capstone, you will build it: a real HTTP
+      server, from a raw TCP socket up, in about a hundred lines of std. When
+      your browser renders a page your code served, you are a systems programmer.
+    </p>
+  </section>
+
+  <div class="lesson-body">
+
+    <div class="spec">
+      <h3>📋 The spec</h3>
+      <p>Build a static-file web server that:</p>
+      <ul>
+        <li>Listens on <code>127.0.0.1:7878</code> and serves files from a
+          <code>site/</code> folder next to your project.</li>
+        <li>Answers <code>GET</code> requests: <code>/</code> serves
+          <code>site/index.html</code>, <code>/style.css</code> serves that file,
+          and friendly URLs work (<code>/about</code> finds <code>about.html</code>).</li>
+        <li>Sends the right <code>Content-Type</code> for at least html, css, js,
+          svg, and png.</li>
+        <li>Returns <strong>404</strong> for missing files and <strong>405</strong>
+          for non-GET methods.</li>
+        <li><strong>Refuses path traversal:</strong> a request for
+          <code>/../Cargo.toml</code> must never escape the site folder. This is a
+          real security requirement; treat it like one.</li>
+        <li>Handles each connection on its <strong>own thread</strong>.</li>
+        <li>Has unit tests for path resolution (including the sneaky paths) and
+          MIME types.</li>
+      </ul>
+    </div>
+
+    <div class="callout info">
+      <span class="co-title">🧭 What even is HTTP?</span>
+      Less than you fear. Your browser opens a TCP connection and writes text like
+      <code>GET /index.html HTTP/1.1</code> plus some headers. The server writes
+      back a status line, headers, a blank line, and the file bytes. That's it.
+      That's the web. You already know sockets exist (this site's Lesson 16
+      threads them); today you speak the protocol yourself.
+    </div>
+
+    <h2>The new toys: TcpListener and TcpStream</h2>
+<pre><code>use std::net::TcpListener;
+
+let listener = TcpListener::bind("127.0.0.1:7878").expect("port taken?");
+for stream in listener.incoming() {
+    // each Ok(stream) is one browser connection
+}</code></pre>
+    <p>
+      A <code>TcpStream</code> is a two-way pipe of bytes: wrap it in a
+      <code>BufReader</code> to read the request line by line
+      (Project 3's file skills, pointed at a socket), and call
+      <code>write_all</code> to send bytes back. Everything else in this project
+      is code you have written before: <code>match</code>, <code>Option</code>,
+      <code>PathBuf</code>, threads, tests.
+    </p>
+
+    <h2>Hints, in order of desperation</h2>
+    <div class="hint-ladder">
+
+      <details class="hint">
+        <summary>Hint 1: The shape of the whole server</summary>
+        <div class="hint-body">
+<pre><code>fn main()
+    -&gt; bind the listener, loop over incoming(),
+       thread::spawn(move || handle_connection(stream))
+
+fn handle_connection(stream)
+    -&gt; read the request line, split into method + path
+       405 if not GET, else resolve() the path
+       200 with the file, or 404
+
+fn resolve(raw_path) -&gt; Option&lt;PathBuf&gt;
+    -&gt; the safety-critical part: URL path to file path, or None
+
+fn mime_type(path) -&gt; &amp;'static str
+fn respond(stream, status, mime, body)</code></pre>
+          <p>Five functions. Write them in this order and test
+          <code>resolve</code> before ever binding a socket: it is pure and
+          needs no network.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 2: Reading the request line</summary>
+        <div class="hint-body">
+<pre><code>use std::io::{BufRead, BufReader};
+
+let reader = BufReader::new(&amp;stream);
+let request_line = match reader.lines().next() {
+    Some(Ok(line)) =&gt; line,       // "GET /about.html HTTP/1.1"
+    _ =&gt; return,                  // browser hung up; nothing to do
+};
+
+let mut parts = request_line.split_whitespace();
+let method = parts.next().unwrap_or("");
+let raw_path = parts.next().unwrap_or("/");</code></pre>
+          <p>You only need the first line. Browsers send more headers, but a
+          static file server can ignore every one of them.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 3: resolve(), the part that matters</summary>
+        <div class="hint-body">
+<pre><code>fn resolve(raw_path: &amp;str) -&gt; Option&lt;PathBuf&gt; {
+    let path = raw_path.split(['?', '#']).next().unwrap_or("/");
+
+    // the security rule: never let a path escape the site folder
+    if path.contains("..") {
+        return None;
+    }
+
+    let mut file_path = PathBuf::from(SITE_ROOT);
+    for segment in path.split('/').filter(|s| !s.is_empty()) {
+        file_path.push(segment);
+    }
+    if file_path.is_dir() {
+        file_path.push("index.html");
+    }
+    if file_path.extension().is_none() {
+        file_path.set_extension("html");
+    }
+
+    if file_path.is_file() { Some(file_path) } else { None }
+}</code></pre>
+          <p>Read the <code>..</code> check again and imagine the server without
+          it: <code>GET /../../home/you/.ssh/id_rsa</code>. Path traversal is one
+          of the oldest, most exploited bugs on the internet, and your test suite
+          should prove yours is closed forever.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 4: Writing a response</summary>
+        <div class="hint-body">
+          <p>Status line, headers, blank line, body. <code>\r\n</code> endings are
+          part of the protocol:</p>
+<pre><code>fn respond(stream: &amp;mut TcpStream, status: &amp;str, mime: &amp;str, body: &amp;[u8]) {
+    let header = format!(
+        "HTTP/1.1 {status}\r\nContent-Type: {mime}\r\nContent-Length: {}\r\n\r\n",
+        body.len()
+    );
+    stream.write_all(header.as_bytes()).ok();
+    stream.write_all(body).ok();
+}</code></pre>
+          <p>Why <code>.ok()</code> instead of <code>expect</code>? If the browser
+          already disconnected, the write fails and there is nobody left to tell.
+          Deliberately ignoring an error is fine <em>when you can say why</em>;
+          that sentence is the difference between sloppy and considered.</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>Hint 5: The full reference solution</summary>
+        <div class="hint-body">
+<pre><code>use std::fs;
+use std::io::{BufRead, BufReader, Write};
+use std::net::{TcpListener, TcpStream};
+use std::path::PathBuf;
+use std::thread;
+
+const ADDRESS: &amp;str = "127.0.0.1:7878";
+const SITE_ROOT: &amp;str = "site";
+
+fn main() {
+    let listener = TcpListener::bind(ADDRESS)
+        .expect("could not bind to port 7878. Is another server running?");
+
+    println!("🦀 serving {SITE_ROOT}/ at http://{ADDRESS} (Ctrl+C to stop)");
+
+    for stream in listener.incoming() {
+        match stream {
+            Ok(stream) =&gt; {
+                thread::spawn(move || handle_connection(stream));
+            }
+            Err(e) =&gt; eprintln!("connection failed: {e}"),
+        }
+    }
+}
+
+fn handle_connection(mut stream: TcpStream) {
+    let reader = BufReader::new(&amp;stream);
+
+    // First line of a request:  GET /about.html HTTP/1.1
+    let request_line = match reader.lines().next() {
+        Some(Ok(line)) =&gt; line,
+        _ =&gt; return,
+    };
+
+    let mut parts = request_line.split_whitespace();
+    let method = parts.next().unwrap_or("");
+    let raw_path = parts.next().unwrap_or("/");
+
+    if method != "GET" {
+        respond(&amp;mut stream, "405 Method Not Allowed", "text/plain", b"405");
+        return;
+    }
+
+    match resolve(raw_path) {
+        Some(path) =&gt; match fs::read(&amp;path) {
+            Ok(body) =&gt; respond(&amp;mut stream, "200 OK", mime_type(&amp;path), &amp;body),
+            Err(_) =&gt; not_found(&amp;mut stream),
+        },
+        None =&gt; not_found(&amp;mut stream),
+    }
+}
+
+/// Turn a URL path into a safe file path inside SITE_ROOT, or None.
+fn resolve(raw_path: &amp;str) -&gt; Option&lt;PathBuf&gt; {
+    let path = raw_path.split(['?', '#']).next().unwrap_or("/");
+
+    // the security rule: never let a path escape the site folder
+    if path.contains("..") {
+        return None;
+    }
+
+    let mut file_path = PathBuf::from(SITE_ROOT);
+    for segment in path.split('/').filter(|s| !s.is_empty()) {
+        file_path.push(segment);
+    }
+    if file_path.is_dir() {
+        file_path.push("index.html");
+    }
+    if file_path.extension().is_none() {
+        file_path.set_extension("html");
+    }
+
+    if file_path.is_file() { Some(file_path) } else { None }
+}
+
+fn mime_type(path: &amp;PathBuf) -&gt; &amp;'static str {
+    match path.extension().and_then(|e| e.to_str()).unwrap_or("") {
+        "html" =&gt; "text/html; charset=utf-8",
+        "css" =&gt; "text/css; charset=utf-8",
+        "js" =&gt; "text/javascript; charset=utf-8",
+        "svg" =&gt; "image/svg+xml",
+        "png" =&gt; "image/png",
+        _ =&gt; "application/octet-stream",
+    }
+}
+
+fn respond(stream: &amp;mut TcpStream, status: &amp;str, mime: &amp;str, body: &amp;[u8]) {
+    let header = format!(
+        "HTTP/1.1 {status}\r\nContent-Type: {mime}\r\nContent-Length: {}\r\n\r\n",
+        body.len()
+    );
+    stream.write_all(header.as_bytes()).ok();
+    stream.write_all(body).ok();
+}
+
+fn not_found(stream: &amp;mut TcpStream) {
+    let body = b"&lt;h1&gt;404&lt;/h1&gt;&lt;p&gt;not found&lt;/p&gt;";
+    respond(stream, "404 Not Found", "text/html; charset=utf-8", body);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sneaky_paths_are_rejected() {
+        assert_eq!(resolve("/../secret.txt"), None);
+        assert_eq!(resolve("/a/../../etc/passwd"), None);
+    }
+
+    #[test]
+    fn mime_types_match_extensions() {
+        assert_eq!(mime_type(&amp;PathBuf::from("site/x.css")), "text/css; charset=utf-8");
+        assert_eq!(mime_type(&amp;PathBuf::from("site/x.zzz")), "application/octet-stream");
+    }
+}</code></pre>
+          <p>Make a <code>site/</code> folder with an <code>index.html</code> saying
+          anything, <code>cargo run</code>, and open
+          <code>http://127.0.0.1:7878</code>. That page in your browser came
+          through code you wrote, byte by byte. Take the moment. 🏔️</p>
+        </div>
+      </details>
+
+      <details class="hint">
+        <summary>After you build it: read the real one</summary>
+        <div class="hint-body">
+          <p>This site's production server is the same design with a few more
+          comforts: a custom 404 page, more MIME types, and doc comments mapping
+          every technique to the lesson that taught it. Read it side by side with
+          yours:
+          <a href="https://github.com/AES256Afro/The-Rusty-School/blob/main/src/main.rs" target="_blank" rel="noopener">src/main.rs on GitHub</a>.
+          Where you made different choices, ask which is better. Sometimes it
+          will be yours; that is the day the training wheels come off.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="exercise">
+      <span class="ex-label">Stretch goals</span>
+      <h3>Make it yours</h3>
+      <ul>
+        <li><strong>A custom 404 page.</strong> Serve <code>site/404.html</code> if it
+          exists, with a plain fallback if not (the production server does this).</li>
+        <li><strong>Request logging.</strong> Print method, path, status, and
+          response size for every request: instant server logs.</li>
+        <li><strong>A thread pool.</strong> Thread-per-connection is honest but
+          unbounded. Chapter 21 of the Rust Book builds a pool; yours is the
+          perfect codebase to follow along with.</li>
+        <li><strong>HEAD support.</strong> Same headers as GET, no body. One match
+          arm.</li>
+        <li><strong>Serve this school.</strong> Clone the site repo, point
+          <code>SITE_ROOT</code> at its <code>docs/</code> folder, and your server is
+          serving the entire Rusty School locally. Full circle. 🦀🧡</li>
+      </ul>
+    </div>
+
+    <div class="callout tip">
+      <span class="co-title">🎓 Workshop complete</span>
+      Nine projects: a game, four real tools, a study app, a parser, a world, and
+      a web server. Nobody handed you the code; you built it from specs, like the
+      job. Whatever you make next does not need a hint ladder. Go make it, and
+      then teach someone else: that is what this school is for.
+    </div>
+
+    <button class="complete-btn" data-lesson="build-09-server">Mark project complete</button>
+
+    <div class="lesson-nav">
+      <a href="08-rustle.html"><span class="dir">← Previous</span>Project 8: rustle, a mini grep</a>
+      <a class="next" href="index.html"><span class="dir">Finish →</span>Back to the Workshop</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="index.html">Project workshop</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

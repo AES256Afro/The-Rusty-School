@@ -55,9 +55,10 @@ What is different about it:
 - **Run buttons on the examples.** Most code samples execute right in the page
   (it proxies to the official Rust Playground API, so thanks to the Rust infra
   team for that).
-- **A project workshop.** Three projects so far where you get a spec instead of
-  a tutorial, plus a hint ladder that goes from a gentle nudge to full code, so
-  you choose how much help you take.
+- **A project workshop.** Nine projects where you get a spec instead of a
+  tutorial, plus a hint ladder that goes from a gentle nudge to full code, so
+  you choose how much help you take. The capstone is rebuilding the site's own
+  web server.
 - Quizzes, a 100+ term glossary linked back to lessons, and printable cheat sheets.
 
 Free, no ads, no tracking, no account required (sign-in only exists to sync
