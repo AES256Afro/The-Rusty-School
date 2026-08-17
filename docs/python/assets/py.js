@@ -18,7 +18,15 @@
   "use strict";
 
   const root = document.documentElement;
-  const IN_SUB = /\/python\/(learn|build)\//.test(location.pathname);
+  // Are we one level below /python/? Match ANY subdirectory rather than a
+  // hardcoded list: naming them (learn|build) meant that adding jarvis/
+  // silently broke every campus-relative link on those pages, sending the
+  // Rust link to the Python home and 404ing the search script.
+  // /python/            -> no match, UP = ""
+  // /python/account     -> no match (no trailing segment), UP = ""
+  // /python/jarvis/     -> match, UP = "../"
+  // /python/learn/11-lists -> match, UP = "../"
+  const IN_SUB = /\/python\/[^/]+\//.test(location.pathname);
   const UP = IN_SUB ? "../" : "";
   const campus = UP + "../";      // from any python page up to the campus (docs) root
 
