@@ -40,9 +40,14 @@ install.
 It is generated, not hand-written:
 
 ```sh
-python3 tools/pybuild.py      # build docs/python/ from tools/pycourse/
-python3 tools/pyverify.py     # RUN every code example and prove its output
+python3 tools/pybuild.py            # build docs/python/ from tools/pycourse/
+python3 tools/pyverify.py           # RUN every code example and prove its output
+python3 tools/build-search-index.py # rebuild the campus search index
 ```
+
+Run the search index builder last, and after editing any hand-written Rust page
+too: it reads the shipped HTML in `docs/` rather than the sources, so the index
+can never claim something the site does not actually say.
 
 `pyverify.py` is the Python analogue of the Rust school's "compile every example
 before publishing" rule: it executes all 586 runnable examples (and all 37 Snake
