@@ -25,14 +25,13 @@ urgent is a wish list.
 
 ## The next three things
 
-1. **M4: Per-lesson quizzes.** The largest remaining win for retention,
-   and the most writing: 28 Rust lessons, then backport to Python.
-2. **M6: Instructor guides.** The cheapest route to the stated goal of
+1. **M6: Instructor guides.** The cheapest route to the stated goal of
    teaching other people, and it needs no backend at all.
-3. **M7: Classroom mode.** Now unblocked, since accounts are live.
+2. **M7: Classroom mode.** Now unblocked, since accounts are live.
+3. **M8: Self-hosted playground**, but only once traffic justifies the bill.
 
-M1 (search), M2 (accounts), M3 (certificate) and M5 (accessibility) have
-all shipped. See Shipped, below.
+M1 (search), M2 (accounts), M3 (certificate), M4 (per-lesson quizzes)
+and M5 (accessibility) have all shipped. See Shipped, below.
 
 ---
 
@@ -40,14 +39,6 @@ all shipped. See Shipped, below.
 
 Sized in evenings, honestly. "1 evening" means one sitting; "1 week" means
 a focused week of evenings, not a work week.
-
-### M4 · Per-lesson mini-quizzes for Rust 📝
-**Ship test:** every Rust lesson ends with two or three questions, the way
-the level quizzes already work.
-**Size:** 1 week (28 lessons of writing).
-The quiz engine already supports it. Python's per-level quizzes are good;
-per-lesson recall is better, and the research on spaced retrieval is not
-subtle. Do Rust first, then backport to Python.
 
 ### M6 · Instructor guides 👩‍🏫
 **Ship test:** somebody who has never taught can run a study group from one
@@ -175,6 +166,25 @@ Roughly in order of audience overlap:
 ---
 
 ## Shipped
+
+### M4 · Per-lesson mini-quizzes ✅
+Two or three recall questions at the foot of **every lesson in both
+schools**: 74 questions across 28 Rust lessons, 144 across 68 Python
+lessons, 218 in total. Spaced retrieval is the least glamorous,
+best-evidenced thing available for retention.
+
+The questions live in one data file per school
+(`docs/assets/lesson-quizzes.js`, `docs/python/assets/lesson-quizzes.js`),
+loaded only on lesson pages and injected above the complete button, so
+none of the hand-written Rust lessons or generated Python lessons had to
+change. A new lesson gains a quiz by adding one entry.
+
+Scores reuse the existing `rusty-quiz-best` map under a `lesson-` key, so
+they sync to accounts and feed XP like every other score. Every code
+snippet in a question is checked by `tools/verify-quiz-code.py`: Rust
+compiled with rustc (including two that must NOT compile), Python
+executed and its real output compared against the answer the question
+claims.
 
 Kept short, because a changelog is not a roadmap. Newest first.
 

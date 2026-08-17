@@ -1584,6 +1584,149 @@ _failed = not _ok
     apply();
   }
 
+
+  /* ================= per-lesson mini-quizzes =================
+     Mirrors the Rusty School's: questions live in assets/lesson-quizzes.js,
+     loaded only on lesson pages and injected above the complete button, so
+     no generated lesson template had to change. Scores reuse the shared
+     rusty-quiz-best map under a "lesson-<id>" key, which means they sync to
+     accounts and count toward XP like every other score. */
+  const _scriptPromises = {};
+  function loadScriptOnce(src) {
+    if (_scriptPromises[src]) return _scriptPromises[src];
+    _scriptPromises[src] = new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("could not load " + src));
+      document.head.appendChild(s);
+    });
+    return _scriptPromises[src];
+  }
+
+  function initLessonQuiz() {
+    const btn = document.querySelector(".complete-btn[data-lesson]");
+    if (!btn) return;
+    const lessonId = btn.dataset.lesson;
+    loadScriptOnce(UP + "assets/lesson-quizzes.js")
+      .then(() => {
+        const qs = (window.PY_LESSON_QUIZ || {})[lessonId];
+        if (qs && qs.length) renderLessonQuiz(btn, lessonId, qs);
+      })
+      .catch(() => {});   // a missing quiz file must never break a lesson
+  }
+
+  function renderLessonQuiz(completeBtn, lessonId, questions) {
+    const key = "lesson-" + lessonId;
+    const total = questions.length;
+
+    const section = document.createElement("section");
+    section.className = "lesson-quiz";
+    section.innerHTML =
+      "<h2>Check what stuck 🧠</h2>" +
+      '<p class="muted">' + total + " quick question" + (total === 1 ? "" : "s") +
+      ". Getting one wrong is useful information, not a judgement.</p>" +
+      '<div class="lq-body"></div>';
+    completeBtn.insertAdjacentElement("beforebegin", section);
+
+    const body = section.querySelector(".lq-body");
+    const best = bestScores();
+
+    function start() {
+      let index = 0;
+      let score = 0;
+
+      function showQuestion() {
+        const q = questions[index];
+        body.innerHTML = "";
+        const card = document.createElement("div");
+        card.className = "card quiz-card";
+        card.innerHTML =
+          '<div class="quiz-meta"><span>Question ' + (index + 1) + " of " + total +
+          "</span><span>Score " + score + "</span></div>" +
+          '<div class="quiz-q">' + q.q + "</div>" +
+          (q.code ? "<pre><code>" + highlightPython(q.code) + "</code></pre>" : "");
+
+        const opts = document.createElement("div");
+        opts.className = "quiz-opts";
+        q.options.forEach((text, i) => {
+          const opt = document.createElement("button");
+          opt.className = "quiz-opt";
+          opt.type = "button";
+          opt.innerHTML = text;
+          opt.addEventListener("click", (e) => {
+            [...opts.children].forEach((b) => (b.disabled = true));
+            const right = i === q.answer;
+            opt.classList.add(right ? "correct" : "wrong");
+            opts.children[q.answer].classList.add("correct");
+            if (right) { score++; confetti(e.clientX, e.clientY); }
+
+            const explain = document.createElement("div");
+            explain.className = "quiz-explain";
+            explain.innerHTML =
+              "<strong>" + (right ? "Correct. " : "Not quite. ") + "</strong>" + q.explain;
+            card.appendChild(explain);
+
+            const next = document.createElement("button");
+            next.className = "btn btn-primary btn-small";
+            next.style.marginTop = "14px";
+            next.textContent = index + 1 < total ? "Next question →" : "See how I did →";
+            next.addEventListener("click", () => {
+              index++;
+              if (index < total) showQuestion();
+              else showScore();
+            });
+            card.appendChild(next);
+            next.focus();
+          });
+          opts.appendChild(opt);
+        });
+
+        card.appendChild(opts);
+        body.appendChild(card);
+      }
+
+      function showScore() {
+        const previous = bestScores();
+        if (score > (previous[key] || 0)) {
+          previous[key] = score;
+          localStorage.setItem("rusty-quiz-best", JSON.stringify(previous));
+          renderXp();
+          checkNewAchievements();
+          pushProgress();
+        }
+        const verdict =
+          score === total ? "All correct. Monty has nothing to add. 🐍"
+          : score >= Math.ceil(total * 0.6) ? "Solid. Skim the bits you missed and it will stick."
+          : "Worth another read. This is what re-reading is for.";
+
+        body.innerHTML = "";
+        const card = document.createElement("div");
+        card.className = "card quiz-card quiz-score";
+        card.innerHTML =
+          '<div class="big">' + score + " / " + total + "</div><p>" + verdict + "</p>";
+        const again = document.createElement("button");
+        again.className = "btn btn-ghost btn-small";
+        again.textContent = "Try again";
+        again.addEventListener("click", start);
+        card.appendChild(again);
+        body.appendChild(card);
+        if (score === total) confetti(window.innerWidth / 2, 200);
+      }
+
+      showQuestion();
+    }
+
+    const startBtn = document.createElement("button");
+    startBtn.className = "btn btn-ghost btn-small";
+    startBtn.type = "button";
+    startBtn.textContent = best[key] !== undefined
+      ? "Take it again (best: " + best[key] + "/" + total + ")"
+      : "Start the questions →";
+    startBtn.addEventListener("click", start);
+    body.appendChild(startBtn);
+  }
+
   /* ================= tabs ================= */
   function initTabs() {
     const tabs = document.querySelectorAll(".tab-btn[data-tab]");
@@ -1790,5 +1933,6 @@ _failed = not _ok
     initPlayground();
     initGlossary();
     checkNewAchievements();
+    initLessonQuiz();
   });
 })();
