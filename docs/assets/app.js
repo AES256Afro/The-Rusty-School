@@ -85,6 +85,11 @@
       nav.insertBefore(py, nav.querySelector(".theme-toggle"));
     }
     const footList = document.querySelector(".site-footer .cols ul");
+    if (footList && !footList.querySelector('a[href$="roadmap.html"]')) {
+      const li = document.createElement("li");
+      li.innerHTML = '<a href="' + prefix + 'roadmap.html">Roadmap</a>';
+      footList.appendChild(li);
+    }
     if (footList && !footList.querySelector('a[href$="glossary.html"]')) {
       const li = document.createElement("li");
       li.innerHTML = '<a href="' + prefix + 'glossary.html">Glossary</a>';

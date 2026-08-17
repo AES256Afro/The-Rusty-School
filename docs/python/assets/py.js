@@ -60,9 +60,14 @@
     }
 
     const footList = document.querySelector(".site-footer .cols ul");
+    if (footList && !footList.querySelector('a[href$="roadmap.html"]')) {
+      const li = document.createElement("li");
+      li.innerHTML = '<a href="' + campus + 'roadmap.html">Roadmap</a>';
+      footList.appendChild(li);
+    }
     if (footList && !footList.querySelector('a[href$="privacy.html"]')) {
       const li = document.createElement("li");
-      li.innerHTML = '<a href="' + UP + '../privacy.html">Privacy</a>';
+      li.innerHTML = '<a href="' + campus + 'privacy.html">Privacy</a>';
       footList.appendChild(li);
     }
     const footer = document.querySelector(".site-footer");
