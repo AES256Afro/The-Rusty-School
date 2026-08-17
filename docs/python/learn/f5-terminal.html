@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base Camp 5: The Terminal, Files and Paths - The Python School</title>
+<meta name="description" content="A survival guide to the command line on macOS, Windows and Linux: the ten commands you need and what a path really is.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/f5-terminal">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Base Camp 5: The Terminal, Files and Paths - The Python School">
+<meta property="og:description" content="A survival guide to the command line on macOS, Windows and Linux: the ten commands you need and what a path really is.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/f5-terminal">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Base Camp 5: The Terminal, Files and Paths - The Python School">
+<meta name="twitter:description" content="A survival guide to the command line on macOS, Windows and Linux: the ten commands you need and what a path really is.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Base Camp 5 of 6</nav>
+    <span class="badge l0">Level 0 · Base Camp</span>
+    <h1>The Terminal, Files and Paths ⌨️</h1>
+    <p class="lede muted">The black window with the blinking cursor is not a hacker thing. It is a text
+    conversation with your computer, and it is about to become the room you live in.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Why bother, when you have a mouse</h2>
+    <p>
+      Clicking is great for one file. It is terrible for four thousand. The terminal is how
+      you say "rename every photo in this folder" in one sentence instead of four thousand
+      drags. It is also the only sane way to run Python programs, install packages, and use
+      almost every professional development tool ever built.
+    </p>
+    <p>
+      More importantly: it is a text interface, which means every instruction in every tutorial
+      you will ever read is a line you can copy. Nobody can screenshot a mouse gesture.
+    </p>
+
+    <div class="voice" data-skill="half-light"><div class="v-head"><span class="v-name">HALF LIGHT</span><span class="v-check failure">[Easy: Failure]</span></div><p>It looks like the interface from a film where someone says 'I'm in'. You are going to type something wrong and destroy the machine.</p>
+<p>You are not. You would have to go well out of your way. The commands in this lesson look at things and move you around; not one of them deletes anything.</p></div>
+
+    <h2>Opening it</h2>
+    <div class="table-wrap"><table><thead><tr><th>System</th><th>How</th><th>What you get</th></tr></thead><tbody><tr><td>macOS</td><td>Cmd+Space, type 'Terminal', Enter</td><td>zsh, a Unix shell</td></tr><tr><td>Windows</td><td>Start menu, type 'PowerShell', Enter</td><td>PowerShell</td></tr><tr><td>Linux</td><td>Ctrl+Alt+T, usually</td><td>bash or zsh</td></tr></tbody></table></div>
+    <p>
+      You will see a <strong>prompt</strong>: some text, then a cursor. It is telling you where
+      you are and waiting. You type a command, press Enter, it does the thing, and gives the
+      prompt back.
+    </p>
+
+    <h2>Where am I? The idea of a path</h2>
+    <p>
+      Your files live in a tree. A <strong>path</strong> is the route from somewhere to a
+      specific file, written as folder names joined by slashes:
+    </p>
+    <pre class="out"><code class="nohl">/Users/you/Documents/python/hello.py     macOS and Linux
+C:\Users\you\Documents\python\hello.py     Windows (backslashes)</code></pre>
+    <p>Two kinds of path, and the difference causes more beginner pain than any other topic:</p>
+    <ul>
+      <li>An <strong>absolute path</strong> starts at the very top (<code>/</code> or
+      <code>C:\</code>) and works everywhere. Like full postal address.</li>
+      <li>A <strong>relative path</strong> starts from wherever you currently are.
+      <code>hello.py</code> means "in this folder". Like saying "two doors down".</li>
+    </ul>
+    <p>Two special names you will use constantly:</p>
+    <div class="table-wrap"><table><thead><tr><th>Written</th><th>Means</th></tr></thead><tbody><tr><td><code>.</code></td><td>the folder I am in right now</td></tr><tr><td><code>..</code></td><td>the folder one level up</td></tr><tr><td><code>~</code></td><td>my home folder (macOS/Linux, and PowerShell understands it too)</td></tr></tbody></table></div>
+
+    <div class="callout danger"><span class="co-title">🪤 The number one beginner error</span><p><code>python hello.py</code> failing with <code>can't open file 'hello.py': No such file or directory</code> almost never means the file is missing. It means <em>you are not standing in the folder that contains it</em>. Run <code>ls</code> (or <code>dir</code> on Windows) and look. If the file is not in that list, you need to <code>cd</code> somewhere else first.</p></div>
+
+    <h2>The ten commands that cover almost everything</h2>
+    <div class="table-wrap"><table><thead><tr><th>macOS / Linux</th><th>Windows PowerShell</th><th>What it does</th></tr></thead><tbody><tr><td><code>pwd</code></td><td><code>pwd</code></td><td>Print working directory: where am I?</td></tr><tr><td><code>ls</code></td><td><code>ls</code> or <code>dir</code></td><td>List what is in this folder</td></tr><tr><td><code>ls -la</code></td><td><code>ls -Force</code></td><td>List everything, including hidden files</td></tr><tr><td><code>cd folder</code></td><td><code>cd folder</code></td><td>Go into a folder</td></tr><tr><td><code>cd ..</code></td><td><code>cd ..</code></td><td>Go up one level</td></tr><tr><td><code>cd ~</code></td><td><code>cd ~</code></td><td>Go home</td></tr><tr><td><code>mkdir name</code></td><td><code>mkdir name</code></td><td>Make a folder</td></tr><tr><td><code>cat file</code></td><td><code>cat file</code></td><td>Print a file to the screen</td></tr><tr><td><code>python3 file.py</code></td><td><code>python file.py</code></td><td>Run a Python program</td></tr><tr><td><code>clear</code></td><td><code>cls</code></td><td>Wipe the screen (nothing is deleted)</td></tr></tbody></table></div>
+
+    <h2>A first session, annotated</h2>
+    <pre class="term"><code class="nohl">~ $ pwd
+/Users/you
+
+~ $ mkdir python-school
+~ $ cd python-school
+~/python-school $ pwd
+/Users/you/python-school
+
+~/python-school $ ls
+(nothing here yet, which is correct)
+
+~/python-school $ cd ..
+~ $ </code></pre>
+    <p>
+      That is the whole loop: look around, move, make something, look again. You now know
+      enough terminal to finish this entire course.
+    </p>
+
+    <h2>Three tricks that will save you hours</h2>
+    <ul>
+      <li><strong>Tab completion.</strong> Type the first few letters of a folder or file and
+      press Tab. The shell finishes it. This prevents typos and is the single biggest speedup
+      available to you. Use it constantly.</li>
+      <li><strong>Up arrow.</strong> Recalls your previous commands. You will re-run the same
+      <code>python hello.py</code> three hundred times today. Do not retype it.</li>
+      <li><strong>Ctrl+C.</strong> Stops whatever is running. If a program is stuck in a loop
+      and will not stop, this is the escape hatch. Memorise it now, you will need it in
+      Lesson 8.</li>
+    </ul>
+
+    <div class="voice" data-skill="savoir-faire"><div class="v-head"><span class="v-name">SAVOIR FAIRE</span><span class="v-check success">[Medium: Success]</span></div><p>Watch an experienced developer's hands sometime. They barely type full paths. It is all Tab, up arrow, Ctrl+R, muscle memory built over years. None of it is talent. It is just the same six keys, ten thousand times.</p></div>
+
+    <h2>Dragging beats typing</h2>
+    <p>
+      Nobody types long paths. On macOS and Linux, type <code>cd </code> (with the space) and
+      then <strong>drag the folder from your file manager onto the terminal window</strong>.
+      The path appears. Press Enter. On Windows, hold Shift, right-click a folder, and choose
+      "Copy as path", then paste.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Find your feet</h3><p>Open a terminal and run these, in order. Read each result before typing the next one.</p><pre class="term"><code class="nohl">pwd
+ls
+cd ~
+mkdir python-school
+cd python-school
+pwd</code></pre><details class="solution"><summary>Reveal solution</summary><p>You should end with a path ending in <code>/python-school</code> (or <code>\python-school</code> on Windows). That folder is where everything in this course will live.</p><p>If <code>mkdir</code> said the folder already exists, no harm done: you have run it twice, which is exactly as damaging as it sounds.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Read a path</h3><p>You are in <code>/Users/you/python-school</code>. Where do these point?</p><ol><li><code>notes.txt</code></li><li><code>../Downloads/data.csv</code></li><li><code>/etc/hosts</code></li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><code>/Users/you/python-school/notes.txt</code>, in the folder you are standing in.</li><li><code>/Users/you/Downloads/data.csv</code>: up one level, then down into Downloads.</li><li><code>/etc/hosts</code> exactly, because it starts with a slash. Absolute paths ignore where you are standing.</li></ol></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-f5-terminal">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="f4-why-python.html"><span class="dir">← Previous</span>Base Camp 4: Why Python? An Honest Accounting</a>
+      <a class="next" href="f6-lab.html"><span class="dir">Next →</span>Base Camp 6: Setting Up Your Lab</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

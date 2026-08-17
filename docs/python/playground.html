@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Playground - The Python School</title>
+<meta name="description" content="Write and run real Python 3.14 in your browser. No installs, no uploads, no account.">
+<link rel="canonical" href="https://rustyschool.com/python/playground">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="The Playground - The Python School">
+<meta property="og:description" content="Write and run real Python 3.14 in your browser. No installs, no uploads, no account.">
+<meta property="og:url" content="https://rustyschool.com/python/playground">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Playground - The Python School">
+<meta name="twitter:description" content="Write and run real Python 3.14 in your browser. No installs, no uploads, no account.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="assets/monty.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="build/index.html">Build</a>
+      <a href="pit.html">Snake Pit</a>
+      <a href="playground.html">Playground</a>
+      <a href="quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container">
+
+  <section class="lesson-header">
+    <span class="kicker">The Playground</span>
+    <h1>Write Python <span class="grad">right here</span> ⚡</h1>
+    <p class="lede muted">
+      A real Python 3.14 interpreter, running inside this page. Nothing is installed and
+      nothing is uploaded: your code never leaves your machine, because there is no server
+      to send it to.
+    </p>
+  </section>
+
+  <div class="pg-toolbar">
+    <button class="btn btn-primary" id="pg-run">▶ Run (Ctrl+Enter)</button>
+    <select class="pg-select" id="pg-example" aria-label="Load an example">
+      <option value="hello">Hello, world</option>
+      <option value="variables">Variables and f-strings</option>
+      <option value="fizzbuzz">FizzBuzz (loops and conditions)</option>
+      <option value="lists">Lists and looping</option>
+      <option value="dicts">Dictionaries</option>
+      <option value="input">Asking for input</option>
+      <option value="classes">Classes and objects</option>
+      <option value="errors">Broken on purpose</option>
+    </select>
+    <span class="pg-status" id="pg-status">starting up…</span>
+  </div>
+
+  <div class="pg-grid">
+    <textarea class="pg-editor" id="pg-editor" spellcheck="false"
+      aria-label="Python code editor"></textarea>
+    <div class="pg-output-wrap">
+      <p class="pg-output-label muted">Output</p>
+      <pre class="pg-output" id="pg-output"><span class="run-warn">Press run, or Ctrl+Enter.</span></pre>
+    </div>
+  </div>
+
+  <p class="stdin-note">
+    💬 <code>input()</code> works: when your program asks a question, your browser pops up a
+    box. Your draft is saved in this browser automatically.
+  </p>
+
+  <div class="callout tip" style="margin-top:22px">
+    <span class="co-title">🧠 How this works, since you will wonder</span>
+    <p>
+      This is <a href="https://pyodide.org" target="_blank" rel="noopener">Pyodide</a>: the
+      actual CPython interpreter compiled to WebAssembly, so it runs at native-ish speed in a
+      sandbox your browser already trusts. The whole standard library is here: try
+      <code>import json</code>, <code>import random</code>, <code>import datetime</code>.
+    </p>
+    <p>
+      What is <em>not</em> here: the network (no <code>requests</code>), your files, and
+      anything that needs an operating system. For those, do
+      <a href="setup.html">the ten-minute lab setup</a> and run Python properly on your own
+      machine.
+    </p>
+  </div>
+
+  <div class="callout warn">
+    <span class="co-title">♾️ If you write an infinite loop</span>
+    The school stops any program that runs longer than 20 seconds and tells you so. This is
+    a feature: writing a loop that never ends is a rite of passage, and freezing your own
+    browser tab should not be the punishment.
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Set up your lab</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base Camp 3: What Python Is, and Where It Came From - The Python School</title>
+<meta name="description" content="Python&#x27;s history, its name, versions, the Zen of Python, and what an interpreter really does.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/f3-python">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Base Camp 3: What Python Is, and Where It Came From - The Python School">
+<meta property="og:description" content="Python&#x27;s history, its name, versions, the Zen of Python, and what an interpreter really does.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/f3-python">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Base Camp 3: What Python Is, and Where It Came From - The Python School">
+<meta name="twitter:description" content="Python&#x27;s history, its name, versions, the Zen of Python, and what an interpreter really does.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Base Camp 3 of 6</nav>
+    <span class="badge l0">Level 0 · Base Camp</span>
+    <h1>What Python Is, and Where It Came From 🐍</h1>
+    <p class="lede muted">It is named after a comedy troupe, it was a Christmas project, and it now runs a
+    frightening share of the modern world. Meet your language.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>A Christmas holiday project</h2>
+    <p>
+      In December 1989, a Dutch programmer named Guido van Rossum had a quiet holiday and a
+      mild irritation. The languages available to him were either fast and hostile or friendly
+      and useless. So he started building a language that read almost like English, punished
+      you for writing messy layout, and let you get something working before your coffee went
+      cold. He released it publicly in 1991.
+    </p>
+    <p>
+      He named it after <a href="https://en.wikipedia.org/wiki/Monty_Python%27s_Flying_Circus" target="_blank" rel="noopener">Monty Python's Flying Circus</a>,
+      not the snake. This is why the official docs are full of spam, eggs and dead parrots,
+      and why the traditional placeholder names in Python examples are
+      <code>spam</code>, <code>eggs</code> and <code>ham</code> rather than the boring
+      <code>foo</code> and <code>bar</code> the rest of the industry uses.
+    </p>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Trivial: Success]</span></div><p>Guido carried the informal title 'Benevolent Dictator For Life' for decades, stepped down in 2018 after a bruising argument about a new syntax feature, and the language is now governed by an elected Steering Council. A language outliving its founder's involvement is a sign of health, not decline.</p></div>
+
+    <h2>What actually happens when you run Python</h2>
+    <p>
+      You write a file, say <code>hello.py</code>. You run it. Behind the scenes:
+    </p>
+    <ol class="steps">
+      <li><strong>Your text is parsed.</strong> The interpreter reads your file and checks the
+      grammar. If you forgot a bracket, this is where it complains, before anything runs.</li>
+      <li><strong>It is compiled to bytecode.</strong> Yes, compiled: Python turns your code
+      into a compact set of instructions for a pretend machine. You will sometimes see these
+      cached in a <code>__pycache__</code> folder. That folder is not garbage, and not a virus.</li>
+      <li><strong>A virtual machine runs the bytecode.</strong> This is the part that is
+      genuinely "interpreted": a loop inside CPython reads one bytecode instruction at a time
+      and does it.</li>
+    </ol>
+    <p>
+      "CPython" is the standard Python, written in C, the one you will install. There are
+      others: <a href="https://pypy.org" target="_blank" rel="noopener">PyPy</a> (much faster for long-running number crunching),
+      <a href="https://micropython.org" target="_blank" rel="noopener">MicroPython</a> (runs on a chip that costs less than a
+      sandwich), and Pyodide, which is CPython compiled to WebAssembly. That last one is why
+      the ▶ run buttons in this course work with no server involved. Your code never leaves
+      your laptop.
+    </p>
+
+    <div class="callout tip"><span class="co-title">🧪 Try it right now</span><p>Every code block in this school with a ▶ run button executes real Python 3.14 in your browser. Press it. Change the text. Press it again. Nothing you can type will break anything.</p></div>
+    <pre class="run" data-verify="run"><code>print(&quot;Hello from a real Python interpreter, running inside a web page.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Hello from a real Python interpreter, running inside a web page.</code></pre>
+
+    <h2>Python 2 versus Python 3, and why you can ignore it</h2>
+    <p>
+      For about a decade Python had a painful split. Python 3 arrived in 2008 with sensible
+      but incompatible changes, and the world took twelve years to move. Python 2 was finally
+      retired on 1 January 2020.
+    </p>
+    <p>
+      Why you care: old tutorials and old Stack Overflow answers are still out there. The
+      instant tell is <code>print</code>. If you see this:
+    </p>
+    <pre data-verify="skip"><code>print &quot;hello&quot;   # Python 2. Ancient. Move on.</code></pre>
+    <p>
+      then the page is at least six years out of date and probably wrong in other ways too.
+      Modern Python always uses <code>print("hello")</code> with brackets. This course teaches
+      Python 3.13 and 3.14 conventions throughout.
+    </p>
+
+    <h2>The Zen of Python</h2>
+    <p>
+      Python ships with a hidden poem. Type <code>import this</code> into a Python prompt and
+      it prints nineteen aphorisms by Tim Peters about how Python code should feel. The
+      opening lines:
+    </p>
+    <pre class="out"><code class="nohl">Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+Complex is better than complicated.
+Flat is better than nested.
+Sparse is better than dense.
+Readability counts.</code></pre>
+    <p>
+      This is not decoration. It explains real design decisions you are about to meet: why
+      Python forces you to indent, why there is usually one obvious way to do a thing, and
+      why the community reacts to clever one-liners the way a librarian reacts to shouting.
+    </p>
+
+    <div class="voice" data-skill="rhetoric"><div class="v-head"><span class="v-name">RHETORIC</span><span class="v-check success">[Medium: Success]</span></div><p>'Readability counts' is doing a lot of work in that list. Code is read far more often than it is written. Optimising for the reader is not politeness, it is self-interest with a delay built in.</p></div>
+
+    <h2>Where Python sits today</h2>
+    <p>
+      It is consistently at or near the top of every measure of language popularity: the
+      <a href="https://www.tiobe.com/tiobe-index/" target="_blank" rel="noopener">TIOBE index</a>, the
+      <a href="https://survey.stackoverflow.co" target="_blank" rel="noopener">Stack Overflow Developer Survey</a>, and
+      GitHub's <a href="https://octoverse.github.com" target="_blank" rel="noopener">Octoverse report</a>, which in 2024
+      recorded Python overtaking JavaScript as the most-used language on GitHub, driven
+      largely by data science and machine learning work.
+    </p>
+    <p>
+      More useful than the rankings: Python is the default language of scientific computing,
+      the default language of machine learning, one of the two default languages of
+      automation and DevOps, and a first-class option for web backends. Next lesson looks at
+      exactly why, with receipts.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Read the poem</h3><p>Run this block and read all nineteen lines. Pick the one you disagree with most, and keep it in mind. In six months, see whether you still disagree.</p><pre class="run" data-verify="run"><code>import this</code></pre>
+<pre class="out"><code class="nohl">The Zen of Python, by Tim Peters
+
+Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+Complex is better than complicated.
+Flat is better than nested.
+Sparse is better than dense.
+Readability counts.
+Special cases aren&#x27;t special enough to break the rules.
+Although practicality beats purity.
+Errors should never pass silently.
+Unless explicitly silenced.
+In the face of ambiguity, refuse the temptation to guess.
+There should be one-- and preferably only one --obvious way to do it.
+Although that way may not be obvious at first unless you&#x27;re Dutch.
+Now is better than never.
+Although never is often better than *right* now.
+If the implementation is hard to explain, it&#x27;s a bad idea.
+If the implementation is easy to explain, it may be a good idea.
+Namespaces are one honking great idea -- let&#x27;s do more of those!</code></pre><details class="solution"><summary>Reveal solution</summary><p>There is no wrong answer. Most beginners bristle at 'explicit is better than implicit' because explicit code is longer. Most people come around after their first week maintaining someone else's clever implicit code.</p><p>(If you noticed the poem is a little odd in places, well spotted. It is a joke as much as a manifesto, and 'unless you're Dutch' is aimed squarely at Guido.)</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Date the tutorial</h3><p>You find a tutorial online containing this line. Should you trust the rest of the page?</p><pre data-verify="skip"><code>print &quot;Total:&quot;, total</code></pre><details class="solution"><summary>Reveal solution</summary><p>No. That is Python 2 syntax, dead since January 2020. It will not even run on a modern Python: you will get a <code>SyntaxError</code>. The rest of the page is likely to be similarly stale.</p><p>Habit worth forming now: check the date on anything you find, and prefer the official docs at docs.python.org, which are versioned and current.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-f3-python">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="f2-programming.html"><span class="dir">← Previous</span>Base Camp 2: What Programming Actually Is</a>
+      <a class="next" href="f4-why-python.html"><span class="dir">Next →</span>Base Camp 4: Why Python? An Honest Accounting</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

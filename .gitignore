@@ -7,3 +7,6 @@ Cargo.lock
 
 # Local editor/agent settings
 .claude/
+
+# local scratch for course authoring
+scratch/

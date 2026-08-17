@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 150" role="img" aria-label="Monty, the friendly python mascot">
+  <!-- tail tip poking out of the bottom coil -->
+  <path d="M168 126 Q192 122 200 132" fill="none" stroke="#4584b6" stroke-width="11" stroke-linecap="round"/>
+  <!-- coils, biggest at the bottom -->
+  <ellipse cx="108" cy="124" rx="64" ry="20" fill="#3c73a0"/>
+  <ellipse cx="108" cy="120" rx="64" ry="19" fill="#4584b6"/>
+  <ellipse cx="108" cy="120" rx="44" ry="10" fill="#ffde57" opacity="0.75"/>
+  <ellipse cx="108" cy="100" rx="50" ry="17" fill="#3c73a0"/>
+  <ellipse cx="108" cy="97" rx="50" ry="16" fill="#4b8bbe"/>
+  <ellipse cx="108" cy="97" rx="32" ry="8" fill="#ffde57" opacity="0.7"/>
+  <ellipse cx="108" cy="80" rx="37" ry="14" fill="#3c73a0"/>
+  <ellipse cx="108" cy="78" rx="37" ry="13" fill="#4b8bbe"/>
+  <ellipse cx="108" cy="78" rx="22" ry="6" fill="#ffde57" opacity="0.65"/>
+  <!-- neck and head -->
+  <path d="M108 74 Q108 58 110 50" fill="none" stroke="#4b8bbe" stroke-width="30" stroke-linecap="round"/>
+  <ellipse cx="110" cy="44" rx="33" ry="26" fill="#4b8bbe"/>
+  <ellipse cx="110" cy="52" rx="24" ry="14" fill="#ffde57" opacity="0.55"/>
+  <!-- tongue -->
+  <path d="M110 66 L110 78 M110 78 L104 86 M110 78 L116 86" fill="none" stroke="#ff6b6b" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- eyes -->
+  <circle cx="97" cy="40" r="10" fill="#fff"/>
+  <circle cx="123" cy="40" r="10" fill="#fff"/>
+  <circle cx="99" cy="42" r="4.8" fill="#16222e"/>
+  <circle cx="121" cy="42" r="4.8" fill="#16222e"/>
+  <circle cx="100.7" cy="40.2" r="1.6" fill="#fff"/>
+  <circle cx="122.7" cy="40.2" r="1.6" fill="#fff"/>
+  <!-- brows, mildly skeptical, as befits a snake who has read your code -->
+  <path d="M88 27 Q97 23 106 27" fill="none" stroke="#2f6086" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M114 27 Q123 23 132 27" fill="none" stroke="#2f6086" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- blush -->
+  <circle cx="84" cy="52" r="6" fill="#ffde57" opacity="0.5"/>
+  <circle cx="136" cy="52" r="6" fill="#ffde57" opacity="0.5"/>
+  <!-- smile -->
+  <path d="M101 57 Q110 64 119 57" fill="none" stroke="#1d3a52" stroke-width="3.2" stroke-linecap="round"/>
+</svg>

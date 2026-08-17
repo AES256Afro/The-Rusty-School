@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base Camp 4: Why Python? An Honest Accounting - The Python School</title>
+<meta name="description" content="What Python is genuinely great at, what it is bad at, who uses it in production, and when to pick something else.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/f4-why-python">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Base Camp 4: Why Python? An Honest Accounting - The Python School">
+<meta property="og:description" content="What Python is genuinely great at, what it is bad at, who uses it in production, and when to pick something else.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/f4-why-python">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Base Camp 4: Why Python? An Honest Accounting - The Python School">
+<meta name="twitter:description" content="What Python is genuinely great at, what it is bad at, who uses it in production, and when to pick something else.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Base Camp 4 of 6</nav>
+    <span class="badge l0">Level 0 · Base Camp</span>
+    <h1>Why Python? An Honest Accounting ⚖️</h1>
+    <p class="lede muted">Every language brochure claims the same six virtues. This lesson gives you the
+    real ones, with sources, and then tells you where Python loses.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The case for Python</h2>
+
+    <h3>1. It is the shortest distance between an idea and a working thing</h3>
+    <p>
+      Counting a file's words takes one line in Python and a small ceremony in most compiled
+      languages. That difference compounds. When an experiment costs you five minutes instead
+      of an hour, you run twenty times more experiments, and running more experiments is
+      most of what learning and research actually are.
+    </p>
+
+    <h3>2. It reads like English, which matters more than it sounds</h3>
+    <pre class="run" data-verify="run"><code>crew = [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+
+if &quot;Otis&quot; in crew:
+    print(&quot;Otis is aboard.&quot;)
+
+for member in crew:
+    print(f&quot;{member} reports for duty.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Otis is aboard.
+Guybrush reports for duty.
+Elaine reports for duty.
+Otis reports for duty.</code></pre>
+    <p>
+      You could read that aloud to a non-programmer and they would broadly follow it. Very few
+      languages can say that. It matters because, as the Zen says, code is read far more than
+      it is written.
+    </p>
+
+    <h3>3. The batteries are genuinely included</h3>
+    <p>
+      Python ships with a standard library that handles dates, files, zip archives, JSON, CSV,
+      SQLite databases, HTTP, email, threading, random numbers, maths, testing, logging and
+      unit conversion, all without installing anything. Then there is
+      <a href="https://pypi.org" target="_blank" rel="noopener">PyPI</a>, the public package index, which passed
+      <strong>half a million</strong> published packages. Whatever you want to do, someone has
+      probably done the boring 80% of it already.
+    </p>
+
+    <h3>4. It owns science and machine learning outright</h3>
+    <p>
+      This is not marketing, it is where the field actually happens.
+      <a href="https://numpy.org" target="_blank" rel="noopener">NumPy</a> and <a href="https://pandas.pydata.org" target="_blank" rel="noopener">pandas</a>
+      are the standard tools for numerical work.
+      <a href="https://pytorch.org" target="_blank" rel="noopener">PyTorch</a> is what most AI research is written in.
+      The <a href="https://github.com/achael/eht-imaging" target="_blank" rel="noopener">Event Horizon Telescope</a> team used
+      Python to assemble the first image of a black hole, and
+      <a href="https://gwosc.org/tutorials/" target="_blank" rel="noopener">LIGO</a> publishes its gravitational wave analysis
+      as Python notebooks. When you learn Python you are learning the language the tools of
+      modern science are written in.
+    </p>
+
+    <h3>5. It is the glue language</h3>
+    <p>
+      Python is unusually good at telling other programs what to do: shell commands, web APIs,
+      spreadsheets, databases, browsers, your operating system. A huge share of real-world
+      Python is fifty lines that make four other systems talk to each other. Unglamorous,
+      enormously useful, and the fastest route to your first genuinely handy tool.
+    </p>
+
+    <div class="voice" data-skill="interfacing"><div class="v-head"><span class="v-name">INTERFACING</span><span class="v-check success">[Medium: Success]</span></div><p>This is the part nobody puts on the brochure. Most working software is not a cathedral. It is a hundred small pipes connecting things that were never designed to meet. Python is the best pipe-fitting language ever made, and there is no shame in that at all.</p></div>
+
+    <h2>Who actually runs it</h2>
+    <div class="table-wrap"><table><thead><tr><th>Who</th><th>What they do with it</th><th>Source</th></tr></thead><tbody><tr><td>Instagram</td><td>One of the largest Django deployments on earth, serving billions of requests</td><td><a href="https://instagram-engineering.com/tagged/python" target="_blank" rel="noopener">Instagram engineering</a></td></tr><tr><td>NASA / JPL</td><td>Mission planning, data pipelines and analysis</td><td><a href="https://github.com/nasa-jpl" target="_blank" rel="noopener">JPL open source</a></td></tr><tr><td>Netflix</td><td>Almost all of its operational tooling and data platform</td><td><a href="https://netflixtechblog.com/python-at-netflix-bba45dae649e" target="_blank" rel="noopener">Netflix tech blog</a></td></tr><tr><td>Spotify</td><td>Data pipelines and backend services</td><td><a href="https://engineering.atspotify.com" target="_blank" rel="noopener">Spotify engineering</a></td></tr><tr><td>Dropbox</td><td>Was built on Python; Guido himself worked there for years</td><td><a href="https://dropbox.tech/application" target="_blank" rel="noopener">Dropbox tech blog</a></td></tr><tr><td>CERN, LIGO, EHT</td><td>The analysis behind actual physics results</td><td><a href="https://gwosc.org/tutorials/" target="_blank" rel="noopener">gravitational wave tutorials</a></td></tr><tr><td>Basically every ML team</td><td>Model training, evaluation and serving</td><td><a href="https://pytorch.org" target="_blank" rel="noopener">PyTorch</a></td></tr></tbody></table></div>
+
+    <h2>The case against Python</h2>
+    <p>
+      A course that only sells you the upside is an advert. Here is where Python genuinely loses.
+    </p>
+
+    <h3>It is slow, and the reason is structural</h3>
+    <p>
+      Interpreted, dynamically typed code does far more work per operation than compiled code.
+      A tight numeric loop in pure Python can be tens to hundreds of times slower than the same
+      loop in C or Rust. In practice this rarely matters, because the heavy lifting is done
+      inside libraries that are themselves written in C, Rust or Fortran. NumPy is fast because
+      NumPy is not really Python. But if <em>your</em> hot loop is pure Python, you will feel it.
+    </p>
+
+    <h3>It lets you make mistakes that a compiler would catch</h3>
+    <p>
+      Python will happily run a program containing a typo in a branch you have not tested yet,
+      then fail at 3am. Static languages catch that class of error before the program starts.
+      Type hints and tools like <a href="https://mypy-lang.org" target="_blank" rel="noopener">mypy</a> claw a lot of this back
+      (Lesson 38), but it is opt-in, and opt-in safety is weaker than enforced safety.
+    </p>
+
+    <h3>Shipping it to other people is awkward</h3>
+    <p>
+      A Rust program compiles to a single file you can email to someone. A Python program is
+      code plus an interpreter plus a set of dependencies, and getting all three onto a
+      stranger's machine has spawned an entire industry of workarounds. It is much better
+      than it was, and Lesson 50 covers the modern answers, but it is still Python's softest spot.
+    </p>
+
+    <h3>Threads do not do what you expect</h3>
+    <p>
+      For most of its life CPython has had a Global Interpreter Lock, which means ordinary
+      threads do not give you more CPU. There are good workarounds (processes, async, native
+      libraries), Python 3.13 introduced an experimental build without the lock, and Lesson 39
+      explains the whole situation honestly. But "just add threads" is not the answer here that
+      it is elsewhere.
+    </p>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Medium: Success]</span></div><p>None of that is a reason to stop. It is a reason to know your tool. A chef is not embarrassed that a bread knife cuts bread badly when used as a screwdriver.</p></div>
+
+    <h2>So when should you not pick Python?</h2>
+    <div class="table-wrap"><table><thead><tr><th>If you need...</th><th>Consider</th><th>Why</th></tr></thead><tbody><tr><td>A game engine, an operating system, a browser core</td><td>Rust, C++</td><td>You need predictable speed and control over memory</td></tr><tr><td>A tiny single-file tool for strangers to download</td><td>Rust, Go</td><td>One compiled binary, no runtime to install</td></tr><tr><td>Code running in a web browser</td><td>JavaScript, TypeScript</td><td>It is the browser's native language</td></tr><tr><td>An iPhone or Android app</td><td>Swift, Kotlin</td><td>First-class platform support and tooling</td></tr><tr><td>Squeezing the last 30% out of a hot loop</td><td>Rust, C, or NumPy</td><td>Or write that one function in Rust and call it from Python. People do this constantly</td></tr></tbody></table></div>
+    <div class="callout info"><span class="co-title">🦀 The sister school</span><p>That last row is not a joke. Tools like <a href='https://pyo3.rs' target='_blank' rel='noopener'>PyO3</a> let you write the slow 5% of a Python program in Rust and call it as if it were Python. <a href='https://github.com/astral-sh/ruff' target='_blank' rel='noopener'>ruff</a>, <a href='https://github.com/astral-sh/uv' target='_blank' rel='noopener'>uv</a> and <a href='https://pola.rs' target='_blank' rel='noopener'>Polars</a> are all Python tools written in Rust, and they are 10 to 100 times faster than what they replaced. If that sounds appealing, the <a href='../../learn/index.html'>Rusty School</a> is next door, and Lesson 51 here shows you the bridge.</p></div>
+
+    <h2>The honest summary</h2>
+    <p>
+      Python is the best first language available, and remains a genuinely excellent tenth
+      language. It optimises for the scarcest resource in any project, which is human attention.
+      You will outgrow it in specific directions, and that is a good outcome: knowing exactly
+      why you are reaching for another tool is what makes you an engineer rather than a fan.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Pick the tool</h3><p>For each job, would you reach for Python? Answer before revealing.</p><ol><li>Rename 4,000 holiday photos by the date they were taken.</li><li>Write the firmware for a pacemaker.</li><li>Analyse a 200MB spreadsheet of sales data and chart the trend.</li><li>Build a competitive first-person shooter.</li><li>Glue a weather API to a smart light so the bulb turns blue when rain is forecast.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Yes.</strong> Textbook Python. Twenty lines, ten minutes.</li><li><strong>No.</strong> Safety-critical, real-time, memory-constrained. That is C, Ada or Rust territory with certification requirements Python cannot meet.</li><li><strong>Yes.</strong> pandas plus matplotlib is exactly this job.</li><li><strong>Mostly no.</strong> The engine wants C++ or Rust. Python is often used for the scripting layer inside such engines, though.</li><li><strong>Yes.</strong> Two APIs and a bit of logic: peak glue language.</li></ol></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-f4-why-python">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="f3-python.html"><span class="dir">← Previous</span>Base Camp 3: What Python Is, and Where It Came From</a>
+      <a class="next" href="f5-terminal.html"><span class="dir">Next →</span>Base Camp 5: The Terminal, Files and Paths</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

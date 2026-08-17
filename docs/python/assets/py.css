@@ -1,0 +1,293 @@
+/* ============================================================
+   The Python School
+   Same design system as The Rusty School, different weather.
+   This file loads AFTER ../assets/style.css and does two jobs:
+     1. repaint the palette (warm rust -> cool python blue/yellow)
+     2. add the components this school invents (skill checks, XP,
+        achievements, the Snake Pit, the Insult Compiler)
+   ============================================================ */
+
+/* ---------- palette: dark (default) ---------- */
+:root {
+  --bg: #12161b;
+  --bg-soft: #171d24;
+  --surface: #1b232b;
+  --surface-2: #212b35;
+  --border: #2f3d4a;
+  --text: #e9eef4;
+  --text-muted: #a3b3c2;
+  --accent: #4584b6;
+  --accent-bright: #7cbcea;
+  --accent-soft: #ffde57;
+  --green: #8fce5f;
+  --red: #ff8080;
+  --blue: #7cbcea;
+  --code-bg: #0d1117;
+  --code-border: #232e3a;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  /* python syntax colors */
+  --tok-kw: #ff9ec4;
+  --tok-str: #a5d68a;
+  --tok-com: #7d8fa0;
+  --tok-mac: #ffde57;
+  --tok-typ: #7cbcea;
+  --tok-num: #d8a7f0;
+  --tok-fn: #ffd479;
+  --tok-life: #f79bd3;
+  --tok-attr: #8fa5b8;
+  --tok-self: #c9a0ff;
+  --tok-dec: #ffb454;
+}
+
+/* Buttons keep their own darker blue so white text clears WCAG AA;
+   the accent blue on its own is too light for that. Same lesson the
+   Rusty School learned with orange. */
+:root {
+  --btn-grad-a: #2a5f8a;
+  --btn-grad-b: #30699a;
+}
+
+[data-theme="light"] {
+  --bg: #f6f8fb;
+  --bg-soft: #eef2f7;
+  --surface: #ffffff;
+  --surface-2: #eff4f9;
+  --border: #d5e0ea;
+  --text: #17222e;
+  --text-muted: #55677a;
+  --accent: #2b6ea0;
+  --accent-bright: #1c5f92;
+  --accent-soft: #8a6a00;
+  --green: #3f7a1a;
+  --red: #c92a2a;
+  --blue: #1971c2;
+  --code-bg: #16202b;
+  --code-border: #27333f;
+  --shadow: 0 10px 30px rgba(30, 60, 90, 0.10);
+  --tok-com: #8a9bab;
+}
+
+/* the mascot floats instead of bobbing sideways */
+.hero-art img { filter: drop-shadow(0 18px 30px rgba(69, 132, 182, 0.35)); }
+.logo .crate { color: var(--accent-bright); }
+
+/* extra level badges: this school runs to Level 6 */
+.badge.l5 { background: rgba(124, 188, 234, 0.16); color: var(--blue); }
+.badge.l6 { background: rgba(201, 160, 255, 0.18); color: #c9a0ff; }
+[data-theme="light"] .badge.l6 { background: rgba(103, 58, 183, 0.12); color: #5b32a8; }
+.badge.build { background: rgba(255, 222, 87, 0.16); color: var(--accent-soft); }
+
+/* ---------- code block labels ----------
+   Rust has "compiler says". Python has tracebacks and output. */
+pre.traceback::before {
+  content: "python says"; display: block; font-family: var(--mono);
+  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #e08a8a; margin-bottom: 8px;
+}
+pre.traceback code { color: #ffcfcf; }
+pre.out::before {
+  content: "output"; display: block; font-family: var(--mono);
+  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #7d9a86; margin-bottom: 8px;
+}
+pre.out code { color: #d5e8d0; }
+pre.repl::before {
+  content: "interactive shell"; display: block; font-family: var(--mono);
+  font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #8fa5b8; margin-bottom: 8px;
+}
+pre.repl code { color: #dbe6f0; }
+.tok-self { color: var(--tok-self); font-style: italic; }
+.tok-dec { color: var(--tok-dec); }
+
+/* ---------- skill checks ----------
+   The voices in your head, borrowed shamelessly from a certain
+   detective RPG. Each one is a different way of looking at the same
+   line of code: the pedant, the historian, the worrier, the poet. */
+.voice {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--surface-2) 92%, var(--accent)), var(--surface));
+  border-radius: var(--radius-sm);
+  padding: 13px 18px; margin: 1.3em 0; font-size: 0.96rem;
+}
+.voice .v-head {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.voice .v-name {
+  font-family: var(--mono); font-weight: 800; font-size: 0.8rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-bright);
+}
+.voice .v-check {
+  font-size: 0.78rem; font-style: italic; color: var(--text-muted);
+  white-space: nowrap;
+}
+.voice .v-check.success { color: var(--green); }
+.voice .v-check.failure { color: var(--red); }
+.voice p { margin: 4px 0 0; font-style: italic; color: var(--text); }
+.voice p + p { margin-top: 0.7em; }
+.voice code { font-style: normal; }
+.voice[data-skill="encyclopedia"] { border-left-color: #c9a0ff; }
+.voice[data-skill="encyclopedia"] .v-name { color: #c9a0ff; }
+.voice[data-skill="logic"] { border-left-color: var(--blue); }
+.voice[data-skill="interfacing"] { border-left-color: var(--green); }
+.voice[data-skill="interfacing"] .v-name { color: var(--green); }
+.voice[data-skill="drama"] { border-left-color: #ff9ec4; }
+.voice[data-skill="drama"] .v-name { color: #ff9ec4; }
+.voice[data-skill="empathy"] { border-left-color: #ffb454; }
+.voice[data-skill="empathy"] .v-name { color: var(--accent-soft); }
+.voice[data-skill="paranoia"] { border-left-color: var(--red); }
+.voice[data-skill="paranoia"] .v-name { color: var(--red); }
+.voice[data-skill="rubber-duck"] { border-left-color: var(--accent-soft); }
+.voice[data-skill="rubber-duck"] .v-name { color: var(--accent-soft); }
+.voice[data-skill="volition"] { border-left-color: var(--green); }
+.voice[data-skill="volition"] .v-name { color: var(--green); }
+[data-theme="light"] .voice[data-skill="encyclopedia"] .v-name { color: #5b32a8; }
+[data-theme="light"] .voice[data-skill="drama"] .v-name { color: #b02a6e; }
+
+/* ---------- XP, ranks, quest log ---------- */
+.xp-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px; margin: 18px 0 6px;
+}
+.xp-top {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.rank-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 999px; padding: 6px 16px; font-weight: 800; font-size: 0.95rem;
+}
+.rank-chip .rank-num {
+  background: linear-gradient(135deg, var(--accent), var(--accent-bright));
+  color: #06121c; width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 0.8rem;
+}
+.xp-nums { font-size: 0.9rem; color: var(--text-muted); }
+.xp-nums strong { color: var(--accent-soft); }
+.xp-bar {
+  height: 14px; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+}
+.xp-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(92deg, var(--accent), var(--accent-soft));
+  border-radius: 999px; transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.xp-note { font-size: 0.85rem; color: var(--text-muted); margin: 8px 0 0; }
+.xp-gain {
+  display: inline-block; font-family: var(--mono); font-size: 0.76rem;
+  font-weight: 700; color: var(--accent-soft);
+  background: color-mix(in srgb, var(--accent-soft) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-soft) 35%, transparent);
+  border-radius: 999px; padding: 2px 9px; margin-left: 8px; vertical-align: middle;
+}
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 120; max-width: min(520px, 92vw);
+  background: var(--surface); border: 2px solid var(--accent-soft);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 14px 20px; text-align: center;
+  animation: toast-in 0.35s ease-out;
+}
+.toast .t-title { font-weight: 800; color: var(--accent-soft); display: block; }
+.toast .t-body { font-size: 0.92rem; color: var(--text-muted); }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 18px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+
+/* ---------- achievements ---------- */
+.ach-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 900px) { .ach-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .ach-grid { grid-template-columns: 1fr; } }
+.ach {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+  display: flex; gap: 14px; align-items: flex-start; opacity: 0.55;
+}
+.ach.unlocked { opacity: 1; border-color: var(--accent-soft); }
+.ach .ach-icon {
+  font-size: 1.8rem; flex: none; width: 46px; height: 46px;
+  display: grid; place-items: center; border-radius: 12px;
+  background: var(--surface-2); border: 1px solid var(--border); filter: grayscale(1);
+}
+.ach.unlocked .ach-icon { filter: none; border-color: var(--accent-soft); }
+.ach h3 { margin: 0 0 2px; font-size: 1rem; }
+.ach p { margin: 0; font-size: 0.87rem; color: var(--text-muted); }
+.ach .ach-state { font-size: 0.76rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.ach.unlocked .ach-state { color: var(--green); }
+
+/* ---------- the Snake Pit ---------- */
+.belt-egg       { background: #f0ece2; color: #3a3226; }
+.belt-garter    { background: #7ec46f; color: #17300f; }
+.belt-rattler   { background: #ffde57; color: #4a3500; }
+.belt-boa       { background: #4584b6; color: #fff; }
+.belt-cobra     { background: #8a5ac4; color: #fff; }
+.belt-basilisk  { background: #14181d; color: #e9eef4; border-color: #4a5560; }
+
+/* ---------- the Insult Compiler ---------- */
+.duel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 22px 24px; margin: 1.4em 0;
+}
+.duel-hp { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 14px; font-size: 0.9rem; }
+.duel-hp .hp-bar { height: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+.duel-hp .hp-fill { height: 100%; background: linear-gradient(92deg, var(--green), #cbe86b); transition: width 0.4s ease; }
+.duel-hp .them .hp-fill { background: linear-gradient(92deg, var(--red), #ffb454); }
+.duel-hp > div { flex: 1; }
+.duel-hp .them { text-align: right; }
+.taunt {
+  font-family: var(--mono); font-size: 0.95rem; line-height: 1.5;
+  background: var(--code-bg); border: 1px solid var(--code-border);
+  border-radius: var(--radius-sm); padding: 14px 18px; margin: 0 0 6px;
+  color: #ffcfcf; white-space: pre-wrap;
+}
+.taunt-said { font-style: italic; color: var(--text-muted); font-size: 0.9rem; margin: 0 0 14px; }
+.riposte-list { display: grid; gap: 10px; }
+.riposte {
+  text-align: left; font: inherit; font-size: 0.95rem;
+  background: var(--surface-2); color: var(--text);
+  border: 2px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 16px; cursor: pointer;
+}
+.riposte:hover:not(:disabled) { border-color: var(--accent); }
+.riposte:disabled { cursor: default; opacity: 0.8; }
+.riposte.hit { border-color: var(--green); background: rgba(143, 206, 95, 0.12); opacity: 1; }
+.riposte.miss { border-color: var(--red); background: rgba(255, 128, 128, 0.1); }
+.duel-verdict {
+  border-left: 4px solid var(--blue); background: var(--surface-2);
+  border-radius: var(--radius-sm); padding: 12px 16px; margin-top: 14px; font-size: 0.94rem;
+}
+.duel-score { text-align: center; }
+.duel-score .big { font-size: 2.6rem; font-weight: 800; }
+
+/* ---------- quest / path cards ---------- */
+.quest-map { display: grid; gap: 14px; }
+.quest {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+}
+.quest .q-icon { font-size: 1.8rem; flex: none; }
+.quest h3 { margin: 0 0 4px; }
+.quest p { margin: 0; color: var(--text-muted); font-size: 0.93rem; }
+
+/* ---------- the Pyodide playground ---------- */
+.pg-status {
+  font-size: 0.84rem; color: var(--text-muted); font-family: var(--mono);
+}
+.pg-status.ready { color: var(--green); }
+.pg-status.busy { color: var(--accent-soft); }
+.stdin-note { font-size: 0.84rem; color: var(--text-muted); margin: 6px 0 0; }
+
+/* run buttons sit next to copy buttons */
+.run-btn { right: 76px; }
+
+/* ---------- campus switcher ---------- */
+.campus-switch {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.82rem; color: var(--text-muted);
+  border: 1px dashed var(--border); border-radius: 999px; padding: 4px 14px;
+}
+.campus-switch a { font-weight: 700; }
