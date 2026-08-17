@@ -188,6 +188,8 @@
           if (!out || !out.classList.contains("run-out")) {
             out = document.createElement("div");
             out.className = "run-out";
+            out.setAttribute("role", "status");
+            out.setAttribute("aria-live", "polite");
             pre.insertAdjacentElement("afterend", out);
           }
           executePython(code.textContent, out, runBtn, pre.dataset.stdin || "");
@@ -573,6 +575,10 @@ _failed = not _ok
   function toast(title, body) {
     const el = document.createElement("div");
     el.className = "toast";
+    // Announced, not just shown: a milestone that only exists as a
+    // visual flash is invisible to a screen-reader user.
+    el.setAttribute("role", "status");
+    el.setAttribute("aria-live", "polite");
     el.innerHTML = '<span class="t-title"></span><span class="t-body"></span>';
     el.querySelector(".t-title").textContent = title;
     el.querySelector(".t-body").textContent = body || "";

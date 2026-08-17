@@ -190,6 +190,9 @@ p { margin: 0.8em 0; }
   letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--accent-soft); margin-bottom: 8px;
 }
+/* --accent-soft is chosen to glow on dark paper; on light paper the
+   same amber only reached 3.78:1 as small bold text. */
+[data-theme="light"] .kicker { color: #8a5000; }
 .hero h1 .grad, .grad {
   background: linear-gradient(92deg, var(--accent-bright), var(--accent-soft));
   -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -295,6 +298,19 @@ a.chip:hover { border-color: var(--accent); text-decoration: none; transform: tr
 .badge.l2 { background: rgba(255, 180, 84, 0.16); color: var(--accent-soft); }
 .badge.l3 { background: rgba(111, 183, 255, 0.16); color: var(--blue); }
 .badge.l4 { background: rgba(255, 107, 107, 0.16); color: var(--red); }
+
+/* Badge colours are tuned for the dark theme, where they all clear
+   WCAG AA comfortably. On light paper the same hues sit on a pale tint
+   of themselves and stop being readable: the Level 0 purple measured
+   1.78:1 against its own background, because --tok-num is a syntax
+   colour meant for the dark code panel and is not re-themed. These are
+   the same hues taken down to ink weight. Measured, not eyeballed:
+   every one now clears 4.5:1. */
+[data-theme="light"] .badge.l0 { color: #6b3fa0; }
+[data-theme="light"] .badge.l1 { color: #38661a; }
+[data-theme="light"] .badge.l2 { color: #8a5000; }
+[data-theme="light"] .badge.l3 { color: #12558f; }
+[data-theme="light"] .badge.l4 { color: #a81f1f; }
 
 /* ---------- code ---------- */
 code {

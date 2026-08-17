@@ -24,14 +24,14 @@ urgent is a wish list.
 
 ## The next three things
 
-1. **M3: The certificate.** Finishing 68 lessons currently earns a green
-   progress bar. It should earn something you can print and show somebody.
-2. **M5: Accessibility pass.** Overdue, and it gets harder to retrofit with
-   every feature added on top.
-3. **M4: Per-lesson quizzes.** The largest remaining win for actual
-   retention, and the most writing.
+1. **M4: Per-lesson quizzes.** The largest remaining win for retention,
+   and the most writing: 28 Rust lessons, then backport to Python.
+2. **M6: Instructor guides.** The cheapest route to the stated goal of
+   teaching other people, and it needs no backend at all.
+3. **M7: Classroom mode.** Now unblocked, since accounts are live.
 
-M1 (site search) and M2 (accounts) both shipped. See Shipped, below.
+M1 (search), M2 (accounts), M3 (certificate) and M5 (accessibility) have
+all shipped. See Shipped, below.
 
 ---
 
@@ -40,14 +40,6 @@ M1 (site search) and M2 (accounts) both shipped. See Shipped, below.
 Sized in evenings, honestly. "1 evening" means one sitting; "1 week" means
 a focused week of evenings, not a work week.
 
-### M3 · The completion certificate 🎓
-**Ship test:** finishing a school renders a printable certificate with your
-name, the school, and the date, drawn on a canvas in the browser.
-**Size:** 2 evenings.
-Silly, motivating, shareable, and zero infrastructure. Ferris on the Rust
-seal, Monty on the Python one. Also the natural reward for the Graduate
-milestone that both schools now track.
-
 ### M4 · Per-lesson mini-quizzes for Rust 📝
 **Ship test:** every Rust lesson ends with two or three questions, the way
 the level quizzes already work.
@@ -55,13 +47,6 @@ the level quizzes already work.
 The quiz engine already supports it. Python's per-level quizzes are good;
 per-lesson recall is better, and the research on spaced retrieval is not
 subtle. Do Rust first, then backport to Python.
-
-### M5 · Accessibility and Lighthouse pass ♿
-**Ship test:** Lighthouse 100 on accessibility across a sampled page of
-each type, full keyboard navigation through quizzes, the dojo, the pit and
-the playground, and a reduced-motion audit that includes the new toasts.
-**Size:** 2 to 3 evenings.
-Overdue. A school that turns people away at the door is not a school.
 
 ### M6 · Instructor guides 👩‍🏫
 **Ship test:** somebody who has never taught can run a study group from one
@@ -75,7 +60,7 @@ and it needs no backend at all. It also makes M7 worth building.
 **Ship test:** a teacher makes a class code, three students join, the
 teacher sees their lesson progress and quiz scores on one page.
 **Size:** 1 to 2 weeks. Needs D1 (free tier).
-Depends on M2. This is the feature that makes the campus usable for
+Accounts are live, so this is unblocked. It is the feature that makes the campus usable for
 meetups, families and workplaces rather than only for solo learners.
 
 ### M8 · Self-hosted Rust playground ⚙️
@@ -192,6 +177,13 @@ Roughly in order of audience overlap:
 
 Kept short, because a changelog is not a roadmap. Newest first.
 
+- **Accessibility pass (M5).** Every badge and kicker on both schools now
+  clears WCAG AA in both themes. The Level 0 badge had been sitting at
+  1.78:1 in light mode, because its colour is a syntax-highlighting token
+  meant for the dark code panel and was never re-themed. Toasts and code
+  output are announced to screen readers instead of only appearing.
+- **The completion certificate (M3).** Finish a school and print your name
+  on something, drawn in the browser from your own progress.
 - **Campus search (M1).** One overlay across both schools, opened with `/`
   or Cmd/Ctrl-K or the nav button. The index is built from the shipped HTML
   by `tools/build-search-index.py`, so it can never drift from what is

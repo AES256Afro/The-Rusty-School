@@ -73,6 +73,7 @@
 
 /* extra level badges: this school runs to Level 6 */
 .badge.l5 { background: rgba(124, 188, 234, 0.16); color: var(--blue); }
+[data-theme="light"] .badge.l5 { color: #12558f; }
 .badge.l6 { background: rgba(201, 160, 255, 0.18); color: #c9a0ff; }
 [data-theme="light"] .badge.l6 { background: rgba(103, 58, 183, 0.12); color: #5b32a8; }
 .badge.build { background: rgba(255, 222, 87, 0.16); color: var(--accent-soft); }
