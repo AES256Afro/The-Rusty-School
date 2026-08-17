@@ -247,6 +247,7 @@
         }
         saveDone(set);
         render();
+        refreshGuidance(true);
         pushProgress();
       });
     });
@@ -272,6 +273,392 @@
             (doneCount === 1 ? one : noun) + " complete. Keep going!";
       }
     }
+  }
+
+  /* ---------------- milestones & what to do next ----------------
+     Two related ideas share this section.
+
+     The progress bar answers "how much is left?". A milestone answers
+     the more motivating question: "what can I DO now?" They are the
+     linear spine of the school, from never having compiled anything to
+     teaching somebody else.
+
+     The suggestion engine answers the question beginners actually ask
+     most, and the one tutorials answer worst: "what should I do next?"
+     It reads the same rusty-done set as everything else and names one
+     concrete next action, with a reason.
+
+     The indexes below are hand-maintained, matching the hand-written
+     pages in learn/ and build/. Adding a lesson means adding a line
+     here. (The Python School generates its equivalent, because that
+     whole school is generated.) */
+  const LEVELS = [
+    { n: 0, name: "Foundations", icon: "🌍", quiz: "level0" },
+    { n: 1, name: "Sprout", icon: "🌱", quiz: "level1" },
+    { n: 2, name: "The Rust Way", icon: "🔧", quiz: "level2" },
+    { n: 3, name: "Power Tools", icon: "🚀", quiz: "level3" },
+    { n: 4, name: "Deep Cuts", icon: "🕳️", quiz: "level4" },
+  ];
+
+  const LESSONS = [
+    ["f1-computers", "How a Computer Thinks", 0],
+    ["f2-toolbox", "The Programmer's Toolbox", 0],
+    ["f3-git", "Version Control & Git", 0],
+    ["f4-standards", "Standards & Conventions", 0],
+    ["f5-mindset", "The Programmer's Mindset", 0],
+    ["01-hello-world", "Hello, World!", 1],
+    ["02-variables", "Variables & Mutability", 1],
+    ["03-types", "Data Types", 1],
+    ["04-functions", "Functions", 1],
+    ["05-control-flow", "Control Flow", 1],
+    ["06-ownership", "Ownership", 2],
+    ["07-borrowing", "Borrowing & References", 2],
+    ["08-structs", "Structs & Methods", 2],
+    ["09-enums", "Enums & Pattern Matching", 2],
+    ["10-collections", "Collections", 2],
+    ["11-errors", "Error Handling", 2],
+    ["12-traits", "Traits & Generics", 3],
+    ["13-lifetimes", "Lifetimes", 3],
+    ["14-iterators", "Closures & Iterators", 3],
+    ["15-smart-pointers", "Smart Pointers", 3],
+    ["16-concurrency", "Fearless Concurrency", 3],
+    ["17-cargo", "Cargo, Modules & Tests", 3],
+    ["18-strings", "Strings, For Real This Time", 4],
+    ["19-patterns", "Pattern Matching Mastery", 4],
+    ["20-errors-pro", "Error Handling Like a Pro", 4],
+    ["21-async", "Async Rust", 4],
+    ["22-unsafe", "Unsafe & FFI", 4],
+    ["23-performance", "Performance & Profiling", 4],
+  ].map(([id, title, level]) => ({ id, title, level, href: "learn/" + id + ".html" }));
+
+  const PROJECTS = [
+    ["build-01-guessing-game", "01-guessing-game", "Number Guessing Game"],
+    ["build-02-tip-splitter", "02-tip-splitter", "Tip Splitter CLI"],
+    ["build-03-todo-list", "03-todo-list", "Todo List"],
+    ["build-04-flashcards", "04-flashcards", "Flashcard Quizzer"],
+    ["build-05-adventure", "05-adventure", "Text Adventure"],
+    ["build-06-word-counter", "06-word-counter", "Word Counter Pro"],
+    ["build-07-markdown", "07-markdown", "Markdown Converter"],
+    ["build-08-rustle", "08-rustle", "rustle: a mini grep"],
+    ["build-09-server", "09-server", "The Capstone: Build the Server"],
+  ].map(([id, file, title]) => ({ id, title, href: "build/" + file + ".html" }));
+
+  const DOJO_TOTAL = 36;
+  const DOJO_BELTED = 12;
+
+  function pathPrefix() {
+    return (location.pathname.includes("/learn/") ||
+            location.pathname.includes("/build/")) ? "../" : "";
+  }
+  function lessonsOfLevel(n) {
+    return LESSONS.filter((l) => l.level === n);
+  }
+  function countDoneIn(ids) {
+    const done = getDone();
+    return ids.filter((id) => done.has(id)).length;
+  }
+  function levelProgress(n) {
+    const ids = lessonsOfLevel(n).map((l) => l.id);
+    return [countDoneIn(ids), ids.length];
+  }
+  function lessonsDone() {
+    return countDoneIn(LESSONS.map((l) => l.id));
+  }
+  function projectsDone() {
+    return countDoneIn(PROJECTS.map((p) => p.id));
+  }
+  function dojoDone() {
+    let n = 0;
+    getDone().forEach((id) => { if (id.startsWith("dojo-")) n++; });
+    return n;
+  }
+
+  const MILESTONES = [
+    { id: "kitted", icon: "🎒", name: "Kitted Out",
+      blurb: "You know what a compiler is, what git is for, and how programmers think. The vocabulary problem is solved.",
+      need: () => levelProgress(0) },
+    { id: "first", icon: "👋", name: "First Program",
+      blurb: "You have written, compiled and run a real Rust program on your own machine.",
+      need: () => [countDoneIn(["01-hello-world"]), 1] },
+    { id: "sprout", icon: "🌱", name: "Sprout",
+      blurb: "Variables, types, functions, control flow. You can write programs that decide and repeat.",
+      need: () => levelProgress(1) },
+    { id: "borrow", icon: "🦀", name: "Borrow Checker Survivor",
+      blurb: "Ownership and borrowing: the two ideas that make Rust Rust. Nobody forgets their first argument with these.",
+      need: () => [countDoneIn(["06-ownership", "07-borrowing"]), 2] },
+    { id: "rustway", icon: "🔧", name: "The Rust Way",
+      blurb: "Structs, enums, collections, errors. This is where you stop doing exercises and start building things.",
+      need: () => levelProgress(2) },
+    { id: "builder", icon: "🔨", name: "Builder",
+      blurb: "One workshop project finished: a program that is yours, not a copied exercise.",
+      need: () => [Math.min(projectsDone(), 1), 1] },
+    { id: "belted", icon: "🥋", name: "Belted",
+      blurb: DOJO_BELTED + " dojo puzzles solved. Reading broken code is a different skill from writing new code, and rarer.",
+      need: () => [Math.min(dojoDone(), DOJO_BELTED), DOJO_BELTED] },
+    { id: "power", icon: "🚀", name: "Power Tools",
+      blurb: "Traits, lifetimes, iterators, smart pointers, threads, Cargo. Advanced Rust, gently.",
+      need: () => levelProgress(3) },
+    { id: "deep", icon: "🕳️", name: "Deep Cuts",
+      blurb: "Async, unsafe, FFI, profiling. The topics behind the curtain. Very few beginners come this far.",
+      need: () => levelProgress(4) },
+    { id: "shipwright", icon: "🚢", name: "Shipwright",
+      blurb: "Every workshop project finished, capstone included. You have written a web server in Rust.",
+      need: () => [projectsDone(), PROJECTS.length] },
+    { id: "rustacean", icon: "🎓", name: "Rustacean",
+      blurb: "Every lesson in the school complete. Now go and teach somebody. That is the whole point.",
+      need: () => [lessonsDone(), LESSONS.length] },
+  ];
+
+  function milestoneState() {
+    const list = MILESTONES.map((m) => {
+      const [have, total] = m.need();
+      return { m, have, total, reached: total > 0 && have >= total };
+    });
+    const current = list.find((x) => !x.reached) || null;
+    return { list, current, reached: list.filter((x) => x.reached).length };
+  }
+
+  /* Which single thing should this person do next? Ordered by what
+     actually helps: finish the lesson you are on, then consolidate
+     (quiz, puzzles), then build. */
+  function suggestNext() {
+    const done = getDone();
+    const p = pathPrefix();
+    const out = [];
+    const anyLesson = LESSONS.some((l) => done.has(l.id));
+
+    const nextLesson = LESSONS.find((l) => !done.has(l.id));
+    if (nextLesson) {
+      const lvl = LEVELS[nextLesson.level];
+      out.push({
+        icon: anyLesson ? "📖" : "🚀",
+        title: nextLesson.title,
+        why: anyLesson
+          ? "The next lesson on the path, in " + lvl.icon + " " + lvl.name + "."
+          : "Everybody starts here, including people who have never opened a terminal.",
+        href: p + nextLesson.href,
+        cta: anyLesson ? "Continue" : "Start lesson 1",
+      });
+    }
+
+    // A quiz for the last level you actually finished, if you never took it.
+    const best = bestScores();
+    for (let i = LEVELS.length - 1; i >= 0; i--) {
+      const [have, total] = levelProgress(i);
+      if (total > 0 && have >= total && best[LEVELS[i].quiz] === undefined) {
+        out.push({
+          icon: "🧠",
+          title: LEVELS[i].name + " quiz",
+          why: "You finished the level. Ten minutes here is worth an hour of re-reading.",
+          href: p + "quiz.html",
+          cta: "Take the quiz",
+        });
+        break;
+      }
+    }
+
+    // Projects open up once you can write a program that loops and decides.
+    const [l1have, l1total] = levelProgress(1);
+    if (l1have >= l1total) {
+      const nextProject = PROJECTS.find((pr) => !done.has(pr.id));
+      if (nextProject) {
+        out.push({
+          icon: "🔨",
+          title: nextProject.title,
+          why: projectsDone() === 0
+            ? "Lessons teach ideas; projects turn them into something you own. This is the cure for tutorial hell."
+            : "The next build in the workshop.",
+          href: p + nextProject.href,
+          cta: "Open the spec",
+        });
+      }
+    }
+
+    // Puzzles, once there is enough Rust in your head to read them.
+    if (anyLesson && dojoDone() < DOJO_TOTAL && lessonsDone() >= 5) {
+      out.push({
+        icon: "🥋",
+        title: "The Rust Dojo",
+        why: dojoDone() === 0
+          ? "Broken programs ranked like chess puzzles. Fix them until they compile."
+          : dojoDone() + " of " + DOJO_TOTAL + " solved so far.",
+        href: p + "dojo.html",
+        cta: "Enter the dojo",
+      });
+    }
+
+    // Finished the whole school? There is another one next door.
+    if (!nextLesson) {
+      out.push({
+        icon: "🐍",
+        title: "The Python School",
+        why: "You have finished Rust. The sister school starts from zero again, and the contrast is the best teacher there is.",
+        href: p + "python/index.html",
+        cta: "Visit the Python School",
+      });
+    }
+
+    return out;
+  }
+
+  function milestoneNode(x, isCurrent) {
+    const el = document.createElement("div");
+    el.className = "ms" + (x.reached ? " reached" : isCurrent ? " current" : " locked");
+    const icon = document.createElement("span");
+    icon.className = "ms-icon";
+    icon.textContent = x.m.icon;
+    const body = document.createElement("div");
+    body.className = "ms-body";
+    const name = document.createElement("span");
+    name.className = "ms-name";
+    name.textContent = x.m.name;
+    const meta = document.createElement("span");
+    meta.className = "ms-meta";
+    meta.textContent = x.reached ? "reached" : x.have + " of " + x.total;
+    body.appendChild(name);
+    body.appendChild(meta);
+    if (isCurrent || x.reached) {
+      const blurb = document.createElement("p");
+      blurb.className = "ms-blurb";
+      blurb.textContent = x.m.blurb;
+      body.appendChild(blurb);
+    }
+    el.appendChild(icon);
+    el.appendChild(body);
+    return el;
+  }
+
+  function renderMilestones(mount) {
+    const state = milestoneState();
+    mount.innerHTML = "";
+    const head = document.createElement("div");
+    head.className = "ms-head";
+    head.innerHTML = "<h2>Milestones</h2><span class='ms-count'></span>";
+    head.querySelector(".ms-count").textContent =
+      state.reached + " of " + MILESTONES.length + " reached";
+    mount.appendChild(head);
+    const track = document.createElement("div");
+    track.className = "ms-track";
+    state.list.forEach((x) => {
+      track.appendChild(milestoneNode(x, state.current === x));
+    });
+    mount.appendChild(track);
+  }
+
+  function renderNextStep(mount) {
+    const picks = suggestNext();
+    if (!picks.length) return false;
+    const primary = picks[0];
+    mount.innerHTML = "";
+    const card = document.createElement("div");
+    card.className = "next-step";
+
+    const kicker = document.createElement("span");
+    kicker.className = "ns-kicker";
+    kicker.textContent = "What to do next";
+    card.appendChild(kicker);
+
+    const row = document.createElement("div");
+    row.className = "ns-row";
+    const icon = document.createElement("span");
+    icon.className = "ns-icon";
+    icon.textContent = primary.icon;
+    const text = document.createElement("div");
+    text.className = "ns-text";
+    const h3 = document.createElement("h3");
+    h3.textContent = primary.title;
+    const why = document.createElement("p");
+    why.textContent = primary.why;
+    text.appendChild(h3);
+    text.appendChild(why);
+    const go = document.createElement("a");
+    go.className = "btn btn-primary btn-small";
+    go.href = primary.href;
+    go.textContent = primary.cta + " →";
+    row.appendChild(icon);
+    row.appendChild(text);
+    row.appendChild(go);
+    card.appendChild(row);
+
+    if (picks.length > 1) {
+      const also = document.createElement("div");
+      also.className = "ns-also";
+      also.appendChild(document.createTextNode("Or: "));
+      picks.slice(1, 3).forEach((s, i) => {
+        if (i) also.appendChild(document.createTextNode(" · "));
+        const a = document.createElement("a");
+        a.href = s.href;
+        a.textContent = s.icon + " " + s.title;
+        also.appendChild(a);
+      });
+      card.appendChild(also);
+    }
+
+    mount.appendChild(card);
+    return true;
+  }
+
+  /* Reached-milestone toast, shown once per milestone per browser. */
+  function toast(title, body) {
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.innerHTML = '<span class="t-title"></span><span class="t-body"></span>';
+    el.querySelector(".t-title").textContent = title;
+    el.querySelector(".t-body").textContent = body || "";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5200);
+  }
+
+  function checkMilestones(announce) {
+    const state = milestoneState();
+    const now = state.list.filter((x) => x.reached).map((x) => x.m.id);
+    let seen;
+    try { seen = JSON.parse(localStorage.getItem("rusty-milestones") || "[]"); }
+    catch { seen = []; }
+    const fresh = now.filter((id) => !seen.includes(id));
+    localStorage.setItem("rusty-milestones", JSON.stringify(now));
+    if (announce && fresh.length) {
+      const m = MILESTONES.find((x) => x.id === fresh[0]);
+      toast("🏁 Milestone reached: " + m.icon + " " + m.name, m.blurb);
+    }
+  }
+
+  /* Mount points. The curriculum and workshop pages get both panels
+     injected after their progress bar, which means none of the thirty-odd
+     hand-written pages need editing. The home page carries an explicit
+     #continue section that stays hidden until there is progress to
+     continue from. */
+  function refreshGuidance(announce) {
+    const msMount = document.getElementById("milestones");
+    if (msMount) renderMilestones(msMount);
+    const nsMount = document.getElementById("next-step");
+    if (nsMount) renderNextStep(nsMount);
+    const cont = document.getElementById("continue");
+    if (cont) {
+      const started = lessonsDone() > 0 || projectsDone() > 0 || dojoDone() > 0;
+      const body = cont.querySelector(".continue-body");
+      if (started && body && renderNextStep(body)) cont.hidden = false;
+      else cont.hidden = true;
+    }
+    checkMilestones(announce);
+  }
+
+  function initGuidance() {
+    const wrap = document.querySelector(".progress-wrap");
+    if (wrap && !document.getElementById("next-step")) {
+      const ns = document.createElement("div");
+      ns.id = "next-step";
+      wrap.insertAdjacentElement("afterend", ns);
+      // Milestones belong to the curriculum, not the workshop: the
+      // workshop has its own nine-project spine already.
+      if (!location.pathname.includes("/build/")) {
+        const ms = document.createElement("section");
+        ms.id = "milestones";
+        ms.className = "section ms-section";
+        ns.insertAdjacentElement("afterend", ms);
+      }
+    }
+    refreshGuidance(false);
   }
 
   /* ---------------- impact counter (anonymous) ----------------
@@ -665,6 +1052,7 @@
           saveDone(set);
           pushProgress();
           refreshDojo();
+          refreshGuidance(true);
         });
         actions.appendChild(solved);
 
@@ -993,6 +1381,7 @@
     // Sync before rendering progress so checkmarks reflect merged state.
     const me = await syncProgress(1500);
     initProgress();
+    initGuidance();
     initQuizzes();
     initImpactBanner();
     initAccount(me);

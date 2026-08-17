@@ -668,9 +668,87 @@ hr.soft { border: none; border-top: 1px solid var(--border); margin: 34px 0; }
 .muted { color: var(--text-muted); }
 .small { font-size: 0.88rem; }
 
+/* ---------- milestones & next-step suggestions ----------
+   Injected by app.js after the progress bar, so no lesson page
+   needs to know these exist. */
+.next-step {
+  margin: 16px 0 6px; padding: 16px 18px;
+  background: linear-gradient(180deg, var(--surface), var(--bg-soft));
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+}
+.ns-kicker {
+  display: block; font-size: 0.74rem; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--accent-soft); font-weight: 800;
+  margin-bottom: 8px;
+}
+.ns-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.ns-icon { font-size: 1.7rem; line-height: 1; flex: none; }
+.ns-text { flex: 1 1 240px; min-width: 0; }
+.ns-text h3 { margin: 0 0 2px; font-size: 1.05rem; }
+.ns-text p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+.ns-row .btn { flex: none; }
+.ns-also {
+  margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+  font-size: 0.86rem; color: var(--text-muted);
+}
+.ns-also a { color: var(--text-muted); text-decoration: none; border-bottom: 1px dotted var(--border); }
+.ns-also a:hover { color: var(--accent-bright); border-bottom-color: var(--accent-bright); }
+
+.ms-section { padding-top: 26px; }
+.ms-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ms-head h2 { margin: 0; }
+.ms-count { font-size: 0.88rem; color: var(--text-muted); }
+.ms-track { display: grid; gap: 8px; margin-top: 14px; }
+.ms {
+  display: flex; align-items: flex-start; gap: 13px;
+  padding: 11px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface);
+}
+.ms-icon { font-size: 1.35rem; line-height: 1.3; flex: none; filter: grayscale(1); opacity: 0.45; }
+.ms-body { min-width: 0; flex: 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.ms-name { font-weight: 700; }
+.ms-meta { font-size: 0.8rem; color: var(--text-muted); }
+.ms-blurb { flex-basis: 100%; margin: 3px 0 0; font-size: 0.88rem; color: var(--text-muted); }
+.ms.reached { border-color: rgba(143, 206, 95, 0.45); background: rgba(143, 206, 95, 0.07); }
+.ms.reached .ms-icon { filter: none; opacity: 1; }
+.ms.reached .ms-meta { color: var(--green); }
+.ms.reached .ms-meta::before { content: "✓ "; }
+.ms.current { border-color: var(--accent); background: rgba(247, 76, 0, 0.07); }
+.ms.current .ms-icon { filter: none; opacity: 1; }
+.ms.current .ms-meta { color: var(--accent-soft); }
+.ms.locked { opacity: 0.72; }
+
+#continue .continue-body { max-width: 720px; }
+
+/* reached-milestone toast */
+.toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+  z-index: 60; max-width: min(440px, calc(100vw - 32px));
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 13px 18px; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--accent);
+  box-shadow: var(--shadow); animation: toast-in 0.3s ease;
+}
+.toast .t-title { font-weight: 800; }
+.toast .t-body { font-size: 0.87rem; color: var(--text-muted); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+}
+
+[data-theme="light"] .next-step { background: linear-gradient(180deg, #fff, var(--bg-soft)); }
+[data-theme="light"] .ns-kicker { color: #c23b00; }
+[data-theme="light"] .ms.reached { background: rgba(90, 150, 40, 0.09); }
+[data-theme="light"] .ms.current { background: rgba(247, 76, 0, 0.06); }
+
 /* ---------- print (cheat sheets) ---------- */
 @media print {
-  .site-header, .site-footer, .no-print { display: none !important; }
+  .site-header, .site-footer, .no-print,
+  .next-step, .ms-section, .toast { display: none !important; }
   body { background: #fff; color: #111; font-size: 12px; }
   .card, pre { border-color: #ccc; box-shadow: none; }
   pre, pre code { background: #f6f2ec; color: #222; }
