@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Rusty School - Learn Rust from Zero</title>
-<meta name="description" content="A free, beginner-first Rust course: interactive lessons, quizzes, cheat sheets, and lab setup guides. From complete beginner to advanced.">
+<title>The Rusty School - Learn Rust or Python from Zero</title>
+<meta name="description" content="A free campus of beginner-first programming courses. Learn Rust or Python from absolute zero, with real code running in your browser, quizzes, projects, and cheat sheets.">
 <link rel="canonical" href="https://rustyschool.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Rusty School">
-<meta property="og:title" content="The Rusty School - Learn Rust from Zero">
-<meta property="og:description" content="A free, beginner-first Rust course: interactive lessons, quizzes, cheat sheets, and lab setup guides. From complete beginner to advanced.">
+<meta property="og:title" content="The Rusty School - Learn Rust or Python from Zero">
+<meta property="og:description" content="A free campus of beginner-first programming courses. Learn Rust or Python from absolute zero, with real code running in your browser, quizzes, projects, and cheat sheets.">
 <meta property="og:url" content="https://rustyschool.com/">
 <meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero, with Rusty the crab and Monty the python">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Rusty School - Learn Rust from Zero">
-<meta name="twitter:description" content="A free, beginner-first Rust course: interactive lessons, quizzes, cheat sheets, and lab setup guides. From complete beginner to advanced.">
+<meta name="twitter:title" content="The Rusty School - Learn Rust or Python from Zero">
+<meta name="twitter:description" content="A free campus of beginner-first programming courses. Learn Rust or Python from absolute zero, with real code running in your browser.">
 <meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
 <meta name="theme-color" content="#f74c00">
 <link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
@@ -47,18 +47,18 @@
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <span class="kicker">A free course for absolute beginners</span>
-        <h1>Learn <span class="grad">Rust</span> without fear.</h1>
+        <span class="kicker">A free campus of programming schools</span>
+        <h1>Learn to code, <span class="grad">without fear</span>.</h1>
         <p class="lede">
-          Rust is the language behind your browser, your favorite games, and the
-          cloud itself. It's famous for being fast <em>and</em> safe. The Rusty School
-          teaches it from absolute zero: no coding experience required, no
-          gatekeeping, and a friendly crab named Rusty by your side.
+          Two full courses for absolute beginners, on one campus: <strong>Rust</strong>
+          for speed and safety, and <strong>Python</strong> for the friendliest possible
+          start. No experience required, no gatekeeping, and a mascot by your side in
+          either. Pick a language below, or scroll on for the tour.
         </p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="learn/index.html">Start learning 🦀</a>
+          <a class="btn btn-primary" href="learn/index.html">Learn Rust 🦀</a>
+          <a class="btn btn-primary" href="python/index.html">Learn Python 🐍</a>
           <a class="btn btn-ghost" href="playground.html">Try the Playground ⚡</a>
-          <a class="btn btn-ghost" href="setup.html">Set up your lab</a>
         </div>
         <div class="pill-stat">
           <div class="stat"><span class="n">28</span><span class="l">lessons</span></div>
@@ -77,6 +77,40 @@
       <div class="hero-art">
         <img src="assets/ferris.svg" alt="Rusty, a smiling cartoon crab">
       </div>
+    </div>
+  </section>
+
+  <!-- ============ THE CAMPUS: TWO SCHOOLS ============ -->
+  <section class="section" id="schools">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Two schools, one campus</span>
+        <h2>Which language will you learn?</h2>
+        <p>Both teach from absolute zero, both run real code in your browser, and both are
+        100% free and open. One login, and your progress follows you across the whole campus.</p>
+      </div>
+      <div class="grid cols-2">
+        <a class="card school-card rust" href="learn/index.html">
+          <img class="school-mascot" src="assets/ferris.svg" alt="Rusty the crab">
+          <h3>🦀 The Rusty School</h3>
+          <p><strong>Rust</strong>: fast and safe, the language behind your browser, your
+          games, and the cloud. From "what is a terminal" to fearless concurrency, with a
+          live playground, a project workshop, and a borrow-checker dojo.</p>
+          <span class="school-go">Start Rust →</span>
+        </a>
+        <a class="card school-card python" href="python/index.html">
+          <img class="school-mascot" src="python/assets/monty.svg" alt="Monty the python">
+          <h3>🐍 The Python School</h3>
+          <p><strong>Python</strong>: the friendliest first language there is, running real
+          CPython right in your browser. 68 lessons from "what is a variable" all the way to
+          building your own AI assistant, with puzzles and an Insult Compiler.</p>
+          <span class="school-go">Start Python →</span>
+        </a>
+      </div>
+      <p class="muted small center" style="margin-top:16px">
+        New to programming entirely? Either school's Level 0 assumes you have never written a
+        line of code. More schools are planned across the campus.
+      </p>
     </div>
   </section>
 
@@ -286,18 +320,17 @@
     </div>
   </section>
 
-  <!-- ============ SISTER SCHOOL ============ -->
+  <!-- ============ BOTH SCHOOLS (closing) ============ -->
   <section class="section" id="campus">
     <div class="container">
       <div class="callout tip">
-        <span class="co-title">🐍 There's a sister school next door</span>
-        <p>New to programming entirely? The <a href="python/index.html"><strong>Python
-        School</strong></a> teaches Python from the same absolute zero, with real CPython
-        running in your browser, 68 lessons from "what is a variable" to building your own AI
-        assistant, a Snake Pit of puzzles, and an Insult Compiler for reading error messages.
-        Python and Rust are the two most useful languages you can know at once: one for speed
-        of thought, one for speed of machine. Sign in at either and your progress follows you
-        to both.</p>
+        <span class="co-title">🎓 Two languages are better than one</span>
+        <p>Rust and Python are the two most useful languages you can know together: one for
+        speed of machine, one for speed of thought. Many of the fastest Python tools are
+        written in Rust, and the <a href="python/index.html">Python School</a> shows you the
+        bridge. Learn either first; come back for the other when you are ready.
+        <a href="learn/index.html">Rust curriculum →</a> ·
+        <a href="python/index.html">Python curriculum →</a></p>
       </div>
     </div>
   </section>

@@ -20,6 +20,7 @@
   const root = document.documentElement;
   const IN_SUB = /\/python\/(learn|build)\//.test(location.pathname);
   const UP = IN_SUB ? "../" : "";
+  const campus = UP + "../";      // from any python page up to the campus (docs) root
 
   /* ================= theme (shared across the campus) ================= */
   function initTheme() {
@@ -47,6 +48,16 @@
     const burger = document.querySelector(".nav-burger");
     const nav = document.querySelector(".main-nav");
     if (burger && nav) burger.addEventListener("click", () => nav.classList.toggle("open"));
+
+    // Campus cross-link: a Rust School link on every Python page, mirroring
+    // the Python link the Rust school injects. The campus goes both ways.
+    if (nav && !nav.querySelector('a.nav-campus')) {
+      const rust = document.createElement("a");
+      rust.href = campus + "index.html";
+      rust.textContent = "🦀 Rust";
+      rust.className = "nav-campus";
+      nav.insertBefore(rust, nav.querySelector(".theme-toggle"));
+    }
 
     const footList = document.querySelector(".site-footer .cols ul");
     if (footList && !footList.querySelector('a[href$="privacy.html"]')) {
