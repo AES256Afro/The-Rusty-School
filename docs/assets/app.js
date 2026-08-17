@@ -85,6 +85,11 @@
       nav.insertBefore(py, nav.querySelector(".theme-toggle"));
     }
     const footList = document.querySelector(".site-footer .cols ul");
+    if (footList && !footList.querySelector('a[href$="certificate.html"]')) {
+      const li = document.createElement("li");
+      li.innerHTML = '<a href="' + prefix + 'certificate.html">Certificate</a>';
+      footList.appendChild(li);
+    }
     if (footList && !footList.querySelector('a[href$="roadmap.html"]')) {
       const li = document.createElement("li");
       li.innerHTML = '<a href="' + prefix + 'roadmap.html">Roadmap</a>';
@@ -351,6 +356,15 @@
   const DOJO_TOTAL = 36;
   const DOJO_BELTED = 12;
 
+  // Published for other pages on the campus (the certificate reads it),
+  // mirroring window.PY_COURSE which the Python School generates.
+  window.RUST_COURSE = {
+    levels: LEVELS,
+    lessons: LESSONS,
+    projects: PROJECTS,
+    dojoTotal: DOJO_TOTAL,
+  };
+
   function pathPrefix() {
     return (location.pathname.includes("/learn/") ||
             location.pathname.includes("/build/")) ? "../" : "";
@@ -410,8 +424,9 @@
       blurb: "Every workshop project finished, capstone included. You have written a web server in Rust.",
       need: () => [projectsDone(), PROJECTS.length] },
     { id: "rustacean", icon: "🎓", name: "Rustacean",
-      blurb: "Every lesson in the school complete. Now go and teach somebody. That is the whole point.",
-      need: () => [lessonsDone(), LESSONS.length] },
+      blurb: "Every lesson in the school complete. Collect your certificate, then go and teach somebody. That is the whole point.",
+      need: () => [lessonsDone(), LESSONS.length],
+      reward: { href: "certificate.html", label: "Collect your certificate" } },
   ];
 
   function milestoneState() {
@@ -527,6 +542,14 @@
       blurb.className = "ms-blurb";
       blurb.textContent = x.m.blurb;
       body.appendChild(blurb);
+    }
+    // Some milestones hand you something once they are reached.
+    if (x.reached && x.m.reward) {
+      const a = document.createElement("a");
+      a.className = "ms-reward";
+      a.href = pathPrefix() + x.m.reward.href;
+      a.textContent = "🎓 " + x.m.reward.label + " →";
+      body.appendChild(a);
     }
     el.appendChild(icon);
     el.appendChild(body);

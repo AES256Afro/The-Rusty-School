@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your certificate - The Rusty School</title>
+<meta name="description" content="Finish a school and print your certificate. Drawn in your browser from your own progress: nothing is uploaded, and no account is required.">
+<link rel="canonical" href="https://rustyschool.com/certificate">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Your certificate - The Rusty School">
+<meta property="og:description" content="Finish a school and print your certificate. Drawn in your browser from your own progress: nothing is uploaded, and no account is required.">
+<meta property="og:url" content="https://rustyschool.com/certificate">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust from zero, with Rusty the crab mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Your certificate - The Rusty School">
+<meta name="twitter:description" content="Finish a school and print your certificate. Drawn in your browser from your own progress.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="assets/ferris.svg">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="python/assets/course.js"></script>
+<script defer src="assets/app.js"></script>
+<script defer src="assets/certificate.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ferris.svg" alt="Rusty the crab">The Rusty <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="quiz.html">Quizzes</a>
+      <a href="cheatsheets.html">Cheat Sheets</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container">
+
+  <section class="lesson-header no-print">
+    <span class="kicker">The paperwork</span>
+    <h1>Your <span class="grad">certificate</span> 🎓</h1>
+    <p class="lede muted">
+      Finish every lesson in a school and it prints your name on something. It is
+      drawn right here in your browser from the progress already saved on this
+      device: nothing is uploaded, no account is needed, and the only person who
+      decides what name goes on it is you.
+    </p>
+  </section>
+
+  <div id="cert-root" class="no-print">
+    <div class="card"><p class="muted">Checking your progress…</p></div>
+  </div>
+
+  <div class="cert-stage" id="cert-stage" hidden>
+    <canvas id="cert-canvas" width="1600" height="1130" role="img"
+            aria-label="Your certificate of completion"></canvas>
+  </div>
+
+  <div class="callout info no-print" style="max-width:640px">
+    <span class="co-title">🖨️ Printing it</span>
+    "Print" opens your browser's normal print dialogue with just the certificate on
+    the page, so "Save as PDF" there gives you a clean file. Landscape looks best.
+    "Download" saves it as a PNG image instead.
+  </div>
+
+  <div class="callout no-print" style="max-width:640px">
+    <span class="co-title">🤨 Is this worth anything?</span>
+    Not to an employer, and anybody telling you otherwise is selling something. It is
+    worth exactly what the work behind it was worth, which is quite a lot: you read
+    every lesson, ran every example and finished the projects. Put it on a wall, not
+    on a CV. The thing that goes on the CV is the code you wrote in the workshop.
+  </div>
+
+</main>
+
+<footer class="site-footer no-print">
+  <div class="container cols">
+    <div>
+      <h2>🦀 The Rusty School</h2>
+      <p>Learn Rust from zero.<br>This site is itself served by a web server written in Rust.</p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Lab setup</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Rust resources</h2>
+      <ul>
+        <li><a href="https://www.rust-lang.org" target="_blank" rel="noopener">rust-lang.org</a></li>
+        <li><a href="https://doc.rust-lang.org/book/" target="_blank" rel="noopener">The Rust Book</a></li>
+        <li><a href="https://play.rust-lang.org" target="_blank" rel="noopener">Rust Playground</a></li>
+        <li><a href="https://github.com/rust-lang/rustlings" target="_blank" rel="noopener">Rustlings exercises</a></li>
+        <li><a href="https://doc.rust-lang.org/std/" target="_blank" rel="noopener">Standard library docs</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
