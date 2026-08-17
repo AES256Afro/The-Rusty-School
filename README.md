@@ -105,9 +105,14 @@ Everything under `docs/` is static, so deployment is trivial:
 
 ## Where this is going
 
-See [ROADMAP.md](ROADMAP.md) for the expansion plan: runnable in-page examples,
-a project workshop track, specialist courses (web, games, async, embedded), and
-a classroom mode for teaching groups.
+[ROADMAP.md](ROADMAP.md) is the working plan: committed milestones (each sized
+and with a test for "done") separated from suggestions nobody has committed to
+yet. The next three are site search, switching accounts on, and a completion
+certificate.
+
+[rustyschool.com/roadmap](https://rustyschool.com/roadmap) is the same thing for
+visitors, in plainer language, and deliberately honest about what is missing as
+well as what is built.
 
 ## License
 

@@ -745,6 +745,35 @@ hr.soft { border: none; border-top: 1px solid var(--border); margin: 34px 0; }
 [data-theme="light"] .ms.reached { background: rgba(90, 150, 40, 0.09); }
 [data-theme="light"] .ms.current { background: rgba(247, 76, 0, 0.06); }
 
+/* ---------- roadmap page ---------- */
+ul.tight { margin: 8px 0 14px; padding-left: 20px; }
+ul.tight li { margin-bottom: 5px; font-size: 0.93rem; }
+.mt { margin-top: 16px; }
+
+.rm-list { display: grid; gap: 10px; margin-top: 14px; }
+.rm {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: var(--surface);
+}
+.rm h4 { margin: 0 0 4px; font-size: 1rem; }
+.rm p { margin: 0; font-size: 0.92rem; color: var(--text-muted); }
+.rm-state {
+  flex: none; min-width: 74px; text-align: center;
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+  border: 1px solid var(--border); color: var(--text-muted);
+}
+.rm-done { border-color: rgba(143, 206, 95, 0.4); }
+.rm-done .rm-state { color: var(--green); border-color: var(--green); background: rgba(143, 206, 95, 0.1); }
+.rm-now { border-color: var(--accent); }
+.rm-now .rm-state { color: var(--accent-bright); border-color: var(--accent); background: rgba(247, 76, 0, 0.1); }
+.rm-soon .rm-state { color: var(--accent-soft); border-color: var(--accent-soft); }
+@media (max-width: 560px) {
+  .rm { flex-direction: column; gap: 8px; }
+  .rm-state { min-width: 0; align-self: flex-start; }
+}
+
 /* ---------- print (cheat sheets) ---------- */
 @media print {
   .site-header, .site-footer, .no-print,
