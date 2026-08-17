@@ -230,6 +230,17 @@ p { margin: 0.8em 0; }
 a.card { display: block; color: var(--text); }
 a.card:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-2px); }
 
+/* the Python "red carpet" section on the Rust home page: same layout as
+   Why Rust, but wearing Python's blue-and-yellow so it reads as its own */
+.py-why .kicker { color: #7cbcea; }
+[data-theme="light"] .py-why .kicker { color: #1c5f92; }
+.py-why .card:hover { border-color: #4584b6; }
+.py-why .btn-primary {
+  background: linear-gradient(92deg, #2a5f8a, #30699a);
+  box-shadow: 0 6px 18px rgba(69, 132, 182, 0.35);
+}
+.py-why .btn-ghost:hover { border-color: #4584b6; }
+
 /* the two-school campus cards on the home page */
 .school-card {
   position: relative; padding: 26px 28px; overflow: hidden;
