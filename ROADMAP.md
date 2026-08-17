@@ -11,8 +11,8 @@ A campus of two schools, live at [rustyschool.com](https://rustyschool.com):
 | Runs code in the page | via the official Rust Playground | real CPython, in your browser (Pyodide) |
 | Extras | glossary, cheat sheets, lab setup | glossary (80 terms), 18 cheat sheets, the Insult Compiler, XP and 21 achievements |
 
-Shared across both: one account, one progress set, one design system, one
-deploy pipeline. 138 pages, all static, served free.
+Shared across both: one account, one progress set, one search index, one
+design system, one deploy pipeline. 139 pages, all static, served free.
 
 This roadmap has two halves. **Milestones** are committed, ordered, and
 sized: each one ships on its own and has a test for "done". **Suggestions**
@@ -24,13 +24,14 @@ urgent is a wish list.
 
 ## The next three things
 
-1. **M1: Site search.** The curriculum is now 96 lessons across two schools
-   and there is no way to look anything up. This is the biggest gap.
-2. **M2: Switch accounts on.** The code shipped months ago and sits idle
-   behind two unregistered OAuth apps. An afternoon of dashboard work turns
-   progress sync from "written" into "working".
-3. **M3: The certificate.** Finishing 68 lessons currently earns a green
+1. **M3: The certificate.** Finishing 68 lessons currently earns a green
    progress bar. It should earn something you can print and show somebody.
+2. **M5: Accessibility pass.** Overdue, and it gets harder to retrofit with
+   every feature added on top.
+3. **M4: Per-lesson quizzes.** The largest remaining win for actual
+   retention, and the most writing.
+
+M1 (site search) and M2 (accounts) both shipped. See Shipped, below.
 
 ---
 
@@ -38,24 +39,6 @@ urgent is a wish list.
 
 Sized in evenings, honestly. "1 evening" means one sitting; "1 week" means
 a focused week of evenings, not a work week.
-
-### M1 · Site search 🔍
-**Ship test:** typing "borrow checker" or "list comprehension" from any page
-jumps to the right lesson section, offline, with no backend.
-**Size:** 2 to 3 evenings.
-Build a JSON index at deploy time (the Python school already generates its
-own pages, so it can emit its half for free; the Rust half needs a small
-script over `docs/learn/*.html`). Ship a keyboard-first overlay on `/`.
-Client-side only, so it costs nothing and works on both schools at once.
-
-### M2 · Accounts, actually on 🔑
-**Ship test:** sign in with GitHub on a phone, see progress made on a
-laptop.
-**Size:** 1 evening, mostly dashboard clicks.
-`functions/api/auth/` is written, deployed, and returns "not configured"
-because no GitHub or Google OAuth app exists yet. Register both, set the
-secrets, verify the round trip, then confirm the privacy page still tells
-the truth about what is stored.
 
 ### M3 · The completion certificate 🎓
 **Ship test:** finishing a school renders a printable certificate with your
@@ -209,6 +192,15 @@ Roughly in order of audience overlap:
 
 Kept short, because a changelog is not a roadmap. Newest first.
 
+- **Campus search (M1).** One overlay across both schools, opened with `/`
+  or Cmd/Ctrl-K or the nav button. The index is built from the shipped HTML
+  by `tools/build-search-index.py`, so it can never drift from what is
+  actually live, and it is fetched only when somebody opens search.
+  Client-side, no backend, nothing leaves the browser.
+- **Accounts, switched on (M2).** GitHub and Google sign-in are live, and
+  both schools have their own account page: signing in from Python returns
+  to Python. Fixed a latent data-loss bug on the way, where synced progress
+  was capped at 200 items and a learner finishing both schools has 188.
 - **Milestones and next-step suggestions**, both schools. A twelve-stop
   spine for Python, eleven for Rust, plus an engine that names one concrete
   next action with a reason. Fixed a real bug on the way: the Python level

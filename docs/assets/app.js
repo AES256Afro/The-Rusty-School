@@ -1375,10 +1375,24 @@
       });
   }
 
+  /* ---------------- campus search ----------------
+     Kept in its own file because the Python School loads exactly the
+     same one. Injecting it from here means none of the thirty-odd
+     hand-written pages needs a script tag of its own. */
+  function initSearch() {
+    if (document.querySelector("script[data-campus-search]")) return;
+    const s = document.createElement("script");
+    s.src = pathPrefix() + "assets/search.js";
+    s.defer = true;
+    s.setAttribute("data-campus-search", "");
+    document.head.appendChild(s);
+  }
+
   /* ---------------- boot ---------------- */
   document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     initNav();
+    initSearch();
     initDojo();   // before initCode, so generated puzzles get highlighting and run buttons
     initCode();
     initTabs();

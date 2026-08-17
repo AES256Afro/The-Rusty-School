@@ -1704,10 +1704,23 @@ _failed = not _ok
       });
   }
 
+  /* ================= campus search =================
+     The very same overlay the Rusty School uses, living at the campus
+     root and searching both schools at once. */
+  function initSearch() {
+    if (document.querySelector("script[data-campus-search]")) return;
+    const s = document.createElement("script");
+    s.src = campus + "assets/search.js";
+    s.defer = true;
+    s.setAttribute("data-campus-search", "");
+    document.head.appendChild(s);
+  }
+
   /* ================= boot ================= */
   document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
     initNav();
+    initSearch();
     initPit();
     initCode();
     initTabs();
