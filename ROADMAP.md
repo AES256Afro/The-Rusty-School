@@ -25,10 +25,13 @@ urgent is a wish list.
 
 ## The next three things
 
-1. **M6: Instructor guides.** The cheapest route to the stated goal of
-   teaching other people, and it needs no backend at all.
-2. **M7: Classroom mode.** Now unblocked, since accounts are live.
-3. **M8: Self-hosted playground**, but only once traffic justifies the bill.
+1. **M10: The Bridge mission engine.** Auto-grading is the campus's biggest
+   missing capability: 73 puzzles exist and not one of them checks your
+   answer. See [BRIDGE.md](BRIDGE.md) for the full design.
+2. **M11: The Bridge, Season 1.** The vertical slice that proves the format
+   and settles the voice.
+3. **M6: Instructor guides**, still the cheapest route to teaching others,
+   and unblocked whenever there is an evening for it.
 
 M1 (search), M2 (accounts), M3 (certificate), M4 (per-lesson quizzes)
 and M5 (accessibility) have all shipped. See Shipped, below.
@@ -71,6 +74,58 @@ Until then, keep the usage polite and the credit visible.
 Candidate order below in Suggestions. The campus rule holds: a new school
 launches only when its first level is genuinely excellent. Better two deep
 schools than five shallow ones.
+
+---
+
+### M10 · The Bridge: mission engine and auto-grading ⚙️
+**Ship test:** a learner opens a mission, writes a function in the console,
+presses Run Diagnostics, and gets a per-objective pass or fail with the
+failing input shown, in both schools.
+**Size:** 1 week.
+The enabling capability for [The Bridge](BRIDGE.md), and the only genuinely
+new technology in that plan: a harness that appends hidden tests to learner
+code, runs it (Pyodide for Python, the /api/run proxy for Rust) and reports
+per-objective results. This closes the campus's most honest gap: the 73
+existing Dojo and Snake Pit puzzles are self-marked, so nobody checks the
+answer. Ships with one mission per language, because the engine is the
+deliverable. Note it couples M8 to this work: every Rust diagnostic run is a
+compile on somebody else's playground.
+
+### M11 · The Bridge, Season 1: Shakedown Cruise 🚀
+**Ship test:** eight missions in both languages, Cadet through Ensign,
+playable start to finish, every reference solution verified.
+**Size:** 1 to 2 weeks.
+The vertical slice, and it must be excellent before anything else starts. The
+campus rule about new schools applies: better one season people finish than
+six they abandon. This is where the voice is settled for everything after.
+
+### M12 · The Bridge: the campaign layer 🎖️
+**Ship test:** ranks, insignia, the crew roster, ARCHIE's in-character
+reports, and a ship's status page reflecting real progress.
+**Size:** 1 week.
+What turns eight exercises into a campaign. Deliberately after Season 1,
+because ceremony wrapped around content that is not yet good is just noise.
+
+### M13 · The Bridge, Seasons 2 and 3 📡
+**Ship test:** 16 more missions across Ops, Science and Tactical, both
+languages, all verified.
+**Size:** 2 to 3 weeks.
+Loops, collections, functions, structured data and files: the bulk of the
+everyday-competence content.
+
+### M14 · The Bridge, Seasons 4 and 5, and Red Alert 🔥
+**Ship test:** 16 missions on classes and traits, errors, iterators,
+concurrency and performance, plus the optional timed mode.
+**Size:** 3 weeks.
+The hardest content to write well, especially Engineering, where the point is
+that the two languages genuinely disagree. Treat M8 as a hard dependency by
+now.
+
+### M15 · The Bridge, Season 6: Terminus 🌌
+**Ship test:** four long multi-part capstones and a finale that acknowledges
+what the learner built.
+**Size:** 2 weeks.
+Away missions that leave the browser for a real editor, and an ending.
 
 ---
 
