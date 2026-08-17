@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background:
+      radial-gradient(circle at 78% 52%, rgba(69,132,182,0.32) 0%, rgba(69,132,182,0) 58%),
+      linear-gradient(135deg, #12181f 0%, #12161b 55%, #16202b 100%);
+    color: #e9eef4;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .topbar {
+    position: absolute; top: 0; left: 0; right: 0; height: 10px;
+    background: linear-gradient(90deg, #4584b6, #ffde57);
+  }
+  .wrap { display: flex; align-items: center; width: 100%; padding: 0 78px; gap: 20px; }
+  .left { flex: 1; }
+  .kicker {
+    font-size: 21px; font-weight: 800; letter-spacing: 4.5px;
+    color: #ffde57; text-transform: uppercase; margin-bottom: 22px;
+  }
+  h1 { font-size: 92px; font-weight: 800; line-height: 1.02; letter-spacing: -2.5px; }
+  h1 .grad {
+    background: linear-gradient(92deg, #7cbcea, #ffde57);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .tagline { font-size: 33px; color: #a3b3c2; margin-top: 26px; letter-spacing: -0.3px; }
+  .pills { display: flex; gap: 13px; margin-top: 34px; }
+  .pill {
+    background: #1b232b; border: 1px solid #2f3d4a; border-radius: 999px;
+    padding: 12px 26px; font-size: 22px; font-weight: 600; color: #e9eef4;
+  }
+  .url { margin-top: 38px; font-size: 24px; font-weight: 800; color: #7cbcea; letter-spacing: 0.2px; }
+  .art { width: 400px; display: grid; place-items: center; }
+  .art svg { width: 380px; filter: drop-shadow(0 22px 44px rgba(69,132,182,0.38)); }
+</style>
+</head>
+<body>
+  <div class="topbar"></div>
+  <div class="wrap">
+    <div class="left">
+      <div class="kicker">A free course for absolute beginners</div>
+      <h1>The Python<br><span class="grad">School</span></h1>
+      <div class="tagline">Learn Python from zero. No experience needed.</div>
+      <div class="pills">
+        <span class="pill">68 lessons</span>
+        <span class="pill">runs in your browser</span>
+        <span class="pill">build your own AI</span>
+      </div>
+      <div class="url">rustyschool.com/python</div>
+    </div>
+    <div class="art">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 150" role="img" aria-label="Monty, the friendly python mascot">
+          <!-- tail tip poking out of the bottom coil -->
+          <path d="M168 126 Q192 122 200 132" fill="none" stroke="#4584b6" stroke-width="11" stroke-linecap="round"/>
+          <!-- coils, biggest at the bottom -->
+          <ellipse cx="108" cy="124" rx="64" ry="20" fill="#3c73a0"/>
+          <ellipse cx="108" cy="120" rx="64" ry="19" fill="#4584b6"/>
+          <ellipse cx="108" cy="120" rx="44" ry="10" fill="#ffde57" opacity="0.75"/>
+          <ellipse cx="108" cy="100" rx="50" ry="17" fill="#3c73a0"/>
+          <ellipse cx="108" cy="97" rx="50" ry="16" fill="#4b8bbe"/>
+          <ellipse cx="108" cy="97" rx="32" ry="8" fill="#ffde57" opacity="0.7"/>
+          <ellipse cx="108" cy="80" rx="37" ry="14" fill="#3c73a0"/>
+          <ellipse cx="108" cy="78" rx="37" ry="13" fill="#4b8bbe"/>
+          <ellipse cx="108" cy="78" rx="22" ry="6" fill="#ffde57" opacity="0.65"/>
+          <!-- neck and head -->
+          <path d="M108 74 Q108 58 110 50" fill="none" stroke="#4b8bbe" stroke-width="30" stroke-linecap="round"/>
+          <ellipse cx="110" cy="44" rx="33" ry="26" fill="#4b8bbe"/>
+          <ellipse cx="110" cy="52" rx="24" ry="14" fill="#ffde57" opacity="0.55"/>
+          <!-- tongue -->
+          <path d="M110 66 L110 78 M110 78 L104 86 M110 78 L116 86" fill="none" stroke="#ff6b6b" stroke-width="3.2" stroke-linecap="round"/>
+          <!-- eyes -->
+          <circle cx="97" cy="40" r="10" fill="#fff"/>
+          <circle cx="123" cy="40" r="10" fill="#fff"/>
+          <circle cx="99" cy="42" r="4.8" fill="#16222e"/>
+          <circle cx="121" cy="42" r="4.8" fill="#16222e"/>
+          <circle cx="100.7" cy="40.2" r="1.6" fill="#fff"/>
+          <circle cx="122.7" cy="40.2" r="1.6" fill="#fff"/>
+          <!-- brows, mildly skeptical, as befits a snake who has read your code -->
+          <path d="M88 27 Q97 23 106 27" fill="none" stroke="#2f6086" stroke-width="3.2" stroke-linecap="round"/>
+          <path d="M114 27 Q123 23 132 27" fill="none" stroke="#2f6086" stroke-width="3.2" stroke-linecap="round"/>
+          <!-- blush -->
+          <circle cx="84" cy="52" r="6" fill="#ffde57" opacity="0.5"/>
+          <circle cx="136" cy="52" r="6" fill="#ffde57" opacity="0.5"/>
+          <!-- smile -->
+          <path d="M101 57 Q110 64 119 57" fill="none" stroke="#1d3a52" stroke-width="3.2" stroke-linecap="round"/>
+        </svg>
+    </div>
+  </div>
+</body>
+</html>

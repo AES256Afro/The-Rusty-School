@@ -27,6 +27,35 @@ No Rust installed yet? The site is plain HTML/CSS/JS, so you can also just open
 `docs/index.html` directly in a browser, or serve the `docs/` folder with any
 static file server.
 
+## 🐍 The Python School (sister course)
+
+The same campus now has a second, self-contained course:
+[**The Python School**](docs/python/index.html), a 68-lesson beginner-first Python
+curriculum living under `docs/python/`. It takes an absolute beginner from "what is
+a variable?" all the way to building their own AI assistant, and unlike the Rust
+playground (which ships code to a compiler farm), it runs **real CPython in the
+browser** via Pyodide, so every example has a working ▶ run button with nothing to
+install.
+
+It is generated, not hand-written:
+
+```sh
+python3 tools/pybuild.py      # build docs/python/ from tools/pycourse/
+python3 tools/pyverify.py     # RUN every code example and prove its output
+```
+
+`pyverify.py` is the Python analogue of the Rust school's "compile every example
+before publishing" rule: it executes all 586 runnable examples (and all 37 Snake
+Pit puzzles, and the workshop reference solutions) and checks each one's real output
+against what the lesson promises. Nothing ships until it runs. The generator, the
+verifier, and the whole course are themselves the Level-3 reading exercise, exactly
+as `src/main.rs` is for Rust.
+
+Highlights: Base Camp (code-free foundations), Levels 1-5 (the language and what
+people build with it), Level 6 (Build Your Own Jarvis), the **Snake Pit** (verified
+predict/fix/bug puzzles in six tiers), and the **Insult Compiler** (Monkey-Island
+error-message swordfighting). Accounts and progress are shared with the Rust school.
+
 ## What's inside
 
 | Where | What |
