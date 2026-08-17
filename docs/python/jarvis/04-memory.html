@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 4: A Conversation, Not a Goldfish - The Python School</title>
+<meta name="description" content="Turn a single question into a real back-and-forth that remembers what was said.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/04-memory">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 4: A Conversation, Not a Goldfish - The Python School">
+<meta property="og:description" content="Turn a single question into a real back-and-forth that remembers what was said.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/04-memory">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 4: A Conversation, Not a Goldfish - The Python School">
+<meta name="twitter:description" content="Turn a single question into a real back-and-forth that remembers what was said.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 4 of 12 · Part 1, Get it talking</nav>
+    <span class="badge l6">Jarvis · Chapter 4</span>
+    <h1>A Conversation, Not a Goldfish 🧠</h1>
+    <p class="lede muted">Right now your program forgets you the instant it answers. The fix is a list, and understanding why it is a list tells you more about how these things work than any amount of theory.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Turn a single question into a real back-and-forth that remembers what was said.</p>
+      <span class="jg-time">about 25 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>Watch it forget</h2>
+
+<p>Two calls in a row, the second referring to the first:</p>
+
+<pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+first = client.messages.create(
+    model=&quot;claude-haiku-4-5&quot;,
+    max_tokens=100,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;My name is Ada. Remember it.&quot;}],
+)
+print(&quot;1:&quot;, first.content[0].text)
+
+second = client.messages.create(
+    model=&quot;claude-haiku-4-5&quot;,
+    max_tokens=100,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is my name?&quot;}],
+)
+print(&quot;2:&quot;, second.content[0].text)</code></pre>
+
+<p>It has no idea. Not because it is broken, but because <strong>the API has no
+memory</strong>. Each call is a fresh start. It knows nothing except exactly what you put
+in <code>messages</code> for that one request.</p>
+
+<div class="callout info"><span class="co-title">🐟 This is the single most useful fact in the whole build</span><p>A language model does not remember you between calls. It has no database of your chats. Everything it appears to 'know' about your conversation is text you sent it in that request. Once you really believe that, memory, personality, tools and documents all stop being mysterious: they are all just things you put in the message list before hitting send.</p></div>
+
+<h2>The fix, which is just a list</h2>
+
+<p>If the model only knows what is in <code>messages</code>, then remembering is simply:
+keep the list, and add to it. Every turn, you send the whole conversation so far.</p>
+
+<pre class="run" data-verify="run"><code># What you send on turn one
+messages = [
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;My name is Ada.&quot;},
+]
+
+# What you send on turn two: the whole story so far
+messages = [
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;My name is Ada.&quot;},
+    {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Nice to meet you, Ada.&quot;},
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is my name?&quot;},
+]
+
+print(f&quot;turn two sends {len(messages)} messages&quot;)
+print(&quot;roles:&quot;, [m[&quot;role&quot;] for m in messages])</code></pre>
+<pre class="out"><code class="nohl">turn two sends 3 messages
+roles: [&#x27;user&#x27;, &#x27;assistant&#x27;, &#x27;user&#x27;]</code></pre>
+
+<p>That is genuinely the entire trick. Memory is a Python list you keep appending to.</p>
+
+<h2>The chat loop</h2>
+
+<p>Now a real program. Save it as <code>chat.py</code>:</p>
+
+<pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+MODEL = &quot;claude-haiku-4-5&quot;
+
+# Created ONCE, outside the loop. This list is the memory.
+messages = []
+
+print(&quot;Jarvis ready. Ctrl-C to leave.&quot;)
+
+try:
+    while True:
+        user_input = input(&quot;\nyou&gt; &quot;).strip()
+        if not user_input:
+            continue
+
+        # 1. your turn joins the history
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input})
+
+        # 2. send the WHOLE history, not just the latest line
+        response = client.messages.create(
+            model=MODEL,
+            max_tokens=1000,
+            messages=messages,
+        )
+
+        reply = &quot;&quot;.join(b.text for b in response.content if b.type == &quot;text&quot;)
+        print(f&quot;jarvis&gt; {reply}&quot;)
+
+        # 3. its turn joins the history too
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply})
+
+except KeyboardInterrupt:
+    print(&quot;\n\nBye.&quot;)</code></pre>
+
+<p>Run it and have an actual conversation:</p>
+
+<pre class="term"><code class="nohl">$ python3 chat.py
+Jarvis ready. Ctrl-C to leave.
+
+you&gt; My name is Ada and I am learning Python.
+jarvis&gt; Hello Ada. Nice to meet a fellow Python learner.
+
+you&gt; What is a list, in one sentence?
+jarvis&gt; A list is an ordered, changeable collection of items in square brackets.
+
+you&gt; What was my name again?
+jarvis&gt; Your name is Ada.</code></pre>
+
+<p>It remembers. You built memory.</p>
+
+<h2>The three lines that matter</h2>
+
+<p>Everything else is decoration. These are the load-bearing ones:</p>
+
+<ol>
+  <li><code>messages.append(...)</code> with your question <em>before</em> the call, so it
+    joins the history.</li>
+  <li><code>messages=messages</code> in the call, sending the <strong>whole</strong>
+    history rather than just the latest line.</li>
+  <li><code>messages.append(...)</code> with the reply <em>after</em>, so its own answers
+    are remembered too.</li>
+</ol>
+
+<p>Miss the third and something wonderfully confusing happens: it remembers your questions
+but not its own answers, and starts contradicting itself. Worth breaking on purpose once,
+just to see it.</p>
+
+<h2>Why you resend everything, every time</h2>
+
+<p>This strikes everyone as wasteful, and it is worth being precise about the trade.</p>
+
+<p>The API is <strong>stateless</strong>: it stores nothing between calls. That is a
+deliberate design choice with real benefits. Your conversation is not sitting on somebody
+else's server. You can edit the history, delete messages, or start again, and there is no
+hidden state to fight. The cost is that a long conversation resends a lot of tokens.</p>
+
+<p>You can measure exactly how that grows:</p>
+
+<pre class="run" data-verify="run"><code>def tokens_sent_on_turn(turn, tokens_per_message=120):
+    &quot;&quot;&quot;You resend everything, so turn N sends N messages&#x27; worth.&quot;&quot;&quot;
+    return turn * 2 * tokens_per_message // 2   # user + assistant pairs
+
+
+for turn in (1, 5, 10, 20):
+    t = tokens_sent_on_turn(turn)
+    cost = (t / 1_000_000) * 1.00
+    print(f&quot;turn {turn:&gt;2}: ~{t:&gt;5} tokens in, ${cost:.6f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">turn  1: ~  120 tokens in, $0.000120
+turn  5: ~  600 tokens in, $0.000600
+turn 10: ~ 1200 tokens in, $0.001200
+turn 20: ~ 2400 tokens in, $0.002400</code></pre>
+
+<p>Turn 20 sends twenty times the tokens of turn 1. The words are cheap; the repetition
+is what adds up.</p>
+
+<div class="callout tip"><span class="co-title">🧮 Cheaper than trimming: caching</span><p>For long, stable prefixes the API can cache what you resend, which cuts the cost of the repeated part dramatically. It is a real feature and worth reading about once your assistant works, but it is an optimisation. Get the plain version right first; you cannot speed up a thing that does not run.</p></div>
+
+<h2>Trimming, so it cannot grow forever</h2>
+
+<p>The simplest good-enough policy: keep the most recent few exchanges. Here it is as a
+function you can test without spending a penny.</p>
+
+<pre class="run" data-verify="run"><code>def trim(messages, keep_pairs=10):
+    &quot;&quot;&quot;Keep only the most recent `keep_pairs` user/assistant exchanges.
+
+    Slicing from the end keeps the newest. Keeping an even number means
+    the history always starts on a user turn, which is what the API wants.
+    &quot;&quot;&quot;
+    keep = keep_pairs * 2
+    if len(messages) &lt;= keep:
+        return messages
+    return messages[-keep:]
+
+
+# a pretend history: 14 messages, alternating user and assistant
+history = []
+for i in range(7):
+    history.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: f&quot;question {i}&quot;})
+    history.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: f&quot;answer {i}&quot;})
+
+print(&quot;before:&quot;, len(history), &quot;messages, first role&quot;, history[0][&quot;role&quot;])
+short = trim(history, keep_pairs=3)
+print(&quot;after :&quot;, len(short), &quot;messages, first role&quot;, short[0][&quot;role&quot;])
+print(&quot;kept  :&quot;, [m[&quot;content&quot;] for m in short])</code></pre>
+<pre class="out"><code class="nohl">before: 14 messages, first role user
+after : 6 messages, first role user
+kept  : [&#x27;question 4&#x27;, &#x27;answer 4&#x27;, &#x27;question 5&#x27;, &#x27;answer 5&#x27;, &#x27;question 6&#x27;, &#x27;answer 6&#x27;]</code></pre>
+
+<p>Note it keeps messages in pairs, so the history never begins with an assistant reply,
+which the API would reject.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong>It answers but forgets immediately</strong> You are almost certainly creating
+    <code>messages</code> inside the loop instead of outside it. It must be made once,
+    before <code>while True</code>.</li>
+  <li><strong>A <code>BadRequestError</code> about roles</strong> The first message must be
+    from <code>user</code>, and content cannot be empty. The
+    <code>if not user_input: continue</code> line guards the second case.</li>
+  <li><strong>Ctrl-C prints a red stack trace</strong> That is <code>KeyboardInterrupt</code>
+    doing its job. The <code>try</code> wrapper above turns it into a polite goodbye.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p><code>python3 chat.py</code> holds a conversation where you give your name, ask two unrelated questions, then ask it to repeat your name back, and it gets it right.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-04"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="03-hello-jarvis.html"><span class="dir">← Previous</span>Hello, Jarvis</a>
+      <a class="next" href="05-streaming.html"><span class="dir">Next →</span>Words as They Arrive</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

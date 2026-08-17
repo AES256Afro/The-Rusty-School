@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 2: Setting Up the Workshop - The Python School</title>
+<meta name="description" content="A project folder, an isolated environment, the SDK installed, and your API key stored where it cannot leak.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/02-the-workshop">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 2: Setting Up the Workshop - The Python School">
+<meta property="og:description" content="A project folder, an isolated environment, the SDK installed, and your API key stored where it cannot leak.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/02-the-workshop">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 2: Setting Up the Workshop - The Python School">
+<meta name="twitter:description" content="A project folder, an isolated environment, the SDK installed, and your API key stored where it cannot leak.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 2 of 12 · Part 1, Get it talking</nav>
+    <span class="badge l6">Jarvis · Chapter 2</span>
+    <h1>Setting Up the Workshop 🧰</h1>
+    <p class="lede muted">The unglamorous chapter. Get this right and everything after it is pleasant; get it wrong and you will fight your own machine for a week. We will also do the single most important security step in the whole project.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>A project folder, an isolated environment, the SDK installed, and your API key stored where it cannot leak.</p>
+      <span class="jg-time">about 25 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>Make a home for the project</h2>
+
+<p>Open a terminal and make a folder. Anywhere you like; your home directory is fine.</p>
+
+<pre class="term"><code class="nohl">mkdir jarvis
+cd jarvis</code></pre>
+
+<p>Everything from here happens inside that folder. If a command later does not work,
+the first thing to check is whether you are still in it. <code>pwd</code> tells you where
+you are.</p>
+
+<h2>A virtual environment, and why you want one</h2>
+
+<p>Python installs packages globally by default, which means every project on your
+machine shares one pile of libraries. Two projects wanting different versions of the same
+thing is a genuinely miserable afternoon.</p>
+
+<p>A <em>virtual environment</em> is a private pile for this project only. It is one
+command:</p>
+
+<pre class="term"><code class="nohl">python3 -m venv .venv</code></pre>
+
+<p>That makes a <code>.venv</code> folder. Now activate it, which tells this terminal to
+use that private pile:</p>
+
+<pre class="term"><code class="nohl"># macOS and Linux
+source .venv/bin/activate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1</code></pre>
+
+<p>Your prompt changes to show <code>(.venv)</code> at the front. That is how you know it
+worked.</p>
+
+<div class="callout warn"><span class="co-title">🔁 You have to do this every time</span><p>Activation lasts for that terminal window only. Close it, come back tomorrow, and you must <code>cd jarvis</code> and <code>source .venv/bin/activate</code> again. Forgetting this is behind about half of all <code>ModuleNotFoundError</code> messages in the world.</p></div>
+
+<h2>Install the SDK</h2>
+
+<p>One package. The official Anthropic library for Python.</p>
+
+<pre class="term"><code class="nohl">pip install anthropic</code></pre>
+
+<p>It will print a wall of text and finish with something like
+<code>Successfully installed anthropic-0.x.y</code>. Check it landed:</p>
+
+<pre class="term"><code class="nohl">python3 -c &quot;import anthropic; print(anthropic.__version__)&quot;</code></pre>
+
+<h2>Get an API key</h2>
+
+<p>An API key is a password that identifies your account when your program calls
+Anthropic's computers. Getting one:</p>
+
+<ol>
+  <li>Go to <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> and sign in or sign up.</li>
+  <li>Add a small amount of credit. Five dollars is far more than this build needs.</li>
+  <li>Find <strong>API keys</strong> and create one. It looks like
+    <code>sk-ant-api03-…</code> and is very long.</li>
+  <li><strong>Copy it now.</strong> The console shows it once. If you lose it, you delete
+    it and make another; that is normal and costs nothing.</li>
+</ol>
+
+<div class="callout warn"><span class="co-title">🔑 What this key actually is</span><p>It is a key to your wallet. Anyone who has it can spend your credit. Treat it exactly like a bank card number: never in a screenshot, never pasted into a chat, never committed to git. If you ever think it leaked, delete it in the console and make a new one. That takes ten seconds and completely solves the problem.</p></div>
+
+<h2>The most important step in this chapter</h2>
+
+<p>Here is the wrong way, which you will see all over the internet:</p>
+
+<pre data-verify="skip"><code># WRONG. Never do this, not even for five minutes.
+client = anthropic.Anthropic(api_key=&quot;sk-ant-api03-abc123...&quot;)</code></pre>
+
+<p>The moment that key is inside a file, it is one careless <code>git push</code> away
+from being public, and bots scrape public repositories for exactly this. People have
+woken up to large bills.</p>
+
+<p>The right way is to put the key in an <strong>environment variable</strong>: a value
+that lives in your terminal session, outside your code entirely. The SDK looks for one
+called <code>ANTHROPIC_API_KEY</code> automatically.</p>
+
+<pre class="term"><code class="nohl"># macOS and Linux
+export ANTHROPIC_API_KEY=&quot;sk-ant-api03-your-actual-key-here&quot;
+
+# Windows PowerShell
+$env:ANTHROPIC_API_KEY=&quot;sk-ant-api03-your-actual-key-here&quot;</code></pre>
+
+<p>Now your code never mentions the key at all:</p>
+
+<pre data-verify="compile"><code>import anthropic
+
+# No api_key argument. The SDK reads ANTHROPIC_API_KEY from the
+# environment by itself. Your code stays safe to share.
+client = anthropic.Anthropic()</code></pre>
+
+<p>That is not a workaround; it is the SDK's intended default and the reason it works
+this way.</p>
+
+<h2>Making it stick</h2>
+
+<p><code>export</code> also only lasts for that terminal. To set it every time, add the
+same line to your shell's startup file, then open a new terminal:</p>
+
+<pre class="term"><code class="nohl"># zsh, the default on modern macOS
+echo &#x27;export ANTHROPIC_API_KEY=&quot;sk-ant-...&quot;;&#x27; &gt;&gt; ~/.zshrc
+
+# bash, common on Linux
+echo &#x27;export ANTHROPIC_API_KEY=&quot;sk-ant-...&quot;;&#x27; &gt;&gt; ~/.bashrc</code></pre>
+
+<h2>Check it without printing it</h2>
+
+<p>Verifying the key is set is useful. Printing it to your screen is not, because screens
+end up in screenshots. So check its <em>shape</em>, never its value:</p>
+
+<pre data-verify="compile"><code>import os
+
+key = os.environ.get(&quot;ANTHROPIC_API_KEY&quot;)
+
+if not key:
+    print(&quot;No key found. Did you export it in THIS terminal?&quot;)
+elif not key.startswith(&quot;sk-ant-&quot;):
+    print(&quot;Found something, but it does not look like an Anthropic key.&quot;)
+else:
+    print(f&quot;Key found: {{len(key)}} characters, starting sk-ant- and ending {{key[-4:]}}&quot;)</code></pre>
+
+<p>Save that as <code>check_key.py</code> and run <code>python3 check_key.py</code>. You
+want the third message. Notice it prints the length and the last four characters, which
+is enough to tell two keys apart and useless to a thief.</p>
+
+<div class="voice" data-skill="composure"><div class="v-head"><span class="v-name">Composure</span><span class="v-check success">[Easy: Success]</span></div><p>The instinct to print the whole key to 'just check it worked' is completely natural and completely wrong. Fingerprints, not passwords. Every good system you will ever use does this: the last four digits of your card, and nothing more.</p></div>
+
+<h2>Tell git to ignore the dangerous things</h2>
+
+<p>Even though the key is not in your code, make the mistake impossible. Create a file
+called <code>.gitignore</code>:</p>
+
+<pre data-verify="skip"><code># .gitignore
+.venv/
+__pycache__/
+*.pyc
+
+# never commit secrets or saved conversations
+.env
+history.json
+notes/</code></pre>
+
+<p>Git now refuses to track those, so a slip cannot publish your environment, your saved
+chats, or your notes. Lesson f3 covers git properly if this is unfamiliar.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong><code>command not found: python3</code></strong> Python is not installed or
+    not on your PATH. Base Camp 2 covers this. On Windows try <code>py</code> instead.</li>
+  <li><strong><code>ModuleNotFoundError: No module named 'anthropic'</code></strong>
+    Almost always an inactive virtual environment. Look for <code>(.venv)</code> in your
+    prompt; if it is missing, activate it and try again.</li>
+  <li><strong>The key check says "No key found"</strong> You exported it in a different
+    terminal window, or you opened a new one since. Export it again here, or add it to
+    your shell startup file as above.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Running <code>python3 check_key.py</code> prints a line saying your key was found, with its length and last four characters. Your prompt shows <code>(.venv)</code>, and <code>pip show anthropic</code> finds the package.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-02"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="01-the-brief.html"><span class="dir">← Previous</span>What You Are Building</a>
+      <a class="next" href="03-hello-jarvis.html"><span class="dir">Next →</span>Hello, Jarvis</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 8: Giving Jarvis Hands - The Python School</title>
+<meta name="description" content="Understand the tool-use loop completely, and get your assistant calling its first real function.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/08-tools">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 8: Giving Jarvis Hands - The Python School">
+<meta property="og:description" content="Understand the tool-use loop completely, and get your assistant calling its first real function.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/08-tools">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 8: Giving Jarvis Hands - The Python School">
+<meta name="twitter:description" content="Understand the tool-use loop completely, and get your assistant calling its first real function.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 8 of 12 · Part 3, Give it hands</nav>
+    <span class="badge l6">Jarvis · Chapter 8</span>
+    <h1>Giving Jarvis Hands 🔧</h1>
+    <p class="lede muted">This is the chapter that turns a chatbot into an assistant, and it is the one people find most mysterious. It should not be: the model never runs anything. It asks, and your code decides.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Understand the tool-use loop completely, and get your assistant calling its first real function.</p>
+      <span class="jg-time">about 35 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>The one sentence that demystifies tools</h2>
+
+<p><strong>The model cannot run code. It can only ask you to.</strong></p>
+
+<p>When your assistant "checks the time", what actually happens is that it sends back a
+message meaning "please call <code>get_current_time</code> and tell me what it says". Your
+Python runs the function. Your Python sends the answer back. The model then writes a
+sentence about it.</p>
+
+<p>Every safety property in this chapter follows from that. It cannot use a tool you did
+not write. It cannot pass arguments your function does not accept. It is a very
+well-informed colleague who can only ask you to press buttons.</p>
+
+<h2>Describing a tool</h2>
+
+<p>You hand over a list of tool descriptions. This is just a dictionary:</p>
+
+<pre class="run" data-verify="run"><code>TOOLS = [
+    {
+        &quot;name&quot;: &quot;get_current_time&quot;,
+        &quot;description&quot;: (
+            &quot;Get the current date and time on the user&#x27;s computer. &quot;
+            &quot;Use this whenever the user asks about the time, today&#x27;s date, &quot;
+            &quot;or how long until something.&quot;
+        ),
+        &quot;input_schema&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {},
+            &quot;required&quot;: [],
+        },
+    },
+]
+
+print(&quot;tool name       :&quot;, TOOLS[0][&quot;name&quot;])
+print(&quot;takes arguments :&quot;, bool(TOOLS[0][&quot;input_schema&quot;][&quot;properties&quot;]))
+print(&quot;description len :&quot;, len(TOOLS[0][&quot;description&quot;]), &quot;characters&quot;)</code></pre>
+<pre class="out"><code class="nohl">tool name       : get_current_time
+takes arguments : False
+description len : 144 characters</code></pre>
+
+<p>Three fields matter:</p>
+
+<ul>
+  <li><strong><code>name</code></strong> what you will match on when the request comes
+    back.</li>
+  <li><strong><code>description</code></strong> the most important field, and the one
+    people rush. This is the only thing the model uses to decide <em>whether</em> to reach
+    for this tool. "Gets the time" is weak. Saying explicitly when to use it is what makes
+    it fire at the right moments.</li>
+  <li><strong><code>input_schema</code></strong> the arguments, as JSON Schema. This one
+    takes none, so <code>properties</code> is empty.</li>
+</ul>
+
+<h2>The loop</h2>
+
+<p>Here is the whole thing. Read the comments; they are the lesson.</p>
+
+<pre data-verify="compile"><code>import anthropic
+from datetime import datetime
+
+client = anthropic.Anthropic()
+MODEL = &quot;claude-haiku-4-5&quot;
+
+
+def get_current_time():
+    return datetime.now().strftime(&quot;%A %d %B %Y, %H:%M&quot;)
+
+
+def run_tool(name, tool_input):
+    &quot;&quot;&quot;Actually execute a tool. This is YOUR code, not the model&#x27;s.&quot;&quot;&quot;
+    if name == &quot;get_current_time&quot;:
+        return get_current_time()
+    return f&quot;Unknown tool: {name}&quot;
+
+
+messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What time is it?&quot;}]
+
+while True:
+    response = client.messages.create(
+        model=MODEL,
+        max_tokens=1000,
+        tools=TOOLS,
+        messages=messages,
+    )
+
+    # It is done talking and wants nothing more from us.
+    if response.stop_reason != &quot;tool_use&quot;:
+        break
+
+    # Keep the assistant turn EXACTLY as it came back, tool requests and all.
+    messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+
+    results = []
+    for block in response.content:
+        if block.type == &quot;tool_use&quot;:
+            output = run_tool(block.name, block.input)
+            results.append({
+                &quot;type&quot;: &quot;tool_result&quot;,
+                &quot;tool_use_id&quot;: block.id,   # must match the request
+                &quot;content&quot;: output,
+            })
+
+    # Results go back as a USER turn. That surprises everyone.
+    messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: results})
+
+print(&quot;&quot;.join(b.text for b in response.content if b.type == &quot;text&quot;))</code></pre>
+
+<h2>What actually happened, step by step</h2>
+
+<pre class="term"><code class="nohl">you&gt; what time is it?
+
+  [call 1] you send: &quot;what time is it?&quot; + the tool list
+  [call 1] it replies: stop_reason=&quot;tool_use&quot;, wants get_current_time()
+  [your code] runs get_current_time() -&gt; &quot;Monday 17 August 2026, 14:32&quot;
+  [call 2] you send: everything above + the tool result
+  [call 2] it replies: stop_reason=&quot;end_turn&quot;, text=&quot;It is 2:32pm on Monday.&quot;
+
+jarvis&gt; It is 2:32pm on Monday, 17 August 2026.</code></pre>
+
+<p>Note there were <strong>two</strong> API calls for one question. That is normal and it
+is why tool use costs more than plain chat. Every tool round trip is another call carrying
+the whole conversation.</p>
+
+<h2>The four things people get wrong</h2>
+
+<p>Every one of these produces a confusing error, so they are worth naming.</p>
+
+<ol>
+  <li><strong>Appending your own summary instead of <code>response.content</code>.</strong>
+    You must append the assistant turn exactly as it arrived, tool-use blocks included. The
+    follow-up call needs to see its own request. Replace it with a tidy string and the API
+    rejects the conversation.</li>
+  <li><strong>Sending tool results as an assistant message.</strong> They go back with
+    <code>"role": "user"</code>. It feels wrong, because the user did not say it, but the
+    protocol treats anything you feed in as coming from your side.</li>
+  <li><strong>Mismatched <code>tool_use_id</code>.</strong> Each result must carry the id
+    of the request it answers, so several parallel tool calls can be matched up. Copy it
+    from the block; never invent it.</li>
+  <li><strong>Looping forever.</strong> If you break only on <code>end_turn</code> and
+    something unexpected comes back, you spin, calling the API repeatedly, spending money.
+    Chapter 12 adds a hard limit on rounds.</li>
+</ol>
+
+<h2>Several tools at once</h2>
+
+<p>The loop above already handles this: the <code>for</code> over
+<code>response.content</code> collects <em>every</em> <code>tool_use</code> block, and all
+the results go back in one message. A model can ask for three things in a single turn, and
+your code answers all three together rather than one at a time.</p>
+
+<h2>The shortcut, and why not yet</h2>
+
+<p>The SDK ships a tool runner that writes this loop for you: you decorate plain Python
+functions and it handles the round trips. It is genuinely nice, and it is in beta.</p>
+
+<p>Learn it after this. The loop you just wrote is the actual mental model of every AI
+agent there is, including the elaborate ones. Fifteen lines, and once you have written
+them yourself, no agent framework will ever be mysterious again. Reach for the shortcut
+when you are bored of the loop, not before you understand it.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong>It never calls the tool</strong> Your <code>description</code> is too vague.
+    Say plainly when it should be used. Asking "what time is it?" should be unmissable.</li>
+  <li><strong><code>BadRequestError</code> about tool_use_id or block order</strong> One of
+    the first three mistakes above. Check you appended <code>response.content</code>
+    unmodified.</li>
+  <li><strong>It calls the tool then says it cannot tell the time</strong> Your result went
+    back with the wrong id, or as the wrong role, so it never saw an answer.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Ask your assistant what time it is and it answers correctly, having actually run your Python function to find out. Ask it something unrelated and it does not call the tool.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-08"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="07-persistence.html"><span class="dir">← Previous</span>Remembering Between Runs</a>
+      <a class="next" href="09-your-own-tools.html"><span class="dir">Next →</span>Tools You Wrote, Safely</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

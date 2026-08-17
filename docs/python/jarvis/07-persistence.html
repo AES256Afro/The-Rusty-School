@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 7: Remembering Between Runs - The Python School</title>
+<meta name="description" content="Save the conversation to disk so closing the terminal does not wipe its memory.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/07-persistence">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 7: Remembering Between Runs - The Python School">
+<meta property="og:description" content="Save the conversation to disk so closing the terminal does not wipe its memory.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/07-persistence">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 7: Remembering Between Runs - The Python School">
+<meta name="twitter:description" content="Save the conversation to disk so closing the terminal does not wipe its memory.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 7 of 12 · Part 2, Make it feel real</nav>
+    <span class="badge l6">Jarvis · Chapter 7</span>
+    <h1>Remembering Between Runs 💾</h1>
+    <p class="lede muted">Chapter 4 gave it memory that lasts until you quit. This gives it memory that survives, using nothing more exotic than a JSON file, plus one trick that stops a crash destroying it.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Save the conversation to disk so closing the terminal does not wipe its memory.</p>
+      <span class="jg-time">about 25 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>Memory that outlives the process</h2>
+
+<p>Your list of messages lives in RAM, so it dies with the program. Since the list is
+plain dictionaries of strings, saving it is exactly the JSON work from Lesson 23.</p>
+
+<pre class="run" data-verify="run"><code>import json
+from pathlib import Path
+
+HISTORY_FILE = Path(&quot;history.json&quot;)
+
+
+def save_history(messages, path=HISTORY_FILE):
+    &quot;&quot;&quot;Write the conversation to disk as JSON.&quot;&quot;&quot;
+    path.write_text(json.dumps(messages, indent=2), encoding=&quot;utf-8&quot;)
+
+
+def load_history(path=HISTORY_FILE):
+    &quot;&quot;&quot;Read the conversation back, or start fresh if there is nothing there.&quot;&quot;&quot;
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding=&quot;utf-8&quot;))
+    except json.JSONDecodeError:
+        # a truncated or hand-edited file should not kill the program
+        print(&quot;History file was unreadable, starting fresh.&quot;)
+        return []
+    if not isinstance(data, list):
+        return []
+    return data
+
+
+# demonstrate with a temporary file
+demo = Path(&quot;demo-history.json&quot;)
+save_history([
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;hello&quot;},
+    {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Hi there.&quot;},
+], demo)
+
+loaded = load_history(demo)
+print(&quot;saved and loaded&quot;, len(loaded), &quot;messages&quot;)
+print(&quot;first:&quot;, loaded[0][&quot;role&quot;], &quot;-&gt;&quot;, loaded[0][&quot;content&quot;])
+demo.unlink()
+print(&quot;file removed:&quot;, not demo.exists())</code></pre>
+<pre class="out"><code class="nohl">saved and loaded 2 messages
+first: user -&gt; hello
+file removed: True</code></pre>
+
+<p>Two things in there are deliberate and worth keeping in your own version.</p>
+
+<p>The <code>try</code> around <code>json.loads</code> means a corrupted or half-written
+file costs you your history but not your program. Reading a file you wrote yourself feels
+like it cannot fail, right up until the day you Ctrl-C mid-write.</p>
+
+<p>The <code>isinstance(data, list)</code> check means a file containing valid JSON of the
+wrong shape (say, <code>{}</code>) does not blow up later in a confusing place. Validate
+at the boundary, not three functions deeper.</p>
+
+<h2>Wire it into the loop</h2>
+
+<p>Two changes to <code>chat.py</code>: load at the top, save after each exchange.</p>
+
+<ul>
+  <li>Replace <code>messages = []</code> with <code>messages = load_history()</code>.</li>
+  <li>After appending the assistant's reply, call <code>save_history(messages)</code>.</li>
+</ul>
+
+<p>Saving every turn rather than on exit is deliberate: exit is precisely when crashes
+happen, and a save that only runs on a clean shutdown is a save that eventually does not
+run.</p>
+
+<h2>The rename trick</h2>
+
+<p>Writing directly to <code>history.json</code> has a real failure mode. If the program
+dies halfway through the write, the file is truncated and the whole history is gone. The
+fix is standard practice and costs two lines:</p>
+
+<pre class="run" data-verify="run"><code>import json
+from pathlib import Path
+
+
+def save_atomically(data, path):
+    &quot;&quot;&quot;Write to a temporary file, then rename it into place.
+
+    A rename is atomic on every system you care about. Without this, a
+    crash or Ctrl-C halfway through writing leaves a half-written file
+    and your entire history is gone. With it, the old file survives
+    untouched until the new one is complete.
+    &quot;&quot;&quot;
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temp = path.with_suffix(path.suffix + &quot;.tmp&quot;)
+    temp.write_text(json.dumps(data, indent=2), encoding=&quot;utf-8&quot;)
+    temp.replace(path)          # atomic swap
+
+
+target = Path(&quot;atomic-demo.json&quot;)
+save_atomically([{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;safe&quot;}], target)
+print(&quot;written:&quot;, target.exists())
+print(&quot;no leftover temp:&quot;, not target.with_suffix(&quot;.json.tmp&quot;).exists())
+print(&quot;contents:&quot;, json.loads(target.read_text())[0][&quot;content&quot;])
+target.unlink()</code></pre>
+<pre class="out"><code class="nohl">written: True
+no leftover temp: True
+contents: safe</code></pre>
+
+<p>Write to a temporary file, then <em>rename</em> it over the real one. Renaming is
+atomic: it either happened or it did not, with no in-between state. Until the moment it
+succeeds, the previous good file is still sitting there intact.</p>
+
+<h2>One file per day</h2>
+
+<p>A single ever-growing file gets unwieldy and makes it hard to say "what did I ask it on
+Tuesday". Splitting by date is trivial:</p>
+
+<pre class="run" data-verify="run"><code>from datetime import date
+from pathlib import Path
+
+
+def session_path(folder=&quot;sessions&quot;, today=None):
+    &quot;&quot;&quot;One file per day, so history is browsable instead of one huge blob.&quot;&quot;&quot;
+    day = (today or date.today()).isoformat()
+    return Path(folder) / f&quot;{day}.json&quot;
+
+
+print(session_path(today=date(2026, 8, 17)))
+print(session_path(folder=&quot;chats&quot;, today=date(2026, 1, 2)))</code></pre>
+<pre class="out"><code class="nohl">sessions/2026-08-17.json
+chats/2026-01-02.json</code></pre>
+
+<p>Combine that with the trimming from chapter 4 and you get a sensible arrangement: the
+file on disk keeps everything for the day, while only the most recent exchanges get sent
+to the API. Your archive and your context window are different problems and should not
+share a limit.</p>
+
+<h2>Remember what is in that file</h2>
+
+<p>It is a plain-text record of everything you have said to your assistant. That is
+exactly why <code>.gitignore</code> in chapter 2 lists <code>history.json</code>. If you
+ever publish this project, publish the code and not your diary.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong><code>JSONDecodeError</code> on startup</strong> The file is truncated,
+    probably from a crash mid-write. Delete it and adopt the rename trick.</li>
+  <li><strong><code>TypeError: Object of type ... is not JSON serializable</code></strong>
+    Something that is not a plain string or dict got into the list. Store the reply
+    <em>text</em>, not the response object.</li>
+  <li><strong>It remembers far too much and answers get expensive</strong> You are sending
+    the whole file. Load everything, but send only <code>trim(messages)</code>.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Talk to your assistant, quit with Ctrl-C, start it again, and ask it what you were discussing. It knows. A <code>history.json</code> exists and is readable JSON.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-07"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="06-personality.html"><span class="dir">← Previous</span>Giving Jarvis a Character</a>
+      <a class="next" href="08-tools.html"><span class="dir">Next →</span>Giving Jarvis Hands</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

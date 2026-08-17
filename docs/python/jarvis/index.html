@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Jarvis Build - The Python School</title>
+<meta name="description" content="Build your own AI assistant from scratch in 12 guided chapters: memory, streaming, tools, your own notes, and a hard spending cap. Every step explained, for beginners.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="The Jarvis Build - The Python School">
+<meta property="og:description" content="Build your own AI assistant from scratch in 12 guided chapters: memory, streaming, tools, your own notes, and a hard spending cap. Every step explained, for beginners.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Jarvis Build - The Python School">
+<meta name="twitter:description" content="Build your own AI assistant from scratch in 12 guided chapters: memory, streaming, tools, your own notes, and a hard spending cap. Every step explained, for beginners.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body data-noun="chapters">
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container">
+  <section class="lesson-header">
+    <span class="kicker">The flagship project</span>
+    <h1>The <span class="grad">Jarvis</span> Build 🤖</h1>
+    <p class="lede muted">
+      Build your own AI assistant from an empty folder, in 12 chapters, with
+      every step explained. It will remember your conversations, run code you wrote, read
+      your own notes, and refuse to spend more than you allow. About 5
+      hours of work, and less than the price of a coffee in API costs.
+    </p>
+
+    <div class="xp-wrap" id="xp-wrap">
+      <div class="xp-top">
+        <span class="rank-chip"><span class="rank-num">1</span><span class="rank-name">Stowaway</span></span>
+        <span class="xp-nums">0 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+      <p class="xp-note">Each chapter is 150 XP. Finishing all 12 unlocks the
+      It's Alive achievement and the Jarvis milestone.</p>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="co-title">🧭 This is a build, not a lesson</span>
+    Every chapter ends with a program that runs, so you are never left holding half a
+    thing. Type the code rather than pasting it, and do not move on while something is
+    broken: chapter N+1 assumes chapter N works. Every chapter finishes with the three
+    things that actually go wrong.
+  </div>
+
+  <div class="callout info">
+    <span class="co-title">🎒 What you need first</span>
+    Roughly Lessons 1 to 30: functions, loops, dictionaries and files. Python 3.10+, a
+    terminal, and an Anthropic account with a few dollars of credit. Chapter 2 walks
+    through the setup properly, including how to keep your API key out of your code.
+    <a href="../learn/index.html#level-6">Level 6</a> explains the ideas underneath in more
+    depth, and is a good companion, but you do not need it first.
+  </div>
+
+  <div class="callout warn">
+    <span class="co-title">💸 What it costs, honestly</span>
+    This build defaults to <code>claude-haiku-4-5</code>, the cheapest current model, at $1 per
+    million tokens in and $5 out. A hundred back-and-forth messages costs about twenty
+    cents. Chapter 12 adds a hard daily cap so it cannot quietly become more. Prices and
+    model names change; the chapters say so rather than pretending otherwise.
+  </div>
+
+  <section class="section" id="part-1">
+    <h2><span class="jarvis-part">Part 1</span> Get it talking
+      <span class="muted small">chapters 1 to 4</span></h2>
+    <p class="muted">An assistant that answers you and remembers the conversation.</p>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="pyjarvis-01" href="01-the-brief.html"><span class="num">1</span><div><h3>What You Are Building 🗺️</h3><p>Understand the whole project before writing a line of it, including what it will cost.</p><div class="meta">about 15 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-02" href="02-the-workshop.html"><span class="num">2</span><div><h3>Setting Up the Workshop 🧰</h3><p>A project folder, an isolated environment, the SDK installed, and your API key stored where it cannot leak.</p><div class="meta">about 25 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-03" href="03-hello-jarvis.html"><span class="num">3</span><div><h3>Hello, Jarvis 👋</h3><p>Make your first API call and understand every single line of it.</p><div class="meta">about 25 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-04" href="04-memory.html"><span class="num">4</span><div><h3>A Conversation, Not a Goldfish 🧠</h3><p>Turn a single question into a real back-and-forth that remembers what was said.</p><div class="meta">about 25 minutes</div></div></a>
+    </div>
+  </section>
+  <section class="section" id="part-2">
+    <h2><span class="jarvis-part">Part 2</span> Make it feel real
+      <span class="muted small">chapters 5 to 7</span></h2>
+    <p class="muted">Streaming, a character of its own, and memory that survives a restart.</p>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="pyjarvis-05" href="05-streaming.html"><span class="num">5</span><div><h3>Words as They Arrive ⚡</h3><p>Make replies appear word by word instead of after an uncomfortable silence.</p><div class="meta">about 20 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-06" href="06-personality.html"><span class="num">6</span><div><h3>Giving Jarvis a Character 🎭</h3><p>Use the system prompt to set behaviour, tone and honesty rules, and keep it in a file you can edit.</p><div class="meta">about 20 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-07" href="07-persistence.html"><span class="num">7</span><div><h3>Remembering Between Runs 💾</h3><p>Save the conversation to disk so closing the terminal does not wipe its memory.</p><div class="meta">about 25 minutes</div></div></a>
+    </div>
+  </section>
+  <section class="section" id="part-3">
+    <h2><span class="jarvis-part">Part 3</span> Give it hands
+      <span class="muted small">chapters 8 to 10</span></h2>
+    <p class="muted">Tools it can call, tools you wrote safely, and your own notes.</p>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="pyjarvis-08" href="08-tools.html"><span class="num">8</span><div><h3>Giving Jarvis Hands 🔧</h3><p>Understand the tool-use loop completely, and get your assistant calling its first real function.</p><div class="meta">about 35 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-09" href="09-your-own-tools.html"><span class="num">9</span><div><h3>Tools You Wrote, Safely 🛡️</h3><p>Build a tool registry so adding abilities is easy, and a sandbox so they cannot be turned against you.</p><div class="meta">about 35 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-10" href="10-your-notes.html"><span class="num">10</span><div><h3>Jarvis Reads Your Notes 📚</h3><p>Let your assistant answer from your own documents, and understand why this is searching rather than teaching.</p><div class="meta">about 30 minutes</div></div></a>
+    </div>
+  </section>
+  <section class="section" id="part-4">
+    <h2><span class="jarvis-part">Part 4</span> Make it yours
+      <span class="muted small">chapters 11 to 12</span></h2>
+    <p class="muted">A real installed command, a spending cap, and where to go next.</p>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="pyjarvis-11" href="11-a-real-program.html"><span class="num">11</span><div><h3>From Script to Real Program 📦</h3><p>Reorganise into a proper package, add command-line arguments, and install it so you can type `jarvis` from anywhere.</p><div class="meta">about 30 minutes</div></div></a>
+      <a class="card lesson-card" data-lesson="pyjarvis-12" href="12-guardrails.html"><span class="num">12</span><div><h3>Guardrails, and Where to Go Next 🚦</h3><p>Add a hard spending cap, honest error messages and a loop limit, then decide what to build next.</p><div class="meta">about 30 minutes</div></div></a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="callout">
+      <span class="co-title">🧱 What you will have built</span>
+      <p>Not "an AI app". A while loop, a list, a dictionary of functions, a search, and a
+      spending cap. Every AI agent you meet from now on, however impressive the marketing,
+      is made of those parts. That is the actual point of this project: after it, none of
+      this is mysterious.</p>
+    </div>
+  </section>
+
+<script>window.PY_JARVIS_TOTAL = 12;</script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 1: What You Are Building - The Python School</title>
+<meta name="description" content="Understand the whole project before writing a line of it, including what it will cost.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/01-the-brief">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 1: What You Are Building - The Python School">
+<meta property="og:description" content="Understand the whole project before writing a line of it, including what it will cost.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/01-the-brief">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 1: What You Are Building - The Python School">
+<meta name="twitter:description" content="Understand the whole project before writing a line of it, including what it will cost.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 1 of 12 · Part 1, Get it talking</nav>
+    <span class="badge l6">Jarvis · Chapter 1</span>
+    <h1>What You Are Building 🗺️</h1>
+    <p class="lede muted">Twelve chapters from an empty folder to an assistant that remembers you, runs your own code, reads your notes, and refuses to overspend. This chapter is the map. No code yet, and that is deliberate.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Understand the whole project before writing a line of it, including what it will cost.</p>
+      <span class="jg-time">about 15 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>The honest brief</h2>
+
+<p>You are going to build a program you can run in a terminal, type at, and get useful
+answers from. It will remember the conversation. It will be able to do things on your
+computer that you explicitly allow, like reading a file or checking the time. It will
+know about notes you have written. And it will stop itself before it spends more of your
+money than you agreed to.</p>
+
+<p>It is not magic and it is not a person. Underneath, every single one of those
+features is ordinary Python: a list, a loop, a dictionary, a file. You have already
+learned all of it. The only genuinely new thing is one function call to somebody else's
+computer.</p>
+
+<div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">Volition</span><span class="v-check success">[Medium: Success]</span></div><p>Here is the part nobody tells beginners: the assistant is the easy bit. Ninety percent of this project is a while loop and a list. Once you see that, the mystery evaporates and what is left is just work you already know how to do.</p></div>
+
+<h2>What it will look like when it works</h2>
+
+<p>By the last chapter, this is a real session with the thing you built:</p>
+
+<pre class="term"><code class="nohl">$ jarvis
+Jarvis ready. Ctrl-C to leave.
+
+you&gt; what files are in my notes folder?
+jarvis&gt; You have three: groceries.md, book-ideas.md and standup.md.
+
+you&gt; what did I say I wanted to read?
+jarvis&gt; From book-ideas.md, you listed three: Piranesi, The Dispossessed,
+        and something you only wrote down as &quot;the octopus one&quot;.
+
+you&gt; how much have I spent talking to you today?
+jarvis&gt; $0.0143 across 22 messages. Your daily cap is $0.50.</code></pre>
+
+<p>Every one of those answers involves a different piece you will build: the third
+needs tools, the second needs your notes, the fourth needs the cost tracker.</p>
+
+<h2>The twelve chapters</h2>
+
+<p>Four parts. Each chapter ends with a program that runs, so you are never left
+holding half a thing.</p>
+
+<div class="table-wrap"><table><thead><tr><th>Part</th><th>Chapters</th><th>What you end up with</th></tr></thead><tbody><tr><td><strong>Get it talking</strong></td><td>1 to 4</td><td>A working chat loop with memory, and an API key stored safely</td></tr><tr><td><strong>Make it feel real</strong></td><td>5 to 7</td><td>Words appearing as they are written, a personality, and history that survives restarts</td></tr><tr><td><strong>Give it hands</strong></td><td>8 to 10</td><td>Tools it can call, tools you wrote, and knowledge of your own notes</td></tr><tr><td><strong>Make it yours</strong></td><td>11 to 12</td><td>A real installed command, a spending cap, and somewhere to go next</td></tr></tbody></table></div>
+
+<h2>What you need before chapter 2</h2>
+
+<ul>
+  <li><strong>Python 3.10 or newer.</strong> Base Camp 2 covers installing it. Check with
+    <code>python3 --version</code>.</li>
+  <li><strong>A terminal you are not afraid of.</strong> Base Camp 3. You need to change
+    directory, run a file, and stop a program with Ctrl-C.</li>
+  <li><strong>An Anthropic account with a little credit on it.</strong> Chapter 2 walks
+    through this properly, including how not to leak the key.</li>
+  <li><strong>Lessons 1 to 30, roughly.</strong> If you can write a function, a loop, a
+    dictionary and open a file, you have enough. You do not need Level 6 first, though
+    it explains the ideas in more depth than this build stops to.</li>
+</ul>
+
+<h2>What this will cost you</h2>
+
+<p>This is the question beginners are too polite to ask, so here is the arithmetic in
+public.</p>
+
+<p>You pay per <em>token</em>, which is roughly three quarters of a word. You pay a small
+amount for what you send and more for what comes back. This build defaults to the
+cheapest current model, <code>claude-haiku-4-5</code>, which is
+<strong>$1 per million tokens in, $5 per million out</strong>.</p>
+
+<p>A chatty back-and-forth message costs a few hundred tokens each way. So:</p>
+
+<pre class="run" data-verify="run"><code># Rough cost of one exchange with a small model.
+# Prices in dollars per MILLION tokens.
+price_in = 1.00
+price_out = 5.00
+
+tokens_in = 600     # your message plus the conversation so far
+tokens_out = 300    # its reply
+
+cost = (tokens_in / 1_000_000) * price_in + (tokens_out / 1_000_000) * price_out
+print(f&quot;one exchange: ${cost:.5f}&quot;)
+print(f&quot;100 exchanges: ${cost * 100:.3f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">one exchange: $0.00210
+100 exchanges: $0.210</code></pre>
+
+<p>Twenty-one cents for a hundred messages. Working through this entire build, testing
+as you go, will very likely cost you less than a cup of coffee. Chapter 12 adds a hard
+cap so it cannot quietly become more.</p>
+
+<div class="callout warn"><span class="co-title">💸 Two ways this gets expensive, and neither is a surprise</span><p>Costs climb when the <em>conversation</em> gets long, because you resend the whole history every time (chapter 4 explains why), and when you switch to a bigger model. Both are under your control, and chapter 12 puts a wall in front of both.</p></div>
+
+<h2>Which model, and why the cheapest one</h2>
+
+<p>There are three you would plausibly use. They are the same API; you change one
+string.</p>
+
+<div class="table-wrap"><table><thead><tr><th>Model</th><th>Price per 1M tokens (in / out)</th><th>Reach for it when</th></tr></thead><tbody><tr><td><code>claude-haiku-4-5</code></td><td>$1 / $5</td><td>Chat, small tools, anything where speed and cost matter. <strong>This build's default.</strong></td></tr><tr><td><code>claude-sonnet-5</code></td><td>$3 / $15</td><td>You want noticeably better reasoning and writing for everyday work</td></tr><tr><td><code>claude-opus-5</code></td><td>$5 / $25</td><td>The hardest problems: long analysis, tricky code, anything you would ask an expert</td></tr></tbody></table></div>
+
+<p>Starting cheap is not a compromise for a personal assistant, it is the right default.
+You will change one line in chapter 12 and feel the difference immediately if you want
+it. What you must not do is start expensive and find out at the end of the month.</p>
+
+<div class="callout info"><span class="co-title">📅 Prices and model names change</span><p>These were correct when this chapter was written. Model ids and prices do move, so if a call fails with a model-not-found error, check the current list in Anthropic's own docs rather than assuming this page is right forever. That is true of every tutorial on the internet, including this one; the difference is that this one says so.</p></div>
+
+<h2>The rule that makes this project safe</h2>
+
+<p>You are about to give a program an API key that spends money, and later the ability to
+run functions on your machine. Two rules, followed from chapter 2, keep that entirely
+boring:</p>
+
+<ol>
+  <li><strong>The key never appears in your code.</strong> Not once, not temporarily, not
+    "just to test it". Chapter 2 shows the alternative, which is easier anyway.</li>
+  <li><strong>The assistant can only do what you wrote a function for.</strong> It cannot
+    invent abilities. When we give it tools in chapter 8, you will see exactly why that
+    is structurally true rather than a promise.</li>
+</ol>
+
+<div class="callout tip"><span class="co-title">🎒 How to work through this</span><p>One chapter per sitting. Type the code rather than pasting it; the point is the reading, not the file. Run it at every checkpoint, and do not move on while something is broken, because chapter N+1 assumes chapter N works. If you get stuck, every chapter ends with the three things that actually go wrong.</p></div>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Nothing to run yet. You should be able to say, in one sentence, what you are building and roughly what it will cost. If you cannot, read the brief again before spending money in chapter 2.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-01"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="index.html"><span class="dir">← Back</span>The Jarvis Build</a>
+      <a class="next" href="02-the-workshop.html"><span class="dir">Next →</span>Setting Up the Workshop</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

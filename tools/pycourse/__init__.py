@@ -85,6 +85,7 @@ def course_js(lessons: list[dict]) -> str:
     """
     import json
 
+    from .jarvis_data import CHAPTERS as JARVIS
     from .pit_data import PUZZLES
     from .quizzes import QUIZZES
     from .workshop_data import PROJECTS
@@ -116,6 +117,14 @@ def course_js(lessons: list[dict]) -> str:
             }
             for p in PROJECTS
         ],
+        "jarvis": [
+            {
+                "id": c["id"],
+                "title": c["title"],
+                "href": f"jarvis/{c['slug']}.html",
+            }
+            for c in JARVIS
+        ],
         "pitTotal": len(PUZZLES),
         "quizSizes": {q["id"]: len(q["questions"]) for q in QUIZZES},
     }
@@ -129,7 +138,7 @@ def course_js(lessons: list[dict]) -> str:
 
 
 def build_all() -> list[tuple[str, str]]:
-    from . import cheatsheets, glossary, insults, pages, pit, quizzes, workshop
+    from . import cheatsheets, glossary, insults, jarvis, pages, pit, quizzes, workshop
     from .kit import lesson_page
 
     lessons = load_lessons()
@@ -153,5 +162,6 @@ def build_all() -> list[tuple[str, str]]:
     out.append(("glossary.html", glossary.build()))
     out.append(("cheatsheets.html", cheatsheets.build()))
     out.extend(workshop.build())
+    out.extend(jarvis.build())
     out.append(("assets/course.js", course_js(lessons)))
     return out

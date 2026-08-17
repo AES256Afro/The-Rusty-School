@@ -27,6 +27,7 @@ NAV = [
     ("setup.html", "Setup Lab"),
     ("learn/index.html", "Learn"),
     ("build/index.html", "Build"),
+    ("jarvis/index.html", "Jarvis"),
     ("pit.html", "Snake Pit"),
     ("playground.html", "Playground"),
     ("quiz.html", "Quizzes"),
@@ -39,6 +40,7 @@ FOOTER_LINKS = [
     ("quiz.html", "Quizzes"),
     ("cheatsheets.html", "Cheat sheets"),
     ("glossary.html", "Glossary"),
+    ("jarvis/index.html", "The Jarvis Build"),
     ("achievements.html", "Achievements"),
     ("insults.html", "Insult Compiler"),
 ]

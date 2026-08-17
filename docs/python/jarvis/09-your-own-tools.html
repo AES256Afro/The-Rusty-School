@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 9: Tools You Wrote, Safely - The Python School</title>
+<meta name="description" content="Build a tool registry so adding abilities is easy, and a sandbox so they cannot be turned against you.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/09-your-own-tools">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 9: Tools You Wrote, Safely - The Python School">
+<meta property="og:description" content="Build a tool registry so adding abilities is easy, and a sandbox so they cannot be turned against you.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/09-your-own-tools">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 9: Tools You Wrote, Safely - The Python School">
+<meta name="twitter:description" content="Build a tool registry so adding abilities is easy, and a sandbox so they cannot be turned against you.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 9 of 12 · Part 3, Give it hands</nav>
+    <span class="badge l6">Jarvis · Chapter 9</span>
+    <h1>Tools You Wrote, Safely 🛡️</h1>
+    <p class="lede muted">Now the tools become yours. This is also the chapter where we stop trusting the model's input, because the moment a tool touches your filesystem the stakes change completely.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Build a tool registry so adding abilities is easy, and a sandbox so they cannot be turned against you.</p>
+      <span class="jg-time">about 35 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>A registry instead of a growing if-chain</h2>
+
+<p>Chapter 8's <code>run_tool</code> had one <code>if</code>. With six tools that becomes a
+mess, and the tool list and the dispatcher drift apart until one has an entry the other
+does not. Keep them together:</p>
+
+<pre class="run" data-verify="run"><code>from datetime import datetime
+from pathlib import Path
+
+# A registry: one dictionary mapping a tool name to the function that
+# implements it. Adding a tool becomes adding an entry, not editing a
+# growing chain of if/elif.
+REGISTRY = {}
+
+
+def tool(name, description, schema=None):
+    &quot;&quot;&quot;Decorator that registers a function as a tool.&quot;&quot;&quot;
+    def wrap(fn):
+        REGISTRY[name] = {
+            &quot;fn&quot;: fn,
+            &quot;spec&quot;: {
+                &quot;name&quot;: name,
+                &quot;description&quot;: description,
+                &quot;input_schema&quot;: schema or {&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: {}, &quot;required&quot;: []},
+            },
+        }
+        return fn
+    return wrap
+
+
+@tool(&quot;get_current_time&quot;, &quot;Get the current date and time on the user&#x27;s computer.&quot;)
+def get_current_time():
+    return datetime.now().strftime(&quot;%A %d %B %Y, %H:%M&quot;)
+
+
+@tool(&quot;add_note&quot;, &quot;Append a line to the user&#x27;s notes file.&quot;,
+      {&quot;type&quot;: &quot;object&quot;,
+       &quot;properties&quot;: {&quot;text&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;The line to add.&quot;}},
+       &quot;required&quot;: [&quot;text&quot;]})
+def add_note(text):
+    return f&quot;Noted: {text}&quot;
+
+
+def tool_specs():
+    &quot;&quot;&quot;The list you pass to the API.&quot;&quot;&quot;
+    return [entry[&quot;spec&quot;] for entry in REGISTRY.values()]
+
+
+print(&quot;registered:&quot;, sorted(REGISTRY))
+print(&quot;specs sent to the API:&quot;, [s[&quot;name&quot;] for s in tool_specs()])
+print(&quot;add_note requires:&quot;, REGISTRY[&quot;add_note&quot;][&quot;spec&quot;][&quot;input_schema&quot;][&quot;required&quot;])</code></pre>
+<pre class="out"><code class="nohl">registered: [&#x27;add_note&#x27;, &#x27;get_current_time&#x27;]
+specs sent to the API: [&#x27;get_current_time&#x27;, &#x27;add_note&#x27;]
+add_note requires: [&#x27;text&#x27;]</code></pre>
+
+<p>The decorator registers the function and its description in one place, so a tool cannot
+exist in the API list but be missing from the dispatcher, or the reverse. Adding an ability
+is now writing one function.</p>
+
+<h2>Dispatch that cannot crash your program</h2>
+
+<p>A tool call comes from a language model, which means it is <em>input</em>, and input is
+never trusted. It can name a tool that does not exist. It can pass an argument you never
+declared. Neither should end your session:</p>
+
+<pre class="run" data-verify="run"><code>def add_note(text):
+    return f&quot;Noted: {text}&quot;
+
+
+# The registry from above, in miniature so this block runs on its own.
+REGISTRY = {&quot;add_note&quot;: {&quot;fn&quot;: add_note}}
+
+
+def run_tool(name, tool_input):
+    &quot;&quot;&quot;Look up and run a tool, turning every failure into a message.
+
+    Two rules here, and both matter:
+
+      1. An unknown name is not a crash. A model can ask for a tool that
+         does not exist, and that must not take the program down.
+      2. An exception inside a tool is not a crash either. It becomes text
+         the model can read and react to, which is far more useful to it
+         than a traceback is to you.
+    &quot;&quot;&quot;
+    entry = REGISTRY.get(name)
+    if entry is None:
+        return f&quot;Error: no tool called {name!r} exists.&quot;
+    try:
+        return str(entry[&quot;fn&quot;](**tool_input))
+    except TypeError as exc:
+        return f&quot;Error: wrong arguments for {name}: {exc}&quot;
+    except Exception as exc:
+        return f&quot;Error running {name}: {type(exc).__name__}: {exc}&quot;
+
+
+print(run_tool(&quot;add_note&quot;, {&quot;text&quot;: &quot;buy milk&quot;}))
+print(run_tool(&quot;no_such_tool&quot;, {}))
+print(run_tool(&quot;add_note&quot;, {&quot;wrong_argument&quot;: 1}))</code></pre>
+<pre class="out"><code class="nohl">Noted: buy milk
+Error: no tool called &#x27;no_such_tool&#x27; exists.
+Error: wrong arguments for add_note: add_note() got an unexpected keyword argument &#x27;wrong_argument&#x27;</code></pre>
+
+<p>Returning the error as a <em>string</em> rather than raising is the important move. The
+text goes back to the model as a tool result, it reads "no tool called that exists", and it
+apologises and tries something else. Your assistant recovers from its own mistakes instead
+of dying.</p>
+
+<h2>The part where we stop trusting it</h2>
+
+<p>Everything so far has been convenience. This bit is not.</p>
+
+<p>The instant you write a tool that reads or writes files, you have created a way for
+text to reach your filesystem. The text arrives from a model, which may be repeating
+something it read in a document, which may have been written by someone else. The rule
+is simple and absolute: <strong>validate in your Python, never in the prompt.</strong></p>
+
+<pre class="run" data-verify="run"><code>from pathlib import Path
+
+# The one directory the assistant is allowed to touch.
+NOTES_DIR = Path(&quot;notes&quot;).resolve()
+
+
+def safe_path(filename):
+    &quot;&quot;&quot;Resolve a filename inside NOTES_DIR, refusing anything that escapes.
+
+    The attack this stops is &quot;../../.ssh/id_rsa&quot;. resolve() expands all the
+    &quot;..&quot; parts into a real absolute path, and then we simply check that the
+    result is still inside the folder we allow. Checking BEFORE resolving
+    is the classic mistake, because &quot;..&quot; has not been applied yet.
+    &quot;&quot;&quot;
+    candidate = (NOTES_DIR / filename).resolve()
+    if candidate == NOTES_DIR or NOTES_DIR in candidate.parents:
+        return candidate
+    raise ValueError(f&quot;Refused: {filename!r} is outside the notes folder.&quot;)
+
+
+ok = safe_path(&quot;groceries.md&quot;)
+print(&quot;allowed:&quot;, ok.name, &quot;| inside notes:&quot;, NOTES_DIR in ok.parents)
+
+for attack in [&quot;../secrets.txt&quot;, &quot;../../etc/passwd&quot;, &quot;/etc/passwd&quot;]:
+    try:
+        safe_path(attack)
+        print(&quot;LEAKED:&quot;, attack)
+    except ValueError as exc:
+        print(&quot;blocked:&quot;, attack)</code></pre>
+<pre class="out"><code class="nohl">allowed: groceries.md | inside notes: True
+blocked: ../secrets.txt
+blocked: ../../etc/passwd
+blocked: /etc/passwd</code></pre>
+
+<p>Read that check carefully, because the ordering is the whole point.
+<code>resolve()</code> is called <em>first</em>, which turns
+<code>notes/../../etc/passwd</code> into a real absolute path with the
+<code>..</code> already applied. Only then do we ask whether the result is still inside
+the allowed folder. Checking for suspicious-looking strings before resolving is the
+classic mistake: there are more ways to write "go up a directory" than you can enumerate,
+and you will miss one.</p>
+
+<div class="callout warn">
+  <span class="co-title">🚧 Rules for any tool that touches the real world</span>
+  <ul>
+    <li><strong>One allowed directory,</strong> checked with the resolve-then-compare
+      pattern above.</li>
+    <li><strong>No shell.</strong> Never pass model output to
+      <code>os.system</code> or <code>subprocess</code> with <code>shell=True</code>.
+      There is no safe way to quote your way out of this.</li>
+    <li><strong>Read freely, write narrowly, delete never.</strong> A tool that appends to
+      one file is fine. A tool that removes files is a bad trade for a personal
+      assistant.</li>
+    <li><strong>Confirm anything irreversible.</strong> If a tool sends an email or spends
+      money, print what it is about to do and require you to type "yes". The model does
+      not get a vote.</li>
+  </ul>
+</div>
+
+<h2>Why the prompt is not a safety mechanism</h2>
+
+<p>You could write "never read files outside the notes folder" in your persona, and it
+would mostly work. Mostly is the problem. Instructions are advice; a model can be talked
+out of advice, and it can be confused by text it reads inside a document.</p>
+
+<p><code>safe_path</code> cannot be talked out of anything. It is arithmetic on paths. That
+is the difference between a request and a boundary, and it is why the check lives in
+Python rather than English.</p>
+
+<h2>Good tools to add next</h2>
+
+<ul>
+  <li><strong>read_note(filename)</strong> and <strong>list_notes()</strong>, both through
+    <code>safe_path</code>. These make chapter 10 possible.</li>
+  <li><strong>append_note(text)</strong> so you can say "remind me that the boiler is
+    serviced in March".</li>
+  <li><strong>do_maths(expression)</strong> using <code>ast.literal_eval</code> or a small
+    parser. Never <code>eval</code>.</li>
+</ul>
+
+<p>Notice what is missing: nothing here runs arbitrary code, opens a shell or reaches the
+network. Those are all possible and all a much bigger conversation about risk. A personal
+assistant that reliably reads your notes is more useful than a fragile one that can
+theoretically do anything.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong>The decorator runs but the tool is never offered</strong> You passed
+    <code>TOOLS</code> instead of <code>tool_specs()</code> to the API call.</li>
+  <li><strong><code>TypeError</code> about keyword arguments</strong> Your
+    <code>input_schema</code> property names must match your function's parameter names
+    exactly, because dispatch uses <code>**tool_input</code>.</li>
+  <li><strong><code>safe_path</code> rejects a legitimate file</strong> The
+    <code>notes</code> folder does not exist yet, so <code>resolve()</code> produces
+    something unexpected. Create it with
+    <code>NOTES_DIR.mkdir(exist_ok=True)</code> at startup.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Your assistant has at least two tools of your own, adding a third is one decorated function, and a tool asked for <code>../../etc/passwd</code> refuses politely instead of complying or crashing.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-09"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="08-tools.html"><span class="dir">← Previous</span>Giving Jarvis Hands</a>
+      <a class="next" href="10-your-notes.html"><span class="dir">Next →</span>Jarvis Reads Your Notes</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
