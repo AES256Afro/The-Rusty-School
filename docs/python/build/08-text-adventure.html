@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 8: Text Adventure Engine - The Python School</title>
+<meta name="description" content="A room-and-inventory adventure driven by a data map and a match-based parser. Dictionaries, match, and clean game structure.">
+<link rel="canonical" href="https://rustyschool.com/python/build/08-text-adventure">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Project 8: Text Adventure Engine - The Python School">
+<meta property="og:description" content="A room-and-inventory adventure driven by a data map and a match-based parser. Dictionaries, match, and clean game structure.">
+<meta property="og:url" content="https://rustyschool.com/python/build/08-text-adventure">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 8: Text Adventure Engine - The Python School">
+<meta name="twitter:description" content="A room-and-inventory adventure driven by a data map and a match-based parser. Dictionaries, match, and clean game structure.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 8 of 10</nav>
+    <span class="badge build">Project · after Level 4</span>
+    <h1>Text Adventure Engine 🗺️</h1>
+    <p class="lede muted">Build the engine for a text adventure: rooms you move between, items you pick up, a parser that understands commands. It is the purest showcase there is for dictionaries as a world and match for a command parser, and it is genuinely fun to extend.</p>
+    <p class="meta muted small">Difficulty <span class="difficulty">🐍🐍🐍<span class="off">🐍</span><span class="off">🐍</span></span></p>
+  </section>
+
+  <div class="lesson-body">
+    <div class="spec">
+      <h3>📋 Build this</h3>
+      <ul>
+      <li>Describe the world as a dictionary of rooms, each with exits and items.</li>
+      <li>Parse commands: look, go &lt;direction&gt;, take &lt;item&gt;, inventory.</li>
+      <li>Track the player&#x27;s location and inventory as they play.</li>
+      <li>Reject impossible moves and unknown commands gracefully.</li>
+      </ul>
+    </div>
+
+    <h2>Hints, if you want them</h2>
+    <p class="muted">Try the spec cold first. Open a hint only when you are properly stuck; the
+    struggle is where the learning is.</p>
+    <div class="hint-ladder"><details class="hint"><summary>Hint 1: The world as data</summary><div class="hint-body">Each room is <code>{"description": ..., "exits": {"north": "jungle"}, "items": [...]}</code>. The whole map is a dict of rooms keyed by name (Lesson 15).</div></details><details class="hint"><summary>Hint 2: Parsing with match</summary><div class="hint-body"><code>match command.lower().split():</code> with cases like <code>case ["go", direction]:</code> reads beautifully and handles the whole parser (Lesson 33). Put the specific cases before the catch-all.</div></details><details class="hint"><summary>Hint 3: State</summary><div class="hint-body">Two variables, <code>here</code> (the current room name) and <code>carrying</code> (a list), are the entire game state. Move by reassigning <code>here</code>.</div></details></div>
+
+    <h2>The reference solution</h2>
+    <p class="muted">Yours does not need to match this. There are many good ways to build any of
+    these. Compare only after you have your own working.</p>
+    <details class="solution"><summary>Reveal the reference solution</summary><pre class="run" data-verify="run"><code>ROOMS = {
+    &quot;beach&quot;: {&quot;description&quot;: &quot;A beach. A rubber chicken lies in the sand.&quot;,
+              &quot;exits&quot;: {&quot;north&quot;: &quot;jungle&quot;}, &quot;items&quot;: [&quot;rubber chicken&quot;]},
+    &quot;jungle&quot;: {&quot;description&quot;: &quot;Thick jungle. Something rustles.&quot;,
+               &quot;exits&quot;: {&quot;south&quot;: &quot;beach&quot;, &quot;east&quot;: &quot;clearing&quot;}, &quot;items&quot;: []},
+    &quot;clearing&quot;: {&quot;description&quot;: &quot;A clearing with a locked chest.&quot;,
+                 &quot;exits&quot;: {&quot;west&quot;: &quot;jungle&quot;}, &quot;items&quot;: [&quot;chest&quot;]},
+}
+
+
+def play(commands):
+    here = &quot;beach&quot;
+    carrying = []
+    out = []
+
+    for command in commands:
+        room = ROOMS[here]
+        match command.lower().split():
+            case [&quot;look&quot;]:
+                out.append(room[&quot;description&quot;])
+                if room[&quot;items&quot;]:
+                    out.append(&quot;You see: &quot; + &quot;, &quot;.join(room[&quot;items&quot;]))
+            case [&quot;go&quot;, direction] if direction in room[&quot;exits&quot;]:
+                here = room[&quot;exits&quot;][direction]
+                out.append(f&quot;You go {direction}. {ROOMS[here][&#x27;description&#x27;]}&quot;)
+            case [&quot;go&quot;, direction]:
+                out.append(f&quot;You cannot go {direction}.&quot;)
+            case [&quot;take&quot;, *words] if &quot; &quot;.join(words) in room[&quot;items&quot;]:
+                item = &quot; &quot;.join(words)
+                room[&quot;items&quot;].remove(item)
+                carrying.append(item)
+                out.append(f&quot;Taken: {item}.&quot;)
+            case [&quot;inventory&quot;] | [&quot;i&quot;]:
+                out.append(&quot;Carrying: &quot; + (&quot;, &quot;.join(carrying) or &quot;nothing&quot;))
+            case _:
+                out.append(f&quot;I do not understand {command!r}.&quot;)
+
+    return out
+
+
+for line in play([&quot;look&quot;, &quot;take rubber chicken&quot;, &quot;inventory&quot;,
+                  &quot;go north&quot;, &quot;go up&quot;, &quot;go east&quot;, &quot;look&quot;]):
+    print(line)</code></pre>
+<pre class="out"><code class="nohl">A beach. A rubber chicken lies in the sand.
+You see: rubber chicken
+Taken: rubber chicken.
+Carrying: rubber chicken
+You go north. Thick jungle. Something rustles.
+You cannot go up.
+You go east. A clearing with a locked chest.
+A clearing with a locked chest.
+You see: chest</code></pre></details>
+
+    <h2>Stretch goals</h2>
+    <ul>
+      <li>Add a locked chest that opens only with a key (Lesson 48's exercise).</li>
+      <li>Save and load the game state as JSON (Lesson 23).</li>
+      <li>Add a win condition and an ending.</li>
+    </ul>
+
+    <button class="complete-btn" data-lesson="pybuild-08-text-adventure"
+      data-label="Mark project complete" data-done-label="✓ Built it. Nicely done.">Mark project complete</button>
+    <span class="xp-gain">+250 XP</span>
+
+    <div class="lesson-nav">
+      <a href="07-expense-tracker.html"><span class="dir">← Previous</span>Project 7: Expense Tracker & Report</a>
+      <a class="next" href="09-weather-cli.html"><span class="dir">Next →</span>Project 9: Weather CLI</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

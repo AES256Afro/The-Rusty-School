@@ -1,13 +1,313 @@
-"""Placeholder for quizzes; real content lands in a later pass."""
+"""Per-level quizzes. Same engine as the Rust school's."""
+
 from __future__ import annotations
+
+import json
+
 from .kit import SCHOOL, SITE, page
+
+# Each quiz: id, title, level, levelClass, blurb, questions.
+# Each question: q (html), optional code, options (list), answer (index), explain.
+QUIZZES = [
+    {
+        "id": "py-quiz-0", "title": "Level 0: Base Camp", "level": "Level 0", "levelClass": "l0",
+        "blurb": "Computers, programming, and what Python even is. No code required.",
+        "questions": [
+            {"q": "Which part of a computer forgets everything when the power goes off?",
+             "options": ["The disk (storage)", "The RAM (memory)", "The CPU"],
+             "answer": 1,
+             "explain": "RAM is the counter top: fast, but wiped when the power goes. The disk "
+                        "is the pantry that remembers. That is why apps ask you to save."},
+            {"q": "Python was named after...",
+             "options": ["The snake", "Monty Python's Flying Circus", "Its creator's cat"],
+             "answer": 1,
+             "explain": "Guido van Rossum named it after the comedy troupe, which is why the "
+                        "docs are full of spam and eggs rather than boring foo and bar."},
+            {"q": "Which of these is the honest downside of Python?",
+             "options": ["It is hard to read", "It is slow compared to compiled languages",
+                         "It has no libraries"],
+             "answer": 1,
+             "explain": "Python trades machine speed for your speed of thought. It is slower "
+                        "than C or Rust, which is a real trade, not a flaw, and rarely matters."},
+            {"q": "You find a tutorial using <code>print \"hello\"</code> with no brackets. It "
+                  "is...",
+             "options": ["Modern, correct Python", "Python 2, dead since 2020, so stale",
+                         "A different language"],
+             "answer": 1,
+             "explain": "Brackets-free print is Python 2, retired in January 2020. It will not "
+                        "run on a modern Python, and the rest of that page is likely stale too."},
+            {"q": "The three moves every program is built from are...",
+             "options": ["Sequence, selection, repetition", "Import, run, quit",
+                         "Read, write, delete"],
+             "answer": 0,
+             "explain": "Do this then that (sequence), choose a path (selection), do it again "
+                        "(repetition). Add variables and functions and you can write anything."},
+        ],
+    },
+    {
+        "id": "py-quiz-1", "title": "Level 1: First Words", "level": "Level 1", "levelClass": "l1",
+        "blurb": "Printing, variables, numbers, strings, decisions, loops, and reading errors.",
+        "questions": [
+            {"q": "What does this print?", "code": 'print(7 // 2, 7 % 2)',
+             "options": ["3.5 1", "3 1", "3 3"],
+             "answer": 1,
+             "explain": "// divides and throws away the remainder (3); % is just the remainder "
+                        "(1). Together they turn seconds into clocks and test for divisibility."},
+            {"q": "Why does this print <code>23</code> instead of <code>5</code>?",
+             "code": 'a = input()   # user types 2\nb = input()   # user types 3\nprint(a + b)',
+             "options": ["A bug in Python", "input() returns strings, and + joins strings",
+                         "The numbers are too small"],
+             "answer": 1,
+             "explain": "input() always hands back text. '2' + '3' joins to '23'. Wrap the "
+                        "inputs in int() to add them as numbers. The classic week-one bug."},
+            {"q": "What is <code>\"MONKEY\"[1:4]</code>?",
+             "options": ["MON", "ONK", "ONKE"],
+             "answer": 1,
+             "explain": "Slices include the start and exclude the end: positions 1, 2, 3 give "
+                        "ONK. [0:3] and [3:6] fit together with no gap, which is why."},
+            {"q": "Which condition is written the clear, Pythonic way?",
+             "options": ["<code>if len(crew) > 0:</code>", "<code>if crew:</code>",
+                         "<code>if crew == True:</code>"],
+             "answer": 1,
+             "explain": "A non-empty list is truthy, so <code>if crew:</code> reads cleanly and "
+                        "every Python programmer understands it instantly."},
+            {"q": "When you meet a traceback, you should read...",
+             "options": ["The first line", "The last line", "The middle only"],
+             "answer": 1,
+             "explain": "The last line names the actual problem. Read it first, then the file "
+                        "and line number, then the middle only if you still need it."},
+            {"q": "What does this print?", "code": 'x = 2\nx = x * x\nx = x + 1\nprint(x)',
+             "options": ["5", "6", "4"],
+             "answer": 0,
+             "explain": "Each line reassigns x from the old value: 2 becomes 4 becomes 5. "
+                        "= is not maths equality; it means 'x gets this new value'."},
+        ],
+    },
+    {
+        "id": "py-quiz-2", "title": "Level 2: The Toolbox", "level": "Level 2", "levelClass": "l2",
+        "blurb": "Lists, tuples, dicts, sets, comprehensions, functions, arguments, scope.",
+        "questions": [
+            {"q": "What does this print?", "code": 'a = [1, 2, 3]\nb = a\nb.append(4)\nprint(a)',
+             "options": ["[1, 2, 3]", "[1, 2, 3, 4]", "Error"],
+             "answer": 1,
+             "explain": "<code>b = a</code> makes a second name for the same list, not a copy. "
+                        "Appending through b changes the one list, which a also sees."},
+            {"q": "What does <code>[1, 2].sort()</code> return?",
+             "options": ["[1, 2]", "None", "[2, 1]"],
+             "answer": 1,
+             "explain": ".sort() sorts in place and returns None. Use sorted(x) if you want the "
+                        "sorted list as a value. <code>x = x.sort()</code> is the classic "
+                        "disaster."},
+            {"q": "What is the output?",
+             "code": 'nums = [4, 9, 15, 22]\nprint([n for n in nums if n % 2 == 0])',
+             "options": ["[4, 22]", "[9, 15]", "[4, 9, 15, 22]"],
+             "answer": 0,
+             "explain": "The comprehension keeps only the even numbers. The if at the end "
+                        "filters; the expression at the front transforms."},
+            {"q": "Why should you never write <code>def f(x, items=[])</code>?",
+             "options": ["Lists are not allowed as arguments",
+                         "The default list is created once and shared by every call",
+                         "It is slower"],
+             "answer": 1,
+             "explain": "A mutable default is made once, at definition, and reused, so it "
+                        "accumulates across calls. Default to None and build a fresh list "
+                        "inside."},
+            {"q": "What does this print?",
+             "code": 'x = 10\ndef change():\n    x = 20\nchange()\nprint(x)',
+             "options": ["10", "20", "Error"],
+             "answer": 0,
+             "explain": "Assigning to x inside the function makes a new local x. The global x "
+                        "is untouched, so it prints 10. Local scope keeps functions isolated."},
+        ],
+    },
+    {
+        "id": "py-quiz-3", "title": "Level 3: Real Programs", "level": "Level 3", "levelClass": "l3",
+        "blurb": "Files, exceptions, JSON and CSV, dates, regex, venvs, CLIs, testing.",
+        "questions": [
+            {"q": "Why always use <code>with open(...)</code> rather than a bare open?",
+             "options": ["It is shorter to type", "It guarantees the file is closed even if an "
+                         "error is raised", "It makes the file read faster"],
+             "answer": 1,
+             "explain": "<code>with</code> is a context manager: it closes the file no matter "
+                        "what, including when an exception fires halfway through."},
+            {"q": "What is wrong with a bare <code>except:</code>?",
+             "options": ["Nothing", "It catches everything, including typos and Ctrl+C",
+                         "It only catches ValueError"],
+             "answer": 1,
+             "explain": "A bare except swallows every exception, hiding real bugs and even the "
+                        "user's attempt to quit. Catch the specific exceptions you can handle."},
+            {"q": "You must never build SQL queries with f-strings because...",
+             "options": ["They are slower", "Of SQL injection: user input could change the "
+                         "query", "F-strings do not work with databases"],
+             "answer": 1,
+             "explain": "String-built queries let hostile input rewrite your SQL. Pass values "
+                        "as parameters with ? placeholders so they are treated as data, never "
+                        "code."},
+            {"q": "What does a virtual environment give you?",
+             "options": ["A faster Python", "A private, isolated set of packages for one project",
+                         "Free cloud hosting"],
+             "answer": 1,
+             "explain": "A venv is a per-project Python with its own installed packages, so two "
+                        "projects needing different versions never collide."},
+            {"q": "When testing a function, where do most bugs hide?",
+             "options": ["In the middle of the normal case", "At the boundaries: zero, one, "
+                         "empty, the last item", "Nowhere in particular"],
+             "answer": 1,
+             "explain": "Bugs cluster at edges: empty input, the boundary value, the last "
+                        "element, the off-by-one. Test the edges, not just the happy path."},
+        ],
+    },
+    {
+        "id": "py-quiz-4", "title": "Level 4: Pythonic", "level": "Level 4", "levelClass": "l4",
+        "blurb": "Classes, dataclasses, generators, decorators, context managers, typing, async.",
+        "questions": [
+            {"q": "What does <code>@dataclass</code> write for you?",
+             "options": ["Nothing, it is decoration",
+                         "__init__, __repr__ and __eq__ from the annotations",
+                         "A database table"],
+             "answer": 1,
+             "explain": "@dataclass generates the boilerplate init, repr and equality from your "
+                        "type-annotated fields, turning a dozen lines into three."},
+            {"q": "What makes a function a generator?",
+             "options": ["The word 'generator' in its name", "A <code>yield</code> in its body",
+                         "Returning a list"],
+             "answer": 1,
+             "explain": "Any function with <code>yield</code> is a generator: it produces "
+                        "values lazily, one at a time, holding almost no memory."},
+            {"q": "What does this print?",
+             "code": 'gen = (n for n in range(3))\nprint(sum(gen))\nprint(sum(gen))',
+             "options": ["3 3", "3 0", "Error"],
+             "answer": 1,
+             "explain": "The first sum consumes the generator (0+1+2=3). The second finds it "
+                        "exhausted and sums nothing, giving 0. Generators are single-use."},
+            {"q": "Why must a decorator use <code>@functools.wraps</code>?",
+             "options": ["To make it run faster", "To preserve the wrapped function's name and "
+                         "docstring", "It is optional and pointless"],
+             "answer": 1,
+             "explain": "Without wraps, every decorated function is renamed 'wrapper' and loses "
+                        "its docstring, breaking debugging, help() and test tools."},
+            {"q": "On CPython today, threads do NOT speed up...",
+             "options": ["Waiting on the network", "Pure-Python CPU-bound work",
+                         "Downloading files"],
+             "answer": 1,
+             "explain": "The GIL means only one thread runs Python bytecode at a time, so "
+                        "CPU-bound work does not parallelise with threads. Waiting does. Use "
+                        "processes for CPU work."},
+        ],
+    },
+    {
+        "id": "py-quiz-5", "title": "Level 5: In the Wild", "level": "Level 5", "levelClass": "l5",
+        "blurb": "Automation, HTTP, scraping, web apps, databases, data, charts, security.",
+        "questions": [
+            {"q": "Before any script that renames or deletes files, you should...",
+             "options": ["Run it and hope", "Make it preview (dry run) before acting for real",
+                         "Delete your backups first"],
+             "answer": 1,
+             "explain": "Destructive tools should print what they would do and take an explicit "
+                        "flag to act. Dry-run-first has saved every professional at least once."},
+            {"q": "Every request in production code should have...",
+             "options": ["A colour", "A timeout", "Three retries minimum"],
+             "answer": 1,
+             "explain": "requests waits forever by default. One unresponsive server can hang "
+                        "your whole program. Always pass a timeout."},
+            {"q": "A bar chart's y-axis must start at zero because...",
+             "options": ["It looks tidier", "The bar's length is the message; a truncated axis "
+                         "lies", "Matplotlib requires it"],
+             "answer": 1,
+             "explain": "A bar communicates through its length, so a non-zero baseline makes a "
+                        "small change look huge. Line charts may start elsewhere; bars may not."},
+            {"q": "For anything security-related, you use...",
+             "options": ["random", "secrets", "either one"],
+             "answer": 1,
+             "explain": "random is predictable and its docs say so. Password tokens, session "
+                        "ids and keys need secrets, which is cryptographically safe."},
+            {"q": "SQLite is the wrong choice when...",
+             "options": ["You have a few thousand rows", "Several servers must write at once",
+                         "You want a single-file database"],
+             "answer": 1,
+             "explain": "SQLite allows one writer at a time on local disk. For many concurrent "
+                        "writers across a network, use PostgreSQL. For most personal projects, "
+                        "SQLite is plenty."},
+        ],
+    },
+    {
+        "id": "py-quiz-6", "title": "Level 6: Build Your Own Jarvis", "level": "Level 6",
+        "levelClass": "l6",
+        "blurb": "How models work, API calls, memory, tools, RAG, cost and safety.",
+        "questions": [
+            {"q": "A language model fundamentally...",
+             "options": ["Looks facts up in a database", "Predicts the next chunk of text",
+                         "Runs Python internally"],
+             "answer": 1,
+             "explain": "It predicts plausible continuations of text. That is why it can be "
+                        "fluently, confidently wrong: a fake citation is a plausible "
+                        "continuation of academic-sounding text."},
+            {"q": "How does a chatbot 'remember' earlier turns?",
+             "options": ["The model stores your conversation", "You resend the whole history "
+                         "every call", "It uses cookies"],
+             "answer": 1,
+             "explain": "The model has no memory between calls. The continuity is an illusion "
+                        "you create by resending the transcript each turn."},
+            {"q": "For counting tokens accurately, you use...",
+             "options": ["tiktoken", "the API's own count_tokens", "len() of the string"],
+             "answer": 1,
+             "explain": "Token counts are model-specific. tiktoken is a different provider's "
+                        "tokeniser and miscounts. The API's own counter is the only accurate "
+                        "one."},
+            {"q": "When you give a model tools, the greatest danger is...",
+             "options": ["It runs slowly", "Prompt injection steering it into a harmful tool "
+                         "call", "It uses too many tools"],
+             "answer": 1,
+             "explain": "Text the model reads (a web page, a document) can contain instructions "
+                        "aimed at it. If a tool can act, injection can trigger real harm. Design "
+                        "tools for least privilege and confirm irreversible actions."},
+            {"q": "Any automated system that calls a paid model must have...",
+             "options": ["A nice logo", "A hard spending cap and a kill switch",
+                         "Unlimited retries"],
+             "answer": 1,
+             "explain": "A bug in a loop can spend real money astonishingly fast. Set a daily "
+                        "cap and a low billing alert before you build anything that runs on its "
+                        "own."},
+        ],
+    },
+]
 
 
 def build() -> str:
+    quiz_data = json.dumps(QUIZZES, separators=(",", ":"))
+    sizes = {q["id"]: len(q["questions"]) for q in QUIZZES}
+    sizes_data = json.dumps(sizes, separators=(",", ":"))
+    total = sum(len(q["questions"]) for q in QUIZZES)
+
+    body = f"""  <section class="lesson-header">
+    <span class="kicker">Quizzes</span>
+    <h1>Test <span class="grad">yourself</span> 🧪</h1>
+    <p class="lede muted">
+      Seven quizzes, one per level, {total} questions in all. Instant feedback, an explanation
+      for every answer right or wrong, and your best score saved. Full marks on any quiz earns
+      an achievement; full marks on every quiz earns a bigger one.
+    </p>
+  </section>
+
+  <div class="callout tip">
+    <span class="co-title">🧠 Wrong answers are the point</span>
+    A quiz is not an exam; it is a study tool. Getting one wrong, reading why, and remembering
+    it is worth more than a lucky guess. Take them after each level, then again later to check
+    what stuck.
+  </div>
+
+  <div id="quiz-root"></div>
+
+<script>
+window.PY_QUIZZES = {quiz_data};
+window.PY_QUIZ_SIZES = {sizes_data};
+</script>
+"""
     return page(
-        path="quizzes.html",
-        title="quizzes - " + SCHOOL,
-        description="Coming very soon.",
-        body="<section class='lesson-header'><h1>Under construction</h1></section>",
-        canonical=SITE + "/python/quizzes",
+        path="quiz.html",
+        title=f"Quizzes - {SCHOOL}",
+        description=f"{total} Python quiz questions across seven levels, with an explanation for "
+                    "every answer.",
+        body=body,
+        canonical=SITE + "/python/quiz",
     )

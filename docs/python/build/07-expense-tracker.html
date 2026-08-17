@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 7: Expense Tracker & Report - The Python School</title>
+<meta name="description" content="Record expenses to a CSV and produce a monthly report grouped by category. CSV done properly, grouping, and honest totals.">
+<link rel="canonical" href="https://rustyschool.com/python/build/07-expense-tracker">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Project 7: Expense Tracker & Report - The Python School">
+<meta property="og:description" content="Record expenses to a CSV and produce a monthly report grouped by category. CSV done properly, grouping, and honest totals.">
+<meta property="og:url" content="https://rustyschool.com/python/build/07-expense-tracker">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 7: Expense Tracker & Report - The Python School">
+<meta name="twitter:description" content="Record expenses to a CSV and produce a monthly report grouped by category. CSV done properly, grouping, and honest totals.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 7 of 10</nav>
+    <span class="badge build">Project · after Level 3</span>
+    <h1>Expense Tracker & Report 💰</h1>
+    <p class="lede muted">Log expenses with a category and an amount, store them in a CSV a spreadsheet could open, and generate a report totalled by category. It is small-business software in miniature, and it uses the CSV and grouping skills from Level 3 in anger.</p>
+    <p class="meta muted small">Difficulty <span class="difficulty">🐍🐍🐍<span class="off">🐍</span><span class="off">🐍</span></span></p>
+  </section>
+
+  <div class="lesson-body">
+    <div class="spec">
+      <h3>📋 Build this</h3>
+      <ul>
+      <li>Append each expense (date, category, amount, note) as a row in a CSV file.</li>
+      <li>Read the CSV back with the csv module, converting amounts to numbers.</li>
+      <li>Produce a report: total per category, sorted by spend, and a grand total.</li>
+      <li>Handle the file not existing yet.</li>
+      </ul>
+    </div>
+
+    <h2>Hints, if you want them</h2>
+    <p class="muted">Try the spec cold first. Open a hint only when you are properly stuck; the
+    struggle is where the learning is.</p>
+    <div class="hint-ladder"><details class="hint"><summary>Hint 1: Writing CSV properly</summary><div class="hint-body">Use <code>csv.writer</code> with <code>newline=""</code>, never string-join on commas (Lesson 23). A note with a comma in it will break a naive writer.</div></details><details class="hint"><summary>Hint 2: Reading and totalling</summary><div class="hint-body"><code>csv.DictReader</code> gives each row as a dict. Remember every value is a string, so convert the amount with <code>float()</code> (Lesson 23).</div></details><details class="hint"><summary>Hint 3: Grouping</summary><div class="hint-body">Total per category with <code>collections.defaultdict(float)</code> or a plain dict and <code>.get</code>, then sort the items by total, descending (Lesson 15).</div></details></div>
+
+    <h2>The reference solution</h2>
+    <p class="muted">Yours does not need to match this. There are many good ways to build any of
+    these. Compare only after you have your own working.</p>
+    <details class="solution"><summary>Reveal the reference solution</summary><pre class="run" data-verify="run"><code>import csv
+from collections import defaultdict
+from pathlib import Path
+
+FILE = Path(&quot;expenses.csv&quot;)
+
+
+def add_expense(date, category, amount, note):
+    &quot;&quot;&quot;Append one expense as a CSV row, creating the header if new.&quot;&quot;&quot;
+    new_file = not FILE.exists()
+    with open(FILE, &quot;a&quot;, newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as f:
+        writer = csv.writer(f)
+        if new_file:
+            writer.writerow([&quot;date&quot;, &quot;category&quot;, &quot;amount&quot;, &quot;note&quot;])
+        writer.writerow([date, category, f&quot;{amount:.2f}&quot;, note])
+
+
+def report():
+    &quot;&quot;&quot;Total per category, sorted by spend, plus a grand total.&quot;&quot;&quot;
+    totals = defaultdict(float)
+    with open(FILE, newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as f:
+        for row in csv.DictReader(f):
+            totals[row[&quot;category&quot;]] += float(row[&quot;amount&quot;])
+
+    for category, total in sorted(totals.items(), key=lambda kv: kv[1], reverse=True):
+        print(f&quot;{category:12} {total:8.2f}&quot;)
+    print(f&quot;{&#x27;TOTAL&#x27;:12} {sum(totals.values()):8.2f}&quot;)
+
+
+# a scripted run so the output is reproducible
+add_expense(&quot;2026-08-01&quot;, &quot;food&quot;, 12.50, &quot;lunch, with a comma&quot;)
+add_expense(&quot;2026-08-02&quot;, &quot;transport&quot;, 4.20, &quot;bus&quot;)
+add_expense(&quot;2026-08-03&quot;, &quot;food&quot;, 30.00, &quot;dinner&quot;)
+report()</code></pre>
+<pre class="out"><code class="nohl">food            42.50
+transport        4.20
+TOTAL           46.70</code></pre></details>
+
+    <h2>Stretch goals</h2>
+    <ul>
+      <li>Filter the report to a single month using the date column (Lesson 24).</li>
+      <li>Draw a simple bar chart of spend per category (Lesson 47).</li>
+      <li>Load it into pandas and produce the report in two lines (Lesson 46).</li>
+    </ul>
+
+    <button class="complete-btn" data-lesson="pybuild-07-expense-tracker"
+      data-label="Mark project complete" data-done-label="✓ Built it. Nicely done.">Mark project complete</button>
+    <span class="xp-gain">+250 XP</span>
+
+    <div class="lesson-nav">
+      <a href="06-markdown.html"><span class="dir">← Previous</span>Project 6: Markdown to HTML Converter</a>
+      <a class="next" href="08-text-adventure.html"><span class="dir">Next →</span>Project 8: Text Adventure Engine</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

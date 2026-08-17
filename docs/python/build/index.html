@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Workshop - The Python School</title>
-<meta name="description" content="Coming very soon.">
+<title>The Project Workshop - The Python School</title>
+<meta name="description" content="10 build-it-yourself Python projects with hint ladders and verified reference solutions.">
 <link rel="canonical" href="https://rustyschool.com/python/build/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Python School">
-<meta property="og:title" content="Workshop - The Python School">
-<meta property="og:description" content="Coming very soon.">
+<meta property="og:title" content="The Project Workshop - The Python School">
+<meta property="og:description" content="10 build-it-yourself Python projects with hint ladders and verified reference solutions.">
 <meta property="og:url" content="https://rustyschool.com/python/build/">
 <meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Workshop - The Python School">
-<meta name="twitter:description" content="Coming very soon.">
+<meta name="twitter:title" content="The Project Workshop - The Python School">
+<meta name="twitter:description" content="10 build-it-yourself Python projects with hint ladders and verified reference solutions.">
 <meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
 <meta name="theme-color" content="#4584b6">
 <link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
@@ -26,7 +26,7 @@
 <script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
 <script defer src="../assets/py.js"></script>
 </head>
-<body>
+<body data-noun="projects">
 
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
@@ -46,7 +46,57 @@
 </header>
 
 <main id="main" tabindex="-1" class="container">
-<section class='lesson-header'><h1>Under construction</h1></section>
+  <section class="lesson-header">
+    <span class="kicker">The Project Workshop</span>
+    <h1>The <span class="grad">Workshop</span> 🔨</h1>
+    <p class="lede muted">
+      Lessons teach the language. Projects teach programming. Here are 10 things to
+      build from a spec, not a script, with a ladder of hints and a reference solution you only
+      see if you want it. Every reference that can run has been run and checked, exactly like
+      the lessons.
+    </p>
+
+    <div class="xp-wrap" id="xp-wrap">
+      <div class="xp-top">
+        <span class="rank-chip"><span class="rank-num">1</span><span class="rank-name">Stowaway</span></span>
+        <span class="xp-nums">0 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+      <p class="xp-note">Each finished project is 250 XP, the biggest single reward in the
+      school. Finishing them all unlocks the Shipped It achievement.</p>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="co-title">🧗 The right way to use this</span>
+    Read the spec, then close the page and open a blank file. Wrestle with it. Reach for a hint
+    only when genuinely stuck, and the reference only when you have something working of your
+    own to compare it to. The gap between "I understood that lesson" and "I built that from
+    nothing" is the whole job, and the only way across is a blank file.
+  </div>
+
+  <section class="section">
+    <div class="grid cols-2">
+      <a class="card lesson-card project-card" data-lesson="pybuild-01-guessing-game" href="01-guessing-game.html"><span class="num">1</span><div><h3>Number Guessing Game 🎯</h3><p>The computer picks a secret number, you guess, it says higher or lower. Loops, conditionals and input, in one satisfying package.</p><div class="meta">after Level 1 · <span class="difficulty">🐍<span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-02-tip-splitter" href="02-tip-splitter.html"><span class="num">2</span><div><h3>Tip Splitter 🧾</h3><p>Split a restaurant bill with tip across a table. Floats, formatting, and the rounding decisions that matter with money.</p><div class="meta">after Level 1 · <span class="difficulty">🐍<span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-03-todo" href="03-todo.html"><span class="num">3</span><div><h3>Todo List with Save ✅</h3><p>A command-line todo list that remembers between runs. Your first program with persistent data: files, JSON, and a menu loop.</p><div class="meta">after Level 3 · <span class="difficulty">🐍🐍<span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-04-word-counter" href="04-word-counter.html"><span class="num">4</span><div><h3>Word Frequency Counter 📊</h3><p>Count how often each word appears in a piece of text and show the top ten. Dictionaries, sorting, and Counter doing real work.</p><div class="meta">after Level 2 · <span class="difficulty">🐍🐍<span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-05-password-vault" href="05-password-vault.html"><span class="num">5</span><div><h3>Password Generator & Strength Checker 🔐</h3><p>Generate strong passwords and rate the strength of existing ones. secrets, not random, and the security thinking from Lesson 52.</p><div class="meta">after Level 3 · <span class="difficulty">🐍🐍<span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-06-markdown" href="06-markdown.html"><span class="num">6</span><div><h3>Markdown to HTML Converter 📝</h3><p>Turn a subset of Markdown into HTML. A real little parser: string mastery, line-by-line state, and edge cases that bite.</p><div class="meta">after Level 3 · <span class="difficulty">🐍🐍🐍<span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-07-expense-tracker" href="07-expense-tracker.html"><span class="num">7</span><div><h3>Expense Tracker & Report 💰</h3><p>Record expenses to a CSV and produce a monthly report grouped by category. CSV done properly, grouping, and honest totals.</p><div class="meta">after Level 3 · <span class="difficulty">🐍🐍🐍<span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-08-text-adventure" href="08-text-adventure.html"><span class="num">8</span><div><h3>Text Adventure Engine 🗺️</h3><p>A room-and-inventory adventure driven by a data map and a match-based parser. Dictionaries, match, and clean game structure.</p><div class="meta">after Level 4 · <span class="difficulty">🐍🐍🐍<span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-09-weather-cli" href="09-weather-cli.html"><span class="num">9</span><div><h3>Weather CLI 🌦️</h3><p>A real command-line tool that fetches live weather from a public API. HTTP, JSON, argparse, and keeping your key out of git.</p><div class="meta">after Level 5 · <span class="difficulty">🐍🐍🐍<span class="off">🐍</span><span class="off">🐍</span></span></div></div></a>
+      <a class="card lesson-card project-card" data-lesson="pybuild-10-jarvis" href="10-jarvis.html"><span class="num">10</span><div><h3>The Capstone: Your Own Jarvis 🤖</h3><p>The graduation project: assemble the full personal AI assistant from Level 6, then make it genuinely yours with your own tools and data.</p><div class="meta">after Level 6 · <span class="difficulty">🐍🐍🐍🐍🐍</span></div></div></a>
+    </div>
+  </section>
+
+<script>window.PY_BUILD_TOTAL = 10;</script>
+
 </main>
 
 <footer class="site-footer">
