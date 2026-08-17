@@ -187,6 +187,62 @@ def check_page(python: str, path: Path, verbose: bool) -> tuple[int, int, list[s
     return checked, skipped, problems
 
 
+def check_pit(python: str) -> list[str]:
+    """Run every Snake Pit puzzle and prove its promised output.
+
+    predict puzzles run their own code; fix/bug puzzles run the solution.
+    The broken code shown for fix/bug puzzles is never executed.
+    """
+    import importlib
+
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        pit_data = importlib.import_module("pycourse.pit_data")
+    except ModuleNotFoundError:
+        return []
+
+    puzzles = pit_data.PUZZLES
+    problems: list[str] = []
+    seen_ids: set[str] = set()
+
+    for puzzle in puzzles:
+        pid = puzzle["id"]
+        if pid in seen_ids:
+            problems.append(f"pit puzzle {pid}: duplicate id")
+        seen_ids.add(pid)
+
+        code = puzzle["code"] if puzzle["type"] == "predict" else puzzle.get("solution")
+        if code is None:
+            problems.append(f"pit puzzle {pid}: {puzzle['type']} needs a solution")
+            continue
+
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            try:
+                status, output = run_snippet(python, code, "", work)
+            except subprocess.TimeoutExpired:
+                problems.append(f"pit puzzle {pid}: still running after {TIMEOUT}s")
+                continue
+
+        if status != 0:
+            problems.append(f"pit puzzle {pid}: exited {status}\n"
+                            + "\n".join("    " + l for l in output.strip().splitlines()[-6:]))
+            continue
+
+        got, want = normalise(output), normalise(puzzle["expected"])
+        if got != want:
+            problems.append(
+                f"pit puzzle {pid}: output does not match its 'it prints' claim\n"
+                f"  --- claims ---\n"
+                + "\n".join("  | " + l for l in want.splitlines())
+                + "\n  --- python says ---\n"
+                + "\n".join("  | " + l for l in got.splitlines())
+            )
+
+    print(f"{len(puzzles)} Snake Pit puzzles verified.")
+    return problems
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Verify The Python School's code examples")
     parser.add_argument("filter", nargs="?", default="", help="only pages whose path contains this")
@@ -200,6 +256,11 @@ def main() -> int:
     version = subprocess.run([python, "--version"], capture_output=True, text=True).stdout.strip()
     print(f"Verifying with {version} ({python})")
 
+    if not args.filter:
+        pit_problems = check_pit(python)
+    else:
+        pit_problems = []
+
     pages = sorted(p for p in PAGES.rglob("*.html") if args.filter in str(p))
     total_checked = total_skipped = 0
     all_problems: list[str] = []
@@ -209,6 +270,8 @@ def main() -> int:
         total_checked += checked
         total_skipped += skipped
         all_problems.extend(problems)
+
+    all_problems.extend(pit_problems)
 
     print(f"\n{total_checked} blocks verified, {total_skipped} deliberately skipped, "
           f"across {len(pages)} pages.")
