@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 59: Giving Jarvis a Voice - The Python School</title>
+<meta name="description" content="Speech-to-text and text-to-speech, wiring a voice loop, and the honest trade-offs of latency and privacy.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/59-voice">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 59: Giving Jarvis a Voice - The Python School">
+<meta property="og:description" content="Speech-to-text and text-to-speech, wiring a voice loop, and the honest trade-offs of latency and privacy.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/59-voice">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 59: Giving Jarvis a Voice - The Python School">
+<meta name="twitter:description" content="Speech-to-text and text-to-speech, wiring a voice loop, and the honest trade-offs of latency and privacy.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 59 of 62</nav>
+    <span class="badge l6">Level 6 · Build Your Own Jarvis</span>
+    <h1>Giving Jarvis a Voice 🎙️</h1>
+    <p class="lede muted">Typing is fine. Talking is Jarvis. Speech in, speech out, wrapped around the chat
+    loop you already built. The concepts are simple; the trade-offs are the interesting part.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Three pieces, one loop</h2>
+    <p>
+      A voice assistant is your existing chat loop with two converters bolted on either end:
+    </p>
+    <pre class="out"><code class="nohl">  🎤 you speak
+      |
+      v
+  [ Speech-to-Text ]   turns audio into text        (STT, &quot;transcription&quot;)
+      |
+      v
+  [ your chat loop ]   the Jarvis you already built  (Lessons 55-58)
+      |
+      v
+  [ Text-to-Speech ]   turns text into audio         (TTS)
+      |
+      v
+  🔊 Jarvis speaks</code></pre>
+    <p>
+      The middle is done. This lesson is about the two ends, and about the honest cost of doing
+      it well.
+    </p>
+
+    <h2>Speech to text</h2>
+    <p>
+      You record audio (or stream it live) and send it to a transcription model, which returns
+      text. The dominant open model is OpenAI's <strong>Whisper</strong>, which you can run
+      through a cloud API or, notably, entirely on your own machine.
+    </p>
+    <pre class="run" data-verify="run"><code># Cloud transcription: send an audio file, get text back.
+# (Shape shown; the exact SDK depends on your provider.)
+
+def transcribe(audio_path):
+    &quot;&quot;&quot;Turn a recorded audio file into text.&quot;&quot;&quot;
+    from openai import OpenAI      # pip install openai
+    client = OpenAI()
+    with open(audio_path, &quot;rb&quot;) as audio:
+        result = client.audio.transcriptions.create(
+            model=&quot;whisper-1&quot;,
+            file=audio,
+        )
+    return result.text
+
+
+# text = transcribe(&quot;question.wav&quot;)
+# then feed `text` into your chat loop exactly as if the user had typed it
+print(&quot;Record audio -&gt; transcribe -&gt; feed the text into the chat loop.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Record audio -&gt; transcribe -&gt; feed the text into the chat loop.</code></pre>
+    <pre class="run" data-verify="run"><code># Local transcription: nothing leaves your machine. Private and free to run.
+
+def transcribe_locally(audio_path):
+    &quot;&quot;&quot;Transcribe with a Whisper model running on your own hardware.&quot;&quot;&quot;
+    import whisper          # pip install openai-whisper
+    model = whisper.load_model(&quot;base&quot;)      # tiny/base/small/medium/large
+    result = model.transcribe(audio_path)
+    return result[&quot;text&quot;]
+
+
+# Slower on a laptop, but your voice never leaves the room.
+print(&quot;Local Whisper: private, free per-use, needs a decent machine.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Local Whisper: private, free per-use, needs a decent machine.</code></pre>
+
+    <h2>Text to speech</h2>
+    <p>
+      The reverse: text in, audio out. Quality ranges from the flat robotic voice built into
+      your operating system to cloud voices so natural they are unsettling.
+    </p>
+    <pre data-verify="compile"><code># Cloud TTS: high quality, costs per character, needs the network.
+
+def speak_cloud(text, out_path=&quot;reply.mp3&quot;):
+    &quot;&quot;&quot;Generate natural-sounding speech from text.&quot;&quot;&quot;
+    from openai import OpenAI
+    client = OpenAI()
+    audio = client.audio.speech.create(
+        model=&quot;tts-1&quot;,
+        voice=&quot;alloy&quot;,
+        input=text,
+    )
+    audio.stream_to_file(out_path)
+    return out_path
+
+
+print(&quot;Cloud TTS: natural voices, per-character cost, sends your text out.&quot;)</code></pre>
+    <pre class="run" data-verify="run"><code># Local/offline TTS: robotic but private, free, and works with no internet.
+
+def speak_locally(text):
+    &quot;&quot;&quot;Speak using a fully offline engine.&quot;&quot;&quot;
+    import pyttsx3          # pip install pyttsx3
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+
+# The voice is dated, but nothing is sent anywhere and there is no per-use cost.
+print(&quot;Local TTS: robotic, private, free, offline.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Local TTS: robotic, private, free, offline.</code></pre>
+
+    <h2>The full voice loop</h2>
+    <pre class="run" data-verify="skip"><code># The assembled shape. Each converter is a swappable function.
+
+def voice_assistant(transcribe, chat_reply, speak):
+    &quot;&quot;&quot;A voice loop: listen, think, speak, repeat. Converters are injected.&quot;&quot;&quot;
+    messages = []
+    while True:
+        audio_path = record_until_silence()          # capture the user speaking
+        user_text = transcribe(audio_path)
+        print(f&quot;You said: {user_text}&quot;)
+
+        if &quot;goodbye&quot; in user_text.lower():
+            speak(&quot;Goodbye.&quot;)
+            break
+
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_text})
+        reply = chat_reply(messages)                 # your Lesson 55 loop
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply})
+
+        print(f&quot;Jarvis: {reply}&quot;)
+        speak(reply)
+
+
+def record_until_silence():
+    &quot;&quot;&quot;Capture microphone audio until the speaker pauses. Uses a mic library.&quot;&quot;&quot;
+    ...      # sounddevice / pyaudio; returns a path to the recorded clip
+
+
+print(&quot;The loop is Lesson 55 with a microphone on the front and a speaker on the back.&quot;)</code></pre>
+    <p>
+      Notice the design: <code>transcribe</code>, <code>chat_reply</code> and <code>speak</code>
+      are passed in, so you can swap cloud for local without touching the loop. That is the
+      dependency-injection idea from Lesson 37, and it is what lets you choose per-piece between
+      quality and privacy.
+    </p>
+
+    <h2>The trade-offs, honestly</h2>
+    <div class="table-wrap"><table><thead><tr><th>Choice</th><th>Cloud</th><th>Local</th></tr></thead><tbody><tr><td>Quality</td><td>Excellent, natural voices</td><td>STT is now very good; TTS is robotic</td></tr><tr><td>Privacy</td><td>Your voice and words leave your machine</td><td>Nothing leaves the room</td></tr><tr><td>Cost</td><td>Per use, small but real</td><td>Free per use; needs decent hardware</td></tr><tr><td>Latency</td><td>Network round-trips add up</td><td>Depends on your machine; can be faster or slower</td></tr><tr><td>Offline</td><td>No</td><td>Yes, works with no internet</td></tr></tbody></table></div>
+
+    <div class="voice" data-skill="perception"><div class="v-head"><span class="v-name">PERCEPTION</span><span class="v-check success">[Formidable: Success]</span></div><p>Latency is the thing that makes or breaks a voice assistant, and it is easy to underestimate. You now have three sequential steps, each with its own delay: transcribe, generate, synthesise. Add them up and a 'quick' spoken exchange can take five seconds, which feels broken.</p>
+<p>This is why serious voice assistants stream everything: they start transcribing while you are still speaking, start generating from the partial transcript, and start speaking the first sentence of the reply before the rest is written. Streaming (Lesson 56) is not a nicety here. It is the difference between usable and unusable.</p></div>
+
+    <h2>The privacy question you must answer</h2>
+    <div class="callout danger"><span class="co-title">🔒 An always-listening microphone is a serious commitment</span><p>A voice assistant that is always listening is a microphone in your home wired to the internet. Before you build one, decide honestly: does the audio leave your machine, and if so, to whom, and what do they keep? For a private assistant, a fully local pipeline (local Whisper, local TTS, and even a local model from Lesson 60) means your voice never leaves the room. That is a genuine, achievable option, and for a personal Jarvis it is often the right one.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Choose a pipeline for a scenario</h3><p>For each, decide cloud or local for STT and TTS, and say why.</p><ol><li>A hands-free assistant for cooking, in your own kitchen.</li><li>A voice bot handling customer calls for a business.</li><li>A tool that transcribes confidential therapy sessions.</li><li>A talking toy for a child, sold to the public.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Either, leaning local.</strong> It is your kitchen; local keeps it private and works if the wifi drops. Cloud is fine if you value the nicer voice and trust the provider.</li><li><strong>Cloud,</strong> almost certainly. You need top quality and low latency at scale, and you cannot run local models on every call. But you now owe the callers clear disclosure and a privacy policy.</li><li><strong>Local, without question.</strong> Confidential health data must not be sent to a third party without extraordinary care and legal basis. Local Whisper on a machine you control is the responsible choice, and even then you handle the recordings carefully.</li><li><strong>This is the hard one.</strong> A cloud pipeline means a child's voice goes to a company's servers, which is a serious child-privacy and legal question (COPPA and similar laws). Local is safer but harder to build into a cheap toy. The honest answer may be 'do not ship this without expert legal and safety review'.</li></ol><p>The technical choice and the ethical choice are the same choice here. That is the theme of the whole level, and it arrives in full in Lesson 62.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Why is my voice assistant so slow?</h3><p>Someone built a voice loop and complains each exchange takes about six seconds. Their pipeline: record the full clip, upload it, wait for the full transcript, send it to the model, wait for the full reply, generate all the audio, then play it. Diagnose and prescribe.</p><details class="solution"><summary>Reveal solution</summary><p>Every step is sequential and each waits for the previous to <em>fully</em> finish, so the delays stack: recording + upload + full transcription + full generation + full synthesis, one after another. Nothing overlaps, so the user waits for the sum of everything.</p><p>The fix is to overlap by streaming at every stage: transcribe while they are still speaking, start the model on the partial transcript, stream the reply (Lesson 56), and start synthesising and playing the first sentence while the rest of the reply is still being written. Done well, the assistant starts answering within a second of you stopping, because the later work happens while the earlier audio plays. Six seconds of dead waiting becomes one second of latency and five seconds of overlapped, invisible work.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-59-voice">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="58-your-data.html"><span class="dir">← Previous</span>Lesson 58: Teaching Jarvis About You</a>
+      <a class="next" href="60-local-models.html"><span class="dir">Next →</span>Lesson 60: Running Models Locally</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

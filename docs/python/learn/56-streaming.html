@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 56: Streaming Responses - The Python School</title>
+<meta name="description" content="Streaming tokens as they are generated for a responsive assistant, using the SDK&#x27;s stream helper and async for.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/56-streaming">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 56: Streaming Responses - The Python School">
+<meta property="og:description" content="Streaming tokens as they are generated for a responsive assistant, using the SDK&#x27;s stream helper and async for.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/56-streaming">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 56: Streaming Responses - The Python School">
+<meta name="twitter:description" content="Streaming tokens as they are generated for a responsive assistant, using the SDK&#x27;s stream helper and async for.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 56 of 62</nav>
+    <span class="badge l6">Level 6 · Build Your Own Jarvis</span>
+    <h1>Streaming Responses 🌊</h1>
+    <p class="lede muted">A five-second pause then a wall of text feels broken. The same text appearing word
+    by word feels alive. This is the single biggest upgrade to how your assistant feels.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Why streaming matters</h2>
+    <p>
+      The model generates one token at a time (Lesson 53). Without streaming, your code waits
+      for the whole reply, then prints it: a long, dead pause. With streaming, you print each
+      token the instant it arrives, so the answer types itself out. The total time is the same;
+      the <em>felt</em> time is transformed. Every chat interface you have ever enjoyed using
+      does this.
+    </p>
+
+    <h2>The basic stream</h2>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+with client.messages.stream(
+    model=&quot;claude-sonnet-5&quot;,
+    max_tokens=1024,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Tell me a two-line joke about Python.&quot;}],
+) as stream:
+    for text in stream.text_stream:
+        print(text, end=&quot;&quot;, flush=True)      # each chunk, immediately
+
+print()      # a newline after the reply finishes</code></pre>
+    <p>Three things make this work, and each matters:</p>
+    <div class="table-wrap"><table><thead><tr><th>Piece</th><th>Why</th></tr></thead><tbody><tr><td><code>client.messages.stream(...)</code></td><td>The streaming variant, used as a <code>with</code> block so it closes cleanly (Lesson 36)</td></tr><tr><td><code>for text in stream.text_stream</code></td><td>Yields text chunks as they arrive, not the whole reply</td></tr><tr><td><code>end="", flush=True</code></td><td><code>end=""</code> stops print adding newlines; <code>flush=True</code> forces it to the screen <em>now</em> instead of buffering</td></tr></tbody></table></div>
+    <div class="callout warn"><span class="co-title">🚿 flush=True is not optional here</span><p>Without <code>flush=True</code>, Python buffers output and the streaming effect vanishes: the text still appears all at once. This is the same buffering you met in Lesson 28. For streaming, you must flush every chunk.</p></div>
+
+    <h2>Getting the full reply after streaming</h2>
+    <p>
+      You stream for the user's benefit, but you still need the complete text to append to your
+      history (Lesson 55). The stream helper keeps it for you:
+    </p>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Name three uses for Python.&quot;}]
+
+with client.messages.stream(
+    model=&quot;claude-sonnet-5&quot;,
+    max_tokens=1024,
+    messages=messages,
+) as stream:
+    for text in stream.text_stream:
+        print(text, end=&quot;&quot;, flush=True)
+    print()
+
+    # after the loop, get the assembled message for your history
+    final = stream.get_final_message()
+
+messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: final.content[0].text})
+print(f&quot;\n[streamed reply was {final.usage.output_tokens} output tokens]&quot;)</code></pre>
+    <p>
+      <code>get_final_message()</code> hands back the complete response object, including the
+      full text and the token usage. So you get the best of both: a responsive display for the
+      human, and the whole reply for your program.
+    </p>
+
+    <h2>A streaming chat loop</h2>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+SYSTEM = &quot;You are Jarvis. Concise, warm, and quick.&quot;
+
+
+def streaming_chat():
+    messages = []
+    while True:
+        text = input(&quot;You: &quot;)
+        if text.strip().lower() in {&quot;quit&quot;, &quot;exit&quot;}:
+            break
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: text})
+
+        print(&quot;Jarvis: &quot;, end=&quot;&quot;, flush=True)
+        with client.messages.stream(
+            model=&quot;claude-sonnet-5&quot;,
+            max_tokens=1024,
+            system=SYSTEM,
+            messages=messages,
+        ) as stream:
+            for chunk in stream.text_stream:
+                print(chunk, end=&quot;&quot;, flush=True)
+            reply = stream.get_final_message().content[0].text
+        print(&quot;\n&quot;)
+
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply})
+
+
+if __name__ == &quot;__main__&quot;:
+    streaming_chat()</code></pre>
+    <p>
+      That is the Lesson 55 loop with streaming spliced in. Nothing else changed, and it feels
+      like a different, far better program. This is the version you actually want to use.
+    </p>
+
+    <h2>Streaming and thinking, and the async version</h2>
+    <p>
+      Some models can show their reasoning as a separate stream of "thinking" before the answer.
+      If you want to surface that, you handle stream <em>events</em> rather than just text:
+    </p>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+with client.messages.stream(
+    model=&quot;claude-sonnet-5&quot;,
+    max_tokens=2048,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Plan a simple weekly meal prep.&quot;}],
+) as stream:
+    for event in stream:
+        if event.type == &quot;content_block_delta&quot;:
+            if event.delta.type == &quot;text_delta&quot;:
+                print(event.delta.text, end=&quot;&quot;, flush=True)
+print()</code></pre>
+    <p>
+      For a web app serving many users at once, you want the <strong>async</strong> client
+      (Lesson 40), so one waiting request does not block the others. It is the same shape with
+      <code>await</code> and <code>async for</code>:
+    </p>
+    <pre data-verify="compile"><code>import asyncio
+import anthropic
+
+
+async def ask(question):
+    client = anthropic.AsyncAnthropic()
+    async with client.messages.stream(
+        model=&quot;claude-sonnet-5&quot;,
+        max_tokens=1024,
+        messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: question}],
+    ) as stream:
+        async for text in stream.text_stream:
+            print(text, end=&quot;&quot;, flush=True)
+    print()
+
+
+asyncio.run(ask(&quot;What is asyncio good for, in one line?&quot;))</code></pre>
+    <p>
+      This is exactly the payoff promised back in Lesson 40: streaming a language model's reply
+      is the textbook case for async, because your program spends almost all its time waiting
+      for tokens to arrive over the network.
+    </p>
+
+    <div class="voice" data-skill="reaction-speed"><div class="v-head"><span class="v-name">REACTION SPEED</span><span class="v-check success">[Medium: Success]</span></div><p>There is a real ergonomic reason streaming is standard, beyond looking nice. A user watching text appear will wait ten seconds happily. The same user staring at a frozen cursor gives up in three.</p>
+<p>You are not making it faster. You are making the waiting bearable, which is a different and equally important kind of engineering.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Add a typing feel</h3><p>Streaming already feels responsive, but you can add a tiny deliberate delay to make it feel like a person typing. Write a version that streams with tokens but adds a very small sleep, and note the trade-off.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import time
+import anthropic
+
+client = anthropic.Anthropic()
+
+with client.messages.stream(
+    model=&quot;claude-sonnet-5&quot;, max_tokens=500,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Say hello in a friendly way.&quot;}],
+) as stream:
+    for text in stream.text_stream:
+        for char in text:
+            print(char, end=&quot;&quot;, flush=True)
+            time.sleep(0.005)      # a whisper of delay per character
+print()</code></pre><p>The trade-off: it looks charming but it is now slower than the model, and on a long reply the delay adds up. Most real assistants stream at the model's natural pace and skip the artificial slowdown. A nice touch for a personal tool, wrong for a productivity one.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Why does my stream arrive all at once?</h3><p>A learner's streaming code prints the whole reply in one burst instead of word by word. Here it is. What is wrong?</p><pre data-verify="skip"><code>with client.messages.stream(model=&quot;claude-sonnet-5&quot;, max_tokens=500,
+        messages=messages) as stream:
+    for text in stream.text_stream:
+        print(text, end=&quot;&quot;)</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>flush=True</code> is missing. Python buffers standard output and only writes it when the buffer fills or the program ends, so all the chunks pile up and appear together. Add <code>flush=True</code> to the print and each chunk reaches the screen the instant it arrives.</p><p>This is the most common streaming bug there is, and it is invisible until you know to look for it. It is the same output-buffering behaviour from Lesson 28, biting in a new place.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-56-streaming">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="55-memory.html"><span class="dir">← Previous</span>Lesson 55: Conversations and Memory</a>
+      <a class="next" href="57-tools.html"><span class="dir">Next →</span>Lesson 57: Giving Jarvis Tools</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 55: Conversations and Memory - The Python School</title>
+<meta name="description" content="Building a stateful chat loop by maintaining message history, managing the context window, and saving conversations.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/55-memory">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 55: Conversations and Memory - The Python School">
+<meta property="og:description" content="Building a stateful chat loop by maintaining message history, managing the context window, and saving conversations.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/55-memory">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 55: Conversations and Memory - The Python School">
+<meta name="twitter:description" content="Building a stateful chat loop by maintaining message history, managing the context window, and saving conversations.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 55 of 62</nav>
+    <span class="badge l6">Level 6 · Build Your Own Jarvis</span>
+    <h1>Conversations and Memory 💬</h1>
+    <p class="lede muted">One call is a party trick. A conversation that remembers what you said is an
+    assistant. The secret is that the model remembers nothing, and you do the remembering.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The model forgets everything, instantly</h2>
+    <p>
+      Every call is independent. The model you talked to a second ago has no idea you exist. So
+      how does a chatbot remember your name? <strong>You resend the whole conversation every
+      time.</strong> The "memory" lives entirely in a list you maintain in your program.
+    </p>
+    <pre class="run" data-verify="run"><code># WITHOUT memory: two separate calls, the second has no idea about the first
+# call 1: messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;My name is Guybrush.&quot;}]
+# call 2: messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is my name?&quot;}]   -&gt; it cannot know
+
+# WITH memory: the second call carries the whole history
+messages = [
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;My name is Guybrush.&quot;},
+    {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Nice to meet you, Guybrush!&quot;},
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is my name?&quot;},
+]
+# now the model can see the earlier turns and answer &quot;Guybrush&quot;
+print(&quot;Message count sent on turn 3:&quot;, len(messages))</code></pre>
+<pre class="out"><code class="nohl">Message count sent on turn 3: 3</code></pre>
+
+    <div class="voice" data-skill="conceptualization"><div class="v-head"><span class="v-name">CONCEPTUALIZATION</span><span class="v-check success">[Formidable: Success]</span></div><p>This is the whole trick, and it is worth pausing on because it is so unlike how it feels from the outside. The illusion of a continuous mind is manufactured, fresh, on every single turn, by you resending the transcript.</p>
+<p>The model is a pure function: same input, same distribution of outputs, no memory, no state. All the apparent continuity is your list of messages growing. Once you see it this way, nothing about building a chatbot is mysterious any more.</p></div>
+
+    <h2>A real chat loop</h2>
+    <p>
+      Here is a complete, genuine conversational assistant. It is thirty lines, and it is the
+      beating heart of your Jarvis.
+    </p>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+SYSTEM = (&quot;You are Jarvis, a concise and helpful assistant. &quot;
+          &quot;Keep answers short unless asked to elaborate.&quot;)
+
+
+def chat():
+    &quot;&quot;&quot;A stateful conversation. The history list is the memory.&quot;&quot;&quot;
+    messages = []
+
+    print(&quot;Jarvis is ready. Type &#x27;quit&#x27; to leave.\n&quot;)
+    while True:
+        user_input = input(&quot;You: &quot;)
+        if user_input.strip().lower() in {&quot;quit&quot;, &quot;exit&quot;, &quot;bye&quot;}:
+            print(&quot;Jarvis: Goodbye.&quot;)
+            break
+
+        # 1. Add the user&#x27;s turn to the history
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input})
+
+        # 2. Send the WHOLE history and get a reply
+        response = client.messages.create(
+            model=&quot;claude-sonnet-5&quot;,
+            max_tokens=1024,
+            system=SYSTEM,
+            messages=messages,
+        )
+        reply = response.content[0].text
+
+        # 3. Add the assistant&#x27;s turn to the history, so the next call remembers it
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply})
+
+        print(f&quot;Jarvis: {reply}\n&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    chat()</code></pre>
+    <p>Three steps, forever: append the user turn, send everything, append the reply. That
+    append-the-reply step is the one beginners forget, and forgetting it gives you an assistant
+    with amnesia that cannot follow up on its own answers.</p>
+
+    <h2>The roles, precisely</h2>
+    <div class="table-wrap"><table><thead><tr><th>Role</th><th>Who / what</th><th>Rules</th></tr></thead><tbody><tr><td><code>system</code></td><td>Standing instructions and persona</td><td>A separate parameter, not a message. Applies to every turn</td></tr><tr><td><code>user</code></td><td>The human</td><td>The conversation must start with a user turn</td></tr><tr><td><code>assistant</code></td><td>The model's replies</td><td>You append these yourself from each response</td></tr></tbody></table></div>
+    <p>
+      The list must alternate user, assistant, user, assistant. If you send two user turns in a
+      row without an assistant reply between them, most models will combine them, but keeping
+      the alternation clean keeps your code predictable.
+    </p>
+
+    <h2>The context window will eventually fill</h2>
+    <p>
+      Every turn makes <code>messages</code> longer, and you pay for the whole thing on every
+      call. A long chat gets slow and expensive, and eventually overflows the context window.
+      The simplest fix is a sliding window: keep the last N turns.
+    </p>
+    <pre class="run" data-verify="run"><code>def trim_history(messages, keep_turns=10):
+    &quot;&quot;&quot;Keep only the most recent turns to bound cost and stay in the window.
+
+    Keeps whole user+assistant pairs so the alternation stays valid.
+    &quot;&quot;&quot;
+    if len(messages) &lt;= keep_turns * 2:
+        return messages
+    return messages[-keep_turns * 2:]
+
+
+# a pretend history of 30 messages (15 exchanges)
+history = []
+for i in range(15):
+    history.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: f&quot;question {i}&quot;})
+    history.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: f&quot;answer {i}&quot;})
+
+trimmed = trim_history(history, keep_turns=5)
+print(f&quot;kept {len(trimmed)} of {len(history)} messages&quot;)
+print(&quot;oldest kept:&quot;, trimmed[0][&quot;content&quot;])</code></pre>
+<pre class="out"><code class="nohl">kept 10 of 30 messages
+oldest kept: question 10</code></pre>
+    <p>
+      Trimming loses the start of the conversation, which is sometimes fine and sometimes not.
+      The grown-up answer is <strong>summarisation</strong>: when the history gets long, ask the
+      model to summarise the old part into a paragraph, and keep the summary plus the recent
+      turns. Some providers offer this automatically (it is sometimes called compaction), and
+      you can always do it by hand.
+    </p>
+
+    <h2>Saving and loading conversations</h2>
+    <pre class="run" data-verify="run"><code>import json
+from pathlib import Path
+
+
+def save_conversation(messages, path=&quot;chat_history.json&quot;):
+    &quot;&quot;&quot;Persist a conversation so Jarvis remembers across restarts.&quot;&quot;&quot;
+    Path(path).write_text(json.dumps(messages, indent=2), encoding=&quot;utf-8&quot;)
+
+
+def load_conversation(path=&quot;chat_history.json&quot;):
+    &quot;&quot;&quot;Load a saved conversation, or start fresh if there is none.&quot;&quot;&quot;
+    file = Path(path)
+    if file.exists():
+        return json.loads(file.read_text(encoding=&quot;utf-8&quot;))
+    return []
+
+
+# messages are just dicts, so JSON handles them perfectly (Lesson 23)
+messages = [
+    {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Remember I like tea, not coffee.&quot;},
+    {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Noted: tea, not coffee.&quot;},
+]
+save_conversation(messages, &quot;demo_chat.json&quot;)
+loaded = load_conversation(&quot;demo_chat.json&quot;)
+
+print(&quot;saved and reloaded&quot;, len(loaded), &quot;messages&quot;)
+print(loaded[0][&quot;content&quot;])</code></pre>
+<pre class="out"><code class="nohl">saved and reloaded 2 messages
+Remember I like tea, not coffee.</code></pre>
+    <p>
+      Because a conversation is just a list of dictionaries, it is plain JSON (Lesson 23). Save
+      it on exit, load it on start, and your Jarvis now remembers across sessions. This is
+      genuine persistent memory, built from tools you already own.
+    </p>
+
+    <div class="callout info"><span class="co-title">🧠 Two kinds of memory</span><p>This lesson is <em>conversational</em> memory: the running transcript. Lesson 58 covers <em>knowledge</em> memory: giving Jarvis access to your own documents and notes, so it can answer from information that was never in the chat and never in its training. Real assistants use both.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Add a persona and a persistence layer</h3><p>Take the chat loop and give it two upgrades: a system prompt that gives Jarvis a distinct personality, and save/load so the conversation survives a restart. Print a friendly message noting how many past messages were loaded.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import json
+from pathlib import Path
+import anthropic
+
+client = anthropic.Anthropic()
+HISTORY = Path(&quot;jarvis_memory.json&quot;)
+SYSTEM = (&quot;You are Jarvis, dry-witted but genuinely helpful. &quot;
+          &quot;You remember the user&#x27;s preferences across sessions.&quot;)
+
+
+def load():
+    return json.loads(HISTORY.read_text(encoding=&quot;utf-8&quot;)) if HISTORY.exists() else []
+
+
+def save(messages):
+    HISTORY.write_text(json.dumps(messages, indent=2), encoding=&quot;utf-8&quot;)
+
+
+def chat():
+    messages = load()
+    print(f&quot;Jarvis: Welcome back. I recall {len(messages)} earlier messages.\n&quot;
+          if messages else &quot;Jarvis: Hello for the first time.\n&quot;)
+
+    while True:
+        text = input(&quot;You: &quot;)
+        if text.strip().lower() in {&quot;quit&quot;, &quot;exit&quot;}:
+            save(messages)
+            print(&quot;Jarvis: Saved. Until next time.&quot;)
+            break
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: text})
+        reply = client.messages.create(
+            model=&quot;claude-sonnet-5&quot;, max_tokens=1024,
+            system=SYSTEM, messages=messages,
+        ).content[0].text
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply})
+        print(f&quot;Jarvis: {reply}\n&quot;)
+
+
+if __name__ == &quot;__main__&quot;:
+    chat()</code></pre><p>Run it, tell it a preference, quit, and start it again. It greets you and remembers. That is a real assistant with a real memory, in about forty lines.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Reason about the bill</h3><p>A user has a 100-turn conversation with no trimming. On turn 100, roughly how much conversation is being sent, and why does this get expensive fast? What are two fixes?</p><details class="solution"><summary>Reveal solution</summary><p>On turn 100 you resend all 99 previous turns plus the new one, so the input grows every single turn. A 100-turn chat sends the first message 100 times, the second 99 times, and so on: the total tokens billed grow with the <em>square</em> of the conversation length. That is why a long unmanaged chat can quietly cost far more than you expect.</p><p>Two fixes: <strong>trim</strong> to a sliding window of recent turns (cheap, loses old context), or <strong>summarise</strong> the old turns into a short note and keep that plus recent turns (a little more work, keeps the gist). Most production assistants do the second. A third lever is <strong>prompt caching</strong>, where the provider charges much less to re-read an unchanged prefix, which is worth reading about once your bills matter.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-55-memory">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="54-first-api-call.html"><span class="dir">← Previous</span>Lesson 54: Your First API Call</a>
+      <a class="next" href="56-streaming.html"><span class="dir">Next →</span>Lesson 56: Streaming Responses</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

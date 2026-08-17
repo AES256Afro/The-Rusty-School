@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 57: Giving Jarvis Tools - The Python School</title>
+<meta name="description" content="Tool use (function calling): defining tools, the tool-use loop, executing functions safely, and letting the model act.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/57-tools">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 57: Giving Jarvis Tools - The Python School">
+<meta property="og:description" content="Tool use (function calling): defining tools, the tool-use loop, executing functions safely, and letting the model act.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/57-tools">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 57: Giving Jarvis Tools - The Python School">
+<meta name="twitter:description" content="Tool use (function calling): defining tools, the tool-use loop, executing functions safely, and letting the model act.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 57 of 62</nav>
+    <span class="badge l6">Level 6 · Build Your Own Jarvis</span>
+    <h1>Giving Jarvis Tools 🛠️</h1>
+    <p class="lede muted">So far Jarvis can only talk. Tools let it act: look things up, do arithmetic
+    reliably, control your smart home, run your Python. This is where an assistant becomes
+    genuinely useful, and where you must be careful.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The idea: the model asks, your code acts</h2>
+    <p>
+      A model cannot check the weather or read your calendar; it can only produce text. Tool use
+      bridges that gap. You describe some functions to the model. When it decides one would
+      help, it does not run it (it cannot), it <strong>asks you to</strong>, with the arguments
+      filled in. Your code runs the real function and hands the result back. The model then uses
+      that result to answer.
+    </p>
+    <pre class="out"><code class="nohl">You:    What&#x27;s 4,891 times 7,237?
+Model:  (I should use the calculator tool)  -&gt;  multiply(4891, 7237)
+Your code: runs multiply(4891, 7237) = 35,396,167
+Model:  4,891 times 7,237 is 35,396,167.</code></pre>
+    <p>
+      Notice why this matters even for arithmetic: the model is a text predictor and is
+      genuinely bad at multiplying large numbers (Lesson 53). Give it a calculator tool and it
+      becomes perfectly accurate, because the actual maths happens in your reliable Python, not
+      in the model's head.
+    </p>
+
+    <h2>Defining a tool</h2>
+    <p>
+      A tool is a name, a description, and a schema for its inputs. The description is how the
+      model decides when to use it, so write it well: this is prompt engineering, not
+      paperwork.
+    </p>
+    <pre class="run" data-verify="run"><code>calculator_tool = {
+    &quot;name&quot;: &quot;calculate&quot;,
+    &quot;description&quot;: &quot;Evaluate a basic arithmetic expression and return the exact result. &quot;
+                   &quot;Use this whenever the user asks for a calculation, since you are &quot;
+                   &quot;unreliable at arithmetic on your own.&quot;,
+    &quot;input_schema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+            &quot;expression&quot;: {
+                &quot;type&quot;: &quot;string&quot;,
+                &quot;description&quot;: &quot;A simple arithmetic expression, e.g. &#x27;4891 * 7237&#x27;&quot;,
+            }
+        },
+        &quot;required&quot;: [&quot;expression&quot;],
+    },
+}
+
+print(calculator_tool[&quot;name&quot;])
+print(&quot;described in&quot;, len(calculator_tool[&quot;description&quot;]), &quot;characters&quot;)</code></pre>
+<pre class="out"><code class="nohl">calculate
+described in 170 characters</code></pre>
+    <p>
+      The <code>input_schema</code> is JSON Schema, the same shape you met when typing
+      dictionaries in Lesson 38. It tells the model exactly what arguments to provide, and the
+      API guarantees they will match.
+    </p>
+
+    <h2>The tool-use loop</h2>
+    <p>
+      Here is the full pattern. It is a loop: call the model, and if it asks for a tool, run the
+      tool, feed the result back, and call again, until it stops asking and gives a final answer.
+    </p>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+
+def calculate(expression):
+    &quot;&quot;&quot;Safely evaluate a simple arithmetic expression. No arbitrary code (Lesson 52).&quot;&quot;&quot;
+    import ast
+    import operator
+
+    ops = {ast.Add: operator.add, ast.Sub: operator.sub,
+           ast.Mult: operator.mul, ast.Div: operator.truediv,
+           ast.Pow: operator.pow, ast.USub: operator.neg}
+
+    def ev(node):
+        if isinstance(node, ast.Constant):
+            return node.value
+        if isinstance(node, ast.BinOp):
+            return ops[type(node.op)](ev(node.left), ev(node.right))
+        if isinstance(node, ast.UnaryOp):
+            return ops[type(node.op)](ev(node.operand))
+        raise ValueError(&quot;unsupported expression&quot;)
+
+    return ev(ast.parse(expression, mode=&quot;eval&quot;).body)
+
+
+TOOLS = [{
+    &quot;name&quot;: &quot;calculate&quot;,
+    &quot;description&quot;: &quot;Evaluate an arithmetic expression exactly.&quot;,
+    &quot;input_schema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {&quot;expression&quot;: {&quot;type&quot;: &quot;string&quot;}},
+        &quot;required&quot;: [&quot;expression&quot;],
+    },
+}]
+
+
+def ask_with_tools(question):
+    messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: question}]
+
+    while True:
+        response = client.messages.create(
+            model=&quot;claude-sonnet-5&quot;,
+            max_tokens=1024,
+            tools=TOOLS,
+            messages=messages,
+        )
+
+        # If the model is done (not asking for a tool), we have our answer
+        if response.stop_reason != &quot;tool_use&quot;:
+            return response.content[0].text
+
+        # Append the model&#x27;s turn (which contains the tool request)
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+
+        # Run every tool the model asked for, collect the results
+        tool_results = []
+        for block in response.content:
+            if block.type == &quot;tool_use&quot;:
+                if block.name == &quot;calculate&quot;:
+                    result = calculate(block.input[&quot;expression&quot;])
+                    tool_results.append({
+                        &quot;type&quot;: &quot;tool_result&quot;,
+                        &quot;tool_use_id&quot;: block.id,
+                        &quot;content&quot;: str(result),
+                    })
+
+        # Send the results back as a user turn, then loop
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: tool_results})
+
+
+if __name__ == &quot;__main__&quot;:
+    print(ask_with_tools(&quot;What is 4891 times 7237, and is it more than 35 million?&quot;))</code></pre>
+    <p>The loop, in plain English:</p>
+    <ol class="steps">
+      <li><strong>Ask the model,</strong> giving it the tool definitions.</li>
+      <li><strong>If it did not ask for a tool</strong> (<code>stop_reason</code> is not
+      <code>"tool_use"</code>), it has answered. Return that.</li>
+      <li><strong>Otherwise, run every tool it requested,</strong> matching each result to its
+      <code>tool_use_id</code>.</li>
+      <li><strong>Send the results back</strong> and go round again. The model reads the results
+      and either asks for another tool or answers.</li>
+    </ol>
+
+    <div class="callout info"><span class="co-title">🤖 The SDK can drive this loop for you</span><p>Writing the loop by hand, as above, shows you exactly what is happening, and that is the point of this lesson. In real projects the Anthropic SDK offers a <em>tool runner</em> that runs this loop automatically: you write the tool functions, it handles the call-run-feed-back cycle. Learn the manual version first so the automatic one is never magic.</p></div>
+
+    <h2>The danger, stated plainly</h2>
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Legendary: Success]</span></div><p>Stop and understand what you have just built. The model decides which of your functions to run and with what arguments. If one of your tools deletes files, sends money, or runs shell commands, the model can now trigger that.</p>
+<p>It is a text predictor. A cleverly worded message from a user, or text hidden in a web page your tool fetched, can steer it into calling a dangerous tool. This is called prompt injection, and it is unsolved. Design your tools as if a stranger on the internet is choosing when to call them, because in effect one is.</p></div>
+
+    <div class="table-wrap"><table><thead><tr><th>Rule for tool design</th><th>Why</th></tr></thead><tbody><tr><td>Read-only tools are safe; acting tools are not</td><td>Fetching weather cannot hurt you; sending an email or deleting a file can</td></tr><tr><td>Never expose <code>eval</code>, <code>exec</code>, or a raw shell</td><td>The model could be steered into running anything (Lesson 52)</td></tr><tr><td>Validate every argument before acting</td><td>The model's arguments are as untrusted as user input (Lesson 22)</td></tr><tr><td>Confirm irreversible actions with the human</td><td>'About to email your boss. Send? [y/N]' before it actually sends</td></tr><tr><td>Scope credentials to the minimum</td><td>If a tool needs an API key, give it one that can do only that one thing</td></tr><tr><td>Log every tool call</td><td>So you can see, after the fact, what your assistant actually did</td></tr></tbody></table></div>
+
+    <h2>Tools worth giving Jarvis</h2>
+    <div class="table-wrap"><table><thead><tr><th>Tool</th><th>Does</th><th>Risk</th></tr></thead><tbody><tr><td>Calculator</td><td>Reliable arithmetic</td><td>None. Give it freely</td></tr><tr><td>Current date/time</td><td>Answers 'what day is it', which the model cannot know</td><td>None</td></tr><tr><td>Web search / fetch</td><td>Fresh information past the training cutoff</td><td>Low, but injected text in results can steer it</td></tr><tr><td>Read a file</td><td>Answer questions about your documents</td><td>Confine it to one folder (Lesson 41)</td></tr><tr><td>Weather / stocks API</td><td>Live data</td><td>Low; just an API call</td></tr><tr><td>Send an email / message</td><td>Actually acts in the world</td><td>High. Confirm every send</td></tr><tr><td>Run shell / Python</td><td>Maximum power</td><td>Extreme. Sandbox or avoid</td></tr></tbody></table></div>
+    <p>
+      Some providers also offer <strong>server-side tools</strong> they run for you, such as web
+      search and code execution in a sandbox, so you get the capability without building and
+      securing the tool yourself. Convenient, and worth knowing they exist, but the safety
+      thinking above still applies to anything you build.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Give Jarvis the time and date</h3><p>Write a <code>get_datetime</code> tool so Jarvis can answer 'what day is it' and 'how many days until Christmas'. This is the safest useful tool there is: read-only, no arguments, no risk.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="skip"><code>from datetime import date, datetime
+import anthropic
+
+client = anthropic.Anthropic()
+
+
+def get_datetime():
+    &quot;&quot;&quot;Return today&#x27;s date and time. The model cannot know this on its own.&quot;&quot;&quot;
+    now = datetime.now()
+    days_to_christmas = (date(now.year, 12, 25) - now.date()).days
+    return {
+        &quot;today&quot;: now.strftime(&quot;%A, %d %B %Y&quot;),
+        &quot;time&quot;: now.strftime(&quot;%H:%M&quot;),
+        &quot;days_until_christmas&quot;: days_to_christmas,
+    }
+
+
+TOOLS = [{
+    &quot;name&quot;: &quot;get_datetime&quot;,
+    &quot;description&quot;: &quot;Get the current date, time, and days until Christmas. &quot;
+                   &quot;Use this for any question about what day or time it is.&quot;,
+    &quot;input_schema&quot;: {&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: {}},
+}]
+
+# the tool-use loop is the same shape as the calculator example:
+# call -&gt; if stop_reason == &quot;tool_use&quot;, run get_datetime(), feed the JSON back -&gt; loop
+print(&quot;Tool defined:&quot;, TOOLS[0][&quot;name&quot;])
+print(&quot;Demo output:&quot;, get_datetime()[&quot;today&quot;] is not None)</code></pre><p>Note the tool returns a dictionary, which you would <code>json.dumps</code> into the <code>tool_result</code> content. The model reads structured data far more reliably than prose.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Spot the dangerous tool</h3><p>A tutorial online offers this tool to make an assistant 'really powerful'. Explain, specifically, the disaster waiting to happen.</p><pre data-verify="skip"><code>run_command_tool = {
+    &quot;name&quot;: &quot;run_command&quot;,
+    &quot;description&quot;: &quot;Run any shell command and return its output.&quot;,
+    &quot;input_schema&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {&quot;command&quot;: {&quot;type&quot;: &quot;string&quot;}},
+        &quot;required&quot;: [&quot;command&quot;],
+    },
+}
+
+def run_command(command):
+    import subprocess
+    return subprocess.run(command, shell=True, capture_output=True, text=True).stdout</code></pre><details class="solution"><summary>Reveal solution</summary><p>This hands the model an unrestricted shell on your machine, and <code>shell=True</code> means the whole string is interpreted by the shell (Lesson 52). A user who types 'clean up my temp files' could, through a cleverly worded or injected prompt, cause the model to emit <code>rm -rf ~</code>. The model is a text predictor; it can be steered into emitting any command, and this tool will run it.</p><p>There is no safe way to offer 'run any command'. If you genuinely need code execution, run it in a locked-down sandbox (a container with no network, no important files, strict resource limits), or use a provider's server-side sandboxed execution and never touch your own machine. 'Powerful' and 'safe' are in tension here, and safe wins.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-57-tools">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="56-streaming.html"><span class="dir">← Previous</span>Lesson 56: Streaming Responses</a>
+      <a class="next" href="58-your-data.html"><span class="dir">Next →</span>Lesson 58: Teaching Jarvis About You</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
