@@ -210,6 +210,7 @@ def page(
 <link rel="stylesheet" href="{campus}assets/style.css">
 <link rel="stylesheet" href="{up}assets/py.css">
 <script>try{{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}}catch(e){{}}</script>
+<script defer src="{up}assets/course.js"></script>
 <script defer src="{up}assets/py.js"></script>
 </head>
 <body{body_attrs}>

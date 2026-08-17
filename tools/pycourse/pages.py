@@ -51,6 +51,18 @@ def home(lessons: list[dict]) -> str:
     </div>
   </section>
 
+  <!-- Hidden for first-time visitors. py.js unhides it and fills in the
+       next step once there is any progress to pick up from. -->
+  <section class="section" id="continue" hidden>
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Welcome back</span>
+        <h2>Pick up where you left off</h2>
+      </div>
+      <div class="continue-body"></div>
+    </div>
+  </section>
+
   <section class="section" id="try">
     <div class="container">
       <div class="section-head">
