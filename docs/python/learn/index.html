@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Curriculum - The Python School</title>
-<meta name="description" content="The full 36-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
+<meta name="description" content="The full 58-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
 <link rel="canonical" href="https://rustyschool.com/python/learn/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Python School">
 <meta property="og:title" content="Curriculum - The Python School">
-<meta property="og:description" content="The full 36-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
+<meta property="og:description" content="The full 58-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
 <meta property="og:url" content="https://rustyschool.com/python/learn/">
 <meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -17,7 +17,7 @@
 <meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Curriculum - The Python School">
-<meta name="twitter:description" content="The full 36-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
+<meta name="twitter:description" content="The full 58-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
 <meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
 <meta name="theme-color" content="#4584b6">
 <link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
@@ -50,7 +50,7 @@
     <span class="kicker">The curriculum</span>
     <h1>Your <span class="grad">learning path</span> 🗺️</h1>
     <p class="lede muted">
-      36 lessons across seven levels, starting before code and ending with a
+      58 lessons across seven levels, starting before code and ending with a
       private AI assistant you built yourself. Every lesson has plain-English explanations,
       examples that run in the page, and exercises with hidden solutions.
     </p>
@@ -139,6 +139,40 @@
       <a class="card lesson-card" data-lesson="py-30-style" href="30-style.html"><span class="num">30</span><div><h3>Style, Linting and Type Hints</h3><p>PEP 8, ruff, black, and type hints: making code that other people (and tools) can read.</p></div></a>
     </div>
   </section>
+  <section class="section" id="level-4">
+    <h2><span class="badge l4">Level 4</span> &nbsp;Pythonic
+      <span class="muted small">- Objects, generators, decorators: the idioms that make Python code look like Python.</span></h2>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="py-31-classes" href="31-classes.html"><span class="num">31</span><div><h3>Classes and Objects</h3><p>Bundle data and the things that act on it into one named thing.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-32-inheritance" href="32-inheritance.html"><span class="num">32</span><div><h3>Inheritance and Dunder Methods</h3><p>Inheritance, composition, dunder methods, and why you should usually prefer the second one.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-33-dataclasses" href="33-dataclasses.html"><span class="num">33</span><div><h3>Dataclasses, Enums and match</h3><p>Classes that hold data, written in a quarter of the lines. Plus enums and structural match.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-34-generators" href="34-generators.html"><span class="num">34</span><div><h3>Iterators and Generators</h3><p>yield: produce values one at a time instead of building a list you cannot afford.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-35-decorators" href="35-decorators.html"><span class="num">35</span><div><h3>Decorators</h3><p>Wrap a function in another function. The @ symbol you have been seeing everywhere.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-36-context-managers" href="36-context-managers.html"><span class="num">36</span><div><h3>Context Managers</h3><p>The with statement, and how to write your own guaranteed cleanup.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-37-functional" href="37-functional.html"><span class="num">37</span><div><h3>Functional Tools</h3><p>lambda, map, filter, functools and the functional style, used in moderation.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-38-typing" href="38-typing.html"><span class="num">38</span><div><h3>Type Hints for Real</h3><p>Type hints that actually pay off: generics, Protocols, Optional, and mypy in anger.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-39-concurrency" href="39-concurrency.html"><span class="num">39</span><div><h3>Concurrency: Threads and Processes</h3><p>Threads, processes and the GIL, explained honestly rather than defensively.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-40-async" href="40-async.html"><span class="num">40</span><div><h3>async and await</h3><p>async and await: thousands of things waiting at once, on one thread.</p></div></a>
+    </div>
+  </section>
+  <section class="section" id="level-5">
+    <h2><span class="badge l5">Level 5</span> &nbsp;In the Wild
+      <span class="muted small">- Automation, the web, data, games, hardware: what people actually build.</span></h2>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="py-41-automation" href="41-automation.html"><span class="num">41</span><div><h3>Automating the Boring Things</h3><p>Rename 4,000 files, tidy a folder, back things up, and schedule it all to run itself.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-42-http" href="42-http.html"><span class="num">42</span><div><h3>The Web: HTTP and APIs</h3><p>HTTP explained, then calling real APIs with requests: the skill that connects everything.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-43-scraping" href="43-scraping.html"><span class="num">43</span><div><h3>Web Scraping</h3><p>Getting data out of web pages, and the ethics and law you need to know first.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-44-web-apps" href="44-web-apps.html"><span class="num">44</span><div><h3>Building a Web App</h3><p>Serve your own pages and your own API, with the standard library and then with FastAPI.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-45-databases" href="45-databases.html"><span class="num">45</span><div><h3>Databases with SQLite</h3><p>SQLite is built in, is a real database, and is enough for far more than you think.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-46-data" href="46-data.html"><span class="num">46</span><div><h3>Data Analysis</h3><p>NumPy and pandas: the tools that made Python the language of science.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-47-charts" href="47-charts.html"><span class="num">47</span><div><h3>Charts and Visualisation</h3><p>Turning numbers into pictures, and not lying with them.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-48-games" href="48-games.html"><span class="num">48</span><div><h3>Making Games</h3><p>The game loop, and a playable game in under a hundred lines with pygame.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-49-desktop" href="49-desktop.html"><span class="num">49</span><div><h3>Desktop Applications</h3><p>Windows, buttons and menus with tkinter, which is already installed.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-50-packaging" href="50-packaging.html"><span class="num">50</span><div><h3>Packaging and Shipping</h3><p>Turn your code into something other people can install, with tests running automatically.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-51-performance" href="51-performance.html"><span class="num">51</span><div><h3>Making Python Fast</h3><p>Measure first, then fix the right thing, and know when to call Rust.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-52-security" href="52-security.html"><span class="num">52</span><div><h3>Security Basics</h3><p>Secrets, hashing, injection, pickle, and the supply chain. The things that actually bite.</p></div></a>
+    </div>
+  </section>
 
   <section class="section">
     <div class="callout info">
@@ -150,7 +184,7 @@
     </div>
   </section>
 
-<script>window.PY_LESSONS = [{"id":"py-f1-machine","level":0},{"id":"py-f2-programming","level":0},{"id":"py-f3-python","level":0},{"id":"py-f4-why-python","level":0},{"id":"py-f5-terminal","level":0},{"id":"py-f6-lab","level":0},{"id":"py-01-hello","level":1},{"id":"py-02-variables","level":1},{"id":"py-03-numbers","level":1},{"id":"py-04-strings","level":1},{"id":"py-05-input","level":1},{"id":"py-06-booleans","level":1},{"id":"py-07-decisions","level":1},{"id":"py-08-while","level":1},{"id":"py-09-for","level":1},{"id":"py-10-errors","level":1},{"id":"py-11-lists","level":2},{"id":"py-12-tuples","level":2},{"id":"py-13-dicts","level":2},{"id":"py-14-sets","level":2},{"id":"py-15-nested","level":2},{"id":"py-16-comprehensions","level":2},{"id":"py-17-functions","level":2},{"id":"py-18-arguments","level":2},{"id":"py-19-scope","level":2},{"id":"py-20-modules","level":2},{"id":"py-21-files","level":3},{"id":"py-22-exceptions","level":3},{"id":"py-23-data-formats","level":3},{"id":"py-24-dates","level":3},{"id":"py-25-regex","level":3},{"id":"py-26-venv","level":3},{"id":"py-27-cli","level":3},{"id":"py-28-debugging","level":3},{"id":"py-29-testing","level":3},{"id":"py-30-style","level":3}];</script>
+<script>window.PY_LESSONS = [{"id":"py-f1-machine","level":0},{"id":"py-f2-programming","level":0},{"id":"py-f3-python","level":0},{"id":"py-f4-why-python","level":0},{"id":"py-f5-terminal","level":0},{"id":"py-f6-lab","level":0},{"id":"py-01-hello","level":1},{"id":"py-02-variables","level":1},{"id":"py-03-numbers","level":1},{"id":"py-04-strings","level":1},{"id":"py-05-input","level":1},{"id":"py-06-booleans","level":1},{"id":"py-07-decisions","level":1},{"id":"py-08-while","level":1},{"id":"py-09-for","level":1},{"id":"py-10-errors","level":1},{"id":"py-11-lists","level":2},{"id":"py-12-tuples","level":2},{"id":"py-13-dicts","level":2},{"id":"py-14-sets","level":2},{"id":"py-15-nested","level":2},{"id":"py-16-comprehensions","level":2},{"id":"py-17-functions","level":2},{"id":"py-18-arguments","level":2},{"id":"py-19-scope","level":2},{"id":"py-20-modules","level":2},{"id":"py-21-files","level":3},{"id":"py-22-exceptions","level":3},{"id":"py-23-data-formats","level":3},{"id":"py-24-dates","level":3},{"id":"py-25-regex","level":3},{"id":"py-26-venv","level":3},{"id":"py-27-cli","level":3},{"id":"py-28-debugging","level":3},{"id":"py-29-testing","level":3},{"id":"py-30-style","level":3},{"id":"py-31-classes","level":4},{"id":"py-32-inheritance","level":4},{"id":"py-33-dataclasses","level":4},{"id":"py-34-generators","level":4},{"id":"py-35-decorators","level":4},{"id":"py-36-context-managers","level":4},{"id":"py-37-functional","level":4},{"id":"py-38-typing","level":4},{"id":"py-39-concurrency","level":4},{"id":"py-40-async","level":4},{"id":"py-41-automation","level":5},{"id":"py-42-http","level":5},{"id":"py-43-scraping","level":5},{"id":"py-44-web-apps","level":5},{"id":"py-45-databases","level":5},{"id":"py-46-data","level":5},{"id":"py-47-charts","level":5},{"id":"py-48-games","level":5},{"id":"py-49-desktop","level":5},{"id":"py-50-packaging","level":5},{"id":"py-51-performance","level":5},{"id":"py-52-security","level":5}];</script>
 
 </main>
 

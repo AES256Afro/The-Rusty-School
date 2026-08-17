@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 45: Databases with SQLite - The Python School</title>
+<meta name="description" content="SQL basics, sqlite3 from the standard library, parameterised queries, transactions and when to use a database.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/45-databases">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 45: Databases with SQLite - The Python School">
+<meta property="og:description" content="SQL basics, sqlite3 from the standard library, parameterised queries, transactions and when to use a database.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/45-databases">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 45: Databases with SQLite - The Python School">
+<meta name="twitter:description" content="SQL basics, sqlite3 from the standard library, parameterised queries, transactions and when to use a database.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 45 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Databases with SQLite 🗄️</h1>
+    <p class="lede muted">A real SQL database ships with Python, lives in a single file, and needs no server.
+    It is the most under-used tool in the standard library.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>When a file is not enough</h2>
+    <p>Reach for a database when you need any of:</p>
+    <ul>
+      <li>to find things by criteria without loading everything into memory;</li>
+      <li>relationships between kinds of thing (orders belong to customers);</li>
+      <li>more data than fits comfortably in RAM;</li>
+      <li>several things writing at once without corrupting each other;</li>
+      <li>a guarantee that a half-finished update never survives a crash.</li>
+    </ul>
+    <p>
+      SQLite gives you all of that in a file, with no server to install or administer. It is
+      in your phone, your browser, and on most aircraft. The
+      <a href="https://www.sqlite.org/whentouse.html" target="_blank" rel="noopener">official docs</a> claim it is the most
+      widely deployed database engine in the world, and that is probably true.
+    </p>
+
+    <h2>Creating and inserting</h2>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;ship.db&quot;)
+conn.execute(&quot;&quot;&quot;
+    CREATE TABLE IF NOT EXISTS crew (
+        id       INTEGER PRIMARY KEY,
+        name     TEXT NOT NULL,
+        role     TEXT NOT NULL DEFAULT &#x27;deckhand&#x27;,
+        pay      INTEGER NOT NULL CHECK (pay &gt;= 0),
+        joined   TEXT NOT NULL
+    )
+&quot;&quot;&quot;)
+
+conn.execute(
+    &quot;INSERT INTO crew (name, role, pay, joined) VALUES (?, ?, ?, ?)&quot;,
+    (&quot;Guybrush&quot;, &quot;captain&quot;, 100, &quot;1990-10-15&quot;),
+)
+conn.executemany(
+    &quot;INSERT INTO crew (name, role, pay, joined) VALUES (?, ?, ?, ?)&quot;,
+    [
+        (&quot;Elaine&quot;, &quot;governor&quot;, 250, &quot;1990-10-15&quot;),
+        (&quot;Otis&quot;, &quot;lookout&quot;, 40, &quot;1991-01-03&quot;),
+        (&quot;Meathook&quot;, &quot;lookout&quot;, 45, &quot;1991-06-20&quot;),
+    ],
+)
+conn.commit()
+
+print(conn.execute(&quot;SELECT COUNT(*) FROM crew&quot;).fetchone()[0], &quot;crew&quot;)
+conn.close()</code></pre>
+<pre class="out"><code class="nohl">4 crew</code></pre>
+
+    <div class="callout danger"><span class="co-title">💉 The question marks are not optional</span><p>Never build SQL with f-strings. <code>f"... WHERE name = '{{name}}'"</code> with <code>name</code> set to <code>' OR 1=1 --</code> returns your whole table, and worse inputs can drop it. Passing values as a separate tuple means the database treats them strictly as data, never as code. This is the single most famous vulnerability in web software and it is entirely preventable by typing <code>?</code>.</p></div>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.execute(&quot;CREATE TABLE users (name TEXT)&quot;)
+conn.execute(&quot;INSERT INTO users VALUES (&#x27;Guybrush&#x27;)&quot;)
+conn.execute(&quot;INSERT INTO users VALUES (&#x27;Elaine&#x27;)&quot;)
+
+attack = &quot;&#x27; OR &#x27;1&#x27;=&#x27;1&quot;
+
+# The safe way: the input is data, so it simply matches nothing
+safe = conn.execute(&quot;SELECT * FROM users WHERE name = ?&quot;, (attack,)).fetchall()
+print(&quot;parameterised:&quot;, safe)
+
+# The unsafe way, shown once so you recognise it
+unsafe = conn.execute(f&quot;SELECT * FROM users WHERE name = &#x27;{attack}&#x27;&quot;).fetchall()
+print(&quot;f-string:     &quot;, unsafe)</code></pre>
+<pre class="out"><code class="nohl">parameterised: []
+f-string:      [(&#x27;Guybrush&#x27;,), (&#x27;Elaine&#x27;,)]</code></pre>
+    <p>
+      The second query returned every row, because the input closed the quote and added its
+      own condition. That is SQL injection, demonstrated in four lines.
+    </p>
+
+    <h2>Querying</h2>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.execute(&quot;CREATE TABLE crew (id INTEGER PRIMARY KEY, name TEXT, role TEXT, pay INTEGER)&quot;)
+conn.executemany(&quot;INSERT INTO crew (name, role, pay) VALUES (?, ?, ?)&quot;, [
+    (&quot;Guybrush&quot;, &quot;captain&quot;, 100),
+    (&quot;Elaine&quot;, &quot;governor&quot;, 250),
+    (&quot;Otis&quot;, &quot;lookout&quot;, 40),
+    (&quot;Meathook&quot;, &quot;lookout&quot;, 45),
+])
+
+for row in conn.execute(&quot;SELECT name, pay FROM crew WHERE pay &gt; ? ORDER BY pay DESC&quot;, (50,)):
+    print(f&quot;{row[0]:10} {row[1]}&quot;)
+
+print(&quot;---&quot;)
+print(conn.execute(&quot;SELECT COUNT(*), SUM(pay), AVG(pay) FROM crew&quot;).fetchone())
+
+print(&quot;---&quot;)
+for role, count, total in conn.execute(
+    &quot;SELECT role, COUNT(*), SUM(pay) FROM crew GROUP BY role ORDER BY SUM(pay) DESC&quot;
+):
+    print(f&quot;{role:10} {count} people, {total} total&quot;)</code></pre>
+<pre class="out"><code class="nohl">Elaine     250
+Guybrush   100
+---
+(4, 435, 108.75)
+---
+governor   1 people, 250 total
+captain    1 people, 100 total
+lookout    2 people, 85 total</code></pre>
+
+    <h2>Rows as dictionaries, which is far nicer</h2>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.row_factory = sqlite3.Row          # the one line worth remembering
+conn.execute(&quot;CREATE TABLE crew (name TEXT, role TEXT, pay INTEGER)&quot;)
+conn.execute(&quot;INSERT INTO crew VALUES (&#x27;Guybrush&#x27;, &#x27;captain&#x27;, 100)&quot;)
+
+row = conn.execute(&quot;SELECT * FROM crew&quot;).fetchone()
+
+print(row[&quot;name&quot;], row[&quot;pay&quot;])
+print(dict(row))
+print(row.keys())</code></pre>
+<pre class="out"><code class="nohl">Guybrush 100
+{&#x27;name&#x27;: &#x27;Guybrush&#x27;, &#x27;role&#x27;: &#x27;captain&#x27;, &#x27;pay&#x27;: 100}
+[&#x27;name&#x27;, &#x27;role&#x27;, &#x27;pay&#x27;]</code></pre>
+
+    <h2>Relationships: the actual point of SQL</h2>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.row_factory = sqlite3.Row
+conn.execute(&quot;PRAGMA foreign_keys = ON&quot;)      # SQLite needs asking, every connection
+
+conn.executescript(&quot;&quot;&quot;
+    CREATE TABLE ships (
+        id   INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE
+    );
+    CREATE TABLE crew (
+        id      INTEGER PRIMARY KEY,
+        name    TEXT NOT NULL,
+        ship_id INTEGER REFERENCES ships(id) ON DELETE CASCADE
+    );
+    INSERT INTO ships (name) VALUES (&#x27;Sea Monkey&#x27;), (&#x27;Flying Dutchman&#x27;);
+    INSERT INTO crew (name, ship_id) VALUES
+        (&#x27;Guybrush&#x27;, 1), (&#x27;Otis&#x27;, 1), (&#x27;LeChuck&#x27;, 2);
+&quot;&quot;&quot;)
+
+for row in conn.execute(&quot;&quot;&quot;
+    SELECT ships.name AS ship, COUNT(crew.id) AS crew_count
+    FROM ships
+    LEFT JOIN crew ON crew.ship_id = ships.id
+    GROUP BY ships.id
+    ORDER BY crew_count DESC
+&quot;&quot;&quot;):
+    print(f&quot;{row[&#x27;ship&#x27;]:16} {row[&#x27;crew_count&#x27;]} crew&quot;)
+
+print(&quot;---&quot;)
+for row in conn.execute(&quot;&quot;&quot;
+    SELECT crew.name, ships.name AS ship
+    FROM crew JOIN ships ON crew.ship_id = ships.id
+    WHERE ships.name = ?
+&quot;&quot;&quot;, (&quot;Sea Monkey&quot;,)):
+    print(f&quot;{row[&#x27;name&#x27;]} sails the {row[&#x27;ship&#x27;]}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Sea Monkey       2 crew
+Flying Dutchman  1 crew
+---
+Guybrush sails the Sea Monkey
+Otis sails the Sea Monkey</code></pre>
+    <p>
+      A <code>JOIN</code> answers a question that would otherwise be two loops and a
+      dictionary in Python, and the database does it with an index instead of scanning. This is
+      what SQL is for, and it is why "just use a JSON file" stops working around a few thousand
+      records.
+    </p>
+
+    <h2>Transactions: all or nothing</h2>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.execute(&quot;CREATE TABLE accounts (name TEXT PRIMARY KEY, balance INTEGER)&quot;)
+conn.executemany(&quot;INSERT INTO accounts VALUES (?, ?)&quot;,
+                 [(&quot;Guybrush&quot;, 100), (&quot;Elaine&quot;, 250)])
+conn.commit()
+
+
+def transfer(conn, sender, recipient, amount):
+    &quot;&quot;&quot;Move money. Either both sides happen or neither does.&quot;&quot;&quot;
+    try:
+        with conn:          # commits on success, rolls back on any exception
+            balance = conn.execute(
+                &quot;SELECT balance FROM accounts WHERE name = ?&quot;, (sender,)
+            ).fetchone()[0]
+            if balance &lt; amount:
+                raise ValueError(f&quot;{sender} has only {balance}&quot;)
+            conn.execute(&quot;UPDATE accounts SET balance = balance - ? WHERE name = ?&quot;,
+                         (amount, sender))
+            conn.execute(&quot;UPDATE accounts SET balance = balance + ? WHERE name = ?&quot;,
+                         (amount, recipient))
+        return &quot;ok&quot;
+    except ValueError as err:
+        return f&quot;refused: {err}&quot;
+
+
+print(transfer(conn, &quot;Guybrush&quot;, &quot;Elaine&quot;, 50))
+print(transfer(conn, &quot;Guybrush&quot;, &quot;Elaine&quot;, 500))
+print(dict(conn.execute(&quot;SELECT name, balance FROM accounts ORDER BY name&quot;).fetchall()))</code></pre>
+<pre class="out"><code class="nohl">ok
+refused: Guybrush has only 50
+{&#x27;Elaine&#x27;: 300, &#x27;Guybrush&#x27;: 50}</code></pre>
+    <p>
+      <code>with conn:</code> is a transaction. If anything inside raises, every change is
+      undone. Without it, a crash between the two UPDATE statements would destroy money, which
+      is the classic illustration of why databases have transactions at all.
+    </p>
+
+    <h2>Indexes: the difference between instant and unusable</h2>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.execute(&quot;CREATE TABLE events (id INTEGER PRIMARY KEY, user_id INTEGER, action TEXT)&quot;)
+conn.executemany(&quot;INSERT INTO events (user_id, action) VALUES (?, ?)&quot;,
+                 [(i % 100, &quot;click&quot;) for i in range(20000)])
+
+plan_before = conn.execute(
+    &quot;EXPLAIN QUERY PLAN SELECT * FROM events WHERE user_id = 42&quot;
+).fetchone()[-1]
+
+conn.execute(&quot;CREATE INDEX idx_events_user ON events(user_id)&quot;)
+
+plan_after = conn.execute(
+    &quot;EXPLAIN QUERY PLAN SELECT * FROM events WHERE user_id = 42&quot;
+).fetchone()[-1]
+
+print(&quot;before:&quot;, plan_before)
+print(&quot;after: &quot;, plan_after)</code></pre>
+<pre class="out"><code class="nohl">before: SCAN events
+after:  SEARCH events USING INDEX idx_events_user (user_id=?)</code></pre>
+    <p>
+      SCAN means it read every row. SEARCH USING INDEX means it jumped straight there. On
+      twenty thousand rows the difference is small; on twenty million it is the difference
+      between a page that loads and a page that times out. Index the columns you filter and
+      join on, and <code>EXPLAIN QUERY PLAN</code> tells you whether it worked.
+    </p>
+
+    <h2>Beyond SQLite</h2>
+    <div class="table-wrap"><table><thead><tr><th>Tool</th><th>Use when</th></tr></thead><tbody><tr><td><strong>SQLite</strong></td><td>One machine, one writer at a time, up to many gigabytes. Most personal projects, forever</td></tr><tr><td><strong>PostgreSQL</strong></td><td>Several writers, a network, real users. The default serious choice</td></tr><tr><td><strong>MySQL / MariaDB</strong></td><td>Similar; often what a host gives you</td></tr><tr><td><strong>An ORM</strong> (SQLAlchemy, Django, SQLModel)</td><td>You want Python objects instead of SQL strings, and migrations</td></tr><tr><td><strong>Redis</strong></td><td>Caching and ephemeral data, not durable storage</td></tr></tbody></table></div>
+    <div class="callout info"><span class="co-title">🧭 On ORMs</span><p>An object-relational mapper lets you write <code>session.query(Crew).filter(Crew.pay &gt; 50)</code> instead of SQL. They are genuinely useful for large applications and they hide what the database is doing, which is fine until it is not. Learn enough SQL to read what your ORM generates: the <a href='https://docs.sqlalchemy.org' target='_blank' rel='noopener'>SQLAlchemy</a> docs are excellent, and every serious backend job expects SQL literacy.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Build a small library database</h3><p>Two tables, authors and books, with a foreign key. Insert a few rows and produce a report of each author with their book count.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.row_factory = sqlite3.Row
+conn.execute(&quot;PRAGMA foreign_keys = ON&quot;)
+
+conn.executescript(&quot;&quot;&quot;
+    CREATE TABLE authors (
+        id   INTEGER PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE
+    );
+    CREATE TABLE books (
+        id        INTEGER PRIMARY KEY,
+        title     TEXT NOT NULL,
+        year      INTEGER,
+        author_id INTEGER NOT NULL REFERENCES authors(id)
+    );
+&quot;&quot;&quot;)
+
+conn.executemany(&quot;INSERT INTO authors (name) VALUES (?)&quot;,
+                 [(&quot;Herbert&quot;,), (&quot;Gibson&quot;,), (&quot;Unpublished&quot;,)])
+conn.executemany(&quot;INSERT INTO books (title, year, author_id) VALUES (?, ?, ?)&quot;, [
+    (&quot;Dune&quot;, 1965, 1),
+    (&quot;Dune Messiah&quot;, 1969, 1),
+    (&quot;Neuromancer&quot;, 1984, 2),
+])
+conn.commit()
+
+for row in conn.execute(&quot;&quot;&quot;
+    SELECT authors.name, COUNT(books.id) AS n, MIN(books.year) AS first
+    FROM authors
+    LEFT JOIN books ON books.author_id = authors.id
+    GROUP BY authors.id
+    ORDER BY n DESC, authors.name
+&quot;&quot;&quot;):
+    first = row[&quot;first&quot;] or &quot;-&quot;
+    print(f&quot;{row[&#x27;name&#x27;]:12} {row[&#x27;n&#x27;]} books, first {first}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Herbert      2 books, first 1965
+Gibson       1 books, first 1984
+Unpublished  0 books, first -</code></pre><p>The <code>LEFT JOIN</code> is what includes the author with no books. A plain <code>JOIN</code> would silently drop them, which is one of the most common reporting bugs there is.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Fix the injection</h3><p>Rewrite this safely, and explain what an attacker could do with it.</p><pre data-verify="compile"><code>def find_user(conn, username):
+    return conn.execute(
+        f&quot;SELECT * FROM users WHERE username = &#x27;{username}&#x27;&quot;
+    ).fetchall()</code></pre><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>def find_user(conn, username):
+    &quot;&quot;&quot;Find a user by name. The value is passed as data, never as SQL.&quot;&quot;&quot;
+    return conn.execute(
+        &quot;SELECT * FROM users WHERE username = ?&quot;, (username,)
+    ).fetchall()</code></pre><p>With the original, <code>username</code> set to <code>' OR '1'='1</code> returns every user. Set to <code>'; DROP TABLE users; --</code> it would try to delete the table (SQLite's <code>execute</code> blocks multiple statements, which is a lucky accident rather than a defence; most database drivers do not).</p><p>The habit to build: if a value came from outside your program, it goes in the tuple, never in the string. There is no exception to this rule.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>When would you not use SQLite?</h3><p>Name three situations where SQLite is the wrong choice, and what you would use instead.</p><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Several servers writing at once.</strong> SQLite allows one writer at a time and the file must be on local disk; on a network filesystem the locking is unreliable. Use PostgreSQL.</li><li><strong>You need per-user access control inside the database.</strong> SQLite has no users or permissions: anyone who can read the file has everything.</li><li><strong>Very high concurrent write throughput,</strong> such as thousands of writes a second from many clients. WAL mode helps a lot, but this is what client-server databases are built for.</li></ol><p>What is <em>not</em> a good reason: 'it is only a toy database'. It handles hundreds of gigabytes, it is used in production by enormous companies, and for a single-machine application it is often the better engineering choice, because there is no server to secure, back up or keep running.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-45-databases">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="44-web-apps.html"><span class="dir">← Previous</span>Lesson 44: Building a Web App</a>
+      <a class="next" href="46-data.html"><span class="dir">Next →</span>Lesson 46: Data Analysis</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

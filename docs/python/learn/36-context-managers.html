@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 36: Context Managers - The Python School</title>
+<meta name="description" content="How with works, writing __enter__ and __exit__, contextlib.contextmanager, and suppressing exceptions.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/36-context-managers">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 36: Context Managers - The Python School">
+<meta property="og:description" content="How with works, writing __enter__ and __exit__, contextlib.contextmanager, and suppressing exceptions.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/36-context-managers">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 36: Context Managers - The Python School">
+<meta name="twitter:description" content="How with works, writing __enter__ and __exit__, contextlib.contextmanager, and suppressing exceptions.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 36 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Context Managers 🚪</h1>
+    <p class="lede muted">You have used with on every file since Lesson 21. Here is what it actually does,
+    and how to build your own guarantee that something always gets cleaned up.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The problem it solves</h2>
+    <pre class="run" data-verify="run"><code># Setup, work, cleanup. The cleanup must happen even if the work explodes.
+print(&quot;open the door&quot;)
+try:
+    print(&quot;do the work&quot;)
+    raise ValueError(&quot;something went wrong&quot;)
+except ValueError as err:
+    print(&quot;caught:&quot;, err)
+finally:
+    print(&quot;close the door&quot;)</code></pre>
+<pre class="out"><code class="nohl">open the door
+do the work
+caught: something went wrong
+close the door</code></pre>
+    <p>
+      That <code>try/finally</code> is correct and tedious, and you have to remember it every
+      single time. A context manager packages the pattern so the caller cannot forget.
+    </p>
+
+    <h2>Writing one with a class</h2>
+    <pre class="run" data-verify="run"><code>class Door:
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        print(f&quot;opening {self.name}&quot;)
+        return self                # whatever `as` binds to
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        print(f&quot;closing {self.name}&quot;)
+        return False               # False means &quot;do not swallow the exception&quot;
+
+    def knock(self):
+        return &quot;nobody answers&quot;
+
+
+with Door(&quot;the vault&quot;) as door:
+    print(door.knock())
+
+print(&quot;---&quot;)
+
+try:
+    with Door(&quot;the trapdoor&quot;) as door:
+        raise RuntimeError(&quot;floor gives way&quot;)
+except RuntimeError as err:
+    print(&quot;caught outside:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">opening the vault
+nobody answers
+closing the vault
+---
+opening the trapdoor
+closing the trapdoor
+caught outside: floor gives way</code></pre>
+    <p>
+      Note the second case: the exception fired inside the block, <code>__exit__</code> still
+      ran, and only then did the error continue outward. That guarantee is the entire point.
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Piece</th><th>Runs</th><th>Gets</th></tr></thead><tbody><tr><td><code>__enter__</code></td><td>on entering the block</td><td>nothing; returns what <code>as</code> binds</td></tr><tr><td><code>__exit__</code></td><td>always, on the way out</td><td>the exception type, value and traceback, or three Nones</td></tr><tr><td><code>return True</code> from <code>__exit__</code></td><td></td><td>swallows the exception. Use with great care</td></tr></tbody></table></div>
+
+    <h2>The easy way: @contextmanager</h2>
+    <pre class="run" data-verify="run"><code>from contextlib import contextmanager
+
+
+@contextmanager
+def door(name):
+    print(f&quot;opening {name}&quot;)
+    try:
+        yield name              # everything before this is __enter__
+    finally:
+        print(f&quot;closing {name}&quot;)   # everything after is __exit__
+
+
+with door(&quot;the hatch&quot;) as which:
+    print(f&quot;inside {which}&quot;)</code></pre>
+<pre class="out"><code class="nohl">opening the hatch
+inside the hatch
+closing the hatch</code></pre>
+    <p>
+      One generator, one <code>yield</code>. Setup above, cleanup below, wrapped in
+      <code>try/finally</code> so the cleanup survives an exception. This is how most context
+      managers are written in practice.
+    </p>
+
+    <h2>A genuinely useful one: timing a block</h2>
+    <pre class="run" data-verify="run"><code>import time
+from contextlib import contextmanager
+
+
+@contextmanager
+def timer(label):
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        elapsed = time.perf_counter() - start
+        print(f&quot;{label}: finished in under a second: {elapsed &lt; 1}&quot;)
+
+
+with timer(&quot;summing a million&quot;):
+    total = sum(range(1_000_000))
+
+print(f&quot;{total:,}&quot;)</code></pre>
+<pre class="out"><code class="nohl">summing a million: finished in under a second: True
+499,999,500,000</code></pre>
+
+    <h2>Temporarily changing something, and putting it back</h2>
+    <pre class="run" data-verify="run"><code>import os
+from contextlib import contextmanager
+
+
+@contextmanager
+def env(**changes):
+    &quot;&quot;&quot;Set environment variables for the duration of the block.&quot;&quot;&quot;
+    original = {k: os.environ.get(k) for k in changes}
+    os.environ.update({k: str(v) for k, v in changes.items()})
+    try:
+        yield
+    finally:
+        for key, value in original.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
+
+print(&quot;before:&quot;, os.environ.get(&quot;SHIP&quot;, &quot;not set&quot;))
+
+with env(SHIP=&quot;Sea Monkey&quot;):
+    print(&quot;inside:&quot;, os.environ[&quot;SHIP&quot;])
+
+print(&quot;after: &quot;, os.environ.get(&quot;SHIP&quot;, &quot;not set&quot;))</code></pre>
+<pre class="out"><code class="nohl">before: not set
+inside: Sea Monkey
+after:  not set</code></pre>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Medium: Success]</span></div><p>This is the pattern worth internalising: anything you change temporarily should be changed inside a context manager that puts it back.</p>
+<p>Working directory, environment variables, log levels, database transactions, locks, mocked functions in tests. Every one of them has been left in the wrong state by an early return or an exception in code that did it by hand.</p></div>
+
+    <h2>contextlib's ready-made tools</h2>
+    <pre class="run" data-verify="run"><code>from contextlib import suppress, redirect_stdout
+import io
+from pathlib import Path
+
+# 1. suppress: a try/except/pass that is honest about being one
+with suppress(FileNotFoundError):
+    Path(&quot;nope.txt&quot;).unlink()
+print(&quot;no explosion&quot;)
+
+# 2. redirect_stdout: capture prints
+buffer = io.StringIO()
+with redirect_stdout(buffer):
+    print(&quot;this goes into the buffer&quot;)
+print(&quot;captured:&quot;, buffer.getvalue().strip())</code></pre>
+<pre class="out"><code class="nohl">no explosion
+captured: this goes into the buffer</code></pre>
+    <div class="callout warn"><span class="co-title">🤫 suppress is still swallowing an error</span><p><code>with suppress(FileNotFoundError)</code> is fine and readable. <code>with suppress(Exception)</code> is a bare except with better marketing. Name the specific exception you are prepared to ignore, and be sure you really are prepared to ignore it.</p></div>
+
+    <h2>Several at once</h2>
+    <pre class="run" data-verify="run"><code>from pathlib import Path
+
+Path(&quot;in.txt&quot;).write_text(&quot;grog\nmap\nsword\n&quot;, encoding=&quot;utf-8&quot;)
+
+with (
+    open(&quot;in.txt&quot;, encoding=&quot;utf-8&quot;) as source,
+    open(&quot;out.txt&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as target,
+):
+    for line in source:
+        target.write(line.upper())
+
+print(Path(&quot;out.txt&quot;).read_text(encoding=&quot;utf-8&quot;).strip())</code></pre>
+<pre class="out"><code class="nohl">GROG
+MAP
+SWORD</code></pre>
+    <p>
+      Both files are guaranteed closed, in reverse order, whatever happens. The bracketed
+      multi-line form needs Python 3.10 or newer; before that you separated them with commas
+      on one long line.
+    </p>
+
+    <h2>The catch: exceptions during cleanup</h2>
+    <pre class="run" data-verify="run"><code>from contextlib import contextmanager
+
+
+@contextmanager
+def careless():
+    yield
+    print(&quot;this cleanup NEVER runs when the block raises&quot;)
+
+
+@contextmanager
+def careful():
+    try:
+        yield
+    finally:
+        print(&quot;this cleanup always runs&quot;)
+
+
+for manager in (careless, careful):
+    try:
+        with manager():
+            raise ValueError(&quot;boom&quot;)
+    except ValueError:
+        print(f&quot;  ({manager.__name__} finished)&quot;)</code></pre>
+<pre class="out"><code class="nohl">  (careless finished)
+this cleanup always runs
+  (careful finished)</code></pre>
+    <p>
+      If you write <code>@contextmanager</code> without <code>try/finally</code>, the code
+      after <code>yield</code> is skipped whenever the block raises, which is precisely the
+      case you were trying to protect. The <code>try/finally</code> is not optional
+      decoration.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>A working-directory manager</h3><p>Write a context manager that changes the working directory and always changes back.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import os
+from contextlib import contextmanager
+from pathlib import Path
+
+
+@contextmanager
+def working_directory(path):
+    &quot;&quot;&quot;Change directory for the duration of the block, then change back.&quot;&quot;&quot;
+    previous = Path.cwd()
+    Path(path).mkdir(parents=True, exist_ok=True)
+    os.chdir(path)
+    try:
+        yield Path(path)
+    finally:
+        os.chdir(previous)
+
+
+start = Path.cwd().name
+
+with working_directory(&quot;cargo/hold&quot;):
+    print(&quot;inside:&quot;, Path.cwd().name)
+    Path(&quot;manifest.txt&quot;).write_text(&quot;47 barrels\n&quot;, encoding=&quot;utf-8&quot;)
+
+print(&quot;back where we started:&quot;, Path.cwd().name == start)
+print(Path(&quot;cargo/hold/manifest.txt&quot;).read_text(encoding=&quot;utf-8&quot;).strip())</code></pre>
+<pre class="out"><code class="nohl">inside: hold
+back where we started: True
+47 barrels</code></pre><p>Doing this by hand is a classic source of bugs: one early <code>return</code> and the rest of the program is running in the wrong folder, with symptoms that appear far away.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>A transaction that rolls back</h3><p>Write a context manager over a dictionary that commits changes on success and discards them if the block raises.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from contextlib import contextmanager
+import copy
+
+
+@contextmanager
+def transaction(data):
+    &quot;&quot;&quot;Work on a copy; only commit it if the block finishes cleanly.&quot;&quot;&quot;
+    working = copy.deepcopy(data)
+    yield working
+    data.clear()
+    data.update(working)
+
+
+accounts = {&quot;Guybrush&quot;: 100, &quot;Elaine&quot;: 250}
+
+with transaction(accounts) as draft:
+    draft[&quot;Guybrush&quot;] -= 50
+    draft[&quot;Elaine&quot;] += 50
+print(&quot;committed:&quot;, accounts)
+
+try:
+    with transaction(accounts) as draft:
+        draft[&quot;Guybrush&quot;] -= 500
+        raise ValueError(&quot;insufficient funds&quot;)
+except ValueError as err:
+    print(&quot;rolled back:&quot;, err)
+
+print(&quot;unchanged: &quot;, accounts)</code></pre>
+<pre class="out"><code class="nohl">committed: {&#x27;Guybrush&#x27;: 50, &#x27;Elaine&#x27;: 300}
+rolled back: insufficient funds
+unchanged:  {&#x27;Guybrush&#x27;: 50, &#x27;Elaine&#x27;: 300}</code></pre><p>Note there is deliberately no <code>try/finally</code> here: the commit must be skipped when the block raises. This is the one case where the code after <code>yield</code> should <em>not</em> be protected, and knowing which one you want is the whole skill.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Explain the guarantee</h3><p>A colleague says: 'I always close my files, so <code>with</code> is just syntax sugar.' Give the counter-example.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code># Their version
+def read_config(path):
+    f = open(path, encoding=&quot;utf-8&quot;)
+    data = f.read()
+    value = int(data)          # if this raises ValueError...
+    f.close()                  # ...this line never runs
+    return value
+
+
+# The point: the close is skipped on any exception, and on any early return.
+try:
+    read_config(&quot;/dev/null&quot;)
+except ValueError:
+    print(&quot;the file object is now leaked until garbage collection&quot;)
+
+# The version that cannot leak
+def read_config_safely(path):
+    with open(path, encoding=&quot;utf-8&quot;) as f:
+        data = f.read()
+    return int(data)
+
+
+try:
+    read_config_safely(&quot;/dev/null&quot;)
+except ValueError:
+    print(&quot;file already closed, guaranteed, before this line ran&quot;)</code></pre>
+<pre class="out"><code class="nohl">the file object is now leaked until garbage collection
+file already closed, guaranteed, before this line ran</code></pre><p>CPython's reference counting usually closes the leaked file quickly, which is why this rarely bites in small scripts and does bite under load, on other Python implementations, or when the exception is caught far away. The guarantee, not the tidiness, is the reason.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-36-context-managers">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="35-decorators.html"><span class="dir">← Previous</span>Lesson 35: Decorators</a>
+      <a class="next" href="37-functional.html"><span class="dir">Next →</span>Lesson 37: Functional Tools</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

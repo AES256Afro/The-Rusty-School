@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 39: Concurrency: Threads and Processes - The Python School</title>
+<meta name="description" content="The Global Interpreter Lock, when threads help, when processes are needed, and how to choose.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/39-concurrency">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 39: Concurrency: Threads and Processes - The Python School">
+<meta property="og:description" content="The Global Interpreter Lock, when threads help, when processes are needed, and how to choose.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/39-concurrency">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 39: Concurrency: Threads and Processes - The Python School">
+<meta name="twitter:description" content="The Global Interpreter Lock, when threads help, when processes are needed, and how to choose.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 39 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Concurrency: Threads and Processes 🧵</h1>
+    <p class="lede muted">Python's threading has a famous asterisk. Here is what it actually is, why it
+    exists, and how to pick the right tool without folklore.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Two different problems</h2>
+    <div class="table-wrap"><table><thead><tr><th>Kind of work</th><th>What it is</th><th>Called</th></tr></thead><tbody><tr><td>Downloading 100 web pages</td><td>Mostly waiting for something else</td><td><strong>I/O bound</strong></td></tr><tr><td>Resizing 100 photos</td><td>Mostly using the CPU</td><td><strong>CPU bound</strong></td></tr></tbody></table></div>
+    <p>
+      Nearly all confusion about Python concurrency comes from not asking this question first.
+      The answer determines the tool, and using the wrong one makes your program slower, not
+      faster.
+    </p>
+
+    <h2>The GIL, without the mythology</h2>
+    <p>
+      CPython has a <strong>Global Interpreter Lock</strong>: a single lock that means only one
+      thread executes Python bytecode at a time. It exists because it makes the interpreter
+      simpler and single-threaded code faster, and because CPython's memory management is not
+      thread-safe without it.
+    </p>
+    <p>The consequences, stated precisely:</p>
+    <ul>
+      <li><strong>Threads do not speed up pure-Python CPU work.</strong> Four threads doing
+      arithmetic take about as long as one, plus overhead.</li>
+      <li><strong>Threads absolutely do speed up waiting.</strong> The lock is released while
+      a thread waits on the network, a disk or a lock, so a hundred threads can wait at the
+      same time.</li>
+      <li><strong>Well-written C extensions release the lock too.</strong> NumPy's heavy
+      numeric work is genuinely parallel across threads.</li>
+      <li><strong>It is not part of the language.</strong> Jython and IronPython have no GIL,
+      and Python 3.13 shipped an experimental free-threaded build that removes it. The rules
+      above are about CPython today.</li>
+    </ul>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Formidable: Success]</span></div><p>PEP 703, accepted in 2023, lays out a path to making CPython work without the GIL, and 3.13 shipped it as an optional build. It is not the default: removing the lock costs single-threaded performance and requires every C extension in the ecosystem to be audited.</p>
+<p>So 'Python cannot do threads' is folklore, and 'the GIL is about to disappear' is premature. Both statements are the kind of thing people repeat without checking.</p></div>
+
+    <h2>Threads, where they shine</h2>
+    <pre class="run" data-verify="run"><code>import time
+from concurrent.futures import ThreadPoolExecutor
+
+
+def fetch(page):
+    &quot;&quot;&quot;Pretend to download something: mostly waiting.&quot;&quot;&quot;
+    time.sleep(0.1)
+    return f&quot;page {page}: 200 OK&quot;
+
+
+start = time.perf_counter()
+sequential = [fetch(n) for n in range(8)]
+sequential_time = time.perf_counter() - start
+
+start = time.perf_counter()
+with ThreadPoolExecutor(max_workers=8) as pool:
+    threaded = list(pool.map(fetch, range(8)))
+threaded_time = time.perf_counter() - start
+
+print(sequential[0])
+print(f&quot;sequential took about 0.8s: {0.7 &lt; sequential_time &lt; 1.2}&quot;)
+print(f&quot;threaded took about 0.1s:   {threaded_time &lt; 0.4}&quot;)
+print(f&quot;same results: {sequential == threaded}&quot;)</code></pre>
+<pre class="out"><code class="nohl">page 0: 200 OK
+sequential took about 0.8s: True
+threaded took about 0.1s:   True
+same results: True</code></pre>
+    <p>
+      Eight tasks that each wait a tenth of a second: eight tenths sequentially, one tenth in
+      parallel. The GIL is irrelevant here because none of these threads wants the CPU. This
+      is most real-world concurrency: talking to APIs, databases and files.
+    </p>
+
+    <h2>Processes, for actual CPU work</h2>
+    <pre data-verify="compile"><code>from concurrent.futures import ProcessPoolExecutor
+
+
+def count_primes(limit):
+    &quot;&quot;&quot;Deliberately CPU-heavy.&quot;&quot;&quot;
+    count = 0
+    for n in range(2, limit):
+        if all(n % d for d in range(2, int(n ** 0.5) + 1)):
+            count += 1
+    return count
+
+
+if __name__ == &quot;__main__&quot;:
+    with ProcessPoolExecutor(max_workers=4) as pool:
+        results = list(pool.map(count_primes, [20000, 20000, 20000, 20000]))
+    print(results)</code></pre>
+    <p>
+      Each process is a separate Python interpreter with its own GIL, so they genuinely run on
+      different cores. The costs are real: starting a process is slow (tens of milliseconds),
+      and every argument and result must be pickled and copied between processes. Use them for
+      chunky work, never for tiny tasks.
+    </p>
+    <div class="callout danger"><span class="co-title">🪤 Processes need the __main__ guard</span><p>On Windows and macOS, child processes re-import your module to find the function they are running. Without <code>if __name__ == "__main__":</code>, every child re-runs your top-level code and spawns more children. It is a fork bomb written by accident, and everybody does it once.</p></div>
+
+    <h2>Choosing</h2>
+    <div class="table-wrap"><table><thead><tr><th>Your work</th><th>Use</th><th>Why</th></tr></thead><tbody><tr><td>Waiting on network or disk, tens of tasks</td><td><code>ThreadPoolExecutor</code></td><td>Simple, shares memory, waiting is free</td></tr><tr><td>Waiting on network, thousands of tasks</td><td><code>asyncio</code> (Lesson 40)</td><td>Threads cost about 8MB of stack each; coroutines cost bytes</td></tr><tr><td>Heavy CPU work on many cores</td><td><code>ProcessPoolExecutor</code></td><td>Real parallelism, at the cost of copying</td></tr><tr><td>Heavy numeric arrays</td><td>NumPy, and often nothing else</td><td>It already releases the GIL and uses vector instructions</td></tr><tr><td>It is fast enough already</td><td>Nothing</td><td>Concurrency is a bug multiplier. Earn it first</td></tr></tbody></table></div>
+
+    <h2>The dangerous part: shared state</h2>
+    <pre data-verify="compile"><code>import threading
+
+counter = 0
+
+
+def increment_unsafe():
+    global counter
+    for _ in range(100_000):
+        counter += 1          # read, add, write: three steps, interruptible
+
+
+threads = [threading.Thread(target=increment_unsafe) for _ in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f&quot;expected 400000, got {counter}&quot;)
+print(f&quot;correct? {counter == 400_000}&quot;)</code></pre>
+    <p>
+      That program is a genuine race condition: <code>counter += 1</code> is three operations,
+      and a thread can be interrupted between them, losing an update. On modern CPython you
+      will often get the right answer anyway, which is worse than always getting it wrong,
+      because the bug only appears under load, in production, at 3am.
+    </p>
+    <pre class="run" data-verify="run"><code>import threading
+
+counter = 0
+lock = threading.Lock()
+
+
+def increment_safe():
+    global counter
+    for _ in range(100_000):
+        with lock:            # only one thread inside at a time
+            counter += 1
+
+
+threads = [threading.Thread(target=increment_safe) for _ in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f&quot;expected 400000, got {counter}&quot;)</code></pre>
+<pre class="out"><code class="nohl">expected 400000, got 400000</code></pre>
+
+    <h2>The better answer: do not share</h2>
+    <pre class="run" data-verify="run"><code>from concurrent.futures import ThreadPoolExecutor
+
+
+def work(n):
+    &quot;&quot;&quot;Pure function: takes a value, returns a value, shares nothing.&quot;&quot;&quot;
+    return n * n
+
+
+with ThreadPoolExecutor(max_workers=4) as pool:
+    results = list(pool.map(work, range(6)))
+
+print(results)
+print(sum(results))</code></pre>
+<pre class="out"><code class="nohl">[0, 1, 4, 9, 16, 25]
+55</code></pre>
+    <p>
+      No lock, no race, no possibility of one. Threads that communicate by returning values
+      rather than by mutating shared state are dramatically easier to get right. When you must
+      share, use <code>queue.Queue</code>, which is thread-safe by design, rather than a list
+      and a prayer.
+    </p>
+
+    <h2>Futures, when tasks finish at different times</h2>
+    <pre class="run" data-verify="run"><code>import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+def fetch(page):
+    time.sleep(0.05 * (4 - page))       # later pages finish first
+    return f&quot;page {page}&quot;
+
+
+with ThreadPoolExecutor(max_workers=4) as pool:
+    futures = {pool.submit(fetch, n): n for n in range(4)}
+    for future in as_completed(futures):
+        print(&quot;finished:&quot;, future.result())</code></pre>
+<pre class="out"><code class="nohl">finished: page 3
+finished: page 2
+finished: page 1
+finished: page 0</code></pre>
+    <p>
+      <code>submit</code> returns a <code>Future</code>: a promise of a result.
+      <code>as_completed</code> yields them in the order they finish, so you can start
+      processing the fast ones without waiting for the slow one. Exceptions are re-raised when
+      you call <code>.result()</code>, which is a considerate design: nothing is swallowed.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>I/O bound or CPU bound?</h3><p>For each, name the tool.</p><ol><li>Download 500 images from an API.</li><li>Resize those 500 images.</li><li>Read 10,000 small files and count the lines.</li><li>Train a machine learning model.</li><li>Poll three sensors every second for a day.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>I/O bound.</strong> Threads, or asyncio at this volume.</li><li><strong>CPU bound.</strong> Processes, or a library like Pillow that releases the GIL.</li><li><strong>Mostly I/O bound,</strong> though at 10,000 files the per-file overhead starts to matter. Threads, and measure.</li><li><strong>CPU bound,</strong> and you should not be writing the concurrency yourself: PyTorch already uses every core and your GPU.</li><li><strong>I/O bound and mostly idle.</strong> Threads are plenty; asyncio is elegant. The real constraint is the sensors, not Python.</li></ol></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Fix the race</h3><p>This should collect results from four threads. It sometimes loses some. Fix it two ways.</p><pre data-verify="compile"><code>import threading
+
+results = []
+
+
+def work(n):
+    results.append(n * n)
+
+
+threads = [threading.Thread(target=work, args=(i,)) for i in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()</code></pre><details class="solution"><summary>Reveal solution</summary><p>Fix one, a lock:</p><pre class="run" data-verify="run"><code>import threading
+
+results = []
+lock = threading.Lock()
+
+
+def work(n):
+    value = n * n
+    with lock:
+        results.append(value)
+
+
+threads = [threading.Thread(target=work, args=(i,)) for i in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(sorted(results))</code></pre>
+<pre class="out"><code class="nohl">[0, 1, 4, 9]</code></pre><p>Fix two, which is better: stop sharing.</p><pre class="run" data-verify="run"><code>from concurrent.futures import ThreadPoolExecutor
+
+with ThreadPoolExecutor(max_workers=4) as pool:
+    results = list(pool.map(lambda n: n * n, range(4)))
+
+print(results)</code></pre>
+<pre class="out"><code class="nohl">[0, 1, 4, 9]</code></pre><p>The second version has no shared state, needs no lock, keeps the results in order, and is four lines. As a bonus, <code>list.append</code> is actually atomic in CPython today, so version one was probably safe by accident, which is exactly the kind of thing you should never rely on.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Measure before you optimise</h3><p>Write a small benchmark comparing sequential and threaded execution of a waiting task, and report the speedup honestly.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import time
+from concurrent.futures import ThreadPoolExecutor
+
+
+def slow_task(n):
+    time.sleep(0.05)
+    return n
+
+
+def timed(label, func):
+    start = time.perf_counter()
+    result = func()
+    elapsed = time.perf_counter() - start
+    print(f&quot;{label:12} {elapsed:.2f}s&quot;)
+    return elapsed, result
+
+
+sequential, _ = timed(&quot;sequential&quot;, lambda: [slow_task(n) for n in range(10)])
+
+def threaded_run():
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        return list(pool.map(slow_task, range(10)))
+
+threaded, _ = timed(&quot;threaded&quot;, threaded_run)
+
+print(f&quot;speedup: {sequential / threaded:.1f}x&quot;)
+print(f&quot;worth it: {sequential / threaded &gt; 2}&quot;)</code></pre><p>This one has no run button because the exact timings depend on the machine, and a lesson should not promise numbers it cannot prove. Run it locally: you should see roughly 0.5s sequential and 0.05s threaded, close to a tenfold speedup. Then change <code>time.sleep</code> to a CPU-heavy loop and watch the speedup vanish. That experiment teaches the GIL better than any explanation.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-39-concurrency">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="38-typing.html"><span class="dir">← Previous</span>Lesson 38: Type Hints for Real</a>
+      <a class="next" href="40-async.html"><span class="dir">Next →</span>Lesson 40: async and await</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

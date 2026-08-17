@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 38: Type Hints for Real - The Python School</title>
+<meta name="description" content="Generics, Protocol, Optional, Literal, TypedDict, and using mypy to catch bugs before they run.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/38-typing">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 38: Type Hints for Real - The Python School">
+<meta property="og:description" content="Generics, Protocol, Optional, Literal, TypedDict, and using mypy to catch bugs before they run.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/38-typing">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 38: Type Hints for Real - The Python School">
+<meta name="twitter:description" content="Generics, Protocol, Optional, Literal, TypedDict, and using mypy to catch bugs before they run.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 38 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Type Hints for Real 🔬</h1>
+    <p class="lede muted">Lesson 30 introduced the notation. This lesson is about the payoff: a checker that
+    reads your whole program and finds the bug in the branch you never tested.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Recap, then onwards</h2>
+    <pre class="run" data-verify="run"><code>def total(prices: list[float], discount: float = 0.0) -&gt; float:
+    &quot;&quot;&quot;Sum prices, applying a discount fraction.&quot;&quot;&quot;
+    return round(sum(prices) * (1 - discount), 2)
+
+
+print(total([10.0, 24.99], discount=0.1))</code></pre>
+<pre class="out"><code class="nohl">31.49</code></pre>
+
+    <h2>Optional, and the billion dollar mistake</h2>
+    <pre class="run" data-verify="run"><code>def find_pirate(name: str, crew: dict[str, int]) -&gt; int | None:
+    &quot;&quot;&quot;Return the pirate&#x27;s insult count, or None if they are not aboard.&quot;&quot;&quot;
+    return crew.get(name)
+
+
+crew = {&quot;Guybrush&quot;: 8}
+
+found = find_pirate(&quot;Guybrush&quot;, crew)
+missing = find_pirate(&quot;LeChuck&quot;, crew)
+
+print(found, missing)
+
+# mypy will refuse this, because found might be None:
+#   error: Unsupported operand types for + (&quot;None&quot; and &quot;int&quot;)
+if found is not None:
+    print(found + 1)</code></pre>
+<pre class="out"><code class="nohl">8 None
+9</code></pre>
+    <p>
+      <code>int | None</code> is the modern spelling of <code>Optional[int]</code>. Its value
+      is that mypy then <em>forces</em> you to handle the None case before using the value.
+      Tony Hoare, who invented the null reference in 1965, later called it his "billion dollar
+      mistake"; optional types are the fix, and Python has them if you opt in.
+    </p>
+
+    <h2>Generics: functions that work with any type, honestly</h2>
+    <pre class="run" data-verify="run"><code>def first[T](items: list[T]) -&gt; T | None:
+    &quot;&quot;&quot;Return the first item, or None if empty. Python 3.12+ syntax.&quot;&quot;&quot;
+    return items[0] if items else None
+
+
+print(first([1, 2, 3]))
+print(first([&quot;grog&quot;, &quot;map&quot;]))
+print(first([]))</code></pre>
+<pre class="out"><code class="nohl">1
+grog
+None</code></pre>
+    <p>
+      The <code>[T]</code> says "this function works with some type T, and whatever goes in is
+      what comes out". mypy then knows <code>first([1,2,3])</code> is an <code>int</code> and
+      <code>first(["a"])</code> is a <code>str</code>. That is much more useful than
+      <code>Any</code>, which switches checking off entirely.
+    </p>
+    <pre class="run" data-verify="run"><code>from typing import TypeVar
+
+T = TypeVar(&quot;T&quot;)
+
+
+def first_old(items: list[T]) -&gt; T | None:
+    &quot;&quot;&quot;The pre-3.12 spelling, which you will still see everywhere.&quot;&quot;&quot;
+    return items[0] if items else None
+
+
+print(first_old([&quot;still works&quot;]))</code></pre>
+<pre class="out"><code class="nohl">still works</code></pre>
+
+    <h2>Protocol: duck typing that a checker can verify</h2>
+    <pre class="run" data-verify="run"><code>from typing import Protocol
+
+
+class Speaker(Protocol):
+    &quot;&quot;&quot;Anything with a speak() returning a string.&quot;&quot;&quot;
+
+    def speak(self) -&gt; str: ...
+
+
+class Duck:
+    def speak(self) -&gt; str:
+        return &quot;quack&quot;
+
+
+class Robot:
+    def speak(self) -&gt; str:
+        return &quot;beep&quot;
+
+
+def make_it_talk(thing: Speaker) -&gt; str:
+    return thing.speak()
+
+
+print(make_it_talk(Duck()))
+print(make_it_talk(Robot()))</code></pre>
+<pre class="out"><code class="nohl">quack
+beep</code></pre>
+
+    <div class="voice" data-skill="interfacing"><div class="v-head"><span class="v-name">INTERFACING</span><span class="v-check success">[Formidable: Success]</span></div><p>This is the piece that makes typed Python feel like Python rather than Java. Neither Duck nor Robot inherits from Speaker. They have never heard of it.</p>
+<p>The check is structural: does this class have a speak() that returns a str? If yes, it qualifies. You can even write a Protocol for a third-party class you cannot modify, and suddenly their objects satisfy your interface.</p></div>
+
+    <h2>Literal and TypedDict: describing shapes precisely</h2>
+    <pre class="run" data-verify="run"><code>from typing import Literal, TypedDict
+
+
+class Pirate(TypedDict):
+    name: str
+    insults: int
+    role: Literal[&quot;captain&quot;, &quot;lookout&quot;, &quot;cook&quot;]
+
+
+def describe(pirate: Pirate) -&gt; str:
+    return f&quot;{pirate[&#x27;name&#x27;]} the {pirate[&#x27;role&#x27;]} ({pirate[&#x27;insults&#x27;]} insults)&quot;
+
+
+guy: Pirate = {&quot;name&quot;: &quot;Guybrush&quot;, &quot;insults&quot;: 8, &quot;role&quot;: &quot;captain&quot;}
+print(describe(guy))
+
+# mypy rejects both of these, at check time, without running anything:
+#   {&quot;name&quot;: &quot;Otis&quot;, &quot;insults&quot;: 2, &quot;role&quot;: &quot;admiral&quot;}   &lt;- not in the Literal
+#   {&quot;name&quot;: &quot;Otis&quot;, &quot;insults&quot;: 2}                      &lt;- missing &quot;role&quot;</code></pre>
+<pre class="out"><code class="nohl">Guybrush the captain (8 insults)</code></pre>
+    <p>
+      <code>TypedDict</code> is how you type the dictionaries that come back from JSON APIs
+      without converting them to classes. <code>Literal</code> restricts a value to an exact
+      set, which is the type-level version of the enum idea from Lesson 33.
+    </p>
+
+    <h2>What mypy actually catches</h2>
+    <pre data-verify="compile"><code>def apply_discount(price: float, percent: int) -&gt; float:
+    return price * (1 - percent / 100)
+
+
+def checkout(items: list[dict[str, float]]) -&gt; float:
+    total = 0.0
+    for item in items:
+        total += item[&quot;price&quot;]
+    return apply_discount(total, &quot;10&quot;)      # &lt;- a string, not an int</code></pre>
+    <pre class="term"><code class="nohl">$ mypy shop.py
+shop.py:10: error: Argument 2 to &quot;apply_discount&quot; has incompatible type
+    &quot;str&quot;; expected &quot;int&quot;  [arg-type]
+Found 1 error in 1 file (checked 1 source file)</code></pre>
+    <p>
+      That bug is in a code path that might only run at checkout, with a real customer, at the
+      weekend. mypy found it in under a second, without running the program, without a test.
+      That is the actual argument for typing: it is a test suite you get for free, covering
+      every line, including the ones you forgot.
+    </p>
+
+    <h2>Adopting it gradually</h2>
+    <pre class="run" data-verify="run"><code>from typing import Any
+
+
+def legacy(data: Any) -&gt; Any:
+    &quot;&quot;&quot;Any switches checking off. Useful as a staging post, not a destination.&quot;&quot;&quot;
+    return data
+
+
+def modern(data: dict[str, int]) -&gt; list[str]:
+    return sorted(data)
+
+
+print(modern({&quot;b&quot;: 2, &quot;a&quot;: 1}))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;a&#x27;, &#x27;b&#x27;]</code></pre>
+    <p>The workable order for adding types to an existing project:</p>
+    <ol class="steps">
+      <li><strong>Turn mypy on with default settings.</strong> Untyped code is simply ignored,
+      so it will report almost nothing at first.</li>
+      <li><strong>Type your function signatures</strong>, starting with the ones other modules
+      call. Do not bother annotating every local variable; mypy infers those.</li>
+      <li><strong>Fix what it finds.</strong> A surprising number will be real.</li>
+      <li><strong>Ratchet strictness up</strong> one flag at a time, per module, in
+      <code>pyproject.toml</code>. <code>disallow_untyped_defs</code> is the big one.</li>
+    </ol>
+    <pre data-verify="skip"><code># pyproject.toml
+[tool.mypy]
+python_version = &quot;3.13&quot;
+warn_return_any = true
+warn_unused_ignores = true
+
+# start strict only where you are ready
+[[tool.mypy.overrides]]
+module = &quot;myapp.core.*&quot;
+disallow_untyped_defs = true</code></pre>
+
+    <h2>Where types are worth it, and where they are not</h2>
+    <div class="table-wrap"><table><thead><tr><th>Situation</th><th>Verdict</th></tr></thead><tbody><tr><td>A library other people import</td><td>Yes, fully. The hints are your API documentation</td></tr><tr><td>An application with more than one contributor</td><td>Yes, on function boundaries</td></tr><tr><td>Data pipelines with complex structures</td><td>Yes. TypedDict pays for itself immediately</td></tr><tr><td>A 30-line script</td><td>No. The overhead exceeds the benefit</td></tr><tr><td>A Jupyter notebook you will delete tomorrow</td><td>No</td></tr><tr><td>Code full of dynamic tricks and getattr</td><td>Sometimes impossible. Be honest and use Any</td></tr></tbody></table></div>
+
+    <div class="callout warn"><span class="co-title">🎭 Hints are still not enforced at runtime</span><p>Nothing in this lesson stops <code>total("nonsense")</code> from running. If you need runtime validation, that is what <a href='https://docs.pydantic.dev' target='_blank' rel='noopener'>Pydantic</a> is for: it uses the same annotations to actually check data at the boundary, which is why it is the backbone of FastAPI. Types for your tools, Pydantic for your inputs.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Type a real function</h3><p>Add complete hints, including the awkward return type.</p><pre data-verify="compile"><code>def group_by_role(crew):
+    result = {}
+    for member in crew:
+        result.setdefault(member[&quot;role&quot;], []).append(member[&quot;name&quot;])
+    return result</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from typing import TypedDict
+
+
+class Member(TypedDict):
+    name: str
+    role: str
+
+
+def group_by_role(crew: list[Member]) -&gt; dict[str, list[str]]:
+    &quot;&quot;&quot;Map each role to the names of the people doing it.&quot;&quot;&quot;
+    result: dict[str, list[str]] = {}
+    for member in crew:
+        result.setdefault(member[&quot;role&quot;], []).append(member[&quot;name&quot;])
+    return result
+
+
+print(group_by_role([
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;role&quot;: &quot;lookout&quot;},
+    {&quot;name&quot;: &quot;Meathook&quot;, &quot;role&quot;: &quot;lookout&quot;},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;role&quot;: &quot;captain&quot;},
+]))</code></pre>
+<pre class="out"><code class="nohl">{&#x27;lookout&#x27;: [&#x27;Otis&#x27;, &#x27;Meathook&#x27;], &#x27;captain&#x27;: [&#x27;Elaine&#x27;]}</code></pre><p>The annotation on <code>result</code> is needed because mypy cannot infer the type of an empty dictionary. That is the one local variable you usually do have to annotate.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Write a Protocol</h3><p>Define a <code>Saveable</code> protocol for anything with <code>save(path)</code> and <code>name</code>, then write a function that backs up a list of them. Show two unrelated classes satisfying it.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from typing import Protocol
+
+
+class Saveable(Protocol):
+    name: str
+
+    def save(self, path: str) -&gt; int: ...
+
+
+class Document:
+    def __init__(self, name: str, body: str) -&gt; None:
+        self.name = name
+        self.body = body
+
+    def save(self, path: str) -&gt; int:
+        return len(self.body)
+
+
+class Image:
+    def __init__(self, name: str, pixels: int) -&gt; None:
+        self.name = name
+        self.pixels = pixels
+
+    def save(self, path: str) -&gt; int:
+        return self.pixels * 3
+
+
+def back_up(items: list[Saveable], folder: str) -&gt; int:
+    &quot;&quot;&quot;Save everything, returning the total bytes written.&quot;&quot;&quot;
+    total = 0
+    for item in items:
+        written = item.save(f&quot;{folder}/{item.name}&quot;)
+        print(f&quot;  {item.name}: {written} bytes&quot;)
+        total += written
+    return total
+
+
+print(&quot;total:&quot;, back_up([Document(&quot;log.txt&quot;, &quot;hello&quot;), Image(&quot;map.png&quot;, 100)], &quot;backup&quot;))</code></pre>
+<pre class="out"><code class="nohl">  log.txt: 5 bytes
+  map.png: 300 bytes
+total: 305</code></pre><p>Neither class inherits from anything, and no class knows the other exists. That is duck typing with a safety net.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Find the type error by eye</h3><p>mypy reports one error here. Where, and why?</p><pre data-verify="compile"><code>def parse_scores(raw: str) -&gt; dict[str, int]:
+    scores = {}
+    for line in raw.splitlines():
+        name, value = line.split(&quot;:&quot;)
+        scores[name.strip()] = value.strip()
+    return scores</code></pre><details class="solution"><summary>Reveal solution</summary><p>The annotation promises <code>dict[str, int]</code> but <code>value.strip()</code> is a <code>str</code>, so the dictionary holds strings. Everything downstream that does arithmetic on those values would fail at runtime, probably far from here.</p><pre class="run" data-verify="run"><code>def parse_scores(raw: str) -&gt; dict[str, int]:
+    &quot;&quot;&quot;Parse &#x27;name: score&#x27; lines into a mapping of name to score.&quot;&quot;&quot;
+    scores: dict[str, int] = {}
+    for line in raw.splitlines():
+        name, value = line.split(&quot;:&quot;)
+        scores[name.strip()] = int(value.strip())
+    return scores
+
+
+print(parse_scores(&quot;Guybrush: 95\nOtis: 42&quot;))</code></pre>
+<pre class="out"><code class="nohl">{&#x27;Guybrush&#x27;: 95, &#x27;Otis&#x27;: 42}</code></pre><p>This is the single most common category of bug that typing catches in real codebases: a value that is a string where everyone assumed a number, usually arriving from user input, a CSV file or a JSON payload.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-38-typing">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="37-functional.html"><span class="dir">← Previous</span>Lesson 37: Functional Tools</a>
+      <a class="next" href="39-concurrency.html"><span class="dir">Next →</span>Lesson 39: Concurrency: Threads and Processes</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

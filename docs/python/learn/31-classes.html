@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 31: Classes and Objects - The Python School</title>
+<meta name="description" content="Defining classes, __init__, self, instance versus class attributes, and when a class is the wrong answer.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/31-classes">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 31: Classes and Objects - The Python School">
+<meta property="og:description" content="Defining classes, __init__, self, instance versus class attributes, and when a class is the wrong answer.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/31-classes">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 31: Classes and Objects - The Python School">
+<meta name="twitter:description" content="Defining classes, __init__, self, instance versus class attributes, and when a class is the wrong answer.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 31 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Classes and Objects 🏛️</h1>
+    <p class="lede muted">You have been using objects since Lesson 1: every string, list and dictionary is
+    one. This is the lesson where you build your own.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The problem a class solves</h2>
+    <pre class="run" data-verify="run"><code># Without a class: data and behaviour drift apart
+guybrush = {&quot;name&quot;: &quot;Guybrush&quot;, &quot;insults&quot;: 7, &quot;hp&quot;: 100}
+
+
+def take_damage(pirate, amount):
+    pirate[&quot;hp&quot;] -= amount
+    return pirate[&quot;hp&quot;]
+
+
+print(take_damage(guybrush, 30))
+print(guybrush[&quot;hp&quot;])</code></pre>
+<pre class="out"><code class="nohl">70
+70</code></pre>
+    <p>
+      That works. It also has nothing stopping you writing <code>guybrush["hp"]</code> in one
+      place and <code>guybrush["health"]</code> in another, or calling
+      <code>take_damage</code> on a dictionary that represents a ship. A class ties the shape
+      of the data to the operations that are allowed on it, and gives the pair a name.
+    </p>
+
+    <h2>Your first class</h2>
+    <pre class="run" data-verify="run"><code>class Pirate:
+    &quot;&quot;&quot;Someone with a name, some insults and a will to live.&quot;&quot;&quot;
+
+    def __init__(self, name, insults=0):
+        self.name = name
+        self.insults = insults
+        self.hp = 100
+
+    def learn(self, insult):
+        self.insults += 1
+        return f&quot;{self.name} learns: {insult}&quot;
+
+    def take_damage(self, amount):
+        self.hp = max(0, self.hp - amount)
+        return self.hp
+
+
+guybrush = Pirate(&quot;Guybrush&quot;, insults=3)
+elaine = Pirate(&quot;Elaine&quot;)
+
+print(guybrush.name, guybrush.insults, guybrush.hp)
+print(elaine.name, elaine.insults, elaine.hp)
+print(guybrush.learn(&quot;You fight like a dairy farmer!&quot;))
+print(guybrush.insults, elaine.insults)
+print(guybrush.take_damage(30))</code></pre>
+<pre class="out"><code class="nohl">Guybrush 3 100
+Elaine 0 100
+Guybrush learns: You fight like a dairy farmer!
+4 0
+70</code></pre>
+
+    <div class="table-wrap"><table><thead><tr><th>Word</th><th>Means</th></tr></thead><tbody><tr><td><code>class Pirate:</code></td><td>A blueprint. No pirate exists yet</td></tr><tr><td><code>Pirate("Guybrush")</code></td><td>Build one. This is an <strong>instance</strong></td></tr><tr><td><code>__init__</code></td><td>Runs automatically when an instance is built. Set up the data here</td></tr><tr><td><code>self</code></td><td>The particular instance this call is about</td></tr><tr><td><code>self.name = name</code></td><td>An <strong>attribute</strong>: data belonging to this instance</td></tr><tr><td><code>def learn(self, ...)</code></td><td>A <strong>method</strong>: a function belonging to the class</td></tr></tbody></table></div>
+
+    <h2>self, demystified</h2>
+    <pre class="run" data-verify="run"><code>class Counter:
+    def __init__(self):
+        self.count = 0
+
+    def bump(self):
+        self.count += 1
+
+
+a = Counter()
+b = Counter()
+
+a.bump()
+a.bump()
+b.bump()
+
+print(a.count, b.count)
+
+# a.bump() is literally shorthand for this
+Counter.bump(a)
+print(a.count)</code></pre>
+<pre class="out"><code class="nohl">2 1
+3</code></pre>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Medium: Success]</span></div><p>self is not magic and it is not a keyword. It is just the first parameter, and Python passes the instance into it automatically when you use the dot. a.bump() and Counter.bump(a) are the same call written two ways.</p>
+<p>Which is why forgetting self in a method definition gives you 'takes 0 positional arguments but 1 was given'. Python passed the instance and your function had nowhere to put it.</p></div>
+
+    <h2>Instance attributes versus class attributes</h2>
+    <pre class="run" data-verify="run"><code>class Pirate:
+    crew_name = &quot;The Sea Monkeys&quot;      # shared by every pirate
+    count = 0
+
+    def __init__(self, name):
+        self.name = name               # unique to each pirate
+        Pirate.count += 1
+
+
+a = Pirate(&quot;Guybrush&quot;)
+b = Pirate(&quot;Elaine&quot;)
+
+print(a.crew_name, b.crew_name)
+print(Pirate.count)
+
+Pirate.crew_name = &quot;The Mighty Pirates&quot;
+print(a.crew_name, b.crew_name)
+
+a.crew_name = &quot;Solo Act&quot;               # this creates an INSTANCE attribute
+print(a.crew_name, b.crew_name)</code></pre>
+<pre class="out"><code class="nohl">The Sea Monkeys The Sea Monkeys
+2
+The Mighty Pirates The Mighty Pirates
+Solo Act The Mighty Pirates</code></pre>
+    <div class="callout danger"><span class="co-title">🪤 Mutable class attributes are the list-default trap again</span><p>A class attribute that is a list or dict is shared by <em>every</em> instance, exactly like a mutable default argument. Put mutable state in <code>__init__</code> as <code>self.something = []</code>, always.</p></div>
+    <pre class="run" data-verify="run"><code>class Bad:
+    items = []            # one list, shared by all
+
+
+class Good:
+    def __init__(self):
+        self.items = []   # a fresh list per instance
+
+
+a, b = Bad(), Bad()
+a.items.append(&quot;grog&quot;)
+print(&quot;Bad: &quot;, a.items, b.items)
+
+c, d = Good(), Good()
+c.items.append(&quot;grog&quot;)
+print(&quot;Good:&quot;, c.items, d.items)</code></pre>
+<pre class="out"><code class="nohl">Bad:  [&#x27;grog&#x27;] [&#x27;grog&#x27;]
+Good: [&#x27;grog&#x27;] []</code></pre>
+
+    <h2>Making objects print nicely</h2>
+    <pre class="run" data-verify="run"><code>class Pirate:
+    def __init__(self, name, insults=0):
+        self.name = name
+        self.insults = insults
+
+    def __repr__(self):
+        &quot;&quot;&quot;For programmers: should look like the code that rebuilds it.&quot;&quot;&quot;
+        return f&quot;Pirate({self.name!r}, insults={self.insults})&quot;
+
+    def __str__(self):
+        &quot;&quot;&quot;For humans.&quot;&quot;&quot;
+        return f&quot;{self.name} ({self.insults} insults)&quot;
+
+
+guy = Pirate(&quot;Guybrush&quot;, 8)
+
+print(guy)              # uses __str__
+print(repr(guy))        # uses __repr__
+print([guy])            # containers always use __repr__
+print(f&quot;{guy} vs {guy!r}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Guybrush (8 insults)
+Pirate(&#x27;Guybrush&#x27;, insults=8)
+[Pirate(&#x27;Guybrush&#x27;, insults=8)]
+Guybrush (8 insults) vs Pirate(&#x27;Guybrush&#x27;, insults=8)</code></pre>
+    <p>
+      Without <code>__repr__</code> you get <code>&lt;__main__.Pirate object at
+      0x104f2b3d0&gt;</code>, which tells you nothing while debugging. Writing
+      <code>__repr__</code> is the single highest-value five seconds you can spend on a class.
+      If you only write one, write that one: <code>print</code> falls back to it when
+      <code>__str__</code> is missing.
+    </p>
+
+    <h2>Properties: computed attributes</h2>
+    <pre class="run" data-verify="run"><code>class Rectangle:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    @property
+    def area(self):
+        &quot;&quot;&quot;Computed on demand, but used like an attribute.&quot;&quot;&quot;
+        return self.width * self.height
+
+    @property
+    def description(self):
+        return &quot;square&quot; if self.width == self.height else &quot;oblong&quot;
+
+
+r = Rectangle(3, 4)
+print(r.area, r.description)
+
+r.width = 4
+print(r.area, r.description)</code></pre>
+<pre class="out"><code class="nohl">12 oblong
+16 square</code></pre>
+    <p>
+      <code>@property</code> turns a method into something you read like an attribute: no
+      brackets. It lets you start with a plain attribute and later replace it with a
+      calculation without changing a single line of the code that uses it. That is a genuinely
+      useful escape hatch, and it is why Python does not need Java-style getters everywhere.
+    </p>
+
+    <h2>Validation with a setter</h2>
+    <pre class="run" data-verify="run"><code>class Account:
+    def __init__(self, balance=0):
+        self._balance = balance          # the underscore means &quot;internal&quot;
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @balance.setter
+    def balance(self, value):
+        if value &lt; 0:
+            raise ValueError(f&quot;balance cannot be negative, got {value}&quot;)
+        self._balance = value
+
+
+acc = Account(100)
+acc.balance = 250
+print(acc.balance)
+
+try:
+    acc.balance = -50
+except ValueError as err:
+    print(&quot;Refused:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">250
+Refused: balance cannot be negative, got -50</code></pre>
+    <div class="callout info"><span class="co-title">🔒 Python has no private</span><p>A single leading underscore (<code>_balance</code>) is a convention meaning 'this is internal, do not touch'. Nothing enforces it. Python's philosophy here is 'we are all consenting adults': you are trusted not to reach into someone else's internals, and if you do, the breakage is yours to own. Two underscores (<code>__balance</code>) triggers name mangling, which discourages accidents but still is not real privacy.</p></div>
+
+    <h2>When a class is the wrong answer</h2>
+    <pre class="run" data-verify="run"><code># Not a class. This is a function wearing a costume.
+class Calculator:
+    def add(self, a, b):
+        return a + b
+
+
+# Just write the function
+def add(a, b):
+    return a + b
+
+
+print(add(2, 3))</code></pre>
+<pre class="out"><code class="nohl">5</code></pre>
+    <p>Reach for a class when you have <strong>state plus behaviour that belongs to it</strong>. If:</p>
+    <ul>
+      <li>there is no state, write a function;</li>
+      <li>the state never changes and there is no behaviour, use a
+      <a href="33-dataclasses.html">dataclass or a named tuple</a>;</li>
+      <li>you have exactly one instance and it exists forever, a module is a fine singleton;</li>
+      <li>you are writing <code>class</code> because it feels more professional, stop.</li>
+    </ul>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>A bank account</h3><p>Write an <code>Account</code> class with a holder, a balance, <code>deposit</code>, <code>withdraw</code> (refusing overdrafts), a transaction count, and a good <code>__repr__</code>.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>class Account:
+    &quot;&quot;&quot;A very simple bank account that refuses to go negative.&quot;&quot;&quot;
+
+    def __init__(self, holder, balance=0):
+        self.holder = holder
+        self.balance = balance
+        self.transactions = 0
+
+    def deposit(self, amount):
+        if amount &lt;= 0:
+            raise ValueError(&quot;deposit must be positive&quot;)
+        self.balance += amount
+        self.transactions += 1
+        return self.balance
+
+    def withdraw(self, amount):
+        if amount &gt; self.balance:
+            raise ValueError(f&quot;cannot withdraw {amount}, balance is {self.balance}&quot;)
+        self.balance -= amount
+        self.transactions += 1
+        return self.balance
+
+    def __repr__(self):
+        return f&quot;Account({self.holder!r}, balance={self.balance})&quot;
+
+
+acc = Account(&quot;Guybrush&quot;, 100)
+acc.deposit(50)
+acc.withdraw(30)
+print(acc)
+print(f&quot;{acc.transactions} transactions&quot;)
+
+try:
+    acc.withdraw(1000)
+except ValueError as err:
+    print(&quot;Refused:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">Account(&#x27;Guybrush&#x27;, balance=120)
+2 transactions
+Refused: cannot withdraw 1000, balance is 120</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Find the shared-state bug</h3><p>Every deck somehow contains everyone's cards. Why?</p><pre data-verify="compile"><code>class Deck:
+    cards = []
+
+    def add(self, card):
+        self.cards.append(card)</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>cards</code> is a class attribute, so there is exactly one list and every deck shares it. <code>self.cards.append</code> does not create a new list, it mutates the shared one.</p><pre class="run" data-verify="run"><code>class Deck:
+    def __init__(self):
+        self.cards = []          # a fresh list for every deck
+
+    def add(self, card):
+        self.cards.append(card)
+        return self
+
+    def __repr__(self):
+        return f&quot;Deck({self.cards})&quot;
+
+
+a, b = Deck(), Deck()
+a.add(&quot;ace&quot;)
+print(a, b)</code></pre>
+<pre class="out"><code class="nohl">Deck([&#x27;ace&#x27;]) Deck([])</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Temperature with validation</h3><p>Write a <code>Temperature</code> class storing Celsius, exposing <code>fahrenheit</code> as a readable and writable property, and refusing anything below absolute zero.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>class Temperature:
+    &quot;&quot;&quot;A temperature, stored in Celsius, readable in either scale.&quot;&quot;&quot;
+
+    ABSOLUTE_ZERO_C = -273.15
+
+    def __init__(self, celsius=0.0):
+        self.celsius = celsius
+
+    @property
+    def celsius(self):
+        return self._celsius
+
+    @celsius.setter
+    def celsius(self, value):
+        if value &lt; self.ABSOLUTE_ZERO_C:
+            raise ValueError(f&quot;{value}C is below absolute zero&quot;)
+        self._celsius = float(value)
+
+    @property
+    def fahrenheit(self):
+        return self._celsius * 9 / 5 + 32
+
+    @fahrenheit.setter
+    def fahrenheit(self, value):
+        self.celsius = (value - 32) * 5 / 9
+
+    def __repr__(self):
+        return f&quot;Temperature({self._celsius:.1f})&quot;
+
+
+t = Temperature(100)
+print(t, t.fahrenheit)
+
+t.fahrenheit = 32
+print(t, t.celsius)
+
+try:
+    Temperature(-300)
+except ValueError as err:
+    print(&quot;Refused:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">Temperature(100.0) 212.0
+Temperature(0.0) 0.0
+Refused: -300C is below absolute zero</code></pre><p>Setting <code>fahrenheit</code> quietly routes through the <code>celsius</code> setter, so the validation applies to both scales without being written twice. That is the payoff of properties.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-31-classes">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="30-style.html"><span class="dir">← Previous</span>Lesson 30: Style, Linting and Type Hints</a>
+      <a class="next" href="32-inheritance.html"><span class="dir">Next →</span>Lesson 32: Inheritance and Dunder Methods</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

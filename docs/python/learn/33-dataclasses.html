@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 33: Dataclasses, Enums and match - The Python School</title>
+<meta name="description" content="dataclasses, frozen instances, field defaults, Enum, and structural pattern matching on objects.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/33-dataclasses">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 33: Dataclasses, Enums and match - The Python School">
+<meta property="og:description" content="dataclasses, frozen instances, field defaults, Enum, and structural pattern matching on objects.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/33-dataclasses">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 33: Dataclasses, Enums and match - The Python School">
+<meta name="twitter:description" content="dataclasses, frozen instances, field defaults, Enum, and structural pattern matching on objects.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 33 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Dataclasses, Enums and match 🎁</h1>
+    <p class="lede muted">Most classes exist only to hold a few named values. Python has a decorator that
+    writes the boring parts for you, and it is one of the best things added in a decade.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The boilerplate problem</h2>
+    <pre class="run" data-verify="run"><code>class PirateManual:
+    def __init__(self, name, role, insults=0):
+        self.name = name
+        self.role = role
+        self.insults = insults
+
+    def __repr__(self):
+        return f&quot;PirateManual(name={self.name!r}, role={self.role!r}, insults={self.insults!r})&quot;
+
+    def __eq__(self, other):
+        if not isinstance(other, PirateManual):
+            return NotImplemented
+        return (self.name, self.role, self.insults) == (other.name, other.role, other.insults)
+
+
+print(PirateManual(&quot;Guybrush&quot;, &quot;captain&quot;, 8))</code></pre>
+<pre class="out"><code class="nohl">PirateManual(name=&#x27;Guybrush&#x27;, role=&#x27;captain&#x27;, insults=8)</code></pre>
+    <p>Fourteen lines, and every field is written three times. Now the same thing:</p>
+    <pre class="run" data-verify="run"><code>from dataclasses import dataclass
+
+
+@dataclass
+class Pirate:
+    name: str
+    role: str
+    insults: int = 0
+
+
+guy = Pirate(&quot;Guybrush&quot;, &quot;captain&quot;, 8)
+print(guy)
+print(guy.name, guy.insults)
+print(Pirate(&quot;Elaine&quot;, &quot;governor&quot;) == Pirate(&quot;Elaine&quot;, &quot;governor&quot;))</code></pre>
+<pre class="out"><code class="nohl">Pirate(name=&#x27;Guybrush&#x27;, role=&#x27;captain&#x27;, insults=8)
+Guybrush 8
+True</code></pre>
+    <p>
+      <code>@dataclass</code> writes <code>__init__</code>, <code>__repr__</code> and
+      <code>__eq__</code> from the annotations. The type hints are required (that is how it
+      finds the fields) and, as ever, not enforced at runtime.
+    </p>
+
+    <h2>Defaults, and the list trap solved properly</h2>
+    <pre class="run" data-verify="run"><code>from dataclasses import dataclass, field
+
+
+@dataclass
+class Ship:
+    name: str
+    crew: list[str] = field(default_factory=list)      # a NEW list per instance
+    cargo: dict[str, int] = field(default_factory=dict)
+    seaworthy: bool = True
+
+
+a = Ship(&quot;Sea Monkey&quot;)
+b = Ship(&quot;Flying Dutchman&quot;)
+
+a.crew.append(&quot;Otis&quot;)
+print(a)
+print(b)</code></pre>
+<pre class="out"><code class="nohl">Ship(name=&#x27;Sea Monkey&#x27;, crew=[&#x27;Otis&#x27;], cargo={}, seaworthy=True)
+Ship(name=&#x27;Flying Dutchman&#x27;, crew=[], cargo={}, seaworthy=True)</code></pre>
+    <div class="callout tip"><span class="co-title">🛡️ default_factory is the fix, and it is enforced</span><p>Writing <code>crew: list = []</code> in a dataclass raises <code>ValueError: mutable default</code> at class creation time. The language learned from Lesson 18's landmine and made this one impossible to step on.</p></div>
+
+    <h2>Frozen: immutable and hashable</h2>
+    <pre class="run" data-verify="run"><code>from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Point:
+    x: int
+    y: int
+
+
+p = Point(3, 4)
+print(p)
+
+try:
+    p.x = 10
+except Exception as err:
+    print(type(err).__name__, err)
+
+# frozen dataclasses are hashable, so they work as keys and in sets
+grid = {Point(0, 0): &quot;start&quot;, Point(3, 4): &quot;treasure&quot;}
+print(grid[Point(3, 4)])
+print(len({Point(1, 1), Point(1, 1)}))</code></pre>
+<pre class="out"><code class="nohl">Point(x=3, y=4)
+FrozenInstanceError cannot assign to field &#x27;x&#x27;
+treasure
+1</code></pre>
+    <p>
+      <code>frozen=True</code> gives you value semantics: two points with the same coordinates
+      are equal, hash the same, and cannot be modified by a function you passed them to. For
+      coordinates, money, configuration and anything you put in a set, this is what you want.
+    </p>
+
+    <h2>The other useful options</h2>
+    <pre class="run" data-verify="run"><code>from dataclasses import dataclass, field, asdict, astuple
+
+
+@dataclass(order=True, slots=True)
+class Score:
+    points: int
+    name: str = field(compare=False)      # not used when sorting
+    notes: str = field(default=&quot;&quot;, repr=False)
+
+
+scores = [Score(42, &quot;Otis&quot;), Score(95, &quot;Guybrush&quot;), Score(88, &quot;Elaine&quot;)]
+print(sorted(scores))
+print(max(scores).name)
+print(asdict(scores[0]))
+print(astuple(scores[0]))</code></pre>
+<pre class="out"><code class="nohl">[Score(points=42, name=&#x27;Otis&#x27;), Score(points=88, name=&#x27;Elaine&#x27;), Score(points=95, name=&#x27;Guybrush&#x27;)]
+Guybrush
+{&#x27;points&#x27;: 42, &#x27;name&#x27;: &#x27;Otis&#x27;, &#x27;notes&#x27;: &#x27;&#x27;}
+(42, &#x27;Otis&#x27;, &#x27;&#x27;)</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Option</th><th>Does</th></tr></thead><tbody><tr><td><code>order=True</code></td><td>Adds <code>&lt;</code>, <code>&gt;</code> etc, comparing fields in order</td></tr><tr><td><code>frozen=True</code></td><td>Immutable and hashable</td></tr><tr><td><code>slots=True</code></td><td>Faster and smaller; no arbitrary attributes (3.10+)</td></tr><tr><td><code>kw_only=True</code></td><td>Callers must name every argument</td></tr><tr><td><code>field(compare=False)</code></td><td>Exclude from == and sorting</td></tr><tr><td><code>field(repr=False)</code></td><td>Hide from the repr (good for secrets)</td></tr><tr><td><code>asdict(x)</code></td><td>Convert to a plain dict, ready for JSON</td></tr></tbody></table></div>
+
+    <h2>__post_init__ for validation</h2>
+    <pre class="run" data-verify="run"><code>from dataclasses import dataclass
+
+
+@dataclass
+class Booking:
+    name: str
+    seats: int
+    price_each: float
+    total: float = 0.0
+
+    def __post_init__(self):
+        if self.seats &lt; 1:
+            raise ValueError(f&quot;seats must be at least 1, got {self.seats}&quot;)
+        self.total = round(self.seats * self.price_each, 2)
+
+
+print(Booking(&quot;Elaine&quot;, 3, 24.99))
+
+try:
+    Booking(&quot;Otis&quot;, 0, 10.0)
+except ValueError as err:
+    print(&quot;Refused:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">Booking(name=&#x27;Elaine&#x27;, seats=3, price_each=24.99, total=74.97)
+Refused: seats must be at least 1, got 0</code></pre>
+
+    <h2>Enums: named constants that cannot be mistyped</h2>
+    <pre class="run" data-verify="run"><code>from enum import Enum, auto
+
+
+class Status(Enum):
+    DRAFT = auto()
+    PUBLISHED = auto()
+    ARCHIVED = auto()
+
+
+class Suit(Enum):
+    HEARTS = &quot;♥&quot;
+    SPADES = &quot;♠&quot;
+
+
+print(Status.DRAFT)
+print(Status.DRAFT.name, Status.DRAFT.value)
+print(Status(&quot;2&quot;) if False else Status(2))
+print(Suit.HEARTS.value)
+print(list(Status))
+print(Status.DRAFT == Status.DRAFT, Status.DRAFT == Status.PUBLISHED)</code></pre>
+<pre class="out"><code class="nohl">Status.DRAFT
+DRAFT 1
+Status.PUBLISHED
+♥
+[&lt;Status.DRAFT: 1&gt;, &lt;Status.PUBLISHED: 2&gt;, &lt;Status.ARCHIVED: 3&gt;]
+True False</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Medium: Success]</span></div><p>The alternative is strings. status == 'published' compiles, runs, and silently does nothing when someone writes 'Published' or 'publshed'.</p>
+<p>Status.PUBLISHED cannot be misspelled: a typo is an AttributeError immediately, your editor autocompletes it, and you can list every valid value. Any time you find yourself writing a fixed set of magic strings, that is an enum asking to be born.</p></div>
+
+    <pre class="run" data-verify="run"><code>from enum import StrEnum
+
+
+class Level(StrEnum):          # Python 3.11+
+    DEBUG = &quot;debug&quot;
+    INFO = &quot;info&quot;
+    ERROR = &quot;error&quot;
+
+
+print(Level.INFO)
+print(Level.INFO == &quot;info&quot;)               # behaves as a string too
+print(f&quot;level={Level.ERROR}&quot;)
+print(sorted(Level, key=lambda l: l.value))</code></pre>
+<pre class="out"><code class="nohl">info
+True
+level=error
+[&lt;Level.DEBUG: &#x27;debug&#x27;&gt;, &lt;Level.ERROR: &#x27;error&#x27;&gt;, &lt;Level.INFO: &#x27;info&#x27;&gt;]</code></pre>
+    <p>
+      Notice <code>print(Level.INFO)</code> gave <code>info</code>, not
+      <code>Level.INFO</code>. That is the whole point of <code>StrEnum</code>: it <em>is</em> a
+      string, so it drops straight into f-strings, JSON and database columns while still being
+      a real enum in your code. A plain <code>Enum</code> would have printed
+      <code>Level.INFO</code> and confused whatever you handed it to.
+    </p>
+
+    <h2>match, properly: structural pattern matching</h2>
+    <pre class="run" data-verify="run"><code>from dataclasses import dataclass
+
+
+@dataclass
+class Click:
+    x: int
+    y: int
+
+
+@dataclass
+class KeyPress:
+    key: str
+
+
+@dataclass
+class Quit:
+    pass
+
+
+def handle(event):
+    match event:
+        case Quit():
+            return &quot;Goodbye.&quot;
+        case Click(x=0, y=0):
+            return &quot;Clicked the very corner.&quot;
+        case Click(x=x, y=y) if x == y:
+            return f&quot;Clicked the diagonal at {x}.&quot;
+        case Click(x=x, y=y):
+            return f&quot;Clicked at ({x}, {y}).&quot;
+        case KeyPress(key=&quot;q&quot;):
+            return &quot;Quit key.&quot;
+        case KeyPress(key=key):
+            return f&quot;Pressed {key!r}.&quot;
+        case _:
+            return &quot;No idea what that was.&quot;
+
+
+for event in [Quit(), Click(0, 0), Click(5, 5), Click(2, 9), KeyPress(&quot;q&quot;), KeyPress(&quot;a&quot;), 42]:
+    print(handle(event))</code></pre>
+<pre class="out"><code class="nohl">Goodbye.
+Clicked the very corner.
+Clicked the diagonal at 5.
+Clicked at (2, 9).
+Quit key.
+Pressed &#x27;a&#x27;.
+No idea what that was.</code></pre>
+    <p>
+      This is far more than a switch statement. It matches on <em>shape</em>: the type, the
+      field values, and a guard condition, pulling out the parts you name as it goes. Compare
+      the pile of <code>isinstance</code> checks and attribute lookups you would otherwise
+      write.
+    </p>
+
+    <h2>Matching data shapes</h2>
+    <pre class="run" data-verify="run"><code>def describe(data):
+    match data:
+        case []:
+            return &quot;an empty list&quot;
+        case [single]:
+            return f&quot;one item: {single}&quot;
+        case [first, *rest]:
+            return f&quot;{first}, then {len(rest)} more&quot;
+        case {&quot;type&quot;: &quot;user&quot;, &quot;name&quot;: str(name)}:
+            return f&quot;a user called {name}&quot;
+        case {&quot;type&quot;: kind}:
+            return f&quot;some {kind}&quot;
+        case str() | bytes():
+            return &quot;text of some kind&quot;
+        case _:
+            return &quot;something else&quot;
+
+
+for item in [[], [1], [1, 2, 3], {&quot;type&quot;: &quot;user&quot;, &quot;name&quot;: &quot;Elaine&quot;},
+             {&quot;type&quot;: &quot;ship&quot;}, &quot;hello&quot;, 3.14]:
+    print(describe(item))</code></pre>
+<pre class="out"><code class="nohl">an empty list
+one item: 1
+1, then 2 more
+a user called Elaine
+some ship
+text of some kind
+something else</code></pre>
+    <div class="callout warn"><span class="co-title">🪤 A bare name in a case always matches</span><p><code>case status:</code> does not compare against a variable called <code>status</code>; it <em>captures</em> whatever came in and always matches, swallowing every case below it. To compare against a constant, use a dotted name (<code>case Status.DRAFT:</code>) or a literal. This is the one genuinely surprising rule in <code>match</code>.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Convert a class to a dataclass</h3><p>Rewrite this with <code>@dataclass</code>, keeping the behaviour and adding ordering by price.</p><pre data-verify="compile"><code>class Product:
+    def __init__(self, name, price, tags=None):
+        self.name = name
+        self.price = price
+        self.tags = tags if tags is not None else []
+
+    def __repr__(self):
+        return f&quot;Product({self.name!r}, {self.price!r}, {self.tags!r})&quot;</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from dataclasses import dataclass, field
+
+
+@dataclass(order=True)
+class Product:
+    price: float
+    name: str = field(compare=False)
+    tags: list[str] = field(default_factory=list, compare=False)
+
+
+items = [
+    Product(24.99, &quot;Rubber chicken&quot;, [&quot;novelty&quot;]),
+    Product(4.50, &quot;Grog&quot;),
+    Product(12.00, &quot;Map&quot;),
+]
+
+for product in sorted(items):
+    print(f&quot;{product.price:6.2f}  {product.name}&quot;)</code></pre>
+<pre class="out"><code class="nohl">  4.50  Grog
+ 12.00  Map
+ 24.99  Rubber chicken</code></pre><p>Putting <code>price</code> first is deliberate: <code>order=True</code> compares fields in declaration order, so the field you want to sort by goes first. Alternatively keep the natural order and use <code>sorted(items, key=lambda p: p.price)</code>.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Enum instead of magic strings</h3><p>Rewrite this so invalid states are impossible.</p><pre data-verify="compile"><code>def advance(status):
+    if status == &quot;draft&quot;:
+        return &quot;review&quot;
+    elif status == &quot;review&quot;:
+        return &quot;published&quot;
+    return status</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from enum import Enum
+
+
+class Status(Enum):
+    DRAFT = &quot;draft&quot;
+    REVIEW = &quot;review&quot;
+    PUBLISHED = &quot;published&quot;
+
+
+NEXT = {Status.DRAFT: Status.REVIEW, Status.REVIEW: Status.PUBLISHED}
+
+
+def advance(status: Status) -&gt; Status:
+    &quot;&quot;&quot;Move to the next status, or stay put if already final.&quot;&quot;&quot;
+    return NEXT.get(status, status)
+
+
+print(advance(Status.DRAFT))
+print(advance(Status.REVIEW))
+print(advance(Status.PUBLISHED))
+
+try:
+    Status(&quot;deleted&quot;)
+except ValueError as err:
+    print(&quot;Refused:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">Status.REVIEW
+Status.PUBLISHED
+Status.PUBLISHED
+Refused: &#x27;deleted&#x27; is not a valid Status</code></pre><p>The transition table as a dictionary is a bonus: the rules are now data you can print, test and change, instead of control flow you have to read.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Match on a command</h3><p>Write a text-adventure command parser using <code>match</code> on a split list of words. Handle go, take with and without a quantity, look, and unknown input.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def parse(line):
+    match line.lower().split():
+        case [&quot;look&quot;] | [&quot;l&quot;]:
+            return &quot;You see trees. Many trees.&quot;
+        case [&quot;go&quot;, direction]:
+            return f&quot;You walk {direction}.&quot;
+        case [&quot;take&quot;, item]:
+            return f&quot;Taken: {item}.&quot;
+        case [&quot;take&quot;, count, item] if count.isdigit():
+            return f&quot;Taken {count} x {item}.&quot;
+        case [&quot;say&quot;, *words]:
+            return f&quot;You say: {&#x27; &#x27;.join(words)}&quot;
+        case []:
+            return &quot;Say something.&quot;
+        case [verb, *_]:
+            return f&quot;I do not know how to {verb}.&quot;
+
+
+for line in [&quot;look&quot;, &quot;go north&quot;, &quot;take grog&quot;, &quot;take 3 mints&quot;,
+             &quot;say you fight like a cow&quot;, &quot;&quot;, &quot;dance wildly&quot;]:
+    print(parse(line))</code></pre>
+<pre class="out"><code class="nohl">You see trees. Many trees.
+You walk north.
+Taken: grog.
+Taken 3 x mints.
+You say: you fight like a cow
+Say something.
+I do not know how to dance.</code></pre><p>Compare this to the same parser written with nested <code>if len(parts) == 2 and parts[0] == ...</code> checks. This is the case where <code>match</code> is not a nicety, it is a different quality of code.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-33-dataclasses">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="32-inheritance.html"><span class="dir">← Previous</span>Lesson 32: Inheritance and Dunder Methods</a>
+      <a class="next" href="34-generators.html"><span class="dir">Next →</span>Lesson 34: Iterators and Generators</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

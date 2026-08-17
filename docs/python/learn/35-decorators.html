@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 35: Decorators - The Python School</title>
+<meta name="description" content="Functions as objects, closures, writing decorators, functools.wraps, arguments, and the built-in ones.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/35-decorators">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 35: Decorators - The Python School">
+<meta property="og:description" content="Functions as objects, closures, writing decorators, functools.wraps, arguments, and the built-in ones.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/35-decorators">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 35: Decorators - The Python School">
+<meta name="twitter:description" content="Functions as objects, closures, writing decorators, functools.wraps, arguments, and the built-in ones.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 35 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Decorators 🎀</h1>
+    <p class="lede muted">You have used @property, @dataclass and @staticmethod without knowing what the @
+    does. It is simpler than it looks, and it is one of Python's genuinely elegant ideas.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Functions are objects</h2>
+    <pre class="run" data-verify="run"><code>def greet(name):
+    return f&quot;Hello, {name}&quot;
+
+
+# a function can be assigned, passed and returned like any other value
+say = greet
+print(say(&quot;Guybrush&quot;))
+print(greet.__name__)
+
+
+def apply_twice(func, value):
+    return func(func(value))
+
+
+print(apply_twice(str.upper, &quot;ho&quot;))
+
+
+def make_multiplier(n):
+    def multiply(x):
+        return x * n          # remembers n: this is a closure
+    return multiply
+
+
+triple = make_multiplier(3)
+print(triple(5))</code></pre>
+<pre class="out"><code class="nohl">Hello, Guybrush
+greet
+HO
+15</code></pre>
+    <p>
+      Everything a decorator does rests on those two facts: a function can be passed to
+      another function, and a function can remember variables from where it was defined.
+    </p>
+
+    <h2>A decorator, built by hand</h2>
+    <pre class="run" data-verify="run"><code>def shout(func):
+    &quot;&quot;&quot;Take a function, return a new one that shouts the result.&quot;&quot;&quot;
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        return result.upper() + &quot;!&quot;
+    return wrapper
+
+
+def greet(name):
+    return f&quot;hello, {name}&quot;
+
+
+greet = shout(greet)          # replace the name with the wrapped version
+print(greet(&quot;guybrush&quot;))</code></pre>
+<pre class="out"><code class="nohl">HELLO, GUYBRUSH!</code></pre>
+    <p>Now the same thing with the syntax:</p>
+    <pre class="run" data-verify="run"><code>def shout(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs).upper() + &quot;!&quot;
+    return wrapper
+
+
+@shout
+def greet(name):
+    return f&quot;hello, {name}&quot;
+
+
+print(greet(&quot;elaine&quot;))</code></pre>
+<pre class="out"><code class="nohl">HELLO, ELAINE!</code></pre>
+    <p>
+      <code>@shout</code> above a definition means exactly <code>greet = shout(greet)</code>.
+      That is the whole feature. Everything else is what you choose to put in the wrapper.
+    </p>
+
+    <h2>The one thing you must remember: functools.wraps</h2>
+    <pre class="run" data-verify="run"><code>import functools
+
+
+def bad(func):
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def good(func):
+    @functools.wraps(func)          # copy the name, docstring and signature over
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@bad
+def alpha():
+    &quot;&quot;&quot;The alpha function.&quot;&quot;&quot;
+
+
+@good
+def beta():
+    &quot;&quot;&quot;The beta function.&quot;&quot;&quot;
+
+
+print(alpha.__name__, &quot;|&quot;, alpha.__doc__)
+print(beta.__name__, &quot;|&quot;, beta.__doc__)</code></pre>
+<pre class="out"><code class="nohl">wrapper | None
+beta | The beta function.</code></pre>
+    <div class="callout danger"><span class="co-title">🏷️ Always use @functools.wraps</span><p>Without it, every decorated function in your program is called <code>wrapper</code> and has no docstring. Debugging, logging, <code>help()</code> and test frameworks all break in confusing ways. One line, and you never think about it again.</p></div>
+
+    <h2>A useful one: timing</h2>
+    <pre class="run" data-verify="run"><code>import functools, time
+
+
+def timed(func):
+    &quot;&quot;&quot;Print how long a function took.&quot;&quot;&quot;
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        elapsed = time.perf_counter() - start
+        print(f&quot;  {func.__name__} took under a second: {elapsed &lt; 1}&quot;)
+        return result
+    return wrapper
+
+
+@timed
+def slow_sum(n):
+    return sum(range(n))
+
+
+print(slow_sum(1_000_000))</code></pre>
+<pre class="out"><code class="nohl">  slow_sum took under a second: True
+499999500000</code></pre>
+
+    <h2>Decorators that take arguments</h2>
+    <pre class="run" data-verify="run"><code>import functools
+
+
+def repeat(times):
+    &quot;&quot;&quot;A decorator factory: returns the actual decorator.&quot;&quot;&quot;
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return [func(*args, **kwargs) for _ in range(times)]
+        return wrapper
+    return decorator
+
+
+@repeat(3)
+def insult():
+    return &quot;You fight like a dairy farmer!&quot;
+
+
+for line in insult():
+    print(line)</code></pre>
+<pre class="out"><code class="nohl">You fight like a dairy farmer!
+You fight like a dairy farmer!
+You fight like a dairy farmer!</code></pre>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Formidable: Success]</span></div><p>Three levels of function, which is where people's eyes glaze over. Read it outside-in: repeat(3) is called first and returns decorator. Then decorator is applied to insult and returns wrapper. Then wrapper is what you actually call.</p>
+<p>@repeat(3) means insult = repeat(3)(insult). Every decorator with brackets works this way, including @app.route('/') in Flask and @pytest.mark.parametrize.</p></div>
+
+    <h2>Retry: the decorator everyone eventually writes</h2>
+    <pre class="run" data-verify="run"><code>import functools
+
+
+def retry(attempts=3):
+    &quot;&quot;&quot;Retry a function when it raises, up to a limit.&quot;&quot;&quot;
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            last_error = None
+            for attempt in range(1, attempts + 1):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as err:
+                    last_error = err
+                    print(f&quot;  attempt {attempt} failed: {err}&quot;)
+            raise last_error
+        return wrapper
+    return decorator
+
+
+calls = {&quot;n&quot;: 0}
+
+
+@retry(attempts=3)
+def flaky():
+    calls[&quot;n&quot;] += 1
+    if calls[&quot;n&quot;] &lt; 3:
+        raise ConnectionError(&quot;network hiccup&quot;)
+    return &quot;succeeded on attempt 3&quot;
+
+
+print(flaky())</code></pre>
+<pre class="out"><code class="nohl">  attempt 1 failed: network hiccup
+  attempt 2 failed: network hiccup
+succeeded on attempt 3</code></pre>
+    <p>
+      In real use you would add a delay between attempts and only retry specific exceptions.
+      The library <code>tenacity</code> does all of that, and now you know exactly what it is
+      doing.
+    </p>
+
+    <h2>The built-in decorators worth knowing</h2>
+    <pre class="run" data-verify="run"><code>import functools
+
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+    @property
+    def area(self):
+        return 3.14159 * self.radius ** 2
+
+    @staticmethod
+    def describe():
+        &quot;&quot;&quot;No self: just a function that lives in the class&#x27;s namespace.&quot;&quot;&quot;
+        return &quot;A circle is round.&quot;
+
+    @classmethod
+    def unit(cls):
+        &quot;&quot;&quot;Gets the class, not an instance. The standard &#x27;alternative constructor&#x27;.&quot;&quot;&quot;
+        return cls(1)
+
+
+print(Circle(2).area)
+print(Circle.describe())
+print(Circle.unit().radius)
+
+
+@functools.lru_cache(maxsize=None)
+def fib(n):
+    return n if n &lt; 2 else fib(n - 1) + fib(n - 2)
+
+
+print(fib(35))
+print(fib.cache_info().hits &gt; 0)</code></pre>
+<pre class="out"><code class="nohl">12.56636
+A circle is round.
+1
+9227465
+True</code></pre>
+    <p>
+      <code>@lru_cache</code> is the single best value-for-effort decorator in the standard
+      library. That <code>fib(35)</code> would take many seconds without it and is instant
+      with it, because every repeated call is answered from memory. It only works for
+      functions whose result depends purely on their arguments, and whose arguments are
+      hashable.
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Decorator</th><th>Does</th></tr></thead><tbody><tr><td><code>@property</code></td><td>Method usable as an attribute</td></tr><tr><td><code>@staticmethod</code></td><td>A function in a class, with no self</td></tr><tr><td><code>@classmethod</code></td><td>Receives the class; used for alternative constructors</td></tr><tr><td><code>@functools.wraps</code></td><td>Preserve the wrapped function's identity</td></tr><tr><td><code>@functools.lru_cache</code></td><td>Memoise results</td></tr><tr><td><code>@functools.cache</code></td><td>The same, simpler, 3.9+</td></tr><tr><td><code>@dataclass</code></td><td>Write the boilerplate (Lesson 33)</td></tr><tr><td><code>@abstractmethod</code></td><td>Subclasses must implement it (Lesson 32)</td></tr></tbody></table></div>
+
+    <h2>Stacking</h2>
+    <pre class="run" data-verify="run"><code>import functools
+
+
+def bold(func):
+    @functools.wraps(func)
+    def wrapper(*a, **kw):
+        return f&quot;&lt;b&gt;{func(*a, **kw)}&lt;/b&gt;&quot;
+    return wrapper
+
+
+def italic(func):
+    @functools.wraps(func)
+    def wrapper(*a, **kw):
+        return f&quot;&lt;i&gt;{func(*a, **kw)}&lt;/i&gt;&quot;
+    return wrapper
+
+
+@bold
+@italic
+def text():
+    return &quot;hello&quot;
+
+
+print(text())</code></pre>
+<pre class="out"><code class="nohl">&lt;b&gt;&lt;i&gt;hello&lt;/i&gt;&lt;/b&gt;</code></pre>
+    <p>
+      Decorators apply bottom-up: <code>italic</code> wraps the function first, then
+      <code>bold</code> wraps that. The result reads top-down in the output, which is a happy
+      accident that makes stacking feel natural.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>A logging decorator</h3><p>Write <code>@logged</code> that prints the call with its arguments and then the result. It must work with any function.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import functools
+
+
+def logged(func):
+    &quot;&quot;&quot;Print each call and its result.&quot;&quot;&quot;
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        shown = [repr(a) for a in args] + [f&quot;{k}={v!r}&quot; for k, v in kwargs.items()]
+        print(f&quot;-&gt; {func.__name__}({&#x27;, &#x27;.join(shown)})&quot;)
+        result = func(*args, **kwargs)
+        print(f&quot;&lt;- {result!r}&quot;)
+        return result
+    return wrapper
+
+
+@logged
+def add(a, b=0):
+    return a + b
+
+
+add(2, b=3)
+add(&quot;ho&quot;, &quot;ho&quot;)</code></pre>
+<pre class="out"><code class="nohl">-&gt; add(2, b=3)
+&lt;- 5
+-&gt; add(&#x27;ho&#x27;, &#x27;ho&#x27;)
+&lt;- &#x27;hoho&#x27;</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Validate arguments</h3><p>Write <code>@positive</code> that raises <code>ValueError</code> if any numeric argument is negative, before the function runs.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import functools
+
+
+def positive(func):
+    &quot;&quot;&quot;Reject any negative number passed to func.&quot;&quot;&quot;
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        for value in list(args) + list(kwargs.values()):
+            if isinstance(value, (int, float)) and value &lt; 0:
+                raise ValueError(f&quot;{func.__name__} got a negative value: {value}&quot;)
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@positive
+def area(width, height):
+    return width * height
+
+
+print(area(3, 4))
+
+try:
+    area(3, -4)
+except ValueError as err:
+    print(&quot;Refused:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">12
+Refused: area got a negative value: -4</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Count calls, and expose the count</h3><p>Write <code>@counted</code> that tracks how many times a function was called and makes the number readable from outside.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import functools
+
+
+def counted(func):
+    &quot;&quot;&quot;Count calls. The count is readable as func.calls.&quot;&quot;&quot;
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        wrapper.calls += 1
+        return func(*args, **kwargs)
+
+    wrapper.calls = 0
+    return wrapper
+
+
+@counted
+def hello(name):
+    return f&quot;hi {name}&quot;
+
+
+hello(&quot;a&quot;)
+hello(&quot;b&quot;)
+hello(&quot;c&quot;)
+print(f&quot;{hello.__name__} was called {hello.calls} times&quot;)</code></pre>
+<pre class="out"><code class="nohl">hello was called 3 times</code></pre><p>Attaching state to the wrapper function object is the standard trick, and it works because functions are objects and you can hang attributes on them. It is how <code>lru_cache</code> exposes <code>cache_info()</code>.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-35-decorators">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="34-generators.html"><span class="dir">← Previous</span>Lesson 34: Iterators and Generators</a>
+      <a class="next" href="36-context-managers.html"><span class="dir">Next →</span>Lesson 36: Context Managers</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

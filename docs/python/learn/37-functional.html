@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 37: Functional Tools - The Python School</title>
+<meta name="description" content="Lambdas, map and filter, functools.reduce and partial, and when a comprehension is better.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/37-functional">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 37: Functional Tools - The Python School">
+<meta property="og:description" content="Lambdas, map and filter, functools.reduce and partial, and when a comprehension is better.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/37-functional">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 37: Functional Tools - The Python School">
+<meta name="twitter:description" content="Lambdas, map and filter, functools.reduce and partial, and when a comprehension is better.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 37 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Functional Tools 🧮</h1>
+    <p class="lede muted">Python borrowed a handful of ideas from functional programming. Some are used
+    constantly, some are quietly discouraged, and knowing which is which marks you out.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>lambda: a function with no name</h2>
+    <pre class="run" data-verify="run"><code>square = lambda x: x * x        # legal, and not recommended
+print(square(5))
+
+
+def square_properly(x):
+    return x * x
+
+
+print(square_properly(5))
+
+# where lambda genuinely earns its place: as a throwaway argument
+crew = [(&quot;Guybrush&quot;, 8), (&quot;Elaine&quot;, 3), (&quot;Otis&quot;, 12)]
+
+print(sorted(crew, key=lambda pair: pair[1]))
+print(max(crew, key=lambda pair: pair[1]))</code></pre>
+<pre class="out"><code class="nohl">25
+25
+[(&#x27;Elaine&#x27;, 3), (&#x27;Guybrush&#x27;, 8), (&#x27;Otis&#x27;, 12)]
+(&#x27;Otis&#x27;, 12)</code></pre>
+    <p>
+      A lambda is a single expression with an implicit return. No statements, no loops, no
+      multiple lines. That limitation is deliberate: if you need more, you need a
+      <code>def</code>.
+    </p>
+    <div class="callout warn"><span class="co-title">🏷️ Never assign a lambda to a name</span><p><code>square = lambda x: x * x</code> gets you a function called <code>&lt;lambda&gt;</code> in every traceback, no docstring, and no annotations. PEP 8 says use <code>def</code>. Lambdas are for the moment you need a function for one line and then never again.</p></div>
+
+    <h2>map and filter</h2>
+    <pre class="run" data-verify="run"><code>numbers = [1, 2, 3, 4, 5, 6]
+
+print(list(map(lambda n: n * n, numbers)))
+print(list(filter(lambda n: n % 2 == 0, numbers)))
+
+# the comprehension versions, which most Python programmers prefer
+print([n * n for n in numbers])
+print([n for n in numbers if n % 2 == 0])
+
+# map is genuinely nice with an existing named function
+print(list(map(str.upper, [&quot;grog&quot;, &quot;map&quot;])))
+print(list(map(int, [&quot;1&quot;, &quot;2&quot;, &quot;3&quot;])))</code></pre>
+<pre class="out"><code class="nohl">[1, 4, 9, 16, 25, 36]
+[2, 4, 6]
+[1, 4, 9, 16, 25, 36]
+[2, 4, 6]
+[&#x27;GROG&#x27;, &#x27;MAP&#x27;]
+[1, 2, 3]</code></pre>
+
+    <div class="voice" data-skill="rhetoric"><div class="v-head"><span class="v-name">RHETORIC</span><span class="v-check success">[Medium: Success]</span></div><p>Guido van Rossum wanted to remove map and filter from Python 3 entirely, on the grounds that comprehensions do the same job more readably. They survived.</p>
+<p>The house rule that emerged: use a comprehension when there is a lambda involved, and use map when you already have a named function to apply. list(map(int, parts)) is lovely. list(map(lambda x: x.strip().lower(), parts)) is not.</p></div>
+
+    <h2>functools.reduce</h2>
+    <pre class="run" data-verify="run"><code>from functools import reduce
+
+numbers = [1, 2, 3, 4, 5]
+
+print(reduce(lambda a, b: a + b, numbers))
+print(sum(numbers))                        # just use this
+
+# reduce earns its place when there is no built-in for the operation
+print(reduce(lambda a, b: a * b, numbers))
+
+import math
+print(math.prod(numbers))                  # since 3.8, so use this too
+
+words = [&quot;the&quot;, &quot;rubber&quot;, &quot;chicken&quot;]
+print(reduce(lambda a, b: a if len(a) &gt; len(b) else b, words))</code></pre>
+<pre class="out"><code class="nohl">15
+15
+120
+120
+chicken</code></pre>
+    <p>
+      <code>reduce</code> folds a sequence down to one value. It is powerful, it is famously
+      hard to read, and Python has built-ins for nearly every common case:
+      <code>sum</code>, <code>math.prod</code>, <code>max</code>, <code>min</code>,
+      <code>any</code>, <code>all</code>, <code>"".join</code>. Reach for it only when none of
+      those fit.
+    </p>
+
+    <h2>functools.partial: freezing arguments</h2>
+    <pre class="run" data-verify="run"><code>from functools import partial
+
+
+def power(base, exponent):
+    return base ** exponent
+
+
+square = partial(power, exponent=2)
+cube = partial(power, exponent=3)
+
+print(square(5), cube(5))
+
+# genuinely useful for callbacks and configuration
+def log(level, message):
+    return f&quot;[{level}] {message}&quot;
+
+
+info = partial(log, &quot;INFO&quot;)
+error = partial(log, &quot;ERROR&quot;)
+
+print(info(&quot;all is well&quot;))
+print(error(&quot;the hull has failed&quot;))</code></pre>
+<pre class="out"><code class="nohl">25 125
+[INFO] all is well
+[ERROR] the hull has failed</code></pre>
+
+    <h2>operator: named versions of the symbols</h2>
+    <pre class="run" data-verify="run"><code>from operator import itemgetter, attrgetter, methodcaller
+from dataclasses import dataclass
+
+crew = [{&quot;name&quot;: &quot;Otis&quot;, &quot;pay&quot;: 40}, {&quot;name&quot;: &quot;Elaine&quot;, &quot;pay&quot;: 250}]
+
+print(sorted(crew, key=itemgetter(&quot;pay&quot;), reverse=True)[0][&quot;name&quot;])
+print(list(map(itemgetter(&quot;name&quot;), crew)))
+
+
+@dataclass
+class P:
+    name: str
+    pay: int
+
+
+people = [P(&quot;Otis&quot;, 40), P(&quot;Elaine&quot;, 250)]
+print(max(people, key=attrgetter(&quot;pay&quot;)).name)
+print(list(map(methodcaller(&quot;upper&quot;), [&quot;grog&quot;, &quot;map&quot;])))</code></pre>
+<pre class="out"><code class="nohl">Elaine
+[&#x27;Otis&#x27;, &#x27;Elaine&#x27;]
+Elaine
+[&#x27;GROG&#x27;, &#x27;MAP&#x27;]</code></pre>
+    <p>
+      <code>itemgetter("pay")</code> is a slightly faster and arguably clearer
+      <code>lambda d: d["pay"]</code>. Use whichever your team reads more easily; both are
+      idiomatic.
+    </p>
+
+    <h2>Pure functions, and why they are worth preferring</h2>
+    <pre class="run" data-verify="run"><code># Impure: reaches outside itself and changes something
+total = 0
+
+
+def add_impure(n):
+    global total
+    total += n
+    return total
+
+
+# Pure: same input, same output, no side effects, ever
+def add_pure(running_total, n):
+    return running_total + n
+
+
+print(add_impure(5), add_impure(5))      # different answers, same call
+print(add_pure(0, 5), add_pure(0, 5))    # identical, always</code></pre>
+<pre class="out"><code class="nohl">5 10
+5 5</code></pre>
+    <p>Pure functions are:</p>
+    <ul>
+      <li><strong>testable</strong> without any setup;</li>
+      <li><strong>cacheable</strong>, since the answer cannot change (this is exactly why
+      <code>lru_cache</code> requires it);</li>
+      <li><strong>safe to run in parallel</strong>, because there is nothing to race over;</li>
+      <li><strong>readable</strong>, because everything affecting the result is visible in the
+      signature.</li>
+    </ul>
+    <p>
+      You cannot write a whole program this way: something has to touch a file eventually. The
+      practical goal is a pure core with a thin impure shell around it, and that idea will
+      improve your code more than any syntax in this level.
+    </p>
+
+    <h2>The one that catches everybody</h2>
+    <pre class="run" data-verify="run"><code># A classic: building functions in a loop
+makers = [lambda: i for i in range(3)]
+print([f() for f in makers])          # all 2! not 0, 1, 2
+
+# The fix: bind the value now, with a default argument
+makers = [lambda i=i: i for i in range(3)]
+print([f() for f in makers])</code></pre>
+<pre class="out"><code class="nohl">[2, 2, 2]
+[0, 1, 2]</code></pre>
+    <p>
+      The lambdas captured the <em>variable</em> <code>i</code>, not its value. By the time
+      they ran, the loop had finished and <code>i</code> was 2. This is called late binding,
+      it exists in JavaScript too, and the default-argument trick is the standard workaround.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Sort records three ways</h3><p>Given a list of dictionaries, sort by pay descending, then by name, then by the length of the name, using the tool you find clearest each time.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from operator import itemgetter
+
+crew = [
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;pay&quot;: 100},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;pay&quot;: 40},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;pay&quot;: 250},
+]
+
+print([c[&quot;name&quot;] for c in sorted(crew, key=itemgetter(&quot;pay&quot;), reverse=True)])
+print([c[&quot;name&quot;] for c in sorted(crew, key=itemgetter(&quot;name&quot;))])
+print([c[&quot;name&quot;] for c in sorted(crew, key=lambda c: len(c[&quot;name&quot;]))])</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Elaine&#x27;, &#x27;Guybrush&#x27;, &#x27;Otis&#x27;]
+[&#x27;Elaine&#x27;, &#x27;Guybrush&#x27;, &#x27;Otis&#x27;]
+[&#x27;Otis&#x27;, &#x27;Elaine&#x27;, &#x27;Guybrush&#x27;]</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Rewrite the functional pile</h3><p>This works and nobody can read it. Rewrite it clearly.</p><pre data-verify="compile"><code>from functools import reduce
+result = reduce(lambda a, b: a + b,
+                map(lambda x: x * 2,
+                    filter(lambda x: x % 2 == 0, range(1, 11))))</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>result = sum(n * 2 for n in range(1, 11) if n % 2 == 0)
+print(result)
+
+# or, if the steps deserve names
+def is_even(n):
+    return n % 2 == 0
+
+
+evens = [n for n in range(1, 11) if is_even(n)]
+doubled = [n * 2 for n in evens]
+print(sum(doubled))</code></pre>
+<pre class="out"><code class="nohl">60
+60</code></pre><p>Same answer, and you can see what it means without reading inside-out. Nested map/filter/reduce is the classic sign of someone applying a style rather than solving a problem.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Build a small pipeline</h3><p>Write <code>compose</code> that takes any number of functions and returns one function applying them left to right. Use it to clean up some text.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from functools import reduce
+
+
+def compose(*functions):
+    &quot;&quot;&quot;Return a function applying each of these in order, left to right.&quot;&quot;&quot;
+    def piped(value):
+        return reduce(lambda acc, f: f(acc), functions, value)
+    return piped
+
+
+def strip(text):
+    return text.strip()
+
+
+def lower(text):
+    return text.lower()
+
+
+def collapse_spaces(text):
+    return &quot; &quot;.join(text.split())
+
+
+clean = compose(strip, lower, collapse_spaces)
+
+print(repr(clean(&quot;   The   SECRET of   Monkey Island   &quot;)))</code></pre>
+<pre class="out"><code class="nohl">&#x27;the secret of monkey island&#x27;</code></pre><p>This is one of the few places <code>reduce</code> genuinely reads well, because folding a list of functions over a value <em>is</em> the operation. Named pipeline stages also make each step separately testable.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-37-functional">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="36-context-managers.html"><span class="dir">← Previous</span>Lesson 36: Context Managers</a>
+      <a class="next" href="38-typing.html"><span class="dir">Next →</span>Lesson 38: Type Hints for Real</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
