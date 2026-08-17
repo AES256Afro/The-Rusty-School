@@ -60,6 +60,11 @@
     }
 
     const footList = document.querySelector(".site-footer .cols ul");
+    if (footList && !footList.querySelector('a[href$="certificate.html"]')) {
+      const li = document.createElement("li");
+      li.innerHTML = '<a href="' + campus + 'certificate.html">Certificate</a>';
+      footList.appendChild(li);
+    }
     if (footList && !footList.querySelector('a[href$="roadmap.html"]')) {
       const li = document.createElement("li");
       li.innerHTML = '<a href="' + campus + 'roadmap.html">Roadmap</a>';
@@ -778,8 +783,9 @@ _failed = not _ok
       blurb: "Every workshop project finished. You have a folder of programs that are yours.",
       need: () => [projectsDoneCount(), course().projects.length] },
     { id: "graduate", icon: "🎓", name: "Graduate",
-      blurb: "Every lesson in the school complete. Now go and teach somebody, which is the only way to find out what you really know.",
-      need: () => [lessonsDoneCount(), course().lessons.length] },
+      blurb: "Every lesson in the school complete. Collect your certificate, then go and teach somebody: it is the only way to find out what you really know.",
+      need: () => [lessonsDoneCount(), course().lessons.length],
+      reward: { href: "certificate.html", label: "Collect your certificate" } },
   ];
 
   function milestoneState() {
@@ -914,6 +920,14 @@ _failed = not _ok
         blurb.className = "ms-blurb";
         blurb.textContent = x.m.blurb;
         body.appendChild(blurb);
+      }
+      // Some milestones hand you something once they are reached.
+      if (x.reached && x.m.reward) {
+        const a = document.createElement("a");
+        a.className = "ms-reward";
+        a.href = campus + x.m.reward.href;
+        a.textContent = "🎓 " + x.m.reward.label + " →";
+        body.appendChild(a);
       }
       el.appendChild(icon);
       el.appendChild(body);

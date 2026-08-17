@@ -726,6 +726,12 @@ hr.soft { border: none; border-top: 1px solid var(--border); margin: 34px 0; }
 .ms.current .ms-icon { filter: none; opacity: 1; }
 .ms.current .ms-meta { color: var(--accent-soft); }
 .ms.locked { opacity: 0.72; }
+.ms-reward {
+  flex-basis: 100%; margin-top: 6px; align-self: flex-start;
+  display: inline-block; font-size: 0.88rem; font-weight: 700;
+  color: var(--accent-bright); text-decoration: none;
+}
+.ms-reward:hover { text-decoration: underline; }
 
 #continue .continue-body { max-width: 720px; }
 
@@ -752,6 +758,27 @@ hr.soft { border: none; border-top: 1px solid var(--border); margin: 34px 0; }
 [data-theme="light"] .ns-kicker { color: #c23b00; }
 [data-theme="light"] .ms.reached { background: rgba(90, 150, 40, 0.09); }
 [data-theme="light"] .ms.current { background: rgba(247, 76, 0, 0.06); }
+
+/* ---------- completion certificate ---------- */
+.cert-stage { margin: 22px 0 8px; }
+#cert-canvas {
+  width: 100%; height: auto; max-width: 900px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); background: #fff;
+}
+.cert-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.cert-field label { font-weight: 700; font-size: 0.92rem; }
+.cert-input {
+  background: var(--code-bg); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font: inherit; font-size: 1rem; padding: 10px 13px;
+}
+.cert-input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.cert-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.cert-progress { display: grid; gap: 14px; margin: 14px 0 4px; }
+.cert-row { display: flex; gap: 13px; align-items: flex-start; }
+.cert-row > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.cert-row-seal { font-size: 1.5rem; line-height: 1.2; flex: none; }
 
 /* ---------- campus search ----------
    Shared by both schools; the accent tokens are whatever the current
@@ -866,7 +893,11 @@ ul.tight li { margin-bottom: 5px; font-size: 0.93rem; }
 /* ---------- print (cheat sheets) ---------- */
 @media print {
   .site-header, .site-footer, .no-print,
-  .next-step, .ms-section, .toast { display: none !important; }
+  .next-step, .ms-section, .toast, .cs-overlay, .cs-nav-btn { display: none !important; }
+  /* the certificate prints on its own, edge to edge */
+  .cert-stage { margin: 0 !important; }
+  #cert-canvas { max-width: 100% !important; border: none !important; box-shadow: none !important; }
+  @page { size: landscape; margin: 10mm; }
   body { background: #fff; color: #111; font-size: 12px; }
   .card, pre { border-color: #ccc; box-shadow: none; }
   pre, pre code { background: #f6f2ec; color: #222; }
