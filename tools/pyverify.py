@@ -102,16 +102,22 @@ def run_snippet(python: str, src: str, stdin: str, workdir: Path) -> tuple[int, 
     # snippet file itself pristine so traceback line numbers stay honest
     (workdir / "sitecustomize.py").write_text(ECHO_INPUT, encoding="utf-8")
     env = dict(os.environ, PYTHONPATH=str(workdir))
+    # -u and merging stderr into stdout keep the two streams interleaved in
+    # the order they were actually written, which is what the reader sees in
+    # a terminal and what the in-browser runner produces. Capturing them
+    # separately and concatenating would reorder a lesson that deliberately
+    # prints to both.
     proc = subprocess.run(
-        [python, str(script)],
+        [python, "-u", str(script)],
         input=stdin,
-        capture_output=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         text=True,
         timeout=TIMEOUT,
         cwd=workdir,
         env=env,
     )
-    return proc.returncode, (proc.stdout + proc.stderr)
+    return proc.returncode, proc.stdout
 
 
 def normalise(text: str) -> str:

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 27: Command-Line Programs - The Python School</title>
+<meta name="description" content="sys.argv, argparse, flags, subcommands, exit codes, and making a script feel like a real Unix tool.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/27-cli">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 27: Command-Line Programs - The Python School">
+<meta property="og:description" content="sys.argv, argparse, flags, subcommands, exit codes, and making a script feel like a real Unix tool.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/27-cli">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 27: Command-Line Programs - The Python School">
+<meta name="twitter:description" content="sys.argv, argparse, flags, subcommands, exit codes, and making a script feel like a real Unix tool.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 27 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Command-Line Programs ⌨️</h1>
+    <p class="lede muted">The difference between a script you edit before every run and a tool you actually
+    use is about fifteen lines of argument parsing.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The raw way: sys.argv</h2>
+    <pre data-verify="compile"><code>import sys
+
+# when run as: python3 greet.py Guybrush pirate
+print(sys.argv)          # [&#x27;greet.py&#x27;, &#x27;Guybrush&#x27;, &#x27;pirate&#x27;]</code></pre>
+    <p>
+      <code>sys.argv</code> is a list of what was typed, with the script name first. It works,
+      and for a two-argument throwaway it is fine. It gives you no help text, no validation, no
+      flags, and no type conversion, which is why nobody uses it for anything real.
+    </p>
+
+    <h2>argparse: the standard answer</h2>
+    <pre class="run" data-verify="run"><code>import argparse
+
+parser = argparse.ArgumentParser(description=&quot;Greet someone, loudly if required.&quot;)
+parser.add_argument(&quot;name&quot;, help=&quot;who to greet&quot;)
+parser.add_argument(&quot;--times&quot;, type=int, default=1, help=&quot;how many times&quot;)
+parser.add_argument(&quot;--shout&quot;, action=&quot;store_true&quot;, help=&quot;use capital letters&quot;)
+
+# normally: args = parser.parse_args()
+# for this lesson we pass the list ourselves so the example can run
+args = parser.parse_args([&quot;Guybrush&quot;, &quot;--times&quot;, &quot;3&quot;, &quot;--shout&quot;])
+
+message = f&quot;Hello, {args.name}!&quot;
+if args.shout:
+    message = message.upper()
+
+for _ in range(args.times):
+    print(message)</code></pre>
+<pre class="out"><code class="nohl">HELLO, GUYBRUSH!
+HELLO, GUYBRUSH!
+HELLO, GUYBRUSH!</code></pre>
+    <p>For fifteen lines you get, entirely for free:</p>
+    <pre class="term"><code class="nohl">$ python3 greet.py --help
+usage: greet.py [-h] [--times TIMES] [--shout] name
+
+Greet someone, loudly if required.
+
+positional arguments:
+  name           who to greet
+
+options:
+  -h, --help     show this help message and exit
+  --times TIMES  how many times
+  --shout        use capital letters
+
+$ python3 greet.py
+usage: greet.py [-h] [--times TIMES] [--shout] name
+greet.py: error: the following arguments are required: name</code></pre>
+    <p>
+      Help text, usage lines, error messages, and a non-zero exit code on failure. Writing that
+      by hand takes an hour and is worse.
+    </p>
+
+    <h2>The argument types you will use</h2>
+    <pre class="run" data-verify="run"><code>import argparse
+
+parser = argparse.ArgumentParser(prog=&quot;crewtool&quot;)
+
+parser.add_argument(&quot;files&quot;, nargs=&quot;+&quot;, help=&quot;one or more files&quot;)
+parser.add_argument(&quot;-o&quot;, &quot;--output&quot;, default=&quot;out.txt&quot;, help=&quot;where to write&quot;)
+parser.add_argument(&quot;-n&quot;, &quot;--limit&quot;, type=int, default=10, help=&quot;max rows&quot;)
+parser.add_argument(&quot;-v&quot;, &quot;--verbose&quot;, action=&quot;store_true&quot;, help=&quot;chatty mode&quot;)
+parser.add_argument(&quot;--format&quot;, choices=[&quot;json&quot;, &quot;csv&quot;, &quot;text&quot;], default=&quot;text&quot;)
+
+args = parser.parse_args([&quot;a.csv&quot;, &quot;b.csv&quot;, &quot;-n&quot;, &quot;5&quot;, &quot;--format&quot;, &quot;json&quot;, &quot;-v&quot;])
+
+print(args.files)
+print(args.output, args.limit, args.verbose, args.format)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;a.csv&#x27;, &#x27;b.csv&#x27;]
+out.txt 5 True json</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Written as</th><th>Gives you</th></tr></thead><tbody><tr><td><code>add_argument("name")</code></td><td>A required positional argument</td></tr><tr><td><code>add_argument("--flag")</code></td><td>An optional named argument</td></tr><tr><td><code>action="store_true"</code></td><td>A yes/no switch, False unless present</td></tr><tr><td><code>type=int</code></td><td>Automatic conversion, with a clear error if it fails</td></tr><tr><td><code>default=x</code></td><td>What to use when it is not given</td></tr><tr><td><code>choices=[...]</code></td><td>Validation against a fixed set</td></tr><tr><td><code>nargs="+"</code></td><td>One or more values, as a list</td></tr><tr><td><code>nargs="?"</code></td><td>Optional positional</td></tr><tr><td><code>required=True</code></td><td>Force an optional argument to be given</td></tr></tbody></table></div>
+
+    <h2>Subcommands, like git</h2>
+    <pre class="run" data-verify="run"><code>import argparse
+
+parser = argparse.ArgumentParser(prog=&quot;crew&quot;)
+subs = parser.add_subparsers(dest=&quot;command&quot;, required=True)
+
+add = subs.add_parser(&quot;add&quot;, help=&quot;add a crew member&quot;)
+add.add_argument(&quot;name&quot;)
+add.add_argument(&quot;--role&quot;, default=&quot;deckhand&quot;)
+
+remove = subs.add_parser(&quot;remove&quot;, help=&quot;remove someone&quot;)
+remove.add_argument(&quot;name&quot;)
+
+subs.add_parser(&quot;list&quot;, help=&quot;show everyone&quot;)
+
+
+def run(argv):
+    args = parser.parse_args(argv)
+    if args.command == &quot;add&quot;:
+        return f&quot;Added {args.name} as {args.role}&quot;
+    if args.command == &quot;remove&quot;:
+        return f&quot;Removed {args.name}&quot;
+    return &quot;Crew: Guybrush, Elaine, Otis&quot;
+
+
+print(run([&quot;add&quot;, &quot;Meathook&quot;, &quot;--role&quot;, &quot;lookout&quot;]))
+print(run([&quot;remove&quot;, &quot;Otis&quot;]))
+print(run([&quot;list&quot;]))</code></pre>
+<pre class="out"><code class="nohl">Added Meathook as lookout
+Removed Otis
+Crew: Guybrush, Elaine, Otis</code></pre>
+    <p>
+      That is the shape of <code>git commit</code>, <code>docker run</code> and
+      <code>pip install</code>. Each subcommand gets its own arguments and its own help.
+    </p>
+
+    <h2>Exit codes, and why they matter</h2>
+    <pre class="run" data-verify="run"><code>import sys
+
+
+def main():
+    &quot;&quot;&quot;Return 0 for success, non-zero for failure.&quot;&quot;&quot;
+    problem = True
+    if problem:
+        print(&quot;could not read the crew file&quot;, file=sys.stderr)
+        return 1
+    print(&quot;all good&quot;)
+    return 0
+
+
+# in a real script:
+# if __name__ == &quot;__main__&quot;:
+#     sys.exit(main())
+
+print(&quot;would exit with&quot;, main())</code></pre>
+<pre class="out"><code class="nohl">could not read the crew file
+would exit with 1</code></pre>
+    <p>Two conventions that make your tool a good citizen of the command line:</p>
+    <ul>
+      <li><strong>Exit 0 for success, non-zero for failure.</strong> This is how
+      <code>&amp;&amp;</code>, shell scripts and CI systems know whether to continue. A program
+      that always exits 0 cannot be automated.</li>
+      <li><strong>Errors go to stderr, results go to stdout.</strong> Then someone can write
+      <code>mytool data.csv &gt; results.txt</code> and still see the error messages on screen
+      rather than mixed into their output file.</li>
+    </ul>
+
+    <h2>The complete shape of a real tool</h2>
+    <pre data-verify="compile"><code>#!/usr/bin/env python3
+&quot;&quot;&quot;wordcount: count lines, words and characters in files.&quot;&quot;&quot;
+
+import argparse
+import sys
+from pathlib import Path
+
+
+def count(path):
+    &quot;&quot;&quot;Return (lines, words, characters) for one file.&quot;&quot;&quot;
+    text = Path(path).read_text(encoding=&quot;utf-8&quot;)
+    return len(text.splitlines()), len(text.split()), len(text)
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog=&quot;wordcount&quot;,
+        description=&quot;Count lines, words and characters.&quot;,
+    )
+    parser.add_argument(&quot;files&quot;, nargs=&quot;+&quot;, help=&quot;files to count&quot;)
+    parser.add_argument(&quot;-l&quot;, &quot;--lines-only&quot;, action=&quot;store_true&quot;)
+    return parser
+
+
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    failures = 0
+
+    for name in args.files:
+        try:
+            lines, words, chars = count(name)
+        except FileNotFoundError:
+            print(f&quot;wordcount: {name}: no such file&quot;, file=sys.stderr)
+            failures += 1
+            continue
+        if args.lines_only:
+            print(f&quot;{lines:6} {name}&quot;)
+        else:
+            print(f&quot;{lines:6} {words:6} {chars:6}  {name}&quot;)
+
+    return 1 if failures else 0
+
+
+if __name__ == &quot;__main__&quot;:
+    sys.exit(main())</code></pre>
+    <p>
+      Note the structure: <code>count</code> is a pure function with no argument parsing in
+      it, <code>build_parser</code> is separate so tests can inspect it, and <code>main</code>
+      takes an optional <code>argv</code> so tests can call it directly without touching the
+      real command line. That last trick is what makes a CLI testable, and it costs one
+      default argument.
+    </p>
+
+    <div class="callout tip"><span class="co-title">🎨 When you want it to look good</span><p>The standard library is deliberately plain. Two popular third-party options: <a href='https://typer.tiangolo.com' target='_blank' rel='noopener'>Typer</a> builds the whole parser from your function's type hints, and <a href='https://rich.readthedocs.io' target='_blank' rel='noopener'>rich</a> gives you colours, tables, progress bars and spinners in about two lines. Neither is needed to learn the ideas, and both are a joy once you have.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Add flags to a converter</h3><p>Build a parser for a temperature tool that takes a number, a <code>--to</code> choice of c or f, and an optional <code>--precision</code>. Show it working for two different calls.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import argparse
+
+parser = argparse.ArgumentParser(description=&quot;Convert temperatures.&quot;)
+parser.add_argument(&quot;value&quot;, type=float, help=&quot;the temperature to convert&quot;)
+parser.add_argument(&quot;--to&quot;, choices=[&quot;c&quot;, &quot;f&quot;], required=True, help=&quot;target scale&quot;)
+parser.add_argument(&quot;--precision&quot;, type=int, default=1, help=&quot;decimal places&quot;)
+
+
+def convert(argv):
+    args = parser.parse_args(argv)
+    if args.to == &quot;f&quot;:
+        result = args.value * 9 / 5 + 32
+    else:
+        result = (args.value - 32) * 5 / 9
+    return f&quot;{result:.{args.precision}f}°{args.to.upper()}&quot;
+
+
+print(convert([&quot;100&quot;, &quot;--to&quot;, &quot;f&quot;]))
+print(convert([&quot;212&quot;, &quot;--to&quot;, &quot;c&quot;, &quot;--precision&quot;, &quot;3&quot;]))</code></pre>
+<pre class="out"><code class="nohl">212.0°F
+100.000°C</code></pre><p>Note <code>{{result:.{{args.precision}}f}}</code>: an f-string can compute its own format spec from a variable. Genuinely useful and not widely known.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Design a CLI on paper</h3><p>You are building a tool that backs up a folder. Write out the <code>--help</code> output you would want <em>before</em> writing any code. What arguments does it need?</p><details class="solution"><summary>Reveal solution</summary><pre class="term"><code class="nohl">usage: backup [-h] [--dest DEST] [--exclude PATTERN] [--dry-run]
+              [--compress] [-v] source
+
+Back up a folder, skipping anything you tell it to.
+
+positional arguments:
+  source              the folder to back up
+
+options:
+  -h, --help          show this help message and exit
+  --dest DEST         where to put the backup (default: ./backups)
+  --exclude PATTERN   glob to skip, may be given several times
+  --dry-run           show what would happen, change nothing
+  --compress          write a .zip instead of a folder
+  -v, --verbose       list every file as it is copied</code></pre><p>Designing the interface first is a real technique, sometimes called README-driven development. <code>--dry-run</code> in particular is the mark of a considerate tool: anything that deletes or overwrites should offer a way to preview it, and you will thank yourself the first time you point it at the wrong folder.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Make it testable</h3><p>Why does <code>def main(argv=None)</code> matter, and how would you test the tool without running it from a terminal?</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import argparse
+
+
+def build_parser():
+    p = argparse.ArgumentParser()
+    p.add_argument(&quot;name&quot;)
+    p.add_argument(&quot;--times&quot;, type=int, default=1)
+    return p
+
+
+def main(argv=None):
+    &quot;&quot;&quot;argv=None means &#x27;read the real command line&#x27;, but tests can pass a list.&quot;&quot;&quot;
+    args = build_parser().parse_args(argv)
+    return [f&quot;Hello, {args.name}!&quot; for _ in range(args.times)]
+
+
+# a test, with no terminal involved at all
+assert main([&quot;Guybrush&quot;]) == [&quot;Hello, Guybrush!&quot;]
+assert len(main([&quot;Elaine&quot;, &quot;--times&quot;, &quot;3&quot;])) == 3
+print(&quot;both assertions passed&quot;)</code></pre>
+<pre class="out"><code class="nohl">both assertions passed</code></pre><p>With <code>argv=None</code>, argparse falls back to <code>sys.argv[1:]</code> in real use, and your tests hand it a list instead. Same code path, no subprocess, no fixtures. Lesson 29 turns those <code>assert</code> lines into a proper test suite.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-27-cli">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="26-venv.html"><span class="dir">← Previous</span>Lesson 26: Virtual Environments and pip</a>
+      <a class="next" href="28-debugging.html"><span class="dir">Next →</span>Lesson 28: Debugging and Logging</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

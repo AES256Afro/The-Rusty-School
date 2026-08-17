@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 22: Exceptions: Handling Failure - The Python School</title>
+<meta name="description" content="try/except/else/finally, catching specific exceptions, raising your own, and custom exception classes.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/22-exceptions">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 22: Exceptions: Handling Failure - The Python School">
+<meta property="og:description" content="try/except/else/finally, catching specific exceptions, raising your own, and custom exception classes.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/22-exceptions">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 22: Exceptions: Handling Failure - The Python School">
+<meta name="twitter:description" content="try/except/else/finally, catching specific exceptions, raising your own, and custom exception classes.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 22 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Exceptions: Handling Failure 🧯</h1>
+    <p class="lede muted">Things go wrong: files vanish, networks drop, users type 'banana' into an age box.
+    Exceptions are how Python lets you plan for that without every line becoming a check.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>try and except</h2>
+    <pre class="run" data-verify="run"><code>raw = &quot;banana&quot;
+
+try:
+    number = int(raw)
+    print(f&quot;Got {number}&quot;)
+except ValueError:
+    print(f&quot;&#x27;{raw}&#x27; is not a number.&quot;)
+
+print(&quot;The program carries on.&quot;)</code></pre>
+<pre class="out"><code class="nohl">&#x27;banana&#x27; is not a number.
+The program carries on.</code></pre>
+    <p>
+      Python attempts the <code>try</code> block. If an exception of the named type appears,
+      it jumps straight to the matching <code>except</code> and carries on afterwards. Without
+      that handler, the program would stop dead.
+    </p>
+
+    <h2>Catch what you expect, not everything</h2>
+    <pre class="run" data-verify="run"><code># Never do this
+try:
+    result = 10 / 0
+except:                     # catches literally everything
+    print(&quot;something went wrong&quot;)
+
+# Do this
+try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print(&quot;cannot divide by zero&quot;)</code></pre>
+<pre class="out"><code class="nohl">something went wrong
+cannot divide by zero</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Formidable: Success]</span></div><p>A bare except swallows everything. Your typo in a variable name: swallowed. The user pressing Ctrl+C to quit: swallowed. A genuine out-of-memory condition: swallowed, and then the program keeps going in a state nobody designed for.</p>
+<p>You have not handled the error. You have hidden it, and it will surface somewhere far away with no clue where it came from.</p></div>
+
+    <p>Catch several, or several at once:</p>
+    <pre class="run" data-verify="run"><code>def to_number(text):
+    try:
+        return int(text)
+    except ValueError:
+        return f&quot;&#x27;{text}&#x27; has no digits I can use&quot;
+    except TypeError:
+        return &quot;I need text, not that&quot;
+
+
+print(to_number(&quot;42&quot;))
+print(to_number(&quot;banana&quot;))
+print(to_number(None))
+
+
+def read_config(value):
+    try:
+        return 100 / int(value)
+    except (ValueError, ZeroDivisionError) as err:
+        return f&quot;{type(err).__name__}: {err}&quot;
+
+
+print(read_config(&quot;4&quot;))
+print(read_config(&quot;0&quot;))
+print(read_config(&quot;x&quot;))</code></pre>
+<pre class="out"><code class="nohl">42
+&#x27;banana&#x27; has no digits I can use
+I need text, not that
+25.0
+ZeroDivisionError: division by zero
+ValueError: invalid literal for int() with base 10: &#x27;x&#x27;</code></pre>
+    <p>
+      <code>as err</code> gives you the exception object itself, which carries the message.
+      Printing <code>type(err).__name__</code> and <code>err</code> is how you log something
+      useful rather than "an error occurred".
+    </p>
+
+    <h2>else and finally</h2>
+    <pre class="run" data-verify="run"><code>def divide(a, b):
+    try:
+        result = a / b
+    except ZeroDivisionError:
+        print(&quot;  cannot divide by zero&quot;)
+        return None
+    else:
+        print(&quot;  no exception, so this ran&quot;)
+        return result
+    finally:
+        print(&quot;  finally always runs&quot;)
+
+
+print(divide(10, 2))
+print(divide(10, 0))</code></pre>
+<pre class="out"><code class="nohl">  no exception, so this ran
+  finally always runs
+5.0
+  cannot divide by zero
+  finally always runs
+None</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Block</th><th>Runs when</th></tr></thead><tbody><tr><td><code>try</code></td><td>Always. The risky part</td></tr><tr><td><code>except</code></td><td>Only if a matching exception was raised</td></tr><tr><td><code>else</code></td><td>Only if <strong>no</strong> exception was raised</td></tr><tr><td><code>finally</code></td><td>Always, exception or not, even after a return</td></tr></tbody></table></div>
+    <p>
+      <code>finally</code> is for cleanup that must happen regardless: closing a connection,
+      releasing a lock, deleting a temporary file. Note in the output above that it ran even
+      though the function had already decided to return.
+    </p>
+
+    <h2>Keep the try block small</h2>
+    <pre class="run" data-verify="run"><code>values = [&quot;12&quot;, &quot;banana&quot;, &quot;7&quot;]
+
+# Too wide: the ValueError might come from anywhere in here
+try:
+    total = 0
+    for v in values:
+        total += int(v)
+    average = total / len(values)
+    print(average)
+except ValueError:
+    print(&quot;something in there was not a number, but which?&quot;)
+
+# Better: the try wraps exactly the risky line
+total = 0
+skipped = []
+for v in values:
+    try:
+        total += int(v)
+    except ValueError:
+        skipped.append(v)
+
+print(f&quot;total {total}, skipped {skipped}&quot;)</code></pre>
+<pre class="out"><code class="nohl">something in there was not a number, but which?
+total 19, skipped [&#x27;banana&#x27;]</code></pre>
+
+    <h2>Raising your own</h2>
+    <pre class="run" data-verify="run"><code>def set_age(age):
+    if not isinstance(age, int):
+        raise TypeError(f&quot;age must be a whole number, got {type(age).__name__}&quot;)
+    if age &lt; 0:
+        raise ValueError(f&quot;age cannot be negative, got {age}&quot;)
+    return f&quot;age set to {age}&quot;
+
+
+print(set_age(30))
+
+for bad in [-5, &quot;thirty&quot;]:
+    try:
+        set_age(bad)
+    except (TypeError, ValueError) as err:
+        print(f&quot;{type(err).__name__}: {err}&quot;)</code></pre>
+<pre class="out"><code class="nohl">age set to 30
+ValueError: age cannot be negative, got -5
+TypeError: age must be a whole number, got str</code></pre>
+    <p>
+      Raising early with a clear message is a kindness. The alternative is that the bad value
+      travels three functions deep and explodes somewhere that gives no hint about where it
+      came from. This is called failing fast, and it is one of the highest-value habits in
+      software.
+    </p>
+
+    <h2>Your own exception types</h2>
+    <pre class="run" data-verify="run"><code>class InsufficientGrogError(Exception):
+    &quot;&quot;&quot;Raised when a pirate cannot afford the round.&quot;&quot;&quot;
+
+    def __init__(self, needed, available):
+        self.needed = needed
+        self.available = available
+        super().__init__(f&quot;need {needed} mugs, only {available} left&quot;)
+
+
+def serve_round(crew_size, barrels):
+    if crew_size &gt; barrels:
+        raise InsufficientGrogError(crew_size, barrels)
+    return f&quot;Served {crew_size} mugs.&quot;
+
+
+print(serve_round(3, 10))
+
+try:
+    serve_round(12, 4)
+except InsufficientGrogError as err:
+    print(f&quot;Caught: {err}&quot;)
+    print(f&quot;Short by {err.needed - err.available}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Served 3 mugs.
+Caught: need 12 mugs, only 4 left
+Short by 8</code></pre>
+    <p>
+      A custom exception is a class that inherits from <code>Exception</code> (classes are
+      Lesson 31; you can copy this shape until then). It lets callers catch <em>your</em>
+      specific problem without catching everything, and it can carry structured data about
+      what went wrong, which a plain string cannot.
+    </p>
+
+    <h2>Re-raising and chaining</h2>
+    <pre class="run" data-verify="run"><code>def load_settings(raw):
+    try:
+        return int(raw)
+    except ValueError as err:
+        raise ValueError(f&quot;settings file is corrupt: {raw!r}&quot;) from err
+
+
+try:
+    load_settings(&quot;not-a-number&quot;)
+except ValueError as err:
+    print(err)
+    print(&quot;caused by:&quot;, type(err.__cause__).__name__)</code></pre>
+<pre class="out"><code class="nohl">settings file is corrupt: &#x27;not-a-number&#x27;
+caused by: ValueError</code></pre>
+    <p>
+      <code>raise ... from err</code> adds context without losing the original. In a real
+      traceback you see both, joined by "The above exception was the direct cause of the
+      following exception". It turns a mysterious low-level error into a story.
+    </p>
+
+    <h2>When not to use exceptions</h2>
+    <pre class="run" data-verify="run"><code>crew = {&quot;Guybrush&quot;: 8}
+
+# Clumsy
+try:
+    insults = crew[&quot;Elaine&quot;]
+except KeyError:
+    insults = 0
+
+# Just say what you mean
+insults = crew.get(&quot;Elaine&quot;, 0)
+print(insults)</code></pre>
+<pre class="out"><code class="nohl">0</code></pre>
+    <p>
+      Exceptions are for the exceptional. If a situation is normal and expected, handle it
+      with ordinary logic: <code>.get()</code>, an <code>if</code>, a default. A
+      <code>try</code> around every line is as unreadable as no error handling at all.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Bulletproof number input</h3><p>Write <code>ask_number</code> that keeps asking until it gets a valid whole number between a low and high bound, explaining each rejection.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run" data-stdin="banana&#10;500&#10;-3&#10;42"><code>def ask_number(prompt, low, high):
+    &quot;&quot;&quot;Ask until the human gives a whole number within range.&quot;&quot;&quot;
+    while True:
+        raw = input(f&quot;{prompt} ({low}-{high}): &quot;)
+        try:
+            value = int(raw)
+        except ValueError:
+            print(f&quot;  &#x27;{raw}&#x27; is not a whole number. Digits only, please.&quot;)
+            continue
+        if not low &lt;= value &lt;= high:
+            print(f&quot;  {value} is outside {low} to {high}.&quot;)
+            continue
+        return value
+
+
+age = ask_number(&quot;Your age&quot;, 1, 120)
+print(f&quot;Thank you, {age}.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Your age (1-120): banana
+  &#x27;banana&#x27; is not a whole number. Digits only, please.
+Your age (1-120): 500
+  500 is outside 1 to 120.
+Your age (1-120): -3
+  -3 is outside 1 to 120.
+Your age (1-120): 42
+Thank you, 42.</code></pre><p>This tiny function is genuinely production-grade: it cannot be crashed by any input, and it explains every rejection. Steal it.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>What is wrong with this?</h3><p>Four separate sins. Name them.</p><pre data-verify="compile"><code>def load(path):
+    try:
+        f = open(path)
+        data = f.read()
+        number = int(data)
+        return 100 / number
+    except:
+        pass</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Bare except.</strong> It catches typos, Ctrl+C and everything else.</li><li><strong><code>pass</code> as the handler.</strong> The failure is now completely invisible; the function silently returns None and the caller has no idea why.</li><li><strong>No <code>with</code>.</strong> If <code>int()</code> raises, the file is never closed.</li><li><strong>The try is far too wide.</strong> Three different failures (missing file, non-numeric contents, division by zero) are treated as one nameless event.</li></ol><pre class="run" data-verify="run"><code>def load(path):
+    &quot;&quot;&quot;Return 100 divided by the number in path, or None with a reason.&quot;&quot;&quot;
+    try:
+        with open(path, encoding=&quot;utf-8&quot;) as f:
+            data = f.read()
+    except FileNotFoundError:
+        print(f&quot;no such file: {path}&quot;)
+        return None
+
+    try:
+        number = int(data.strip())
+    except ValueError:
+        print(f&quot;{path} does not contain a whole number&quot;)
+        return None
+
+    if number == 0:
+        print(f&quot;{path} contains zero, cannot divide by it&quot;)
+        return None
+
+    return 100 / number
+
+
+print(load(&quot;nope.txt&quot;))</code></pre>
+<pre class="out"><code class="nohl">no such file: nope.txt
+None</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>A custom exception with data</h3><p>Write a <code>Vault</code> function that raises a custom <code>WrongCombinationError</code> carrying how many attempts remain, and a caller that reports it.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>class WrongCombinationError(Exception):
+    &quot;&quot;&quot;Raised when the vault combination is wrong.&quot;&quot;&quot;
+
+    def __init__(self, attempts_left):
+        self.attempts_left = attempts_left
+        super().__init__(f&quot;wrong combination, {attempts_left} attempts left&quot;)
+
+
+def try_combination(guess, correct=&quot;1-2-3&quot;, attempts_used=0):
+    if guess != correct:
+        raise WrongCombinationError(3 - attempts_used - 1)
+    return &quot;The vault swings open.&quot;
+
+
+for attempt, guess in enumerate([&quot;9-9-9&quot;, &quot;1-2-3&quot;]):
+    try:
+        print(try_combination(guess, attempts_used=attempt))
+    except WrongCombinationError as err:
+        print(f&quot;Denied. {err.attempts_left} left.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Denied. 2 left.
+The vault swings open.</code></pre></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-22-exceptions">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="21-files.html"><span class="dir">← Previous</span>Lesson 21: Files: Making Things Last</a>
+      <a class="next" href="23-data-formats.html"><span class="dir">Next →</span>Lesson 23: JSON and CSV</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

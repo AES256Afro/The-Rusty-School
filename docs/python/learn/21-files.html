@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 21: Files: Making Things Last - The Python School</title>
+<meta name="description" content="Reading and writing text files, the with statement, encodings, and pathlib for handling paths properly.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/21-files">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 21: Files: Making Things Last - The Python School">
+<meta property="og:description" content="Reading and writing text files, the with statement, encodings, and pathlib for handling paths properly.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/21-files">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 21: Files: Making Things Last - The Python School">
+<meta name="twitter:description" content="Reading and writing text files, the with statement, encodings, and pathlib for handling paths properly.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 21 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Files: Making Things Last 💾</h1>
+    <p class="lede muted">Everything your programs have done so far vanished the moment they ended. Files are
+    how a program remembers something tomorrow.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Writing a file</h2>
+    <pre class="run" data-verify="run"><code>with open(&quot;crew.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;Guybrush\n&quot;)
+    f.write(&quot;Elaine\n&quot;)
+    f.write(&quot;Otis\n&quot;)
+
+print(&quot;Written.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Written.</code></pre>
+    <p>Three things to notice:</p>
+    <ul>
+      <li><code>"w"</code> means write, and it <strong>destroys whatever was there</strong>
+      without asking. Use <code>"a"</code> to append instead.</li>
+      <li><code>\n</code> is the newline. <code>f.write</code> does not add one for you, unlike
+      <code>print</code>.</li>
+      <li><code>with</code> is doing something important, which is the next section.</li>
+    </ul>
+    <div class="table-wrap"><table><thead><tr><th>Mode</th><th>Means</th><th>If the file exists</th><th>If it does not</th></tr></thead><tbody><tr><td><code>"r"</code></td><td>read (the default)</td><td>reads it</td><td>FileNotFoundError</td></tr><tr><td><code>"w"</code></td><td>write</td><td><strong>empties it first</strong></td><td>creates it</td></tr><tr><td><code>"a"</code></td><td>append</td><td>adds at the end</td><td>creates it</td></tr><tr><td><code>"x"</code></td><td>exclusive create</td><td>FileExistsError</td><td>creates it</td></tr><tr><td><code>"rb"</code> / <code>"wb"</code></td><td>binary</td><td>for images, zips, anything not text</td><td></td></tr></tbody></table></div>
+
+    <h2>Why with, and not just open</h2>
+    <pre class="run" data-verify="run"><code># The way you should never write it
+f = open(&quot;notes.txt&quot;, &quot;w&quot;)
+f.write(&quot;something&quot;)
+f.close()          # if anything above raises, this never runs
+
+# The way everyone writes it
+with open(&quot;notes.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;something&quot;)
+# closed automatically, even if an error was raised inside
+
+print(&quot;done&quot;)</code></pre>
+<pre class="out"><code class="nohl">done</code></pre>
+    <p>
+      An open file holds an operating system resource, and on many systems the data you wrote
+      is not actually on disk until it is closed. <code>with</code> guarantees the close
+      happens no matter what, including when an exception fires halfway through. It is called
+      a <strong>context manager</strong>, you meet the machinery in Lesson 36, and until then
+      the rule is simply: always use <code>with</code> for files.
+    </p>
+
+    <h2>Reading it back, three ways</h2>
+    <pre class="run" data-verify="run"><code>with open(&quot;crew.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;Guybrush\nElaine\nOtis\n&quot;)
+
+# 1. the whole thing as one string
+with open(&quot;crew.txt&quot;) as f:
+    print(repr(f.read()))
+
+# 2. a list of lines
+with open(&quot;crew.txt&quot;) as f:
+    print(f.readlines())
+
+# 3. one line at a time, which is the one you want
+with open(&quot;crew.txt&quot;) as f:
+    for line in f:
+        print(f&quot;  {line.strip()}&quot;)</code></pre>
+<pre class="out"><code class="nohl">&#x27;Guybrush\nElaine\nOtis\n&#x27;
+[&#x27;Guybrush\n&#x27;, &#x27;Elaine\n&#x27;, &#x27;Otis\n&#x27;]
+  Guybrush
+  Elaine
+  Otis</code></pre>
+
+    <div class="voice" data-skill="interfacing"><div class="v-head"><span class="v-name">INTERFACING</span><span class="v-check success">[Medium: Success]</span></div><p>Option three never holds more than one line in memory. Options one and two load the entire file. For a shopping list that is irrelevant. For an eight gigabyte log file it is the difference between a program that works and a machine that starts swapping and has to be rebooted.</p>
+<p>Loop over the file object. It is shorter to type as well.</p></div>
+
+    <p>
+      Note <code>.strip()</code> on every line: the newline character comes along with the
+      text, and forgetting it produces bugs where <code>"Otis\n" != "Otis"</code> and nobody
+      can see why.
+    </p>
+
+    <h2>Encodings: always say utf-8</h2>
+    <pre class="run" data-verify="run"><code>with open(&quot;names.txt&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    f.write(&quot;Guybrush\nElaine\nMonkey 🐒\nZoë\n&quot;)
+
+with open(&quot;names.txt&quot;, encoding=&quot;utf-8&quot;) as f:
+    for line in f:
+        print(line.strip())</code></pre>
+<pre class="out"><code class="nohl">Guybrush
+Elaine
+Monkey 🐒
+Zoë</code></pre>
+    <div class="callout danger"><span class="co-title">🌍 Always pass encoding='utf-8'</span><p>Without it, Python uses your operating system's default, which is UTF-8 on Mac and Linux and, historically, something else on Windows. That is why files written on one machine sometimes arrive as <code>Zoë</code> on another. Passing <code>encoding="utf-8"</code> every single time removes an entire genre of bug, and Python 3.15 is making it the default precisely because of how much pain it has caused.</p></div>
+
+    <h2>pathlib: stop gluing strings together</h2>
+    <pre class="run" data-verify="run"><code>from pathlib import Path
+
+# the old way, which breaks on Windows
+old = &quot;data&quot; + &quot;/&quot; + &quot;crew.txt&quot;
+
+# the way that works everywhere
+p = Path(&quot;data&quot;) / &quot;crew.txt&quot;
+
+print(old)
+print(p)
+print(p.name, p.stem, p.suffix)
+print(p.parent)</code></pre>
+<pre class="out"><code class="nohl">data/crew.txt
+data/crew.txt
+crew.txt crew .txt
+data</code></pre>
+    <p>
+      The <code>/</code> operator on a <code>Path</code> joins path parts with the right
+      separator for the machine it runs on. <code>pathlib</code> also folds most of the file
+      operations you need into one object:
+    </p>
+    <pre class="run" data-verify="run"><code>from pathlib import Path
+
+notes = Path(&quot;notes.txt&quot;)
+
+notes.write_text(&quot;Remember the rubber chicken.\n&quot;, encoding=&quot;utf-8&quot;)
+print(notes.read_text(encoding=&quot;utf-8&quot;).strip())
+
+print(notes.exists())
+print(notes.stat().st_size, &quot;bytes&quot;)
+
+notes.unlink()               # delete
+print(notes.exists())</code></pre>
+<pre class="out"><code class="nohl">Remember the rubber chicken.
+True
+29 bytes
+False</code></pre>
+
+    <h2>Checking before you leap</h2>
+    <pre class="run" data-verify="run"><code>from pathlib import Path
+
+wanted = Path(&quot;does-not-exist.txt&quot;)
+
+if wanted.exists():
+    print(wanted.read_text())
+else:
+    print(&quot;No such file, using defaults instead.&quot;)
+
+# The more Pythonic version: try it and handle failure
+try:
+    print(wanted.read_text())
+except FileNotFoundError:
+    print(&quot;Still not there.&quot;)</code></pre>
+<pre class="out"><code class="nohl">No such file, using defaults instead.
+Still not there.</code></pre>
+    <p>
+      Both are fine. The second is generally preferred in Python, and there is even a slogan
+      for it: "easier to ask forgiveness than permission". The reason is not style, it is that
+      between your <code>exists()</code> check and your <code>read</code>, another program
+      could delete the file. Handling the error covers both cases. Lesson 22 is entirely about
+      this.
+    </p>
+
+    <h2>Walking a folder</h2>
+    <pre class="run" data-verify="run"><code>from pathlib import Path
+
+# make a small tree to explore
+Path(&quot;ship/cargo&quot;).mkdir(parents=True, exist_ok=True)
+Path(&quot;ship/log.txt&quot;).write_text(&quot;day one\n&quot;, encoding=&quot;utf-8&quot;)
+Path(&quot;ship/cargo/grog.txt&quot;).write_text(&quot;47 barrels\n&quot;, encoding=&quot;utf-8&quot;)
+Path(&quot;ship/cargo/map.txt&quot;).write_text(&quot;x marks it\n&quot;, encoding=&quot;utf-8&quot;)
+
+print(&quot;Top level only:&quot;)
+for item in sorted(Path(&quot;ship&quot;).iterdir()):
+    kind = &quot;dir &quot; if item.is_dir() else &quot;file&quot;
+    print(f&quot;  {kind} {item}&quot;)
+
+print(&quot;Every .txt, all the way down:&quot;)
+for item in sorted(Path(&quot;ship&quot;).rglob(&quot;*.txt&quot;)):
+    print(f&quot;  {item} ({item.stat().st_size} bytes)&quot;)</code></pre>
+<pre class="out"><code class="nohl">Top level only:
+  dir  ship/cargo
+  file ship/log.txt
+Every .txt, all the way down:
+  ship/cargo/grog.txt (11 bytes)
+  ship/cargo/map.txt (11 bytes)
+  ship/log.txt (8 bytes)</code></pre>
+    <p>
+      <code>glob("*.txt")</code> looks in one folder, <code>rglob</code> recurses into every
+      subfolder. Those two lines replace a startling amount of the shell scripting people
+      write, and this is the foundation of the file-organiser project in the workshop.
+    </p>
+
+    <div class="callout warn"><span class="co-title">🧹 A note about these examples</span><p>These blocks create real files when you run them. In the browser they land in a sandbox that vanishes when you reload, so nothing on your computer is touched. On your own machine they appear in whichever folder you ran Python from, which is a good reason to keep a scratch folder for experiments.</p></div>
+
+    <h2>A real one: a note-taking script</h2>
+    <pre class="run" data-verify="run"><code>from pathlib import Path
+from datetime import datetime
+
+NOTES = Path(&quot;captains_log.txt&quot;)
+
+
+def add_note(text):
+    &quot;&quot;&quot;Append a timestamped line to the log.&quot;&quot;&quot;
+    stamp = datetime(1990, 10, 15, 9, 30).strftime(&quot;%Y-%m-%d %H:%M&quot;)
+    with open(NOTES, &quot;a&quot;, encoding=&quot;utf-8&quot;) as f:
+        f.write(f&quot;[{stamp}] {text}\n&quot;)
+
+
+def show_notes():
+    &quot;&quot;&quot;Print the log, or say so if it is empty.&quot;&quot;&quot;
+    if not NOTES.exists():
+        print(&quot;No log yet.&quot;)
+        return
+    for i, line in enumerate(NOTES.read_text(encoding=&quot;utf-8&quot;).splitlines(), start=1):
+        print(f&quot;{i}. {line}&quot;)
+
+
+add_note(&quot;Became a mighty pirate.&quot;)
+add_note(&quot;Lost the ship. Again.&quot;)
+show_notes()</code></pre>
+<pre class="out"><code class="nohl">1. [1990-10-15 09:30] Became a mighty pirate.
+2. [1990-10-15 09:30] Lost the ship. Again.</code></pre>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Word count on a file</h3><p>Write a file with several lines, then report the number of lines, words and characters, in the style of the Unix <code>wc</code> command.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from pathlib import Path
+
+text = &quot;&quot;&quot;It is a rubber chicken.
+It has a pulley in the middle.
+Do not ask why.
+&quot;&quot;&quot;
+Path(&quot;chicken.txt&quot;).write_text(text, encoding=&quot;utf-8&quot;)
+
+content = Path(&quot;chicken.txt&quot;).read_text(encoding=&quot;utf-8&quot;)
+
+lines = content.splitlines()
+words = content.split()
+
+print(f&quot;{len(lines):4} lines&quot;)
+print(f&quot;{len(words):4} words&quot;)
+print(f&quot;{len(content):4} characters&quot;)</code></pre>
+<pre class="out"><code class="nohl">   3 lines
+  16 words
+  71 characters</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Filter a file into another file</h3><p>Read a log file and write a second file containing only the ERROR lines, then report how many were found.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from pathlib import Path
+
+Path(&quot;server.log&quot;).write_text(&quot;&quot;&quot;INFO  started
+ERROR disk full
+INFO  retrying
+ERROR still full
+INFO  gave up
+&quot;&quot;&quot;, encoding=&quot;utf-8&quot;)
+
+errors = []
+with open(&quot;server.log&quot;, encoding=&quot;utf-8&quot;) as source:
+    for line in source:
+        if line.startswith(&quot;ERROR&quot;):
+            errors.append(line)
+
+with open(&quot;errors.log&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as target:
+    target.writelines(errors)
+
+print(f&quot;{len(errors)} errors extracted&quot;)
+print(Path(&quot;errors.log&quot;).read_text(encoding=&quot;utf-8&quot;).strip())</code></pre>
+<pre class="out"><code class="nohl">2 errors extracted
+ERROR disk full
+ERROR still full</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Safe overwrite</h3><p>Write a function that saves text to a file but refuses to destroy an existing one unless told it may. Prove both branches.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from pathlib import Path
+
+
+def save(path, text, overwrite=False):
+    &quot;&quot;&quot;Write text to path. Refuses to clobber unless overwrite is True.&quot;&quot;&quot;
+    target = Path(path)
+    if target.exists() and not overwrite:
+        return f&quot;refused: {target} already exists&quot;
+    target.write_text(text, encoding=&quot;utf-8&quot;)
+    return f&quot;wrote {len(text)} characters to {target}&quot;
+
+
+print(save(&quot;treasure.txt&quot;, &quot;x marks the spot&quot;))
+print(save(&quot;treasure.txt&quot;, &quot;no it does not&quot;))
+print(save(&quot;treasure.txt&quot;, &quot;fine, it does not&quot;, overwrite=True))
+print(Path(&quot;treasure.txt&quot;).read_text(encoding=&quot;utf-8&quot;))</code></pre>
+<pre class="out"><code class="nohl">wrote 16 characters to treasure.txt
+refused: treasure.txt already exists
+wrote 17 characters to treasure.txt
+fine, it does not</code></pre><p>Defaulting to refuse is the right instinct for anything destructive. Python's <code>"x"</code> mode does the same job at the operating system level, which is even safer because there is no gap between the check and the write.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-21-files">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="20-modules.html"><span class="dir">← Previous</span>Lesson 20: Modules and the Standard Library</a>
+      <a class="next" href="22-exceptions.html"><span class="dir">Next →</span>Lesson 22: Exceptions: Handling Failure</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 28: Debugging and Logging - The Python School</title>
+<meta name="description" content="Systematic debugging, the built-in debugger, and replacing print with the logging module.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/28-debugging">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 28: Debugging and Logging - The Python School">
+<meta property="og:description" content="Systematic debugging, the built-in debugger, and replacing print with the logging module.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/28-debugging">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 28: Debugging and Logging - The Python School">
+<meta name="twitter:description" content="Systematic debugging, the built-in debugger, and replacing print with the logging module.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 28 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Debugging and Logging 🔦</h1>
+    <p class="lede muted">Lesson 10 taught you to read an error. This one is about the harder case: the
+    program runs perfectly and produces the wrong answer.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The method, restated</h2>
+    <p>
+      A bug is always the same thing: a gap between what you believe and what is true. The
+      whole job is finding which belief is wrong, and the fastest route is not to stare
+      harder, it is to make beliefs visible and test them one at a time.
+    </p>
+    <ol class="steps">
+      <li><strong>Reproduce it reliably.</strong> A bug you cannot trigger on demand cannot be
+      fixed, only guessed at. Get it down to the smallest input that shows the problem.</li>
+      <li><strong>State the belief.</strong> "At line 14, <code>total</code> should be 47."</li>
+      <li><strong>Check it.</strong> Print it, or stop there with a debugger.</li>
+      <li><strong>Halve the search space.</strong> If the belief was right, the bug is
+      downstream. If it was wrong, it is upstream. Repeat.</li>
+      <li><strong>Fix, then prove.</strong> Write a test that fails before your fix and passes
+      after (Lesson 29). Otherwise it will come back.</li>
+    </ol>
+
+    <h2>Level 1: better prints</h2>
+    <pre class="run" data-verify="run"><code>def parse_row(row):
+    parts = row.split(&quot;,&quot;)
+    print(f&quot;{row=}&quot;)
+    print(f&quot;{parts=}&quot;)
+    print(f&quot;{len(parts)=}&quot;)
+    return {&quot;name&quot;: parts[0], &quot;pay&quot;: int(parts[1])}
+
+
+print(parse_row(&quot;Guybrush, 100&quot;))</code></pre>
+<pre class="out"><code class="nohl">row=&#x27;Guybrush, 100&#x27;
+parts=[&#x27;Guybrush&#x27;, &#x27; 100&#x27;]
+len(parts)=2
+{&#x27;name&#x27;: &#x27;Guybrush&#x27;, &#x27;pay&#x27;: 100}</code></pre>
+
+    <div class="voice" data-skill="perception"><div class="v-head"><span class="v-name">PERCEPTION</span><span class="v-check success">[Formidable: Success]</span></div><p>Look at the second field: ' 100', with a space in front of it. int() happens to tolerate that, so this row parsed fine and you learned nothing.</p>
+<p>Now imagine the field were a name and you compared it with ==. ' Otis' is not 'Otis', and the comparison fails for a reason that is completely invisible when you print the value on its own. This is why the debugging print shows repr, with the quotes, rather than the bare text.</p></div>
+
+    <p>
+      That <code>{variable=}</code> form inside an f-string is the fastest debugging tool
+      Python has. It prints the name, the value, and (because it uses <code>repr</code>) the
+      quotes and escapes that reveal stray whitespace. Three keystrokes, and it has ended more
+      mysteries than any debugger.
+    </p>
+    <p>Two other print upgrades worth knowing:</p>
+    <pre class="run" data-verify="run"><code>import sys
+
+print(&quot;this goes to stderr, so it does not pollute piped output&quot;, file=sys.stderr)
+print(&quot;flushed immediately, useful when a program is about to crash&quot;, flush=True)</code></pre>
+<pre class="out"><code class="nohl">this goes to stderr, so it does not pollute piped output
+flushed immediately, useful when a program is about to crash</code></pre>
+
+    <h2>Level 2: the built-in debugger</h2>
+    <pre class="run" data-verify="run"><code>def calculate_total(prices, discount):
+    total = sum(prices)
+    # breakpoint()          # uncomment and run this in a terminal
+    final = total * (1 - discount)
+    return round(final, 2)
+
+
+print(calculate_total([10.00, 24.99, 5.50], 0.1))</code></pre>
+<pre class="out"><code class="nohl">36.44</code></pre>
+    <p>
+      Put <code>breakpoint()</code> on a line and run the program in a terminal. Execution
+      stops there and hands you a prompt where you can inspect anything:
+    </p>
+    <pre class="repl"><code class="nohl">(Pdb) total
+40.49
+(Pdb) discount
+0.1
+(Pdb) total * (1 - discount)
+36.441
+(Pdb) prices
+[10.0, 24.99, 5.5]
+(Pdb) n          # run the next line
+(Pdb) c          # continue to the end
+(Pdb) q          # quit</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Command</th><th>Does</th></tr></thead><tbody><tr><td><code>n</code> (next)</td><td>Run this line, stay in this function</td></tr><tr><td><code>s</code> (step)</td><td>Run this line, step <em>into</em> any function it calls</td></tr><tr><td><code>c</code> (continue)</td><td>Run until the next breakpoint or the end</td></tr><tr><td><code>l</code> (list)</td><td>Show where you are in the source</td></tr><tr><td><code>p x</code></td><td>Print x</td></tr><tr><td><code>pp x</code></td><td>Pretty-print x</td></tr><tr><td><code>w</code> (where)</td><td>Show the call stack</td></tr><tr><td><code>q</code> (quit)</td><td>Stop</td></tr></tbody></table></div>
+    <p>
+      <code>breakpoint()</code> has been built in since Python 3.7 and needs no import. Your
+      editor has a graphical version of the same thing, and in VS Code it is the F5 key. Both
+      beat printing when the state is complicated, because you can ask questions you did not
+      think of in advance.
+    </p>
+
+    <h2>Level 3: logging, for programs that outlive the terminal</h2>
+    <pre class="run" data-verify="run"><code>import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=&quot;%(levelname)-8s %(message)s&quot;,
+)
+
+log = logging.getLogger(&quot;crew&quot;)
+
+log.debug(&quot;this will not appear, the level is INFO&quot;)
+log.info(&quot;loaded 3 crew members&quot;)
+log.warning(&quot;no ship assigned&quot;)
+log.error(&quot;could not open manifest&quot;)
+log.critical(&quot;hull breach&quot;)</code></pre>
+<pre class="out"><code class="nohl">INFO     loaded 3 crew members
+WARNING  no ship assigned
+ERROR    could not open manifest
+CRITICAL hull breach</code></pre>
+    <p>Why this beats <code>print</code> for anything real:</p>
+    <ul>
+      <li><strong>Levels.</strong> Turn detail up or down without editing code. Run at DEBUG
+      while investigating, WARNING in production.</li>
+      <li><strong>Destinations.</strong> The same calls can go to the screen, a file, a rotating
+      set of files, or a central log service, decided by configuration.</li>
+      <li><strong>Context for free.</strong> Timestamps, module names, line numbers, process
+      ids.</li>
+      <li><strong>It can be left in.</strong> Debug prints get deleted, then re-added the next
+      time. Log lines stay, and are there at 3am when the thing breaks and you cannot
+      reproduce it.</li>
+    </ul>
+    <pre data-verify="compile"><code>import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format=&quot;%(asctime)s %(name)-8s %(levelname)-8s %(message)s&quot;,
+    datefmt=&quot;%H:%M:%S&quot;,
+)
+
+log = logging.getLogger(&quot;ship&quot;)
+
+
+def load_crew(names):
+    log.debug(&quot;loading %d names&quot;, len(names))
+    for name in names:
+        if not name.strip():
+            log.warning(&quot;skipping an empty name&quot;)
+            continue
+        log.info(&quot;added %s&quot;, name)
+    return [n for n in names if n.strip()]
+
+
+crew = load_crew([&quot;Guybrush&quot;, &quot;&quot;, &quot;Elaine&quot;])
+log.info(&quot;finished with %d crew&quot;, len(crew))</code></pre>
+    <div class="callout tip"><span class="co-title">🔤 Use %s, not an f-string, in log calls</span><p><code>log.info("added %s", name)</code> rather than <code>log.info(f"added {{name}}")</code>. The formatting is then only done if the message is actually going to be emitted, which matters when a debug line sits inside a hot loop and the level is set to WARNING.</p></div>
+
+    <h2>Logging exceptions properly</h2>
+    <pre data-verify="compile"><code>import logging
+
+logging.basicConfig(level=logging.INFO, format=&quot;%(levelname)s %(message)s&quot;)
+log = logging.getLogger(&quot;vault&quot;)
+
+
+def open_vault(combination):
+    try:
+        return 100 / combination
+    except ZeroDivisionError:
+        log.exception(&quot;could not open the vault&quot;)
+        return None
+
+
+print(open_vault(0))</code></pre>
+    <p>
+      <code>log.exception(...)</code> inside an <code>except</code> block records your message
+      <em>and</em> the full traceback. It is the single most useful logging call there is, and
+      it is why "an error occurred" appears in so many useless log files: somebody used
+      <code>log.error</code> and threw the traceback away.
+    </p>
+
+    <h2>Bugs that are not in your code</h2>
+    <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Very often</th></tr></thead><tbody><tr><td>Works alone, fails in a loop</td><td>Shared mutable state, or a leftover variable from the previous iteration</td></tr><tr><td>Works on your machine only</td><td>A file path, an environment variable, or a package version</td></tr><tr><td>Fails only sometimes</td><td>Ordering, timing, or something depending on a set or dictionary you assumed was ordered</td></tr><tr><td>Broke after an update</td><td>A dependency changed. <code>pip freeze</code> and compare</td></tr><tr><td>Wrong by exactly one</td><td>An off-by-one: a range end, or counting from 1 instead of 0</td></tr><tr><td>Changes when you add a print</td><td>Timing or buffering. Usually threads (Lesson 39)</td></tr></tbody></table></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Find the bug by halving</h3><p>This should give each pirate an equal share of the treasure, rounded down, with the remainder going to the captain. It does not. Find out why, without just reading it: add prints and narrow it down.</p><pre data-verify="compile"><code>def divide_treasure(total, crew):
+    share = total // len(crew)
+    remainder = total - share * len(crew)
+    payouts = {}
+    for member in crew:
+        payouts[member] = share
+    payouts[crew[0]] = remainder
+    return payouts
+
+
+print(divide_treasure(100, [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]))</code></pre><details class="solution"><summary>Reveal solution</summary><p>The captain's line <em>replaces</em> their share instead of adding to it, so Guybrush gets 1 instead of 34.</p><pre class="run" data-verify="run"><code>def divide_treasure(total, crew):
+    &quot;&quot;&quot;Split total evenly, with any remainder going to crew[0].&quot;&quot;&quot;
+    share = total // len(crew)
+    remainder = total - share * len(crew)
+    payouts = {member: share for member in crew}
+    payouts[crew[0]] += remainder
+    return payouts
+
+
+result = divide_treasure(100, [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;])
+print(result)
+print(&quot;total paid out:&quot;, sum(result.values()))</code></pre>
+<pre class="out"><code class="nohl">{&#x27;Guybrush&#x27;: 34, &#x27;Elaine&#x27;: 33, &#x27;Otis&#x27;: 33}
+total paid out: 100</code></pre><p>Note the second print. Checking that the parts add up to the whole is an <strong>invariant</strong>, and asserting invariants is how you catch this class of bug automatically instead of by eye.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Replace prints with logging</h3><p>Convert this debug-print-riddled function into one that uses logging at sensible levels.</p><pre data-verify="compile"><code>def process(orders):
+    print(&quot;starting&quot;)
+    for order in orders:
+        print(&quot;processing&quot;, order)
+        if order[&quot;total&quot;] &lt; 0:
+            print(&quot;BAD ORDER!&quot;, order)
+            continue
+        print(&quot;ok&quot;)
+    print(&quot;done&quot;)</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import logging
+
+log = logging.getLogger(__name__)
+
+
+def process(orders):
+    &quot;&quot;&quot;Process each order, skipping any with a negative total.&quot;&quot;&quot;
+    log.info(&quot;processing %d orders&quot;, len(orders))
+    processed = 0
+
+    for order in orders:
+        log.debug(&quot;order %s&quot;, order)
+        if order[&quot;total&quot;] &lt; 0:
+            log.warning(&quot;skipping order %s: negative total %s&quot;, order[&quot;id&quot;], order[&quot;total&quot;])
+            continue
+        processed += 1
+
+    log.info(&quot;finished: %d of %d processed&quot;, processed, len(orders))
+    return processed
+
+
+logging.basicConfig(level=logging.INFO, format=&quot;%(levelname)-8s %(message)s&quot;)
+process([{&quot;id&quot;: 1, &quot;total&quot;: 10}, {&quot;id&quot;: 2, &quot;total&quot;: -5}])</code></pre>
+<pre class="out"><code class="nohl">INFO     processing 2 orders
+WARNING  skipping order 2: negative total -5
+INFO     finished: 1 of 2 processed</code></pre><p>Notice the levels carry meaning now: the per-order detail is DEBUG and invisible by default, the skipped order is a WARNING you would want to see, and the summary is INFO. Same information, and you can now choose how much of it you want without editing the file.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Practise with the debugger</h3><p>On your own machine, save this and run it. Use <code>breakpoint()</code> to find out why the average is wrong.</p><pre data-verify="compile"><code>def average(numbers):
+    total = 0
+    for n in numbers:
+        total += n
+    breakpoint()
+    return total / len(numbers) - 1
+
+
+print(average([10, 20, 30]))</code></pre><details class="solution"><summary>Reveal solution</summary><p>At the prompt, <code>total</code> shows 60 and <code>total / len(numbers)</code> shows 20.0, which is correct. So the bug is in the line you have not run yet: a stray <code>- 1</code>.</p><p>The lesson is the workflow, not the bug. You confirmed where the value was still right, which meant the fault had to be downstream of that point. Two questions, one bug found, no guessing.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-28-debugging">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="27-cli.html"><span class="dir">← Previous</span>Lesson 27: Command-Line Programs</a>
+      <a class="next" href="29-testing.html"><span class="dir">Next →</span>Lesson 29: Testing</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

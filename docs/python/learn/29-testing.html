@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 29: Testing - The Python School</title>
+<meta name="description" content="assert, unittest, pytest, what makes a good test, and test-driven development in practice.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/29-testing">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 29: Testing - The Python School">
+<meta property="og:description" content="assert, unittest, pytest, what makes a good test, and test-driven development in practice.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/29-testing">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 29: Testing - The Python School">
+<meta name="twitter:description" content="assert, unittest, pytest, what makes a good test, and test-driven development in practice.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 29 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Testing 🧪</h1>
+    <p class="lede muted">Testing sounds like homework. It is actually the thing that lets you change code
+    without fear, and fear of changing code is what kills projects.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>You are already testing</h2>
+    <p>
+      Every time you run your program and look at the output, you are testing. The problem is
+      that you do it by hand, only for the thing you just changed, and you stop doing it when
+      you are tired. Automated tests are the same checks, written down once, run in a second,
+      forever.
+    </p>
+
+    <h2>The simplest possible test</h2>
+    <pre class="run" data-verify="run"><code>def add(a, b):
+    return a + b
+
+
+assert add(2, 3) == 5
+assert add(-1, 1) == 0
+assert add(0, 0) == 0
+
+print(&quot;all assertions passed&quot;)</code></pre>
+<pre class="out"><code class="nohl">all assertions passed</code></pre>
+    <p>
+      <code>assert</code> does nothing when the condition is true and raises
+      <code>AssertionError</code> when it is false. That is genuinely a test suite. It is just
+      one that stops at the first failure and tells you very little.
+    </p>
+
+    <h2>pytest: the one everybody uses</h2>
+    <p>Put this in <code>test_maths.py</code>:</p>
+    <pre data-verify="compile"><code>def add(a, b):
+    return a + b
+
+
+def test_add_positive():
+    assert add(2, 3) == 5
+
+
+def test_add_negative():
+    assert add(-1, -1) == -2
+
+
+def test_add_zero():
+    assert add(5, 0) == 5</code></pre>
+    <p>Then run <code>pytest</code>:</p>
+    <pre class="term"><code class="nohl">$ pip install pytest
+$ pytest -v
+
+test_maths.py::test_add_positive PASSED                    [ 33%]
+test_maths.py::test_add_negative PASSED                    [ 66%]
+test_maths.py::test_add_zero PASSED                        [100%]
+
+============= 3 passed in 0.01s =============</code></pre>
+    <p>
+      The rules are minimal: files named <code>test_*.py</code>, functions named
+      <code>test_*</code>, plain <code>assert</code>. No classes, no special methods, no
+      boilerplate. That is why pytest won.
+    </p>
+
+    <h2>What a failure looks like</h2>
+    <pre class="term"><code class="nohl">$ pytest
+
+    def test_add_positive():
+&gt;       assert add(2, 3) == 6
+E       assert 5 == 6
+E        +  where 5 = add(2, 3)
+
+test_maths.py:6: AssertionError
+============= 1 failed, 2 passed in 0.02s =============</code></pre>
+    <p>
+      pytest rewrites your assertions so the failure shows both sides and what produced them.
+      This is the feature that makes it pleasant rather than a chore.
+    </p>
+
+    <h2>unittest, which needs no install</h2>
+    <pre class="run" data-verify="run"><code>import unittest
+
+
+def add(a, b):
+    return a + b
+
+
+class TestAdd(unittest.TestCase):
+    def test_positive(self):
+        self.assertEqual(add(2, 3), 5)
+
+    def test_negative(self):
+        self.assertEqual(add(-1, -1), -2)
+
+    def test_raises_on_text(self):
+        with self.assertRaises(TypeError):
+            add(1, &quot;two&quot;)
+
+
+import io
+
+suite = unittest.TestLoader().loadTestsFromTestCase(TestAdd)
+runner = unittest.TextTestRunner(stream=io.StringIO())     # keep the report quiet
+result = runner.run(suite)
+
+print(&quot;tests run:&quot;, result.testsRun)
+print(&quot;failures:&quot;, len(result.failures))
+print(&quot;errors:&quot;, len(result.errors))</code></pre>
+<pre class="out"><code class="nohl">tests run: 3
+failures: 0
+errors: 0</code></pre>
+    <p>
+      <code>unittest</code> is in the standard library, so it needs nothing installed. It is
+      more verbose (classes, <code>self.assertEqual</code> instead of <code>assert</code>) and
+      it is what you will find in older codebases. Learn pytest, recognise unittest.
+    </p>
+
+    <h2>What to actually test</h2>
+    <pre class="run" data-verify="run"><code>def apply_discount(price, percent):
+    &quot;&quot;&quot;Reduce price by percent. Percent must be 0-100.&quot;&quot;&quot;
+    if not 0 &lt;= percent &lt;= 100:
+        raise ValueError(f&quot;percent must be 0-100, got {percent}&quot;)
+    return round(price * (1 - percent / 100), 2)
+
+
+# the normal case
+assert apply_discount(100, 10) == 90.0
+
+# the boundaries, where bugs live
+assert apply_discount(100, 0) == 100.0
+assert apply_discount(100, 100) == 0.0
+
+# the awkward reality
+assert apply_discount(0, 50) == 0.0
+assert apply_discount(19.99, 33) == 13.39
+
+# and that it refuses bad input
+for bad in [-1, 101]:
+    try:
+        apply_discount(100, bad)
+        raise SystemExit(&quot;should have raised!&quot;)
+    except ValueError:
+        pass
+
+print(&quot;every case passed&quot;)</code></pre>
+<pre class="out"><code class="nohl">every case passed</code></pre>
+    <p>
+      The pattern to internalise: <strong>normal case, boundaries, and failure</strong>. Most
+      bugs live at the edges, at zero, at one, at empty, at the last element, and at the input
+      nobody expected. A test that only covers the happy path is a test that will pass while
+      your program is broken.
+    </p>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Formidable: Success]</span></div><p>Here is the argument that actually convinces people, and it is not about correctness.</p>
+<p>Without tests, every change is frightening, so you make small timid changes and the code slowly rots around the parts you dare not touch. With tests, you can restructure something at 5pm on a Friday, run one command, and know. Tests do not buy you correctness so much as they buy you courage.</p></div>
+
+    <h2>Parametrising: many cases, one test</h2>
+    <pre data-verify="compile"><code>import pytest
+
+
+def is_even(n):
+    return n % 2 == 0
+
+
+@pytest.mark.parametrize(&quot;number,expected&quot;, [
+    (2, True),
+    (3, False),
+    (0, True),
+    (-4, True),
+    (-3, False),
+])
+def test_is_even(number, expected):
+    assert is_even(number) is expected</code></pre>
+    <p>
+      That is five separate tests, each reported individually, from one function. When one
+      fails you are told exactly which input broke it.
+    </p>
+
+    <h2>Fixtures: shared setup</h2>
+    <pre data-verify="compile"><code>import pytest
+
+
+@pytest.fixture
+def crew():
+    &quot;&quot;&quot;A fresh crew list for each test that asks for one.&quot;&quot;&quot;
+    return [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+
+
+def test_crew_size(crew):
+    assert len(crew) == 3
+
+
+def test_adding_does_not_leak(crew):
+    crew.append(&quot;Meathook&quot;)
+    assert len(crew) == 4
+
+
+def test_still_three(crew):
+    # the fixture ran again, so this list is untouched
+    assert len(crew) == 3</code></pre>
+    <p>
+      A test that depends on another test having run first is a broken test. Fixtures give each
+      one a clean slate. pytest also ships <code>tmp_path</code>, which hands you a fresh
+      temporary directory, so file-touching code can be tested without leaving a mess.
+    </p>
+
+    <h2>Test-driven development, briefly</h2>
+    <p>Write the test first, watch it fail, then make it pass. Red, green, refactor.</p>
+    <pre class="run" data-verify="run"><code># 1. RED: the test, before any implementation
+def test_initials():
+    assert initials(&quot;guybrush ulysses threepwood&quot;) == &quot;G.U.T.&quot;
+
+
+# 2. GREEN: the simplest thing that passes
+def initials(full_name):
+    return &quot;.&quot;.join(part[0].upper() for part in full_name.split()) + &quot;.&quot;
+
+
+test_initials()
+print(&quot;green&quot;)
+
+# 3. REFACTOR: now handle the edge case the test made you think about
+def initials(full_name):
+    &quot;&quot;&quot;Return dotted initials, or an empty string for empty input.&quot;&quot;&quot;
+    parts = full_name.split()
+    if not parts:
+        return &quot;&quot;
+    return &quot;.&quot;.join(part[0].upper() for part in parts) + &quot;.&quot;
+
+
+assert initials(&quot;&quot;) == &quot;&quot;
+assert initials(&quot;elaine marley&quot;) == &quot;E.M.&quot;
+print(&quot;still green, and now it survives an empty name&quot;)</code></pre>
+<pre class="out"><code class="nohl">green
+still green, and now it survives an empty name</code></pre>
+    <p>
+      The real benefit of writing the test first is not discipline, it is design: you are
+      forced to decide what the function is called, what it takes and what it returns before
+      you can hide those decisions inside an implementation.
+    </p>
+
+    <h2>How much testing is enough?</h2>
+    <ul>
+      <li><strong>Test the logic, not the language.</strong> You do not need a test proving
+      that <code>+</code> adds.</li>
+      <li><strong>Test anything you got wrong once.</strong> Every bug you fix deserves a test
+      that would have caught it. This is the highest-value test you will ever write.</li>
+      <li><strong>Test the edges.</strong> Empty, zero, one, negative, huge, missing, wrong
+      type.</li>
+      <li><strong>Do not chase 100% coverage.</strong> Coverage tells you what was executed,
+      not what was checked. It is a smoke detector, not a safety certificate.</li>
+      <li><strong>Fast tests get run.</strong> A suite that takes ten minutes gets skipped, and
+      a skipped test protects nothing.</li>
+    </ul>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Test a function properly</h3><p>Here is a function. Write assertions covering the normal case, the boundaries, and the failure. Find the bug it contains.</p><pre data-verify="compile"><code>def grade(score):
+    if score &gt; 90:
+        return &quot;A&quot;
+    elif score &gt; 80:
+        return &quot;B&quot;
+    elif score &gt; 70:
+        return &quot;C&quot;
+    return &quot;F&quot;</code></pre><details class="solution"><summary>Reveal solution</summary><p>The bug is <code>&gt;</code> where it should be <code>&gt;=</code>: exactly 90 gets a B, and exactly 70 gets an F. Boundary tests find this instantly; testing 85 and 95 never would.</p><pre class="run" data-verify="run"><code>def grade(score):
+    &quot;&quot;&quot;Convert a percentage to a letter grade. Boundaries are inclusive.&quot;&quot;&quot;
+    if score &gt;= 90:
+        return &quot;A&quot;
+    if score &gt;= 80:
+        return &quot;B&quot;
+    if score &gt;= 70:
+        return &quot;C&quot;
+    return &quot;F&quot;
+
+
+# normal
+assert grade(95) == &quot;A&quot;
+assert grade(85) == &quot;B&quot;
+assert grade(50) == &quot;F&quot;
+
+# boundaries: this is where the bug was
+assert grade(90) == &quot;A&quot;
+assert grade(80) == &quot;B&quot;
+assert grade(70) == &quot;C&quot;
+assert grade(69) == &quot;F&quot;
+
+# extremes
+assert grade(0) == &quot;F&quot;
+assert grade(100) == &quot;A&quot;
+
+print(&quot;all 9 assertions passed&quot;)</code></pre>
+<pre class="out"><code class="nohl">all 9 assertions passed</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Write the test first</h3><p>Do it properly: write tests for a <code>word_frequencies(text)</code> function <em>before</em> writing it. Decide what it should do about case and punctuation by writing the assertion.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code># The tests, written first. These are decisions, not checks.
+def check(word_frequencies):
+    assert word_frequencies(&quot;&quot;) == {}
+    assert word_frequencies(&quot;hi&quot;) == {&quot;hi&quot;: 1}
+    assert word_frequencies(&quot;hi hi&quot;) == {&quot;hi&quot;: 2}
+    assert word_frequencies(&quot;Hi hi&quot;) == {&quot;hi&quot;: 2}          # case insensitive
+    assert word_frequencies(&quot;hi, hi!&quot;) == {&quot;hi&quot;: 2}        # punctuation ignored
+    return &quot;all passed&quot;
+
+
+# Now the implementation has no choice but to satisfy them.
+from collections import Counter
+
+
+def word_frequencies(text):
+    &quot;&quot;&quot;Count words, ignoring case and surrounding punctuation.&quot;&quot;&quot;
+    words = [w.strip(&quot;.,!?;:\&quot;&#x27;&quot;) .lower() for w in text.split()]
+    return dict(Counter(w for w in words if w))
+
+
+print(check(word_frequencies))</code></pre>
+<pre class="out"><code class="nohl">all passed</code></pre><p>Notice how the fourth and fifth assertions are design decisions you had to make consciously. Written after the fact, you would probably have tested whatever the code happened to do.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Why is this test bad?</h3><p>Three problems.</p><pre data-verify="compile"><code>import datetime
+
+
+def test_everything():
+    result = process_orders(load_orders(&quot;/Users/chris/data/orders.csv&quot;))
+    assert result
+    assert result[&quot;date&quot;] == datetime.date.today()</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><strong>It tests everything at once.</strong> When it fails you know nothing about which part broke. One test, one behaviour.</li><li><strong>It depends on the outside world:</strong> a hard-coded path on one person's machine. It will fail for everyone else and in CI. Use pytest's <code>tmp_path</code> and build the input inside the test.</li><li><strong><code>assert result</code> asserts almost nothing</strong> (any non-empty value passes), and comparing to <code>today()</code> makes the test depend on the clock. It will pass today and fail if it runs at midnight. Pass the date in as an argument instead: functions that take their dependencies as arguments are the ones that are easy to test.</li></ol><p>That last point is the deepest one in this lesson. Code that is hard to test is usually badly designed, and the difficulty is the message.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-29-testing">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="28-debugging.html"><span class="dir">← Previous</span>Lesson 28: Debugging and Logging</a>
+      <a class="next" href="30-style.html"><span class="dir">Next →</span>Lesson 30: Style, Linting and Type Hints</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

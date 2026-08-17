@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 30: Style, Linting and Type Hints - The Python School</title>
+<meta name="description" content="PEP 8, automatic formatting with black or ruff, linting, and an introduction to type hints.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/30-style">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 30: Style, Linting and Type Hints - The Python School">
+<meta property="og:description" content="PEP 8, automatic formatting with black or ruff, linting, and an introduction to type hints.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/30-style">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 30: Style, Linting and Type Hints - The Python School">
+<meta name="twitter:description" content="PEP 8, automatic formatting with black or ruff, linting, and an introduction to type hints.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 30 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Style, Linting and Type Hints 🎨</h1>
+    <p class="lede muted">Working code is the first goal. Code that a stranger can change without breaking
+    it is the real one, and most of the way there is automatic.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>PEP 8, the shared agreement</h2>
+    <p>
+      <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8</a> is Python's official style guide,
+      written in 2001 and followed almost universally. Its value is not that its choices are
+      objectively best; it is that everybody made the same choices, so you can read anyone's
+      code without adjusting.
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Yes</th><th>No</th></tr></thead><tbody><tr><td>Four spaces per indent, never tabs</td><td><code>    x = 1</code></td><td>a tab character</td></tr><tr><td>snake_case for variables and functions</td><td><code>total_pay</code></td><td><code>totalPay</code></td></tr><tr><td>CapWords for classes</td><td><code>class ShipLog:</code></td><td><code>class ship_log:</code></td></tr><tr><td>ALL_CAPS for constants</td><td><code>MAX_CREW = 12</code></td><td><code>maxCrew = 12</code></td></tr><tr><td>Spaces around operators</td><td><code>x = a + b</code></td><td><code>x=a+b</code></td></tr><tr><td>No space inside brackets</td><td><code>f(a, b)</code></td><td><code>f( a, b )</code></td></tr><tr><td>Two blank lines between top-level functions</td><td></td><td></td></tr><tr><td>Lines under 88 characters or so</td><td></td><td>a 200 character line</td></tr><tr><td>Imports at the top, one per line, grouped</td><td></td><td><code>import os, sys</code></td></tr></tbody></table></div>
+
+    <h2>Stop arguing: let a tool do it</h2>
+    <pre class="run" data-verify="run"><code># before
+def  calc( a,b ):
+    result=a+b
+    if result&gt;10 :
+        return  &quot;big&quot;
+    else :
+        return &quot;small&quot;
+
+print(calc(5,6))</code></pre>
+<pre class="out"><code class="nohl">big</code></pre>
+    <p>Run a formatter over that and it becomes:</p>
+    <pre class="run" data-verify="run"><code>def calc(a, b):
+    result = a + b
+    if result &gt; 10:
+        return &quot;big&quot;
+    else:
+        return &quot;small&quot;
+
+
+print(calc(5, 6))</code></pre>
+<pre class="out"><code class="nohl">big</code></pre>
+    <pre class="term"><code class="nohl"># the two options, either is fine
+pip install black &amp;&amp; black .
+
+pip install ruff &amp;&amp; ruff format .</code></pre>
+    <p>
+      Both reformat your entire project in under a second and have almost no configuration on
+      purpose. <a href="https://black.readthedocs.io" target="_blank" rel="noopener">black</a> calls itself "the uncompromising
+      formatter" and its central insight is that the fastest way to end a style argument is to
+      remove the choice. <a href="https://docs.astral.sh/ruff/" target="_blank" rel="noopener">ruff</a> does the same job (and
+      linting too) and is written in Rust, which is why it is fast enough to run on every
+      keystroke.
+    </p>
+    <div class="callout tip"><span class="co-title">⚙️ Set format-on-save and never think about it again</span><p>VS Code: install the Ruff or Black extension, then Settings, search 'format on save', tick it. From that moment your code is correctly formatted forever and you have stopped spending attention on it.</p></div>
+
+    <h2>Linting: the tool that reads your code critically</h2>
+    <p>
+      A formatter fixes how code looks. A <strong>linter</strong> points out things that look
+      like mistakes: unused imports, variables assigned but never used, shadowed built-ins,
+      comparisons that are always true.
+    </p>
+    <pre class="term"><code class="nohl">$ ruff check .
+
+app.py:1:8: F401 [*] `os` imported but unused
+app.py:12:5: F841 Local variable `total` is assigned to but never used
+app.py:20:1: E741 Ambiguous variable name: `l`
+app.py:34:12: SIM108 Use ternary operator instead of if-else block
+
+Found 4 errors.
+[*] 1 fixable with the `--fix` option.</code></pre>
+    <p>
+      Nearly all of those are real bugs in embryo. An unused import means you deleted the code
+      that needed it; an assigned-but-unused variable very often means you typed the name
+      slightly differently on the line that uses it.
+    </p>
+
+    <h2>Type hints</h2>
+    <pre class="run" data-verify="run"><code>def greet(name: str, times: int = 1) -&gt; str:
+    &quot;&quot;&quot;Greet someone, possibly repeatedly.&quot;&quot;&quot;
+    return &quot; &quot;.join([f&quot;Hello, {name}!&quot;] * times)
+
+
+print(greet(&quot;Guybrush&quot;))
+print(greet(&quot;Elaine&quot;, 2))
+print(greet.__annotations__)</code></pre>
+<pre class="out"><code class="nohl">Hello, Guybrush!
+Hello, Elaine! Hello, Elaine!
+{&#x27;name&#x27;: &lt;class &#x27;str&#x27;&gt;, &#x27;times&#x27;: &lt;class &#x27;int&#x27;&gt;, &#x27;return&#x27;: &lt;class &#x27;str&#x27;&gt;}</code></pre>
+
+    <div class="callout warn"><span class="co-title">🎭 Python does not enforce them</span><p><code>greet(42)</code> runs perfectly happily and returns <code>'Hello, 42!'</code>. Type hints are documentation that tools can read, not a runtime check. This surprises people coming from Java or Rust, where the compiler refuses.</p></div>
+
+    <p>So why bother? Three excellent reasons:</p>
+    <ul>
+      <li><strong>Your editor gets smarter.</strong> Autocomplete knows what methods exist, and
+      it underlines <code>name.uppr()</code> before you run anything.</li>
+      <li><strong>A checker can prove things.</strong>
+      <a href="https://mypy-lang.org" target="_blank" rel="noopener">mypy</a> reads your whole project and finds type errors
+      without running it. On a large codebase this catches real bugs in code paths nobody has
+      exercised yet.</li>
+      <li><strong>They are the best documentation there is,</strong> because they cannot drift
+      out of date silently the way a comment can.</li>
+    </ul>
+
+    <h2>The notation you need</h2>
+    <pre class="run" data-verify="run"><code>def process(
+    names: list[str],
+    scores: dict[str, int],
+    limit: int | None = None,
+    tags: tuple[str, ...] = (),
+) -&gt; list[tuple[str, int]]:
+    &quot;&quot;&quot;Pair names with scores, optionally limited.&quot;&quot;&quot;
+    pairs = [(n, scores.get(n, 0)) for n in names]
+    return pairs[:limit] if limit else pairs
+
+
+print(process([&quot;Guybrush&quot;, &quot;Elaine&quot;], {&quot;Guybrush&quot;: 95}, limit=1))</code></pre>
+<pre class="out"><code class="nohl">[(&#x27;Guybrush&#x27;, 95)]</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Hint</th><th>Means</th></tr></thead><tbody><tr><td><code>str</code>, <code>int</code>, <code>float</code>, <code>bool</code></td><td>The obvious ones</td></tr><tr><td><code>list[str]</code></td><td>A list of strings</td></tr><tr><td><code>dict[str, int]</code></td><td>String keys, integer values</td></tr><tr><td><code>tuple[str, int]</code></td><td>Exactly two items, in that order</td></tr><tr><td><code>tuple[str, ...]</code></td><td>Any number of strings</td></tr><tr><td><code>int | None</code></td><td>Either an int or None (the modern way, 3.10+)</td></tr><tr><td><code>-&gt; None</code></td><td>Returns nothing</td></tr><tr><td><code>Any</code></td><td>Give up (from <code>typing</code>). Use sparingly</td></tr></tbody></table></div>
+
+    <h2>What mypy catches</h2>
+    <pre data-verify="skip"><code>def total_price(items: list[float]) -&gt; float:
+    return sum(items)
+
+
+# mypy reports: Argument 1 has incompatible type &quot;list[str]&quot;;
+#               expected &quot;list[float]&quot;
+result = total_price([&quot;12.50&quot;, &quot;3.99&quot;])</code></pre>
+    <pre class="term"><code class="nohl">$ mypy shop.py
+shop.py:7: error: Argument 1 to &quot;total_price&quot; has incompatible type
+    &quot;list[str]&quot;; expected &quot;list[float]&quot;  [arg-type]
+Found 1 error in 1 file (checked 1 source file)</code></pre>
+    <p>
+      That program runs without hints and produces <code>'12.503.99'</code>, a string, which
+      then breaks something else three functions away. mypy found it in a second without
+      running anything.
+    </p>
+
+    <h2>How much of this to adopt</h2>
+    <div class="table-wrap"><table><thead><tr><th>Situation</th><th>Advice</th></tr></thead><tbody><tr><td>A twenty-line script for yourself</td><td>A formatter. That is all</td></tr><tr><td>A project you will still be using next year</td><td>Formatter, linter, and hints on the public functions</td></tr><tr><td>Anything with other people in it</td><td>All of the above, running automatically in CI</td></tr><tr><td>A library other people import</td><td>All of the above plus hints everywhere, since they are your documentation</td></tr></tbody></table></div>
+
+    <div class="voice" data-skill="rhetoric"><div class="v-head"><span class="v-name">RHETORIC</span><span class="v-check success">[Medium: Success]</span></div><p>There is a failure mode at both ends. One is the codebase with no conventions, where every file is a different dialect and reading it is exhausting.</p>
+<p>The other is the team that spends three weeks configuring linters and arguing about line length instead of shipping. Turn on the defaults, accept them, and go back to work. The defaults are fine. That is the entire point of defaults.</p></div>
+
+    <h2>One config file</h2>
+    <pre data-verify="skip"><code># pyproject.toml
+[project]
+name = &quot;crew-manager&quot;
+version = &quot;0.1.0&quot;
+requires-python = &quot;&gt;=3.11&quot;
+dependencies = [&quot;requests&gt;=2.31&quot;]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = [&quot;E&quot;, &quot;F&quot;, &quot;I&quot;, &quot;UP&quot;, &quot;B&quot;]
+
+[tool.mypy]
+python_version = &quot;3.13&quot;
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = [&quot;tests&quot;]</code></pre>
+    <p>
+      <code>pyproject.toml</code> is the modern single home for project configuration:
+      packaging, formatting, linting, type checking and testing all in one file. Lesson 50
+      uses it to publish a package.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Clean it up</h3><p>Fix everything PEP 8 would complain about, and name each problem.</p><pre data-verify="compile"><code>import os, sys
+def CalcTotal( Items ):
+    Total=0
+    for i in Items :
+        Total=Total+i
+    if Total&gt;100 :
+        return Total*0.9
+    else :
+        return Total
+print(CalcTotal([50,60]))</code></pre><details class="solution"><summary>Reveal solution</summary><p>Problems: two imports on one line and both unused; CapWords function name; CapWords variable names; no spaces around operators; spaces inside brackets; space before the colon; no blank lines around the function; the <code>else</code> after a <code>return</code> is redundant.</p><pre class="run" data-verify="run"><code>def calculate_total(items: list[float]) -&gt; float:
+    &quot;&quot;&quot;Sum the items, applying a 10 percent discount over 100.&quot;&quot;&quot;
+    total = sum(items)
+    if total &gt; 100:
+        return total * 0.9
+    return total
+
+
+print(calculate_total([50, 60]))</code></pre>
+<pre class="out"><code class="nohl">99.0</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Add type hints</h3><p>Annotate this fully, including the return type.</p><pre data-verify="compile"><code>def find_best(scores, minimum=0):
+    best_name = None
+    best_score = minimum
+    for name, score in scores.items():
+        if score &gt; best_score:
+            best_name, best_score = name, score
+    return best_name, best_score</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def find_best(
+    scores: dict[str, int],
+    minimum: int = 0,
+) -&gt; tuple[str | None, int]:
+    &quot;&quot;&quot;Return the highest scorer above minimum, or (None, minimum).&quot;&quot;&quot;
+    best_name: str | None = None
+    best_score = minimum
+    for name, score in scores.items():
+        if score &gt; best_score:
+            best_name, best_score = name, score
+    return best_name, best_score
+
+
+print(find_best({&quot;Guybrush&quot;: 95, &quot;Otis&quot;: 42}))
+print(find_best({&quot;Otis&quot;: 42}, minimum=50))</code></pre>
+<pre class="out"><code class="nohl">(&#x27;Guybrush&#x27;, 95)
+(None, 50)</code></pre><p>The interesting part is <code>str | None</code> in the return type. Writing it forces you to notice that this function can return None, which is exactly the sort of thing callers forget to handle.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Set up a real project</h3><p>On your own machine, in a project folder, install and run the whole toolchain once. Look at what each tool says.</p><details class="solution"><summary>Reveal solution</summary><pre class="term"><code class="nohl">python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install ruff mypy pytest
+
+ruff format .          # reformat everything
+ruff check . --fix     # fix what can be fixed automatically
+mypy .                 # type check
+pytest                 # run the tests
+
+# and the one command that does all of it before you commit
+ruff format . &amp;&amp; ruff check . &amp;&amp; mypy . &amp;&amp; pytest</code></pre><p>That last line is what a continuous integration pipeline runs. When it passes locally, it passes in CI, and you stop discovering problems after pushing. Lesson 50 wires it into GitHub Actions so it runs automatically.</p></details></div>
+
+    <div class="callout info"><span class="co-title">🎉 That is Level 3</span><p>Files, exceptions, JSON and CSV, dates, regular expressions, virtual environments, command-line tools, debugging and testing, and the tooling that keeps it all readable. You can now write software rather than scripts. Take the <a href='../quiz.html'>Level 3 quiz</a>, then build something substantial in the <a href='../build/index.html'>workshop</a> before Level 4 shows you how Python programmers actually write Python.</p></div>
+
+
+    <button class="complete-btn" data-lesson="py-30-style">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="29-testing.html"><span class="dir">← Previous</span>Lesson 29: Testing</a>
+      <a class="next" href="../build/index.html"><span class="dir">Next →</span>The Project Workshop</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
