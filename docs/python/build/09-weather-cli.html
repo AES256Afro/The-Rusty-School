@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 9: Weather CLI - The Python School</title>
+<meta name="description" content="A real command-line tool that fetches live weather from a public API. HTTP, JSON, argparse, and keeping your key out of git.">
+<link rel="canonical" href="https://rustyschool.com/python/build/09-weather-cli">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Project 9: Weather CLI - The Python School">
+<meta property="og:description" content="A real command-line tool that fetches live weather from a public API. HTTP, JSON, argparse, and keeping your key out of git.">
+<meta property="og:url" content="https://rustyschool.com/python/build/09-weather-cli">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 9: Weather CLI - The Python School">
+<meta name="twitter:description" content="A real command-line tool that fetches live weather from a public API. HTTP, JSON, argparse, and keeping your key out of git.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 9 of 10</nav>
+    <span class="badge build">Project · after Level 5</span>
+    <h1>Weather CLI 🌦️</h1>
+    <p class="lede muted">Your first tool that reaches out to the internet and comes back with something useful: the weather, from a real API, for a city you name on the command line. It ties together HTTP, JSON, argument parsing and secret handling into one genuinely handy program.</p>
+    <p class="meta muted small">Difficulty <span class="difficulty">🐍🐍🐍<span class="off">🐍</span><span class="off">🐍</span></span></p>
+  </section>
+
+  <div class="lesson-body">
+    <div class="spec">
+      <h3>📋 Build this</h3>
+      <ul>
+      <li>Take a city name as a command-line argument.</li>
+      <li>Fetch current weather from a free API (Open-Meteo needs no key).</li>
+      <li>Print temperature and conditions in a clean, readable line.</li>
+      <li>Handle a city that is not found, and a network failure, without a stack trace.</li>
+      </ul>
+    </div>
+
+    <h2>Hints, if you want them</h2>
+    <p class="muted">Try the spec cold first. Open a hint only when you are properly stuck; the
+    struggle is where the learning is.</p>
+    <div class="hint-ladder"><details class="hint"><summary>Hint 1: Parsing the argument</summary><div class="hint-body"><code>argparse</code> gives you <code>city</code> as a positional argument plus a free --help (Lesson 27). Structure the code so <code>main(argv=None)</code> is testable.</div></details><details class="hint"><summary>Hint 2: Calling the API</summary><div class="hint-body"><code>requests.get(url, params={...}, timeout=10)</code>, then <code>response.raise_for_status()</code> and <code>response.json()</code> (Lesson 42). Open-Meteo has a geocoding endpoint to turn a city name into coordinates.</div></details><details class="hint"><summary>Hint 3: Failing gracefully</summary><div class="hint-body">Catch <code>requests.RequestException</code> for network problems and check whether the geocoding result is empty for an unknown city. Print a friendly message and return a non-zero exit code (Lesson 27).</div></details></div>
+
+    <h2>The reference solution</h2>
+    <p class="muted">Yours does not need to match this. There are many good ways to build any of
+    these. Compare only after you have your own working.</p>
+    <details class="solution"><summary>Reveal the reference solution</summary><pre data-verify="compile"><code>#!/usr/bin/env python3
+&quot;&quot;&quot;weather: current conditions for a city, from Open-Meteo (no key needed).&quot;&quot;&quot;
+
+import argparse
+import sys
+
+import requests
+
+GEO = &quot;https://geocoding-api.open-meteo.com/v1/search&quot;
+FORECAST = &quot;https://api.open-meteo.com/v1/forecast&quot;
+
+
+def find_city(name):
+    &quot;&quot;&quot;Turn a city name into (lat, lon, label), or None if not found.&quot;&quot;&quot;
+    resp = requests.get(GEO, params={&quot;name&quot;: name, &quot;count&quot;: 1}, timeout=10)
+    resp.raise_for_status()
+    results = resp.json().get(&quot;results&quot;)
+    if not results:
+        return None
+    hit = results[0]
+    return hit[&quot;latitude&quot;], hit[&quot;longitude&quot;], f&quot;{hit[&#x27;name&#x27;]}, {hit[&#x27;country&#x27;]}&quot;
+
+
+def current_weather(lat, lon):
+    resp = requests.get(FORECAST, params={
+        &quot;latitude&quot;: lat, &quot;longitude&quot;: lon, &quot;current_weather&quot;: True,
+    }, timeout=10)
+    resp.raise_for_status()
+    return resp.json()[&quot;current_weather&quot;]
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=&quot;Current weather for a city.&quot;)
+    parser.add_argument(&quot;city&quot;, help=&quot;the city to look up&quot;)
+    args = parser.parse_args(argv)
+
+    try:
+        located = find_city(args.city)
+        if located is None:
+            print(f&quot;weather: no city called {args.city!r}&quot;, file=sys.stderr)
+            return 1
+        lat, lon, label = located
+        weather = current_weather(lat, lon)
+    except requests.RequestException as err:
+        print(f&quot;weather: network error: {err}&quot;, file=sys.stderr)
+        return 1
+
+    print(f&quot;{label}: {weather[&#x27;temperature&#x27;]}C, wind {weather[&#x27;windspeed&#x27;]} km/h&quot;)
+    return 0
+
+
+if __name__ == &quot;__main__&quot;:
+    sys.exit(main())</code></pre><p class="muted small">This one needs the network or a live secret, so it has no run button. Build it on your own machine.</p></details>
+
+    <h2>Stretch goals</h2>
+    <ul>
+      <li>Add a --forecast flag for the next few days.</li>
+      <li>Cache results for a few minutes so repeated calls do not hit the API (Lesson 42).</li>
+      <li>Package it with a console command so you can type `weather London` (Lesson 50).</li>
+    </ul>
+
+    <button class="complete-btn" data-lesson="pybuild-09-weather-cli"
+      data-label="Mark project complete" data-done-label="✓ Built it. Nicely done.">Mark project complete</button>
+    <span class="xp-gain">+250 XP</span>
+
+    <div class="lesson-nav">
+      <a href="08-text-adventure.html"><span class="dir">← Previous</span>Project 8: Text Adventure Engine</a>
+      <a class="next" href="10-jarvis.html"><span class="dir">Next →</span>Project 10: The Capstone: Your Own Jarvis</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

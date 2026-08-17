@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 2: Tip Splitter - The Python School</title>
+<meta name="description" content="Split a restaurant bill with tip across a table. Floats, formatting, and the rounding decisions that matter with money.">
+<link rel="canonical" href="https://rustyschool.com/python/build/02-tip-splitter">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Project 2: Tip Splitter - The Python School">
+<meta property="og:description" content="Split a restaurant bill with tip across a table. Floats, formatting, and the rounding decisions that matter with money.">
+<meta property="og:url" content="https://rustyschool.com/python/build/02-tip-splitter">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 2: Tip Splitter - The Python School">
+<meta name="twitter:description" content="Split a restaurant bill with tip across a table. Floats, formatting, and the rounding decisions that matter with money.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 2 of 10</nav>
+    <span class="badge build">Project · after Level 1</span>
+    <h1>Tip Splitter 🧾</h1>
+    <p class="lede muted">Take a bill, a tip percentage, and a number of people, and work out what each person owes. It sounds trivial until you meet money's favourite trap: rounding. This project makes you decide, on purpose, how to handle the pennies.</p>
+    <p class="meta muted small">Difficulty <span class="difficulty">🐍<span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span><span class="off">🐍</span></span></p>
+  </section>
+
+  <div class="lesson-body">
+    <div class="spec">
+      <h3>📋 Build this</h3>
+      <ul>
+      <li>Read the bill amount, the tip percentage, and the number of people.</li>
+      <li>Compute the tip, the total, and the per-person share.</li>
+      <li>Show every figure to exactly two decimal places.</li>
+      <li>Make sure the per-person shares add up to the total (no lost penny).</li>
+      </ul>
+    </div>
+
+    <h2>Hints, if you want them</h2>
+    <p class="muted">Try the spec cold first. Open a hint only when you are properly stuck; the
+    struggle is where the learning is.</p>
+    <div class="hint-ladder"><details class="hint"><summary>Hint 1: The arithmetic</summary><div class="hint-body">tip = bill * (percent / 100); total = bill + tip; each = total / people. Convert the inputs with <code>float()</code> and <code>int()</code>.</div></details><details class="hint"><summary>Hint 2: Two decimal places</summary><div class="hint-body">Use an f-string format spec: <code>f"{total:.2f}"</code> shows two decimals (Lesson 4). This is display formatting, not the stored value.</div></details><details class="hint"><summary>Hint 3: The lost penny</summary><div class="hint-body">If you round each share independently, they may not sum to the total. The honest fix: round the total, give everyone the floor share, and add the leftover pennies to the first person. See the reference.</div></details></div>
+
+    <h2>The reference solution</h2>
+    <p class="muted">Yours does not need to match this. There are many good ways to build any of
+    these. Compare only after you have your own working.</p>
+    <details class="solution"><summary>Reveal the reference solution</summary><pre class="run" data-verify="run" data-stdin="87.50&#10;15&#10;4"><code>bill = float(input(&quot;Bill amount: &quot;))
+percent = float(input(&quot;Tip percent: &quot;))
+people = int(input(&quot;How many people: &quot;))
+
+tip = round(bill * percent / 100, 2)
+total = round(bill + tip, 2)
+
+# work in whole pennies so nothing is lost to rounding
+total_pennies = round(total * 100)
+base = total_pennies // people
+leftover = total_pennies - base * people
+
+shares = [base + (1 if i &lt; leftover else 0) for i in range(people)]
+
+print(f&quot;Tip:   {tip:.2f}&quot;)
+print(f&quot;Total: {total:.2f}&quot;)
+for i, pennies in enumerate(shares, start=1):
+    print(f&quot;Person {i}: {pennies / 100:.2f}&quot;)
+print(f&quot;Sum of shares: {sum(shares) / 100:.2f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Bill amount: 87.50
+Tip percent: 15
+How many people: 4
+Tip:   13.12
+Total: 100.62
+Person 1: 25.16
+Person 2: 25.16
+Person 3: 25.15
+Person 4: 25.15
+Sum of shares: 100.62</code></pre></details>
+
+    <h2>Stretch goals</h2>
+    <ul>
+      <li>Let the user round the tip up to the nearest pound for a tidy total.</li>
+      <li>Support an uneven split where some people cover more.</li>
+      <li>Use the <code>decimal</code> module for exact money (Lesson 3).</li>
+    </ul>
+
+    <button class="complete-btn" data-lesson="pybuild-02-tip-splitter"
+      data-label="Mark project complete" data-done-label="✓ Built it. Nicely done.">Mark project complete</button>
+    <span class="xp-gain">+250 XP</span>
+
+    <div class="lesson-nav">
+      <a href="01-guessing-game.html"><span class="dir">← Previous</span>Project 1: Number Guessing Game</a>
+      <a class="next" href="03-todo.html"><span class="dir">Next →</span>Project 3: Todo List with Save</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

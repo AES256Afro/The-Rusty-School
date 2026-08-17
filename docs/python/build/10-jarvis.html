@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 10: The Capstone: Your Own Jarvis - The Python School</title>
+<meta name="description" content="The graduation project: assemble the full personal AI assistant from Level 6, then make it genuinely yours with your own tools and data.">
+<link rel="canonical" href="https://rustyschool.com/python/build/10-jarvis">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Project 10: The Capstone: Your Own Jarvis - The Python School">
+<meta property="og:description" content="The graduation project: assemble the full personal AI assistant from Level 6, then make it genuinely yours with your own tools and data.">
+<meta property="og:url" content="https://rustyschool.com/python/build/10-jarvis">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Project 10: The Capstone: Your Own Jarvis - The Python School">
+<meta name="twitter:description" content="The graduation project: assemble the full personal AI assistant from Level 6, then make it genuinely yours with your own tools and data.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Workshop</a> · Project 10 of 10</nav>
+    <span class="badge build">Project · after Level 6</span>
+    <h1>The Capstone: Your Own Jarvis 🤖</h1>
+    <p class="lede muted">Everything, together. Take the Jarvis you assembled in Lesson 61 and finish it as a real, extensible, personal assistant: memory, streaming, tools you wrote, your own documents, a spending cap. This is the project that proves the whole course to yourself.</p>
+    <p class="meta muted small">Difficulty <span class="difficulty">🐍🐍🐍🐍🐍</span></p>
+  </section>
+
+  <div class="lesson-body">
+    <div class="spec">
+      <h3>📋 Build this</h3>
+      <ul>
+      <li>A chat loop with persistent memory and streaming (Lessons 55, 56).</li>
+      <li>At least two tools you wrote yourself, run through a safe tool loop (Lesson 57).</li>
+      <li>One capability from the wider level: your own documents (58), voice (59), or local models (60).</li>
+      <li>A hard daily spending cap and honest error handling (Lesson 62).</li>
+      </ul>
+    </div>
+
+    <h2>Hints, if you want them</h2>
+    <p class="muted">Try the spec cold first. Open a hint only when you are properly stuck; the
+    struggle is where the learning is.</p>
+    <div class="hint-ladder"><details class="hint"><summary>Hint 1: Start from Lesson 61</summary><div class="hint-body">Lesson 61 gives you the four-file architecture: config, tools, memory, main. Build that first, get it running, then extend it. Do not start from a blank file; start from the working skeleton.</div></details><details class="hint"><summary>Hint 2: Add tools with the registry</summary><div class="hint-body">The whole point of the Lesson 61 design is that a new tool is one registry entry. Add a calculator and a clock first (safe, useful), then one tool that does something you personally want.</div></details><details class="hint"><summary>Hint 3: The safety net is part of the project</summary><div class="hint-body">This is not optional polish. A daily spend cap (Lesson 62), a confirm-before-acting step for any tool that changes the world (Lesson 57), and honest error handling are what make it a responsible tool rather than a risky toy.</div></details></div>
+
+    <h2>The reference solution</h2>
+    <p class="muted">Yours does not need to match this. There are many good ways to build any of
+    these. Compare only after you have your own working.</p>
+    <div class="callout info"><span class="co-title">🏗️ The reference lives in the lessons</span><p>This capstone's reference is the full four-file build in <a href='../learn/61-assemble-jarvis.html'>Lesson 61</a>, extended with your own tools and the safety net from <a href='../learn/62-ethics-cost.html'>Lesson 62</a>. Build it, then make it yours.</p></div>
+
+    <h2>Stretch goals</h2>
+    <ul>
+      <li>Give it a web interface with FastAPI (Lesson 44).</li>
+      <li>Add retrieval over your own notes so it answers from your documents (Lesson 58).</li>
+      <li>Publish the pieces as a package with a console command (Lesson 50).</li>
+      <li>Write real tests for the tools and the memory layer (Lesson 29).</li>
+    </ul>
+
+    <button class="complete-btn" data-lesson="pybuild-10-jarvis"
+      data-label="Mark project complete" data-done-label="✓ Built it. Nicely done.">Mark project complete</button>
+    <span class="xp-gain">+250 XP</span>
+
+    <div class="lesson-nav">
+      <a href="09-weather-cli.html"><span class="dir">← Previous</span>Project 9: Weather CLI</a>
+      <a class="next" href="../pit.html"><span class="dir">Next →</span>The Snake Pit</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

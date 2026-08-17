@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>glossary - The Python School</title>
-<meta name="description" content="Coming very soon.">
+<title>Glossary - The Python School</title>
+<meta name="description" content="69 Python terms defined, each linking to the lesson that teaches it.">
 <link rel="canonical" href="https://rustyschool.com/python/glossary">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Python School">
-<meta property="og:title" content="glossary - The Python School">
-<meta property="og:description" content="Coming very soon.">
+<meta property="og:title" content="Glossary - The Python School">
+<meta property="og:description" content="69 Python terms defined, each linking to the lesson that teaches it.">
 <meta property="og:url" content="https://rustyschool.com/python/glossary">
 <meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="glossary - The Python School">
-<meta name="twitter:description" content="Coming very soon.">
+<meta name="twitter:title" content="Glossary - The Python School">
+<meta name="twitter:description" content="69 Python terms defined, each linking to the lesson that teaches it.">
 <meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
 <meta name="theme-color" content="#4584b6">
 <link rel="icon" type="image/svg+xml" href="assets/monty.svg">
@@ -45,8 +45,161 @@
   </div>
 </header>
 
-<main id="main" tabindex="-1" class="container">
-<section class='lesson-header'><h1>Under construction</h1></section>
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <span class="kicker">The glossary</span>
+    <h1>Every <span class="grad">term</span>, defined 📖</h1>
+    <p class="lede muted">
+      69 terms, A to Z, each linking back to the lesson that teaches it properly.
+      Beginners revisit vocabulary constantly; this is one place to do it.
+    </p>
+    <input type="search" class="gloss-filter" id="gloss-filter"
+      placeholder="Filter terms and definitions..." aria-label="Filter the glossary">
+    <p class="muted small" id="gloss-count"></p>
+  </section>
+
+  <dl class="gloss" id="gloss-list">
+    <dt id="argument">argument</dt>
+    <dd>A value you pass into a function when you call it. Different from a parameter, which is the name the function gives it. <a href="learn/17-functions.html">Lesson 17</a></dd>
+    <dt id="assert">assert</dt>
+    <dd>A statement that raises <code>AssertionError</code> if its condition is false. The simplest form of a test. <a href="learn/29-testing.html">Lesson 29</a></dd>
+    <dt id="async">async / await</dt>
+    <dd>Keywords for concurrency: <code>async def</code> makes a coroutine that can pause at <code>await</code> points, letting thousands of tasks share one thread while they wait. <a href="learn/40-async.html">Lesson 40</a></dd>
+    <dt id="boolean">boolean</dt>
+    <dd>A value that is either <code>True</code> or <code>False</code>. Named after George Boole. <a href="learn/06-booleans.html">Lesson 6</a></dd>
+    <dt id="bug">bug</dt>
+    <dd>A gap between what you believe your code does and what it actually does. Found by making beliefs visible and testing them. <a href="learn/10-errors.html">Lesson 10</a></dd>
+    <dt id="class">class</dt>
+    <dd>A blueprint that bundles data (attributes) and the operations on it (methods) into one named type. <a href="learn/31-classes.html">Lesson 31</a></dd>
+    <dt id="closure">closure</dt>
+    <dd>A function that remembers variables from the scope where it was defined, even after that scope has finished. The basis of decorators. <a href="learn/19-scope.html">Lesson 19</a></dd>
+    <dt id="comprehension">comprehension</dt>
+    <dd>A one-line way to build a list, dict or set from a loop, e.g. <code>[n*n for n in range(5)]</code>. <a href="learn/16-comprehensions.html">Lesson 16</a></dd>
+    <dt id="context">context manager</dt>
+    <dd>An object used with <code>with</code> that guarantees setup and cleanup happen, even if an error is raised. Files are the classic example. <a href="learn/36-context-managers.html">Lesson 36</a></dd>
+    <dt id="context">context window</dt>
+    <dd>The maximum amount of text, measured in tokens, a language model can consider at once, including the whole conversation and its reply. <a href="learn/53-how-llms-work.html">Lesson 53</a></dd>
+    <dt id="dataclass">dataclass</dt>
+    <dd>A class decorated with <code>@dataclass</code> so Python writes its <code>__init__</code>, <code>__repr__</code> and <code>__eq__</code> from the field annotations. <a href="learn/33-dataclasses.html">Lesson 33</a></dd>
+    <dt id="decorator">decorator</dt>
+    <dd>A function that wraps another function to add behaviour, applied with <code>@name</code> above a definition. <a href="learn/35-decorators.html">Lesson 35</a></dd>
+    <dt id="dictionary">dictionary</dt>
+    <dd>A collection of key-value pairs, looked up by key rather than by position. The container real programs are made of. <a href="learn/13-dicts.html">Lesson 13</a></dd>
+    <dt id="docstring">docstring</dt>
+    <dd>A string as the first line of a function, class or module, kept by Python as its documentation and shown by <code>help()</code>. <a href="learn/17-functions.html">Lesson 17</a></dd>
+    <dt id="duck">duck typing</dt>
+    <dd>Caring whether an object has the method you need, not what class it is. 'If it quacks like a duck.' <a href="learn/32-inheritance.html">Lesson 32</a></dd>
+    <dt id="embedding">embedding</dt>
+    <dd>A list of numbers representing the meaning of a piece of text, so that similar meanings have similar vectors. The engine of semantic search. <a href="learn/58-your-data.html">Lesson 58</a></dd>
+    <dt id="environment">environment variable</dt>
+    <dd>A value stored outside your code, in the operating system's environment, used to keep secrets like API keys out of your files. <a href="learn/54-first-api-call.html">Lesson 54</a></dd>
+    <dt id="exception">exception</dt>
+    <dd>An error raised at runtime that stops normal flow, handled with <code>try</code> and <code>except</code>. <a href="learn/22-exceptions.html">Lesson 22</a></dd>
+    <dt id="f-string">f-string</dt>
+    <dd>A string prefixed with <code>f</code> whose <code>{braces}</code> are replaced by the values inside them. The one obviously correct way to build text from values. <a href="learn/04-strings.html">Lesson 4</a></dd>
+    <dt id="float">float</dt>
+    <dd>A number with a decimal point. Stored in binary, so tiny rounding errors are normal; use <code>Decimal</code> for money. <a href="learn/03-numbers.html">Lesson 3</a></dd>
+    <dt id="function">function</dt>
+    <dd>A named, reusable block of steps. The single most important idea for keeping programs understandable. <a href="learn/17-functions.html">Lesson 17</a></dd>
+    <dt id="generator">generator</dt>
+    <dd>A function using <code>yield</code> that produces values lazily, one at a time, using almost no memory. <a href="learn/34-generators.html">Lesson 34</a></dd>
+    <dt id="gil">GIL</dt>
+    <dd>The Global Interpreter Lock: in standard CPython, only one thread runs Python bytecode at a time, so threads speed up waiting but not CPU-bound work. <a href="learn/39-concurrency.html">Lesson 39</a></dd>
+    <dt id="hallucination">hallucination</dt>
+    <dd>When a language model produces fluent but fabricated output. A property of predicting plausible text, not a bug that can be fully removed. <a href="learn/53-how-llms-work.html">Lesson 53</a></dd>
+    <dt id="immutable">immutable</dt>
+    <dd>Unable to be changed after creation. Strings, tuples and frozen dataclasses are immutable; lists and dicts are not. <a href="learn/04-strings.html">Lesson 4</a></dd>
+    <dt id="indentation">indentation</dt>
+    <dd>The leading spaces that define blocks in Python. Unlike most languages, the layout is the syntax. Four spaces, never tabs. <a href="learn/07-decisions.html">Lesson 7</a></dd>
+    <dt id="index">index</dt>
+    <dd>The position of an item in a sequence, counting from zero. <code>x[0]</code> is the first item, <code>x[-1]</code> the last. <a href="learn/04-strings.html">Lesson 4</a></dd>
+    <dt id="int">int</dt>
+    <dd>A whole number. Python integers grow to any size and never overflow. <a href="learn/03-numbers.html">Lesson 3</a></dd>
+    <dt id="interpreter">interpreter</dt>
+    <dd>The program that runs your Python. Standard Python is CPython; Pyodide is CPython compiled to run in a browser. <a href="learn/f3-python.html">Base Camp 3</a></dd>
+    <dt id="json">JSON</dt>
+    <dd>A text format for structured data, borrowed from JavaScript, used by nearly every web API. Maps onto Python dicts and lists. <a href="learn/23-data-formats.html">Lesson 23</a></dd>
+    <dt id="lambda">lambda</dt>
+    <dd>A tiny anonymous function of one expression, e.g. <code>lambda x: x*2</code>. For throwaway use as an argument, never assigned to a name. <a href="learn/37-functional.html">Lesson 37</a></dd>
+    <dt id="list">list</dt>
+    <dd>An ordered, changeable collection. The default container in Python. <a href="learn/11-lists.html">Lesson 11</a></dd>
+    <dt id="list">list comprehension</dt>
+    <dd>See comprehension. <a href="learn/16-comprehensions.html">Lesson 16</a></dd>
+    <dt id="local">local scope</dt>
+    <dd>The region inside a function where its own variables live. Names assigned in a function are local unless declared otherwise. <a href="learn/19-scope.html">Lesson 19</a></dd>
+    <dt id="method">method</dt>
+    <dd>A function that belongs to an object, called with a dot, e.g. <code>text.upper()</code>. <a href="learn/04-strings.html">Lesson 4</a></dd>
+    <dt id="module">module</dt>
+    <dd>A <code>.py</code> file of code you can import. The standard library is hundreds of them. <a href="learn/20-modules.html">Lesson 20</a></dd>
+    <dt id="mutable">mutable</dt>
+    <dd>Able to be changed in place after creation. Lists, dicts and sets are mutable; the source of the aliasing surprise. <a href="learn/11-lists.html">Lesson 11</a></dd>
+    <dt id="none">None</dt>
+    <dd>Python's value for 'deliberately nothing'. Returned by functions with no <code>return</code>; compared with <code>is None</code>. <a href="learn/06-booleans.html">Lesson 6</a></dd>
+    <dt id="pep">PEP 8</dt>
+    <dd>Python's official style guide. Following it means any Python programmer can read your code without friction. <a href="learn/30-style.html">Lesson 30</a></dd>
+    <dt id="pip">pip</dt>
+    <dd>The tool that installs packages from PyPI into your environment. <a href="learn/26-venv.html">Lesson 26</a></dd>
+    <dt id="prompt">prompt injection</dt>
+    <dd>An attack where text the model reads contains hidden instructions aimed at it. Unsolved, and the central risk of giving a model tools. <a href="learn/62-ethics-cost.html">Lesson 62</a></dd>
+    <dt id="property">property</dt>
+    <dd>A method used like an attribute via <code>@property</code>, so a value can be computed on demand or validated on assignment. <a href="learn/31-classes.html">Lesson 31</a></dd>
+    <dt id="pypi">PyPI</dt>
+    <dd>The Python Package Index: half a million public packages installable with pip. <a href="learn/26-venv.html">Lesson 26</a></dd>
+    <dt id="rag">RAG</dt>
+    <dd>Retrieval-augmented generation: find the relevant piece of your own data and paste it into the prompt so a model can answer from information it was never trained on. <a href="learn/58-your-data.html">Lesson 58</a></dd>
+    <dt id="recursion">recursion</dt>
+    <dd>A function that calls itself. Needs a base case that returns without recursing, or it runs forever. <a href="learn/58-your-data.html">Lesson 58</a></dd>
+    <dt id="regular">regular expression</dt>
+    <dd>A tiny language for describing shapes of text, used via the <code>re</code> module for search and replace. <a href="learn/25-regex.html">Lesson 25</a></dd>
+    <dt id="repl">REPL</dt>
+    <dd>The interactive Python prompt (Read, Evaluate, Print, Loop). A calculator that speaks Python; the best tool for 'what does this do?'. <a href="learn/f6-lab.html">Base Camp 6</a></dd>
+    <dt id="return">return</dt>
+    <dd>Hands a value back from a function to its caller. Different from print, which shows a value and returns nothing. <a href="learn/17-functions.html">Lesson 17</a></dd>
+    <dt id="scope">scope</dt>
+    <dd>Where a name is visible. Python searches Local, Enclosing, Global, Built-in, in that order (LEGB). <a href="learn/19-scope.html">Lesson 19</a></dd>
+    <dt id="secrets">secrets</dt>
+    <dd>The standard module for cryptographically safe random values: tokens, passwords, keys. Never use <code>random</code> for security. <a href="learn/52-security.html">Lesson 52</a></dd>
+    <dt id="set">set</dt>
+    <dd>An unordered collection with no duplicates and instant membership testing. <a href="learn/14-sets.html">Lesson 14</a></dd>
+    <dt id="shadowing">shadowing (variable)</dt>
+    <dd>Reusing a name with a fresh <code>let</code>-style assignment, or accidentally hiding a built-in like <code>list</code> by assigning to that name. <a href="learn/19-scope.html">Lesson 19</a></dd>
+    <dt id="slice">slice</dt>
+    <dd>A piece of a sequence, <code>x[start:stop]</code>, including the start and excluding the stop. <a href="learn/04-strings.html">Lesson 4</a></dd>
+    <dt id="sql">SQL injection</dt>
+    <dd>An attack where user input rewrites a database query. Prevented by parameterised queries with <code>?</code> placeholders, never f-strings. <a href="learn/45-databases.html">Lesson 45</a></dd>
+    <dt id="streaming">streaming</dt>
+    <dd>Displaying a model's reply token by token as it is generated, so the wait feels alive rather than frozen. <a href="learn/56-streaming.html">Lesson 56</a></dd>
+    <dt id="string">string</dt>
+    <dd>Text, written in quotes. A sequence of characters, and immutable. <a href="learn/04-strings.html">Lesson 4</a></dd>
+    <dt id="system">system prompt</dt>
+    <dd>Standing instructions that set an assistant's persona and rules, applied to every turn, separate from the conversation. <a href="learn/54-first-api-call.html">Lesson 54</a></dd>
+    <dt id="temperature">temperature</dt>
+    <dd>A dial controlling how randomly a model samples its next token. Low is focused and predictable; high is creative and surprising. <a href="learn/53-how-llms-work.html">Lesson 53</a></dd>
+    <dt id="token">token</dt>
+    <dd>The chunk of text a language model reads and predicts, roughly three-quarters of a word. You pay per token. <a href="learn/53-how-llms-work.html">Lesson 53</a></dd>
+    <dt id="tool">tool use</dt>
+    <dd>Letting a model ask your code to run functions (function calling), so it can act: check data, do maths, control things. Powerful and risky. <a href="learn/57-tools.html">Lesson 57</a></dd>
+    <dt id="traceback">traceback</dt>
+    <dd>The report Python prints when an exception is not caught, naming what broke, where, and why. Read it from the bottom. <a href="learn/10-errors.html">Lesson 10</a></dd>
+    <dt id="truthiness">truthiness</dt>
+    <dd>How any value is treated as True or False: empty and zero are falsy, everything else is truthy. <a href="learn/06-booleans.html">Lesson 6</a></dd>
+    <dt id="try">try / except</dt>
+    <dd>The way to handle exceptions: attempt the risky code, catch the specific errors you can deal with. <a href="learn/22-exceptions.html">Lesson 22</a></dd>
+    <dt id="tuple">tuple</dt>
+    <dd>An ordered, unchangeable collection. Documents that a fixed group of values belongs together. <a href="learn/12-tuples.html">Lesson 12</a></dd>
+    <dt id="type">type hint</dt>
+    <dd>An annotation like <code>name: str</code> that documents the expected type. Not enforced at runtime, but checked by tools like mypy. <a href="learn/38-typing.html">Lesson 38</a></dd>
+    <dt id="unpacking">unpacking</dt>
+    <dd>Assigning several names from a sequence at once, e.g. <code>a, b = point</code>, or spreading with a star. <a href="learn/12-tuples.html">Lesson 12</a></dd>
+    <dt id="variable">variable</dt>
+    <dd>A label attached to a value, created with <code>=</code>. In Python the value has a type; the label does not. <a href="learn/02-variables.html">Lesson 2</a></dd>
+    <dt id="virtual">virtual environment</dt>
+    <dd>A private, isolated set of installed packages for one project, so projects with conflicting versions never collide. <a href="learn/26-venv.html">Lesson 26</a></dd>
+    <dt id="walrus">walrus operator</dt>
+    <dd><code>:=</code>, which assigns a value and returns it in one expression, e.g. <code>if (n := len(x)) > 3:</code>. <a href="learn/41-automation.html">Lesson 41</a></dd>
+  </dl>
+  <p class="muted" id="gloss-empty" hidden>Nothing matches that. Try a shorter search.</p>
+
 </main>
 
 <footer class="site-footer">
