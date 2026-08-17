@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 32: Inheritance and Dunder Methods - The Python School</title>
+<meta name="description" content="Subclassing, super(), method overriding, dunder methods, and why composition usually beats inheritance.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/32-inheritance">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 32: Inheritance and Dunder Methods - The Python School">
+<meta property="og:description" content="Subclassing, super(), method overriding, dunder methods, and why composition usually beats inheritance.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/32-inheritance">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 32: Inheritance and Dunder Methods - The Python School">
+<meta name="twitter:description" content="Subclassing, super(), method overriding, dunder methods, and why composition usually beats inheritance.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 32 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Inheritance and Dunder Methods 🧬</h1>
+    <p class="lede muted">Classes can build on other classes. This is the most over-used feature in
+    programming, so this lesson teaches it and then teaches you when not to.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Inheriting</h2>
+    <pre class="run" data-verify="run"><code>class Character:
+    def __init__(self, name, hp=100):
+        self.name = name
+        self.hp = hp
+
+    def speak(self):
+        return f&quot;{self.name} says nothing.&quot;
+
+    def __repr__(self):
+        return f&quot;{type(self).__name__}({self.name!r}, hp={self.hp})&quot;
+
+
+class Pirate(Character):
+    def __init__(self, name, insults=0):
+        super().__init__(name, hp=120)      # run the parent&#x27;s setup
+        self.insults = insults
+
+    def speak(self):                        # override the parent&#x27;s version
+        return f&quot;{self.name}: You fight like a dairy farmer!&quot;
+
+
+class Ghost(Character):
+    def speak(self):
+        parent_line = super().speak()       # extend rather than replace
+        return parent_line + &quot; (it is a ghost, so this is unsurprising)&quot;
+
+
+for character in [Character(&quot;Otis&quot;), Pirate(&quot;Guybrush&quot;, 8), Ghost(&quot;LeChuck&quot;, hp=999)]:
+    print(character)
+    print(&quot;  &quot; + character.speak())</code></pre>
+<pre class="out"><code class="nohl">Character(&#x27;Otis&#x27;, hp=100)
+  Otis says nothing.
+Pirate(&#x27;Guybrush&#x27;, hp=120)
+  Guybrush: You fight like a dairy farmer!
+Ghost(&#x27;LeChuck&#x27;, hp=999)
+  LeChuck says nothing. (it is a ghost, so this is unsurprising)</code></pre>
+    <p>Three things happened there:</p>
+    <ul>
+      <li><strong>Inheriting</strong> means a <code>Pirate</code> gets everything
+      <code>Character</code> has for free.</li>
+      <li><strong>Overriding</strong> means defining a method the parent already has; yours
+      wins.</li>
+      <li><strong><code>super()</code></strong> calls the parent's version, so you can extend
+      rather than replace. Forgetting <code>super().__init__()</code> is the classic bug: the
+      parent's attributes never get set.</li>
+    </ul>
+
+    <h2>isinstance, and the type of a thing</h2>
+    <pre class="run" data-verify="run"><code>class Character: pass
+class Pirate(Character): pass
+
+
+guy = Pirate()
+
+print(isinstance(guy, Pirate))
+print(isinstance(guy, Character))     # a pirate IS a character
+print(type(guy) is Pirate)
+print(type(guy) is Character)         # but its exact type is not Character
+print(Pirate.__mro__)</code></pre>
+<pre class="out"><code class="nohl">True
+True
+True
+False
+(&lt;class &#x27;__main__.Pirate&#x27;&gt;, &lt;class &#x27;__main__.Character&#x27;&gt;, &lt;class &#x27;object&#x27;&gt;)</code></pre>
+    <p>
+      <code>__mro__</code> is the method resolution order: the exact list of classes Python
+      searches, in order, when you use a dot. Everything inherits from <code>object</code> in
+      the end.
+    </p>
+
+    <h2>Dunder methods: hooking into the language</h2>
+    <p>
+      Those <code>__double_underscore__</code> names are how your objects plug into Python's
+      own syntax. Define the right one and <code>+</code>, <code>len()</code>,
+      <code>==</code>, <code>in</code> and <code>for</code> all start working on your type.
+    </p>
+    <pre class="run" data-verify="run"><code>class Inventory:
+    def __init__(self, items=None):
+        self.items = list(items or [])
+
+    def __len__(self):
+        return len(self.items)
+
+    def __getitem__(self, index):
+        return self.items[index]
+
+    def __contains__(self, item):
+        return item in self.items
+
+    def __add__(self, other):
+        return Inventory(self.items + other.items)
+
+    def __eq__(self, other):
+        return isinstance(other, Inventory) and sorted(self.items) == sorted(other.items)
+
+    def __repr__(self):
+        return f&quot;Inventory({self.items!r})&quot;
+
+
+bag = Inventory([&quot;map&quot;, &quot;grog&quot;])
+pockets = Inventory([&quot;mints&quot;])
+
+print(len(bag))
+print(bag[0])
+print(&quot;grog&quot; in bag)
+print(bag + pockets)
+print(Inventory([&quot;a&quot;, &quot;b&quot;]) == Inventory([&quot;b&quot;, &quot;a&quot;]))
+
+for item in bag:            # works via __getitem__, no __iter__ needed
+    print(&quot; -&quot;, item)</code></pre>
+<pre class="out"><code class="nohl">2
+map
+True
+Inventory([&#x27;map&#x27;, &#x27;grog&#x27;, &#x27;mints&#x27;])
+True
+ - map
+ - grog</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Write this</th><th>And this works</th></tr></thead><tbody><tr><td><code>__len__</code></td><td><code>len(x)</code>, and truthiness</td></tr><tr><td><code>__getitem__</code></td><td><code>x[0]</code>, slicing, and iteration</td></tr><tr><td><code>__iter__</code></td><td><code>for i in x</code> (the proper way, Lesson 34)</td></tr><tr><td><code>__contains__</code></td><td><code>y in x</code></td></tr><tr><td><code>__eq__</code></td><td><code>x == y</code></td></tr><tr><td><code>__lt__</code></td><td><code>x &lt; y</code>, and <code>sorted()</code></td></tr><tr><td><code>__add__</code></td><td><code>x + y</code></td></tr><tr><td><code>__call__</code></td><td><code>x()</code>, making the object callable</td></tr><tr><td><code>__enter__</code> / <code>__exit__</code></td><td><code>with x:</code> (Lesson 36)</td></tr></tbody></table></div>
+
+    <div class="callout warn"><span class="co-title">⚖️ If you write __eq__, think about __hash__</span><p>Defining <code>__eq__</code> sets <code>__hash__</code> to None, so your objects can no longer go in a set or be dictionary keys. That is deliberate: two objects that are equal must hash the same, and Python will not guess your rule. Either define <code>__hash__</code> too, or use a <a href='33-dataclasses.html'>frozen dataclass</a>, which does it for you.</p></div>
+
+    <h2>Sorting your own objects</h2>
+    <pre class="run" data-verify="run"><code>from functools import total_ordering
+
+
+@total_ordering
+class Score:
+    def __init__(self, name, points):
+        self.name = name
+        self.points = points
+
+    def __eq__(self, other):
+        return self.points == other.points
+
+    def __lt__(self, other):
+        return self.points &lt; other.points
+
+    def __repr__(self):
+        return f&quot;{self.name}({self.points})&quot;
+
+
+scores = [Score(&quot;Otis&quot;, 42), Score(&quot;Guybrush&quot;, 95), Score(&quot;Elaine&quot;, 88)]
+
+print(sorted(scores))
+print(max(scores))
+print(Score(&quot;a&quot;, 10) &gt;= Score(&quot;b&quot;, 10))</code></pre>
+<pre class="out"><code class="nohl">[Otis(42), Elaine(88), Guybrush(95)]
+Guybrush(95)
+True</code></pre>
+    <p>
+      <code>@total_ordering</code> fills in <code>&gt;</code>, <code>&lt;=</code> and
+      <code>&gt;=</code> from the two you wrote. Often though, the simplest answer is no dunder
+      methods at all: <code>sorted(scores, key=lambda s: s.points)</code>.
+    </p>
+
+    <h2>Composition usually beats inheritance</h2>
+    <pre class="run" data-verify="run"><code># Inheritance: a Car IS an Engine? Obviously not.
+class Engine:
+    def start(self):
+        return &quot;vroom&quot;
+
+
+class BadCar(Engine):          # wrong relationship
+    pass
+
+
+# Composition: a Car HAS an Engine. Much better.
+class Car:
+    def __init__(self, engine):
+        self.engine = engine
+
+    def start(self):
+        return f&quot;Car starting: {self.engine.start()}&quot;
+
+
+print(BadCar().start())
+print(Car(Engine()).start())</code></pre>
+<pre class="out"><code class="nohl">vroom
+Car starting: vroom</code></pre>
+
+    <div class="voice" data-skill="conceptualization"><div class="v-head"><span class="v-name">CONCEPTUALIZATION</span><span class="v-check success">[Formidable: Success]</span></div><p>The test is a sentence. 'A pirate is a character': true, inherit. 'A car is an engine': false, so the car should hold an engine instead.</p>
+<p>Inheritance couples you to the parent's entire interface forever, including the parts you did not want. Composition lets you keep only the piece you need and swap it later. Deep inheritance hierarchies are the classic sign of a codebase written by someone who had just learned about inheritance.</p></div>
+
+    <h2>Abstract base classes: promising an interface</h2>
+    <pre class="run" data-verify="run"><code>from abc import ABC, abstractmethod
+
+
+class Storage(ABC):
+    &quot;&quot;&quot;Anything that can save and load a value.&quot;&quot;&quot;
+
+    @abstractmethod
+    def save(self, key, value): ...
+
+    @abstractmethod
+    def load(self, key): ...
+
+    def save_many(self, pairs):
+        &quot;&quot;&quot;A useful method every subclass gets for free.&quot;&quot;&quot;
+        for key, value in pairs.items():
+            self.save(key, value)
+        return len(pairs)
+
+
+class MemoryStorage(Storage):
+    def __init__(self):
+        self.data = {}
+
+    def save(self, key, value):
+        self.data[key] = value
+
+    def load(self, key):
+        return self.data.get(key)
+
+
+store = MemoryStorage()
+print(store.save_many({&quot;ship&quot;: &quot;Sea Monkey&quot;, &quot;crew&quot;: 12}))
+print(store.load(&quot;ship&quot;))
+
+try:
+    Storage()
+except TypeError as err:
+    print(&quot;TypeError:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">2
+Sea Monkey
+TypeError: Can&#x27;t instantiate abstract class Storage without an implementation for abstract methods &#x27;load&#x27;, &#x27;save&#x27;</code></pre>
+    <p>
+      An abstract base class says "any subclass must provide these". You cannot build the base
+      itself, and forgetting a method fails loudly at construction rather than quietly at 3am.
+      It is how you write a plugin interface: one <code>Storage</code> for memory, one for a
+      file, one for a database, all interchangeable.
+    </p>
+
+    <h2>Duck typing: the Python way</h2>
+    <pre class="run" data-verify="run"><code>class Duck:
+    def speak(self):
+        return &quot;quack&quot;
+
+
+class Robot:
+    def speak(self):
+        return &quot;beep&quot;
+
+
+def make_it_talk(thing):
+    &quot;&quot;&quot;No inheritance, no interface, no type check. Just: can it speak?&quot;&quot;&quot;
+    return thing.speak()
+
+
+for thing in [Duck(), Robot()]:
+    print(make_it_talk(thing))</code></pre>
+<pre class="out"><code class="nohl">quack
+beep</code></pre>
+    <p>
+      "If it walks like a duck and quacks like a duck, it is a duck." Python mostly does not
+      care what class something is, only whether it has the method you are about to call. This
+      is why Python needs far less inheritance than Java or C++: you can substitute any object
+      that behaves right, with no shared ancestor at all. Lesson 38's <code>Protocol</code>
+      lets you type-check exactly this.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>A shape hierarchy</h3><p>Write an abstract <code>Shape</code> with an abstract <code>area</code> and a concrete <code>describe</code>. Implement <code>Circle</code> and <code>Rectangle</code>, then sort a list of them by area.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from abc import ABC, abstractmethod
+import math
+
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self): ...
+
+    def describe(self):
+        return f&quot;{type(self).__name__} with area {self.area():.2f}&quot;
+
+
+class Circle(Shape):
+    def __init__(self, radius):
+        self.radius = radius
+
+    def area(self):
+        return math.pi * self.radius ** 2
+
+
+class Rectangle(Shape):
+    def __init__(self, width, height):
+        self.width, self.height = width, height
+
+    def area(self):
+        return self.width * self.height
+
+
+shapes = [Circle(3), Rectangle(2, 5), Circle(1)]
+for shape in sorted(shapes, key=lambda s: s.area()):
+    print(shape.describe())</code></pre>
+<pre class="out"><code class="nohl">Circle with area 3.14
+Rectangle with area 10.00
+Circle with area 28.27</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Inheritance or composition?</h3><p>For each, say which you would use and why.</p><ol><li>A <code>SavingsAccount</code> and a <code>CurrentAccount</code>.</li><li>A <code>Logger</code> that a <code>WebServer</code> uses.</li><li><code>Dog</code>, <code>Cat</code> and <code>Animal</code>.</li><li>A <code>Playlist</code> and the <code>Song</code>s in it.</li><li>A <code>Button</code> that needs to be clickable and draggable and resizable.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Inheritance.</strong> Both genuinely are accounts and share behaviour.</li><li><strong>Composition.</strong> A server is not a logger, it has one. It should also be swappable for a silent one in tests.</li><li><strong>Inheritance,</strong> and it is the textbook example precisely because real domains are rarely this clean.</li><li><strong>Composition.</strong> A playlist contains songs.</li><li><strong>Composition,</strong> almost certainly. Three separate behaviours combined is what mixins and multiple inheritance were invented for, and it is also where inheritance hierarchies most reliably become unmaintainable. Prefer small collaborating objects.</li></ol></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Make a class feel built in</h3><p>Write a <code>Playlist</code> supporting <code>len()</code>, indexing, <code>in</code>, <code>+</code>, iteration and a readable repr.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>class Playlist:
+    &quot;&quot;&quot;A named list of songs that behaves like a built-in sequence.&quot;&quot;&quot;
+
+    def __init__(self, name, songs=None):
+        self.name = name
+        self.songs = list(songs or [])
+
+    def __len__(self):
+        return len(self.songs)
+
+    def __getitem__(self, index):
+        return self.songs[index]
+
+    def __contains__(self, song):
+        return song in self.songs
+
+    def __add__(self, other):
+        return Playlist(f&quot;{self.name} + {other.name}&quot;, self.songs + other.songs)
+
+    def __repr__(self):
+        return f&quot;Playlist({self.name!r}, {len(self.songs)} songs)&quot;
+
+
+sea = Playlist(&quot;Sea Shanties&quot;, [&quot;Wellerman&quot;, &quot;Drunken Sailor&quot;])
+grog = Playlist(&quot;Grog Anthems&quot;, [&quot;A Pirate I Was Meant To Be&quot;])
+
+print(sea, len(sea))
+print(sea[0])
+print(&quot;Wellerman&quot; in sea)
+
+both = sea + grog
+print(both)
+for song in both:
+    print(&quot; -&quot;, song)</code></pre>
+<pre class="out"><code class="nohl">Playlist(&#x27;Sea Shanties&#x27;, 2 songs) 2
+Wellerman
+True
+Playlist(&#x27;Sea Shanties + Grog Anthems&#x27;, 3 songs)
+ - Wellerman
+ - Drunken Sailor
+ - A Pirate I Was Meant To Be</code></pre><p>Nobody using this class needs to know it is not a list. That is the whole point of the dunder protocol: your types get to be first-class citizens of the language.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-32-inheritance">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="31-classes.html"><span class="dir">← Previous</span>Lesson 31: Classes and Objects</a>
+      <a class="next" href="33-dataclasses.html"><span class="dir">Next →</span>Lesson 33: Dataclasses, Enums and match</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

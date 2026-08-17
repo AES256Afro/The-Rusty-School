@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 40: async and await - The Python School</title>
+<meta name="description" content="Coroutines, the event loop, asyncio.gather, TaskGroup, and when async is the wrong choice.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/40-async">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 40: async and await - The Python School">
+<meta property="og:description" content="Coroutines, the event loop, asyncio.gather, TaskGroup, and when async is the wrong choice.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/40-async">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 40: async and await - The Python School">
+<meta name="twitter:description" content="Coroutines, the event loop, asyncio.gather, TaskGroup, and when async is the wrong choice.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 40 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>async and await ⚡</h1>
+    <p class="lede muted">The last piece of modern Python. It looks like magic, it is really just the
+    generator idea from Lesson 34 wearing a very good suit.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The idea</h2>
+    <p>
+      A thread waiting on the network is a thread doing nothing, holding several megabytes of
+      stack. <strong>async</strong> replaces that with a coroutine: a function that can pause
+      itself at a marked point, hand control back, and be resumed later. Thousands of them fit
+      in the memory one thread would use, and they all take turns on a single thread.
+    </p>
+
+    <h2>Your first coroutine</h2>
+    <pre class="run" data-verify="run"><code>import asyncio
+
+
+async def greet(name):
+    &quot;&quot;&quot;async def makes a coroutine function.&quot;&quot;&quot;
+    await asyncio.sleep(0.01)          # pause here, let others run
+    return f&quot;Hello, {name}&quot;
+
+
+async def main():
+    result = await greet(&quot;Guybrush&quot;)
+    print(result)
+
+
+asyncio.run(main())</code></pre>
+<pre class="out"><code class="nohl">Hello, Guybrush</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Word</th><th>Means</th></tr></thead><tbody><tr><td><code>async def</code></td><td>This function is a coroutine; calling it returns a coroutine object, it does not run</td></tr><tr><td><code>await</code></td><td>Pause here until that finishes, and let other tasks use the time</td></tr><tr><td><code>asyncio.run(...)</code></td><td>Start the event loop and run this until it is done</td></tr></tbody></table></div>
+    <pre class="run" data-verify="run"><code>import asyncio
+
+
+async def greet(name):
+    return f&quot;Hello, {name}&quot;
+
+
+coro = greet(&quot;Elaine&quot;)
+print(type(coro))
+print(asyncio.run(coro))</code></pre>
+<pre class="out"><code class="nohl">&lt;class &#x27;coroutine&#x27;&gt;
+Hello, Elaine</code></pre>
+
+    <h2>The payoff: doing many things at once</h2>
+    <pre class="run" data-verify="run"><code>import asyncio, time
+
+
+async def fetch(page):
+    await asyncio.sleep(0.1)           # pretend network delay
+    return f&quot;page {page}&quot;
+
+
+async def one_at_a_time():
+    return [await fetch(n) for n in range(5)]
+
+
+async def all_at_once():
+    return await asyncio.gather(*(fetch(n) for n in range(5)))
+
+
+start = time.perf_counter()
+asyncio.run(one_at_a_time())
+sequential = time.perf_counter() - start
+
+start = time.perf_counter()
+results = asyncio.run(all_at_once())
+concurrent = time.perf_counter() - start
+
+print(results)
+print(f&quot;sequential about 0.5s: {0.4 &lt; sequential &lt; 0.9}&quot;)
+print(f&quot;concurrent about 0.1s: {concurrent &lt; 0.3}&quot;)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;page 0&#x27;, &#x27;page 1&#x27;, &#x27;page 2&#x27;, &#x27;page 3&#x27;, &#x27;page 4&#x27;]
+sequential about 0.5s: True
+concurrent about 0.1s: True</code></pre>
+
+    <div class="voice" data-skill="perception"><div class="v-head"><span class="v-name">PERCEPTION</span><span class="v-check success">[Formidable: Success]</span></div><p>Look carefully at the first version. It has await in it, and it is still sequential. Every await stops and waits for that one call.</p>
+<p>await means 'wait for this'. It does not mean 'do this in the background'. To get concurrency you must start several things before awaiting any of them, which is what gather does. Nearly every async performance complaint comes down to this misunderstanding.</p></div>
+
+    <h2>Tasks: starting work in the background</h2>
+    <pre class="run" data-verify="run"><code>import asyncio
+
+
+async def work(name, seconds):
+    await asyncio.sleep(seconds)
+    print(f&quot;  {name} done&quot;)
+    return name
+
+
+async def main():
+    slow = asyncio.create_task(work(&quot;slow&quot;, 0.2))     # starts immediately
+    fast = asyncio.create_task(work(&quot;fast&quot;, 0.05))
+
+    print(&quot;both are now running&quot;)
+    results = [await fast, await slow]
+    return results
+
+
+print(asyncio.run(main()))</code></pre>
+<pre class="out"><code class="nohl">both are now running
+  fast done
+  slow done
+[&#x27;fast&#x27;, &#x27;slow&#x27;]</code></pre>
+
+    <h2>TaskGroup: the modern, safer way</h2>
+    <pre class="run" data-verify="run"><code>import asyncio
+
+
+async def fetch(page):
+    await asyncio.sleep(0.01)
+    if page == 3:
+        raise ValueError(&quot;page 3 is missing&quot;)
+    return f&quot;page {page}&quot;
+
+
+async def main():
+    failures = []
+    try:
+        async with asyncio.TaskGroup() as group:
+            tasks = [group.create_task(fetch(n)) for n in range(5)]
+    except* ValueError as errors:
+        failures.extend(errors.exceptions)      # note: no `return` in here
+
+    if failures:
+        print(f&quot;caught {len(failures)} failure(s):&quot;, failures[0])
+        return &quot;aborted&quot;
+    return [t.result() for t in tasks]
+
+
+print(asyncio.run(main()))</code></pre>
+<pre class="out"><code class="nohl">caught 1 failure(s): page 3 is missing
+aborted</code></pre>
+    <p>
+      <code>TaskGroup</code> (Python 3.11+) guarantees that every task finishes or is
+      cancelled before the block exits, and it collects failures into an
+      <code>ExceptionGroup</code> caught with <code>except*</code>. Before this existed it was
+      easy to leave orphaned tasks running silently after an error. Prefer it to bare
+      <code>gather</code> in new code.
+    </p>
+    <p>
+      One rule that catches people: <code>return</code>, <code>break</code> and
+      <code>continue</code> are <strong>not allowed inside an <code>except*</code> block</strong>,
+      because an exception group can trigger several handlers and Python refuses to guess which
+      return wins. Collect what you need into a variable, then act on it after the block, which
+      is what the example above does.
+    </p>
+
+    <h2>Timeouts, which you will always need</h2>
+    <pre class="run" data-verify="run"><code>import asyncio
+
+
+async def slow():
+    await asyncio.sleep(10)
+    return &quot;eventually&quot;
+
+
+async def main():
+    try:
+        async with asyncio.timeout(0.05):
+            return await slow()
+    except TimeoutError:
+        return &quot;gave up waiting&quot;
+
+
+print(asyncio.run(main()))</code></pre>
+<pre class="out"><code class="nohl">gave up waiting</code></pre>
+
+    <h2>The rules of the road</h2>
+    <ul>
+      <li><strong>async is contagious.</strong> To <code>await</code> something you must be in
+      an <code>async def</code>, whose caller must await it too, all the way up to
+      <code>asyncio.run</code>. People call this "function colouring", and it is the main
+      complaint about async in every language that has it.</li>
+      <li><strong>Never block inside a coroutine.</strong> One <code>time.sleep(5)</code> or
+      one ordinary <code>requests.get</code> freezes the entire event loop, and every other
+      task with it. Use the async equivalents.</li>
+      <li><strong>Your libraries must cooperate.</strong> <code>requests</code> is blocking;
+      you want <a href="https://www.python-httpx.org" target="_blank" rel="noopener">httpx</a> or
+      <a href="https://docs.aiohttp.org" target="_blank" rel="noopener">aiohttp</a>. Databases need async drivers too.</li>
+    </ul>
+    <pre class="run" data-verify="run"><code>import asyncio, time
+
+
+async def blocking_mistake():
+    time.sleep(0.1)          # WRONG: freezes everything
+    return &quot;blocked&quot;
+
+
+async def correct():
+    await asyncio.sleep(0.1)  # right: yields control
+    return &quot;yielded&quot;
+
+
+async def escape_hatch():
+    &quot;&quot;&quot;When you must call blocking code, push it to a thread.&quot;&quot;&quot;
+    return await asyncio.to_thread(time.sleep, 0.01) or &quot;ran in a thread&quot;
+
+
+async def main():
+    return [await correct(), await escape_hatch()]
+
+
+print(asyncio.run(main()))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;yielded&#x27;, &#x27;ran in a thread&#x27;]</code></pre>
+
+    <h2>Async iteration</h2>
+    <pre class="run" data-verify="run"><code>import asyncio
+
+
+async def stream_pages(count):
+    &quot;&quot;&quot;An async generator: yields values as they become available.&quot;&quot;&quot;
+    for n in range(count):
+        await asyncio.sleep(0.01)
+        yield f&quot;page {n}&quot;
+
+
+async def main():
+    async for page in stream_pages(3):
+        print(&quot;received&quot;, page)
+
+    results = [p async for p in stream_pages(2)]
+    return results
+
+
+print(asyncio.run(main()))</code></pre>
+<pre class="out"><code class="nohl">received page 0
+received page 1
+received page 2
+[&#x27;page 0&#x27;, &#x27;page 1&#x27;]</code></pre>
+    <p>
+      This is exactly how you will consume a streaming response from a language model in
+      Level 6: tokens arrive one at a time, and <code>async for</code> processes each as it
+      lands rather than waiting for the whole reply.
+    </p>
+
+    <h2>Threads or async?</h2>
+    <div class="table-wrap"><table><thead><tr><th>Situation</th><th>Choose</th><th>Because</th></tr></thead><tbody><tr><td>Fewer than about 100 concurrent waits</td><td>Threads</td><td>Simpler, and works with every library</td></tr><tr><td>Thousands of concurrent connections</td><td>async</td><td>Coroutines cost bytes; threads cost megabytes</td></tr><tr><td>A web server or API client</td><td>async</td><td>The whole ecosystem is built for it now</td></tr><tr><td>Existing blocking libraries you cannot replace</td><td>Threads</td><td>Async needs async-aware libraries</td></tr><tr><td>CPU-heavy work</td><td>Neither: processes</td><td>Async gives you zero extra CPU (Lesson 39)</td></tr><tr><td>It is already fast enough</td><td>Neither</td><td>Async makes code harder to read and debug. Earn it</td></tr></tbody></table></div>
+
+    <div class="callout info"><span class="co-title">🐢 A last honest note</span><p>Async is not faster at doing work. It is better at waiting. If your program spends its time computing rather than waiting, async will make it slower and harder to read. Measure first, exactly as in Lesson 39, and let the numbers pick the tool.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Sequential to concurrent</h3><p>This takes four times longer than it needs to. Fix it.</p><pre data-verify="compile"><code>import asyncio
+
+
+async def check(site):
+    await asyncio.sleep(0.1)
+    return f&quot;{site}: ok&quot;
+
+
+async def main():
+    results = []
+    for site in [&quot;a.com&quot;, &quot;b.com&quot;, &quot;c.com&quot;, &quot;d.com&quot;]:
+        results.append(await check(site))
+    return results</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import asyncio
+
+
+async def check(site):
+    await asyncio.sleep(0.1)
+    return f&quot;{site}: ok&quot;
+
+
+async def main():
+    sites = [&quot;a.com&quot;, &quot;b.com&quot;, &quot;c.com&quot;, &quot;d.com&quot;]
+    async with asyncio.TaskGroup() as group:
+        tasks = [group.create_task(check(s)) for s in sites]
+    return [t.result() for t in tasks]
+
+
+for line in asyncio.run(main()):
+    print(line)</code></pre>
+<pre class="out"><code class="nohl">a.com: ok
+b.com: ok
+c.com: ok
+d.com: ok</code></pre><p>The loop awaited each check before starting the next. Creating all the tasks first lets every wait overlap, turning 0.4 seconds into 0.1.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Add a timeout and a fallback</h3><p>Write a function that fetches a value but returns a default if it takes too long.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import asyncio
+
+
+async def fetch_slowly(delay, value):
+    await asyncio.sleep(delay)
+    return value
+
+
+async def with_fallback(coro, seconds, default):
+    &quot;&quot;&quot;Await coro, or return default if it takes longer than seconds.&quot;&quot;&quot;
+    try:
+        async with asyncio.timeout(seconds):
+            return await coro
+    except TimeoutError:
+        return default
+
+
+async def main():
+    quick = await with_fallback(fetch_slowly(0.01, &quot;live data&quot;), 0.1, &quot;cached&quot;)
+    slow = await with_fallback(fetch_slowly(1.0, &quot;live data&quot;), 0.05, &quot;cached&quot;)
+    return quick, slow
+
+
+print(asyncio.run(main()))</code></pre>
+<pre class="out"><code class="nohl">(&#x27;live data&#x27;, &#x27;cached&#x27;)</code></pre><p>Every network call in production code should have a timeout. Without one, a single unresponsive server can hold a request open until something else in the stack gives up, and that is how one slow dependency takes down a whole service.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Spot the blocking call</h3><p>This async program is no faster than the sequential version. Why?</p><pre data-verify="compile"><code>import asyncio, time
+
+
+async def process(item):
+    time.sleep(0.1)          # &lt;- here
+    return item * 2
+
+
+async def main():
+    return await asyncio.gather(*(process(n) for n in range(10)))</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>time.sleep</code> blocks the thread. The event loop cannot switch to another task while it is running, so all ten run one after another and <code>gather</code> buys nothing.</p><pre class="run" data-verify="run"><code>import asyncio
+
+
+async def process(item):
+    await asyncio.sleep(0.1)          # yields control properly
+    return item * 2
+
+
+async def main():
+    return await asyncio.gather(*(process(n) for n in range(10)))
+
+
+print(asyncio.run(main()))</code></pre>
+<pre class="out"><code class="nohl">[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]</code></pre><p>The same trap covers <code>requests.get</code>, ordinary file reads, and any CPU-heavy loop. If you cannot avoid blocking code, wrap it in <code>asyncio.to_thread</code> so it runs off the event loop.</p></details></div>
+
+    <div class="callout info"><span class="co-title">🎉 That is Level 4</span><p>Classes, inheritance, dataclasses, generators, decorators, context managers, functional tools, real typing, threads and async. You can now read essentially any Python codebase you encounter. Take the <a href='../quiz.html'>Level 4 quiz</a>, then Level 5 goes outside and builds things with all of it.</p></div>
+
+
+    <button class="complete-btn" data-lesson="py-40-async">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="39-concurrency.html"><span class="dir">← Previous</span>Lesson 39: Concurrency: Threads and Processes</a>
+      <a class="next" href="41-automation.html"><span class="dir">Next →</span>Lesson 41: Automating the Boring Things</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 47: Charts and Visualisation - The Python School</title>
+<meta name="description" content="matplotlib basics, choosing the right chart, labelling properly, and the ways charts mislead.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/47-charts">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 47: Charts and Visualisation - The Python School">
+<meta property="og:description" content="matplotlib basics, choosing the right chart, labelling properly, and the ways charts mislead.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/47-charts">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 47: Charts and Visualisation - The Python School">
+<meta name="twitter:description" content="matplotlib basics, choosing the right chart, labelling properly, and the ways charts mislead.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 47 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Charts and Visualisation 📈</h1>
+    <p class="lede muted">A chart is an argument. This lesson covers how to draw one in Python, and how to
+    make sure the argument it makes is true.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The simplest chart</h2>
+    <pre data-verify="compile"><code>import matplotlib      # pip install matplotlib
+matplotlib.use(&quot;Agg&quot;)           # render to a file, no window needed
+import matplotlib.pyplot as plt
+
+months = [&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;]
+sales = [100, 120, 118, 135, 150, 162]
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ax.plot(months, sales, marker=&quot;o&quot;)
+ax.set_title(&quot;Monthly sales, 2026&quot;)
+ax.set_xlabel(&quot;Month&quot;)
+ax.set_ylabel(&quot;Sales (£000s)&quot;)
+ax.grid(alpha=0.3)
+
+fig.tight_layout()
+fig.savefig(&quot;sales.png&quot;, dpi=150)
+print(&quot;written to sales.png&quot;)</code></pre>
+    <p>
+      The pattern is always the same: make a figure and axes, draw on the axes, label
+      everything, save or show. <code>matplotlib.use("Agg")</code> tells it to render to a file
+      rather than open a window, which is what you want on a server or in a script.
+    </p>
+
+    <h2>Choosing the right chart</h2>
+    <div class="table-wrap"><table><thead><tr><th>Question</th><th>Chart</th><th>Notes</th></tr></thead><tbody><tr><td>How has this changed over time?</td><td>Line</td><td>Time on the x-axis, always</td></tr><tr><td>How do these categories compare?</td><td>Bar</td><td>Horizontal if the labels are long</td></tr><tr><td>What is the distribution?</td><td>Histogram</td><td>The one people forget, and often the most informative</td></tr><tr><td>Are these two things related?</td><td>Scatter</td><td>Correlation, not causation. Say so</td></tr><tr><td>What are the parts of a whole?</td><td>Stacked bar</td><td>Not a pie chart. See below</td></tr><tr><td>Where are the outliers?</td><td>Box plot</td><td>Shows median, quartiles and stragglers at once</td></tr></tbody></table></div>
+    <div class="callout warn"><span class="co-title">🥧 On pie charts</span><p>Humans compare angles badly and lengths well. A pie chart with more than about four slices is harder to read than the bar chart of the same data, and two pie charts side by side are nearly impossible to compare. Use a bar chart. If someone insists on a pie, sort the slices and never explode them.</p></div>
+
+    <h2>Several charts at once</h2>
+    <pre data-verify="compile"><code>import matplotlib
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt
+import numpy as np
+
+rng = np.random.default_rng(seed=42)
+data = rng.normal(loc=100, scale=15, size=500)
+
+fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+
+axes[0].hist(data, bins=30, edgecolor=&quot;white&quot;)
+axes[0].set_title(&quot;Distribution&quot;)
+
+axes[1].boxplot(data, vert=False)
+axes[1].set_title(&quot;Spread and outliers&quot;)
+
+axes[2].scatter(data[:-1], data[1:], alpha=0.4, s=12)
+axes[2].set_title(&quot;Each value against the next&quot;)
+
+for ax in axes:
+    ax.grid(alpha=0.3)
+
+fig.suptitle(&quot;Three views of the same 500 numbers&quot;)
+fig.tight_layout()
+fig.savefig(&quot;three-views.png&quot;, dpi=150)
+print(&quot;saved&quot;)</code></pre>
+    <p>
+      Note the seeded random generator: <code>default_rng(seed=42)</code> makes the figure
+      reproducible, which matters as much for a chart in a report as it does for a test.
+    </p>
+
+    <h2>The chart nobody labels properly</h2>
+    <pre data-verify="compile"><code>import matplotlib
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt
+
+regions = [&quot;East&quot;, &quot;North&quot;, &quot;South&quot;, &quot;West&quot;]
+totals = [4200, 2090, 1490, 980]
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+bars = ax.barh(regions, totals, color=&quot;#4584b6&quot;)
+
+ax.set_title(&quot;Total sales by region, Q2 2026&quot;)
+ax.set_xlabel(&quot;Sales (£)&quot;)
+ax.bar_label(bars, fmt=&quot;£{:,.0f}&quot;, padding=4)
+ax.set_xlim(0, max(totals) * 1.15)
+ax.spines[[&quot;top&quot;, &quot;right&quot;]].set_visible(False)
+
+fig.tight_layout()
+fig.savefig(&quot;regions.png&quot;, dpi=150)
+print(&quot;saved&quot;)</code></pre>
+    <p>A chart is finished when it has:</p>
+    <ul>
+      <li>a title that states the finding, not just the subject;</li>
+      <li>axis labels <strong>with units</strong>;</li>
+      <li>a source and a date, if anyone else will see it;</li>
+      <li>no more ink than the data needs. Remove gridlines, borders and legends that earn
+      nothing.</li>
+    </ul>
+
+    <h2>How charts lie</h2>
+    <pre data-verify="compile"><code>import matplotlib
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt
+
+months = [&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;]
+values = [100, 102, 101, 104]
+
+fig, (left, right) = plt.subplots(1, 2, figsize=(11, 4))
+
+left.bar(months, values, color=&quot;#c92a2a&quot;)
+left.set_ylim(99, 105)
+left.set_title(&quot;&#x27;Explosive growth!&#x27;&quot;)
+
+right.bar(months, values, color=&quot;#4584b6&quot;)
+right.set_ylim(0, 120)
+right.set_title(&quot;The same data, honest axis&quot;)
+
+fig.tight_layout()
+fig.savefig(&quot;truncated.png&quot;, dpi=150)
+print(&quot;saved&quot;)</code></pre>
+
+    <div class="voice" data-skill="rhetoric"><div class="v-head"><span class="v-name">RHETORIC</span><span class="v-check success">[Formidable: Success]</span></div><p>The left chart is not false. Every number on it is correct. It is simply drawn so that a four percent change fills the frame and reads as a quadrupling.</p>
+<p>Truncating a bar chart's y-axis is the most common deception in business presentations, and it is usually not malice: it is someone letting the plotting library pick the limits. Bar charts must start at zero, because the bar's length is the message. Line charts may not, because the slope is the message.</p></div>
+
+    <p>The other reliable ways to mislead, in case you meet them:</p>
+    <ul>
+      <li><strong>Cherry-picked ranges.</strong> Any trend can be reversed by choosing the
+      start date.</li>
+      <li><strong>Two y-axes.</strong> Almost always used to imply a relationship between
+      unrelated series, and the scales can be tuned until the lines agree.</li>
+      <li><strong>Area for a single number.</strong> Doubling a circle's radius quadruples its
+      area, so the reader sees a 4x change in a 2x quantity.</li>
+      <li><strong>Correlation presented as cause.</strong> Ice cream sales and drownings rise
+      together. Neither causes the other; summer causes both.</li>
+    </ul>
+
+    <h2>Other tools</h2>
+    <div class="table-wrap"><table><thead><tr><th>Tool</th><th>Good for</th></tr></thead><tbody><tr><td><strong>matplotlib</strong></td><td>Everything, eventually. Verbose but total control</td></tr><tr><td><strong>seaborn</strong></td><td>Statistical charts in one line, sensible defaults</td></tr><tr><td><strong>plotly</strong></td><td>Interactive charts for web pages</td></tr><tr><td><strong>pandas .plot()</strong></td><td>Quick looks straight from a DataFrame</td></tr><tr><td><strong>Altair</strong></td><td>Declarative: you describe the mapping, it draws it</td></tr></tbody></table></div>
+    <pre data-verify="compile"><code>import pandas as pd
+
+df = pd.DataFrame({&quot;month&quot;: [&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;], &quot;sales&quot;: [100, 120, 118]})
+
+# the fastest possible look at some data
+ax = df.plot(x=&quot;month&quot;, y=&quot;sales&quot;, kind=&quot;bar&quot;, title=&quot;Sales&quot;, figsize=(6, 3))
+ax.figure.savefig(&quot;quick.png&quot;)</code></pre>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Draw a distribution</h3><p>Generate 1,000 dice-roll totals for two dice, plot them as a histogram, and label it properly. Seed the generator so it is reproducible.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import matplotlib
+matplotlib.use(&quot;Agg&quot;)
+import matplotlib.pyplot as plt
+import random
+
+random.seed(42)
+totals = [random.randint(1, 6) + random.randint(1, 6) for _ in range(1000)]
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ax.hist(totals, bins=range(2, 14), align=&quot;left&quot;, rwidth=0.85, color=&quot;#4584b6&quot;)
+
+ax.set_title(&quot;Two dice, 1,000 rolls: seven is the most likely total&quot;)
+ax.set_xlabel(&quot;Total of both dice&quot;)
+ax.set_ylabel(&quot;Number of rolls&quot;)
+ax.set_xticks(range(2, 13))
+ax.spines[[&quot;top&quot;, &quot;right&quot;]].set_visible(False)
+
+fig.tight_layout()
+fig.savefig(&quot;dice.png&quot;, dpi=150)
+print(&quot;saved dice.png&quot;)</code></pre><p>The title states the finding rather than naming the chart. That single habit improves reports more than any styling.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Fix the misleading chart</h3><p>A colleague sends a chart showing 'a 300% increase in engagement'. The y-axis runs from 4.0 to 4.3 and the x-axis covers eleven days. What do you say?</p><details class="solution"><summary>Reveal solution</summary><p>Something like: <em>the axis starts at 4.0, so a 0.3 change fills the whole frame. In absolute terms this is a 7% move, not 300%, and the 300% figure appears to be the change relative to the truncated baseline rather than to zero. Eleven days is also short enough that normal weekly variation could explain it. Could we see it from zero, over a quarter, with the weekly cycle visible?</em></p><p>Note the tone. The chart is nearly always an honest mistake by someone who let the library choose the limits. Asking to see it differently gets a better chart; accusing someone of lying gets a defensive colleague.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Chart selection</h3><p>Which chart for each?</p><ol><li>Website visitors per day for a year.</li><li>Revenue from five product lines this quarter.</li><li>How long users spend on a page.</li><li>Whether taller people earn more.</li><li>The share of traffic from four sources, compared across three months.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Line.</strong> Time series. Consider a seven-day rolling average to reveal the trend under the weekly cycle.</li><li><strong>Bar,</strong> horizontal if the product names are long, sorted by value.</li><li><strong>Histogram.</strong> The mean is nearly useless here: this distribution will be heavily skewed by a few very long sessions.</li><li><strong>Scatter,</strong> with a note that any correlation is not causation, and that confounders like age and occupation are doing much of the work.</li><li><strong>Stacked bar,</strong> three bars side by side. Three pie charts would make the comparison nearly impossible.</li></ol></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-47-charts">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="46-data.html"><span class="dir">← Previous</span>Lesson 46: Data Analysis</a>
+      <a class="next" href="48-games.html"><span class="dir">Next →</span>Lesson 48: Making Games</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

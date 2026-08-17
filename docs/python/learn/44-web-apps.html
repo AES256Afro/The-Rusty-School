@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 44: Building a Web App - The Python School</title>
+<meta name="description" content="A web server from the standard library, then Flask and FastAPI, routing, templates, and deployment.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/44-web-apps">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 44: Building a Web App - The Python School">
+<meta property="og:description" content="A web server from the standard library, then Flask and FastAPI, routing, templates, and deployment.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/44-web-apps">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 44: Building a Web App - The Python School">
+<meta name="twitter:description" content="A web server from the standard library, then Flask and FastAPI, routing, templates, and deployment.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 44 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Building a Web App 🚀</h1>
+    <p class="lede muted">You have been calling other people's servers. Now you write one, and the whole
+    thing stops being mysterious.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>A real web server, no packages</h2>
+    <pre data-verify="compile"><code>from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == &quot;/&quot;:
+            self.respond(200, &quot;text/html&quot;, &quot;&lt;h1&gt;Ahoy from Python&lt;/h1&gt;&quot;)
+        elif self.path == &quot;/api/crew&quot;:
+            body = json.dumps([{&quot;name&quot;: &quot;Guybrush&quot;}, {&quot;name&quot;: &quot;Elaine&quot;}])
+            self.respond(200, &quot;application/json&quot;, body)
+        else:
+            self.respond(404, &quot;text/plain&quot;, &quot;Not found&quot;)
+
+    def respond(self, status, content_type, body):
+        encoded = body.encode(&quot;utf-8&quot;)
+        self.send_response(status)
+        self.send_header(&quot;Content-Type&quot;, content_type + &quot;; charset=utf-8&quot;)
+        self.send_header(&quot;Content-Length&quot;, str(len(encoded)))
+        self.end_headers()
+        self.wfile.write(encoded)
+
+    def log_message(self, *args):
+        pass          # quiet
+
+
+if __name__ == &quot;__main__&quot;:
+    HTTPServer((&quot;localhost&quot;, 8000), Handler).serve_forever()</code></pre>
+    <p>
+      That is a genuinely working web server in thirty lines, with nothing installed. Run it,
+      visit <code>http://localhost:8000</code>, and you have served a page. The Rusty School
+      next door is served by a Rust program of exactly this shape, which is
+      <a href="../../build/09-server.html">the capstone project over there</a>.
+    </p>
+    <p>
+      It is also not something you would deploy: no routing to speak of, one request at a
+      time, no templates, no security. Which is what frameworks are for.
+    </p>
+
+    <h2>Flask: the small one</h2>
+    <pre data-verify="compile"><code>from flask import Flask, request, jsonify, render_template_string      # pip install flask
+
+app = Flask(__name__)
+
+CREW = [
+    {&quot;id&quot;: 1, &quot;name&quot;: &quot;Guybrush&quot;, &quot;role&quot;: &quot;captain&quot;},
+    {&quot;id&quot;: 2, &quot;name&quot;: &quot;Elaine&quot;, &quot;role&quot;: &quot;governor&quot;},
+]
+
+PAGE = &quot;&quot;&quot;
+&lt;!doctype html&gt;
+&lt;title&gt;Crew&lt;/title&gt;
+&lt;h1&gt;The crew of the {{ ship }}&lt;/h1&gt;
+&lt;ul&gt;{% for member in crew %}&lt;li&gt;{{ member.name }} ({{ member.role }})&lt;/li&gt;{% endfor %}&lt;/ul&gt;
+&quot;&quot;&quot;
+
+
+@app.route(&quot;/&quot;)
+def index():
+    return render_template_string(PAGE, ship=&quot;Sea Monkey&quot;, crew=CREW)
+
+
+@app.route(&quot;/api/crew&quot;)
+def list_crew():
+    return jsonify(CREW)
+
+
+@app.route(&quot;/api/crew/&lt;int:member_id&gt;&quot;)
+def get_member(member_id):
+    for member in CREW:
+        if member[&quot;id&quot;] == member_id:
+            return jsonify(member)
+    return jsonify({&quot;error&quot;: &quot;no such crew member&quot;}), 404
+
+
+@app.route(&quot;/api/crew&quot;, methods=[&quot;POST&quot;])
+def add_member():
+    data = request.get_json()
+    if not data or &quot;name&quot; not in data:
+        return jsonify({&quot;error&quot;: &quot;name is required&quot;}), 400
+    member = {&quot;id&quot;: max(m[&quot;id&quot;] for m in CREW) + 1, &quot;name&quot;: data[&quot;name&quot;],
+              &quot;role&quot;: data.get(&quot;role&quot;, &quot;deckhand&quot;)}
+    CREW.append(member)
+    return jsonify(member), 201
+
+
+if __name__ == &quot;__main__&quot;:
+    app.run(debug=True)</code></pre>
+    <p>
+      The <code>@app.route</code> decorator should look familiar now: Lesson 35 explained
+      exactly what it is doing, which is registering your function in a lookup table of paths.
+      Nothing here is magic any more.
+    </p>
+
+    <h2>FastAPI: the modern one</h2>
+    <pre data-verify="compile"><code>from fastapi import FastAPI, HTTPException      # pip install &quot;fastapi[standard]&quot;
+from pydantic import BaseModel
+
+app = FastAPI(title=&quot;Crew API&quot;)
+
+
+class Member(BaseModel):
+    &quot;&quot;&quot;The type hints are the validation, the docs and the parsing.&quot;&quot;&quot;
+    name: str
+    role: str = &quot;deckhand&quot;
+    insults: int = 0
+
+
+CREW: dict[int, Member] = {1: Member(name=&quot;Guybrush&quot;, role=&quot;captain&quot;, insults=8)}
+
+
+@app.get(&quot;/api/crew&quot;)
+def list_crew() -&gt; list[Member]:
+    return list(CREW.values())
+
+
+@app.get(&quot;/api/crew/{member_id}&quot;)
+def get_member(member_id: int) -&gt; Member:
+    if member_id not in CREW:
+        raise HTTPException(status_code=404, detail=&quot;no such crew member&quot;)
+    return CREW[member_id]
+
+
+@app.post(&quot;/api/crew&quot;, status_code=201)
+def add_member(member: Member) -&gt; Member:
+    new_id = max(CREW) + 1
+    CREW[new_id] = member
+    return member</code></pre>
+    <pre class="term"><code class="nohl">$ fastapi dev main.py
+
+INFO  Uvicorn running on http://127.0.0.1:8000
+INFO  Application startup complete.
+
+# and for free, at http://127.0.0.1:8000/docs :
+# a complete interactive API documentation page, generated from your type hints</code></pre>
+
+    <div class="voice" data-skill="interfacing"><div class="v-head"><span class="v-name">INTERFACING</span><span class="v-check success">[Formidable: Success]</span></div><p>Look at what those type hints just bought. FastAPI reads them and generates request parsing, validation with proper error messages, JSON serialisation, and a full interactive documentation site.</p>
+<p>Send it {\"name\": 42} and it replies with a precise 422 explaining that name must be a string, without you writing a line of validation. This is the strongest practical argument for Lesson 38 that exists.</p></div>
+
+    <h2>Choosing</h2>
+    <div class="table-wrap"><table><thead><tr><th>Framework</th><th>Best for</th><th>Trade</th></tr></thead><tbody><tr><td><code>http.server</code></td><td>Learning, tiny internal tools</td><td>You write everything</td></tr><tr><td><strong>Flask</strong></td><td>Small apps, HTML pages, huge ecosystem</td><td>Synchronous by default; validation is manual</td></tr><tr><td><strong>FastAPI</strong></td><td>JSON APIs, async, automatic docs</td><td>Newer; more concepts to learn</td></tr><tr><td><strong>Django</strong></td><td>Full products: admin, auth, ORM, migrations</td><td>Large and opinionated; overkill for an API</td></tr><tr><td><strong>Litestar</strong>, <strong>Starlette</strong></td><td>Alternatives worth knowing about</td><td></td></tr></tbody></table></div>
+    <p>
+      A reasonable default in 2026: FastAPI if you are serving JSON, Django if you are building
+      a product with users and an admin panel, Flask if you want something small that renders
+      HTML.
+    </p>
+
+    <h2>Templates: HTML with holes in it</h2>
+    <pre data-verify="compile"><code>from jinja2 import Template      # ships with Flask; pip install jinja2 otherwise
+
+template = Template(&quot;&quot;&quot;
+&lt;h1&gt;{{ ship }}&lt;/h1&gt;
+&lt;ul&gt;
+{% for member in crew %}
+  &lt;li&gt;{{ member.name }}{% if member.captain %} (captain){% endif %}&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;
+&lt;p&gt;{{ crew | length }} aboard.&lt;/p&gt;
+&quot;&quot;&quot;)
+
+print(template.render(
+    ship=&quot;Sea Monkey&quot;,
+    crew=[{&quot;name&quot;: &quot;Guybrush&quot;, &quot;captain&quot;: True}, {&quot;name&quot;: &quot;Otis&quot;, &quot;captain&quot;: False}],
+))</code></pre>
+    <div class="callout danger"><span class="co-title">🛡️ Jinja escapes HTML for you. Do not switch it off.</span><p>If a user's name is <code>&lt;script&gt;steal()&lt;/script&gt;</code> and you insert it into a page unescaped, you have a cross-site scripting hole. Jinja escapes by default in Flask; the <code>|safe</code> filter turns that off and should be treated as a loaded weapon. Never build HTML with f-strings and user input.</p></div>
+
+    <h2>Where the danger actually is</h2>
+    <ul>
+      <li><strong>SQL injection.</strong> Never build queries with f-strings. Lesson 45 shows
+      the parameterised form.</li>
+      <li><strong>Cross-site scripting.</strong> Use a template engine and leave escaping
+      on.</li>
+      <li><strong>Secrets in code.</strong> Environment variables, as in Lesson 42.</li>
+      <li><strong><code>debug=True</code> in production.</strong> Flask's debugger lets anyone
+      who triggers an error run arbitrary Python on your server. It is off by default for a
+      reason.</li>
+      <li><strong>Trusting any input.</strong> Validate at the boundary. Pydantic does this for
+      you, which is most of why FastAPI exists.</li>
+    </ul>
+
+    <h2>Getting it online</h2>
+    <pre class="term"><code class="nohl"># development
+fastapi dev main.py
+
+# production: a real server process, several workers
+pip install &quot;uvicorn[standard]&quot;
+uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+
+# in front of it, nginx or Caddy for TLS and static files</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Where</th><th>Good for</th><th>Cost</th></tr></thead><tbody><tr><td>A small VPS</td><td>Full control, learning how it all fits</td><td>A few pounds a month, and you patch it</td></tr><tr><td>Fly.io, Railway, Render</td><td>Push and it deploys</td><td>Free tiers exist; they sleep when idle</td></tr><tr><td>A serverless platform</td><td>Bursty traffic, no servers to run</td><td>Cold starts, and a different mental model</td></tr><tr><td>Cloudflare Pages / Workers</td><td>Static sites and edge functions</td><td>Free tier, and how this school is hosted</td></tr></tbody></table></div>
+    <div class="callout info"><span class="co-title">🏫 This school as the example</span><p>The site you are reading is static HTML on Cloudflare Pages, with a handful of small serverless functions for progress sync and the anonymous completion counter. Free tier, no server to patch, and the whole thing is in a public repository you can read. Static-first with a small dynamic edge is a genuinely good default for a personal project.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>A JSON API from the standard library</h3><p>Extend the plain <code>http.server</code> example with a <code>/api/time</code> endpoint returning JSON, and a 404 that is also JSON.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import json
+from datetime import datetime, timezone
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+ROUTES = {}
+
+
+def route(path):
+    &quot;&quot;&quot;A tiny decorator, exactly like Flask&#x27;s, so you can see there is no magic.&quot;&quot;&quot;
+    def register(func):
+        ROUTES[path] = func
+        return func
+    return register
+
+
+@route(&quot;/api/time&quot;)
+def current_time():
+    return {&quot;utc&quot;: datetime.now(timezone.utc).isoformat(), &quot;ok&quot;: True}
+
+
+@route(&quot;/api/crew&quot;)
+def crew():
+    return {&quot;crew&quot;: [&quot;Guybrush&quot;, &quot;Elaine&quot;]}
+
+
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        handler = ROUTES.get(self.path)
+        status = 200 if handler else 404
+        body = handler() if handler else {&quot;error&quot;: &quot;not found&quot;, &quot;path&quot;: self.path}
+        encoded = json.dumps(body).encode(&quot;utf-8&quot;)
+
+        self.send_response(status)
+        self.send_header(&quot;Content-Type&quot;, &quot;application/json&quot;)
+        self.send_header(&quot;Content-Length&quot;, str(len(encoded)))
+        self.end_headers()
+        self.wfile.write(encoded)
+
+    def log_message(self, *args):
+        pass
+
+
+# Proving the routing works without starting a server:
+print(json.dumps(ROUTES[&quot;/api/crew&quot;]()))
+print(sorted(ROUTES))</code></pre>
+<pre class="out"><code class="nohl">{&quot;crew&quot;: [&quot;Guybrush&quot;, &quot;Elaine&quot;]}
+[&#x27;/api/crew&#x27;, &#x27;/api/time&#x27;]</code></pre><p>Writing your own <code>@route</code> decorator is the moment Flask stops being magic. It is a dictionary from paths to functions, and that is genuinely all a router is.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Find the security holes</h3><p>Three serious problems. Name them.</p><pre data-verify="compile"><code>from flask import Flask, request
+import sqlite3
+
+app = Flask(__name__)
+
+
+@app.route(&quot;/search&quot;)
+def search():
+    term = request.args.get(&quot;q&quot;)
+    conn = sqlite3.connect(&quot;shop.db&quot;)
+    rows = conn.execute(f&quot;SELECT * FROM products WHERE name LIKE &#x27;%{term}%&#x27;&quot;).fetchall()
+    return f&quot;&lt;h1&gt;Results for {term}&lt;/h1&gt;&quot; + &quot;&quot;.join(f&quot;&lt;p&gt;{r}&lt;/p&gt;&quot; for r in rows)
+
+
+app.run(debug=True, host=&quot;0.0.0.0&quot;)</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><strong>SQL injection.</strong> The query is built with an f-string, so <code>?q=' OR 1=1 --</code> returns the whole table and worse is possible. Use <code>conn.execute("... LIKE ?", (f"%{{term}}%",))</code>.</li><li><strong>Cross-site scripting.</strong> <code>term</code> goes straight into the HTML, so <code>?q=&lt;script&gt;...&lt;/script&gt;</code> executes in every visitor's browser. Render a template and let it escape.</li><li><strong><code>debug=True</code> on <code>0.0.0.0</code>.</strong> That exposes an interactive Python console to the entire network. This is a remote code execution hole, deliberately, for development only.</li></ol><p>Bonus: the connection is never closed, and there is no error handling if the database file is missing.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Design the endpoints</h3><p>Design a REST API for a to-do list, before writing code. What paths, what methods, what status codes?</p><details class="solution"><summary>Reveal solution</summary><pre class="out"><code class="nohl">GET    /api/tasks              200  list all, supports ?done=true&amp;limit=20
+POST   /api/tasks              201  create one, returns it with its new id
+                               400  if the body is invalid
+
+GET    /api/tasks/{id}         200  one task
+                               404  if there is no such id
+PUT    /api/tasks/{id}         200  replace it entirely
+PATCH  /api/tasks/{id}         200  change some fields, eg {&quot;done&quot;: true}
+DELETE /api/tasks/{id}         204  deleted, no body to return
+                               404  if it was not there</code></pre><p>The conventions worth absorbing: plural nouns for collections, the id in the path rather than a query parameter, the method carries the verb so the URL never contains <code>/deleteTask</code>, 201 for creation with the new object in the body, and 204 for a successful delete with nothing to say. Following them means other developers can guess your API correctly.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-44-web-apps">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="43-scraping.html"><span class="dir">← Previous</span>Lesson 43: Web Scraping</a>
+      <a class="next" href="45-databases.html"><span class="dir">Next →</span>Lesson 45: Databases with SQLite</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

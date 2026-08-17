@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 52: Security Basics - The Python School</title>
+<meta name="description" content="Handling secrets, hashing passwords properly, avoiding injection, the dangers of pickle and eval, and dependency risk.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/52-security">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 52: Security Basics - The Python School">
+<meta property="og:description" content="Handling secrets, hashing passwords properly, avoiding injection, the dangers of pickle and eval, and dependency risk.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/52-security">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 52: Security Basics - The Python School">
+<meta name="twitter:description" content="Handling secrets, hashing passwords properly, avoiding injection, the dangers of pickle and eval, and dependency risk.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 52 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Security Basics 🔐</h1>
+    <p class="lede muted">You do not need to be a security expert. You do need to not make the six mistakes
+    that account for most of the damage, and they are all avoidable in one line each.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>1. Secrets never go in code</h2>
+    <pre data-verify="skip"><code># WRONG, and it is now in your git history forever
+API_KEY = &quot;sk-abc123realkeyhere&quot;</code></pre>
+    <pre data-verify="compile"><code>import os
+
+# right: from the environment, and it fails loudly if missing
+API_KEY = os.environ[&quot;OPENAI_API_KEY&quot;]
+
+# or with a default and a clear error
+key = os.environ.get(&quot;OPENAI_API_KEY&quot;)
+if not key:
+    raise SystemExit(&quot;Set OPENAI_API_KEY. See README.&quot;)</code></pre>
+    <div class="callout danger"><span class="co-title">🚨 git history is forever</span><p>Deleting a key in a later commit does not remove it: it is still in the history, and on every clone. If you push a secret, <strong>revoke it immediately</strong>, then clean the history if you must. Bots scan public commits within seconds, and cloud keys have produced five-figure bills overnight.</p></div>
+    <pre data-verify="skip"><code># .gitignore, from the very first commit
+.env
+*.key
+*.pem
+secrets.json
+.venv/</code></pre>
+
+    <h2>2. Never store passwords, store hashes</h2>
+    <pre class="run" data-verify="run"><code>import hashlib
+import secrets
+
+# WRONG in three different ways
+def terrible(password):
+    return password                                   # plain text
+def bad(password):
+    return hashlib.md5(password.encode()).hexdigest() # broken, and unsalted
+def still_wrong(password):
+    return hashlib.sha256(password.encode()).hexdigest()  # fast, so brute-forceable
+
+
+# Acceptable with the standard library only:
+def hash_password(password, iterations=600_000):
+    &quot;&quot;&quot;PBKDF2 with a random salt. Slow on purpose.&quot;&quot;&quot;
+    salt = secrets.token_bytes(16)
+    digest = hashlib.pbkdf2_hmac(&quot;sha256&quot;, password.encode(), salt, iterations)
+    return f&quot;pbkdf2_sha256${iterations}${salt.hex()}${digest.hex()}&quot;
+
+
+def verify_password(password, stored):
+    &quot;&quot;&quot;Check a password against a stored hash, in constant time.&quot;&quot;&quot;
+    algorithm, iterations, salt_hex, digest_hex = stored.split(&quot;$&quot;)
+    digest = hashlib.pbkdf2_hmac(
+        &quot;sha256&quot;, password.encode(), bytes.fromhex(salt_hex), int(iterations)
+    )
+    return secrets.compare_digest(digest.hex(), digest_hex)
+
+
+stored = hash_password(&quot;swordfish&quot;)
+algorithm, iterations, salt, digest = stored.split(&quot;$&quot;)
+print(algorithm, iterations, f&quot;salt={len(salt)} hex chars&quot;, f&quot;hash={len(digest)} hex chars&quot;)
+print(verify_password(&quot;swordfish&quot;, stored))
+print(verify_password(&quot;Swordfish&quot;, stored))</code></pre>
+<pre class="out"><code class="nohl">pbkdf2_sha256 600000 salt=32 hex chars hash=64 hex chars
+True
+False</code></pre>
+    <p>Three ideas are doing the work there:</p>
+    <ul>
+      <li><strong>A salt.</strong> Random per password, so identical passwords produce
+      different hashes and precomputed rainbow tables are useless.</li>
+      <li><strong>Slowness on purpose.</strong> 600,000 iterations costs you a few
+      milliseconds and costs an attacker with a stolen database everything.</li>
+      <li><strong><code>compare_digest</code>.</strong> Comparing with <code>==</code> returns
+      early on the first differing byte, and the timing difference can leak the answer one
+      character at a time. This is a real, practical attack.</li>
+    </ul>
+    <div class="callout tip"><span class="co-title">🔑 In production, use a library</span><p><code>argon2-cffi</code> or <code>bcrypt</code>. Argon2 won the Password Hashing Competition and is memory-hard, which resists GPU cracking in a way PBKDF2 does not. The code above is correct and is the best you can do without installing anything; a library is better.</p></div>
+
+    <h2>3. Injection: never build commands from input</h2>
+    <pre class="run" data-verify="run"><code>import sqlite3
+
+conn = sqlite3.connect(&quot;:memory:&quot;)
+conn.execute(&quot;CREATE TABLE users (name TEXT, admin INTEGER)&quot;)
+conn.execute(&quot;INSERT INTO users VALUES (&#x27;Guybrush&#x27;, 0)&quot;)
+
+user_input = &quot;&#x27; OR &#x27;1&#x27;=&#x27;1&quot;
+
+unsafe = conn.execute(f&quot;SELECT * FROM users WHERE name = &#x27;{user_input}&#x27;&quot;).fetchall()
+safe = conn.execute(&quot;SELECT * FROM users WHERE name = ?&quot;, (user_input,)).fetchall()
+
+print(&quot;unsafe returned:&quot;, len(unsafe), &quot;rows&quot;)
+print(&quot;safe returned:  &quot;, len(safe), &quot;rows&quot;)</code></pre>
+<pre class="out"><code class="nohl">unsafe returned: 1 rows
+safe returned:   0 rows</code></pre>
+    <p>The same rule, in three places:</p>
+    <pre class="run" data-verify="run"><code>import subprocess
+
+filename = &quot;report.txt; rm -rf ~&quot;
+
+# WRONG: shell=True with interpolated input runs whatever they typed
+# subprocess.run(f&quot;cat {filename}&quot;, shell=True)
+
+# right: a list of arguments, no shell involved
+result = subprocess.run([&quot;echo&quot;, filename], capture_output=True, text=True)
+print(result.stdout.strip())</code></pre>
+<pre class="out"><code class="nohl">report.txt; rm -rf ~</code></pre>
+    <p>
+      Passing a list means the operating system runs <code>echo</code> with one argument that
+      happens to contain a semicolon. There is no shell to interpret it, so there is nothing to
+      inject into.
+    </p>
+
+    <h2>4. eval, exec and pickle are code execution</h2>
+    <pre class="run" data-verify="run"><code># Never do this with anything a user can influence
+user_input = &quot;2 + 2&quot;
+# print(eval(user_input))        # fine here, catastrophic with hostile input
+
+# because this also &quot;works&quot;:
+# eval(&quot;__import__(&#x27;os&#x27;).system(&#x27;rm -rf ~&#x27;)&quot;)
+
+# The safe way to evaluate a literal:
+import ast
+print(ast.literal_eval(&quot;[1, 2, {&#x27;a&#x27;: 3}]&quot;))
+
+try:
+    ast.literal_eval(&quot;__import__(&#x27;os&#x27;)&quot;)
+except ValueError as err:
+    print(&quot;refused:&quot;, type(err).__name__)</code></pre>
+<pre class="out"><code class="nohl">[1, 2, {&#x27;a&#x27;: 3}]
+refused: ValueError</code></pre>
+    <div class="callout danger"><span class="co-title">🥒 pickle is not a data format, it is a program format</span><p>Unpickling data executes code contained in it. Loading a pickle from an untrusted source is equivalent to running a script from that source. The official documentation says so in a red box. Use JSON for anything crossing a trust boundary, and reserve pickle for data your own program wrote and only your own program reads.</p></div>
+    <pre class="run" data-verify="run"><code>import json
+
+# JSON can only describe data, so parsing it can never execute anything
+print(json.loads(&#x27;{&quot;name&quot;: &quot;Guybrush&quot;, &quot;insults&quot;: 8}&#x27;))
+
+try:
+    json.loads(&quot;__import__(&#x27;os&#x27;)&quot;)
+except json.JSONDecodeError:
+    print(&quot;JSON refuses to parse code. That is the feature.&quot;)</code></pre>
+<pre class="out"><code class="nohl">{&#x27;name&#x27;: &#x27;Guybrush&#x27;, &#x27;insults&#x27;: 8}
+JSON refuses to parse code. That is the feature.</code></pre>
+
+    <h2>5. Randomness: the right module matters</h2>
+    <pre class="run" data-verify="run"><code>import random
+import secrets
+
+random.seed(42)
+print(&quot;predictable:&quot;, random.randint(1000, 9999))
+random.seed(42)
+print(&quot;predictable:&quot;, random.randint(1000, 9999))      # same again
+
+print(&quot;token:&quot;, len(secrets.token_urlsafe(32)))
+print(&quot;choice from a set:&quot;, secrets.choice([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]) in {&quot;a&quot;, &quot;b&quot;, &quot;c&quot;})</code></pre>
+<pre class="out"><code class="nohl">predictable: 2824
+predictable: 2824
+token: 43
+choice from a set: True</code></pre>
+    <p>
+      <code>random</code> is a Mersenne Twister: excellent statistically, and completely
+      predictable once you have seen enough output. Its own documentation says it must not be
+      used for security. Password reset tokens, session ids, API keys and one-time codes all
+      need <code>secrets</code>.
+    </p>
+
+    <h2>6. Your dependencies are your attack surface</h2>
+    <pre class="term"><code class="nohl"># check what you have installed against known vulnerabilities
+$ pip install pip-audit
+$ pip-audit
+
+Found 2 known vulnerabilities in 1 package
+Name    Version  ID                  Fix Versions
+------- -------- ------------------- ------------
+requests 2.19.1  GHSA-x84v-xcm2-53pg 2.31.0</code></pre>
+    <ul>
+      <li><strong>Pin versions</strong> so an upgrade cannot happen without you noticing.</li>
+      <li><strong>Audit regularly.</strong> <code>pip-audit</code> is free and takes seconds;
+      GitHub's Dependabot does it automatically on a repository.</li>
+      <li><strong>Check names character by character.</strong> Typosquatted packages on PyPI
+      are a real and ongoing attack.</li>
+      <li><strong>Fewer dependencies is fewer risks.</strong> The standard library is the
+      safest dependency you have.</li>
+    </ul>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Medium: Success]</span></div><p>You will notice none of this required cryptography knowledge. Six habits: secrets in the environment, hashes not passwords, parameters not string building, JSON not pickle, secrets not random, and audited dependencies.</p>
+<p>That is not everything. It is the part that accounts for most of the damage done to small projects, and every one of them is a single line of difference.</p></div>
+
+    <h2>The checklist</h2>
+    <ul class="checklist">
+      <li>No secrets in code, and <code>.env</code> in <code>.gitignore</code> from commit one</li>
+      <li>Passwords hashed with argon2, bcrypt or PBKDF2, never stored or reversibly encrypted</li>
+      <li>Parameterised queries everywhere; no SQL built with f-strings</li>
+      <li><code>subprocess</code> with a list, never <code>shell=True</code> with user input</li>
+      <li>No <code>eval</code>, <code>exec</code> or <code>pickle</code> on untrusted data</li>
+      <li><code>secrets</code>, not <code>random</code>, for anything security-related</li>
+      <li>Template escaping left on; no HTML built from user input by hand</li>
+      <li>Dependencies pinned and audited</li>
+      <li>Errors logged, not shown to users with a full traceback</li>
+      <li>HTTPS everywhere, and certificate verification never disabled</li>
+    </ul>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Audit this login code</h3><p>Find five problems.</p><pre data-verify="compile"><code>import hashlib
+
+USERS = {&quot;guybrush&quot;: &quot;5f4dcc3b5aa765d61d8327deb882cf99&quot;}
+
+
+def login(username, password):
+    hashed = hashlib.md5(password.encode()).hexdigest()
+    if username in USERS and USERS[username] == hashed:
+        return True
+    print(f&quot;Failed login for {username} with password {password}&quot;)
+    return False</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><strong>MD5.</strong> Cryptographically broken, and far too fast for password hashing regardless.</li><li><strong>No salt.</strong> That hash is the well-known MD5 of 'password'; identical passwords produce identical hashes across every user and every site.</li><li><strong>The password is logged in plain text</strong> on failure. Now your log file is a credential dump, and users type their real password into the wrong box constantly.</li><li><strong><code>==</code> for hash comparison</strong> is not constant time. Use <code>secrets.compare_digest</code>.</li><li><strong>The error distinguishes cases</strong> if you extend it: 'no such user' versus 'wrong password' tells an attacker which usernames exist. Say 'invalid username or password' for both.</li></ol><p>Bonus: no rate limiting, so an attacker may try as fast as the network allows.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Make the config loader safe</h3><p>This reads a config file. Make it safe against hostile input while keeping the feature.</p><pre data-verify="compile"><code>def load_config(path):
+    with open(path) as f:
+        return eval(f.read())</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import ast
+import json
+from pathlib import Path
+
+
+def load_config(path):
+    &quot;&quot;&quot;Load a config file. JSON first, then a Python literal, never eval.&quot;&quot;&quot;
+    text = Path(path).read_text(encoding=&quot;utf-8&quot;)
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    try:
+        return ast.literal_eval(text)      # data only: no calls, no imports
+    except (ValueError, SyntaxError) as err:
+        raise ValueError(f&quot;{path} is not valid JSON or a Python literal&quot;) from err
+
+
+Path(&quot;config.json&quot;).write_text(&#x27;{&quot;ship&quot;: &quot;Sea Monkey&quot;, &quot;crew&quot;: 12}&#x27;, encoding=&quot;utf-8&quot;)
+Path(&quot;config.py&quot;).write_text(&quot;{&#x27;ship&#x27;: &#x27;Sea Monkey&#x27;, &#x27;crew&#x27;: 12}&quot;, encoding=&quot;utf-8&quot;)
+
+print(load_config(&quot;config.json&quot;))
+print(load_config(&quot;config.py&quot;))
+
+Path(&quot;evil.py&quot;).write_text(&quot;__import__(&#x27;os&#x27;).getcwd()&quot;, encoding=&quot;utf-8&quot;)
+try:
+    load_config(&quot;evil.py&quot;)
+except ValueError as err:
+    print(&quot;refused:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">{&#x27;ship&#x27;: &#x27;Sea Monkey&#x27;, &#x27;crew&#x27;: 12}
+{&#x27;ship&#x27;: &#x27;Sea Monkey&#x27;, &#x27;crew&#x27;: 12}
+refused: evil.py is not valid JSON or a Python literal</code></pre><p><code>ast.literal_eval</code> parses the same syntax but only permits literals: strings, numbers, tuples, lists, dicts, sets, booleans and None. There is no way to express a function call, so there is nothing to exploit.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Threat model a small app</h3><p>You built a web app where users upload a CSV and get a chart back. List what could go wrong.</p><details class="solution"><summary>Reveal solution</summary><ul><li><strong>A 10GB upload</strong> fills the disk. Limit the size before reading.</li><li><strong>A zip bomb or a CSV with a billion columns</strong> exhausts memory. Stream, and cap rows and columns.</li><li><strong>A filename like <code>../../etc/passwd</code></strong> escapes your upload folder. Never trust an uploaded filename: generate your own.</li><li><strong>CSV injection.</strong> A cell starting with <code>=</code> becomes a formula when the output is opened in Excel, and can exfiltrate data. Prefix suspicious cells with an apostrophe on export.</li><li><strong>Slow requests as a denial of service.</strong> One user uploading large files repeatedly starves everyone. Rate limit, and process out of band.</li><li><strong>Uploaded data left on disk</strong> containing someone's personal information. Delete it, and know your retention obligations.</li><li><strong>Errors leaking tracebacks</strong> with file paths and library versions. Log the detail, show the user a reference number.</li></ul><p>This exercise is threat modelling, and it is mostly just asking 'what does the worst possible user do here' for each input. Doing it on paper for ten minutes finds more real issues than any scanner.</p></details></div>
+
+    <div class="callout info"><span class="co-title">🎉 That is Level 5</span><p>Automation, HTTP, scraping, web apps, databases, data, charts, games, desktop apps, packaging, performance and security. You have now seen the whole landscape of what Python is used for. Level 6 builds one thing properly with all of it: your own AI assistant.</p></div>
+
+
+    <button class="complete-btn" data-lesson="py-52-security">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="51-performance.html"><span class="dir">← Previous</span>Lesson 51: Making Python Fast</a>
+      <a class="next" href="../build/index.html"><span class="dir">Next →</span>The Project Workshop</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

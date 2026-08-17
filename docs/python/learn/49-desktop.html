@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 49: Desktop Applications - The Python School</title>
+<meta name="description" content="Building GUIs with tkinter, event-driven programming, widgets, layout, and keeping the interface responsive.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/49-desktop">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 49: Desktop Applications - The Python School">
+<meta property="og:description" content="Building GUIs with tkinter, event-driven programming, widgets, layout, and keeping the interface responsive.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/49-desktop">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 49: Desktop Applications - The Python School">
+<meta name="twitter:description" content="Building GUIs with tkinter, event-driven programming, widgets, layout, and keeping the interface responsive.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 49 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Desktop Applications 🖥️</h1>
+    <p class="lede muted">Not everything should be a command line. tkinter ships with Python, works on every
+    operating system, and will get a small tool into a non-programmer's hands today.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Event-driven programming</h2>
+    <p>
+      A command-line program runs top to bottom and stops. A GUI program sets up a window,
+      registers what should happen when things are clicked, and then hands control to a loop
+      that waits for the user. Your code becomes a set of responses rather than a sequence.
+    </p>
+    <pre data-verify="compile"><code>import tkinter as tk
+
+root = tk.Tk()
+root.title(&quot;Ahoy&quot;)
+
+count = 0
+
+
+def on_click():
+    &quot;&quot;&quot;This runs when the button is pressed. Not before.&quot;&quot;&quot;
+    global count
+    count += 1
+    label.config(text=f&quot;Insults learned: {count}&quot;)
+
+
+label = tk.Label(root, text=&quot;Insults learned: 0&quot;, font=(&quot;Helvetica&quot;, 16))
+label.pack(padx=40, pady=20)
+
+tk.Button(root, text=&quot;Learn an insult&quot;, command=on_click).pack(pady=(0, 20))
+
+root.mainloop()          # hands control to tkinter. Nothing after this runs until the window closes</code></pre>
+    <p>
+      <code>mainloop()</code> is the equivalent of the game loop from Lesson 48: it waits for
+      events and dispatches them to your functions. Everything you write is a callback.
+    </p>
+
+    <h2>The widgets you will actually use</h2>
+    <pre data-verify="compile"><code>import tkinter as tk
+from tkinter import ttk          # themed widgets: they look native
+
+root = tk.Tk()
+root.title(&quot;Crew manager&quot;)
+root.geometry(&quot;420x360&quot;)
+
+name = tk.StringVar(value=&quot;Guybrush&quot;)
+role = tk.StringVar(value=&quot;captain&quot;)
+active = tk.BooleanVar(value=True)
+
+frame = ttk.Frame(root, padding=16)
+frame.pack(fill=&quot;both&quot;, expand=True)
+
+ttk.Label(frame, text=&quot;Name&quot;).grid(row=0, column=0, sticky=&quot;w&quot;, pady=4)
+ttk.Entry(frame, textvariable=name, width=24).grid(row=0, column=1, pady=4)
+
+ttk.Label(frame, text=&quot;Role&quot;).grid(row=1, column=0, sticky=&quot;w&quot;, pady=4)
+ttk.Combobox(frame, textvariable=role, values=[&quot;captain&quot;, &quot;lookout&quot;, &quot;cook&quot;],
+             state=&quot;readonly&quot;).grid(row=1, column=1, pady=4)
+
+ttk.Checkbutton(frame, text=&quot;Currently aboard&quot;, variable=active).grid(
+    row=2, column=0, columnspan=2, sticky=&quot;w&quot;, pady=8)
+
+listbox = tk.Listbox(frame, height=6)
+listbox.grid(row=3, column=0, columnspan=2, sticky=&quot;nsew&quot;, pady=8)
+frame.rowconfigure(3, weight=1)
+frame.columnconfigure(1, weight=1)
+
+
+def add_member():
+    status = &quot;aboard&quot; if active.get() else &quot;ashore&quot;
+    listbox.insert(&quot;end&quot;, f&quot;{name.get()} ({role.get()}, {status})&quot;)
+    name.set(&quot;&quot;)
+
+
+ttk.Button(frame, text=&quot;Add to crew&quot;, command=add_member).grid(
+    row=4, column=0, columnspan=2, pady=4)
+
+root.mainloop()</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Widget</th><th>For</th></tr></thead><tbody><tr><td><code>Label</code></td><td>Text you display</td></tr><tr><td><code>Entry</code></td><td>One line of typed input</td></tr><tr><td><code>Text</code></td><td>Multi-line editing</td></tr><tr><td><code>Button</code></td><td>Doing something</td></tr><tr><td><code>Checkbutton</code> / <code>Radiobutton</code></td><td>Choices</td></tr><tr><td><code>Combobox</code></td><td>A dropdown</td></tr><tr><td><code>Listbox</code> / <code>Treeview</code></td><td>Lists and tables</td></tr><tr><td><code>Frame</code></td><td>Grouping, and the key to sane layout</td></tr><tr><td><code>Canvas</code></td><td>Drawing anything you like</td></tr></tbody></table></div>
+
+    <h2>Layout: pick one and stick to it</h2>
+    <div class="table-wrap"><table><thead><tr><th>Manager</th><th>Idea</th><th>Use for</th></tr></thead><tbody><tr><td><code>.pack()</code></td><td>Stack things in a direction</td><td>Simple vertical or horizontal layouts</td></tr><tr><td><code>.grid()</code></td><td>Rows and columns</td><td>Forms. Almost always the right choice</td></tr><tr><td><code>.place()</code></td><td>Exact pixel positions</td><td>Almost never</td></tr></tbody></table></div>
+    <div class="callout danger"><span class="co-title">🪤 Never mix pack and grid in the same container</span><p>tkinter will hang forever with no error while the two managers argue about the size of the container. It is a silent freeze, not a crash, and it is the single most confusing tkinter bug. Different containers may use different managers; one container must pick one.</p></div>
+
+    <h2>Dialogs and files</h2>
+    <pre data-verify="compile"><code>import tkinter as tk
+from tkinter import filedialog, messagebox
+from pathlib import Path
+
+root = tk.Tk()
+root.withdraw()          # hide the main window; we only want dialogs
+
+
+def open_and_count():
+    path = filedialog.askopenfilename(
+        title=&quot;Choose a text file&quot;,
+        filetypes=[(&quot;Text files&quot;, &quot;*.txt&quot;), (&quot;All files&quot;, &quot;*.*&quot;)],
+    )
+    if not path:
+        return          # the user cancelled, which is not an error
+
+    try:
+        words = len(Path(path).read_text(encoding=&quot;utf-8&quot;).split())
+    except UnicodeDecodeError:
+        messagebox.showerror(&quot;Cannot read&quot;, &quot;That does not look like a text file.&quot;)
+        return
+
+    if messagebox.askyesno(&quot;Result&quot;, f&quot;{words} words. Save a report?&quot;):
+        target = filedialog.asksaveasfilename(defaultextension=&quot;.txt&quot;)
+        if target:
+            Path(target).write_text(f&quot;{words} words\n&quot;, encoding=&quot;utf-8&quot;)</code></pre>
+    <p>
+      Note that cancelling returns an empty string, not an exception. Handling the cancel case
+      is the most commonly forgotten branch in GUI code, and it produces the classic "the app
+      crashed when I pressed cancel".
+    </p>
+
+    <h2>The rule that keeps a GUI usable</h2>
+    <pre data-verify="compile"><code>import threading
+import tkinter as tk
+from tkinter import ttk
+
+root = tk.Tk()
+status = ttk.Label(root, text=&quot;Ready&quot;)
+status.pack(padx=20, pady=20)
+
+
+def slow_work():
+    &quot;&quot;&quot;Runs on a background thread, so the window keeps repainting.&quot;&quot;&quot;
+    import time
+    time.sleep(3)
+    # Never touch widgets from another thread. Schedule it on the main one:
+    root.after(0, lambda: status.config(text=&quot;Done&quot;))
+
+
+def start():
+    status.config(text=&quot;Working...&quot;)
+    threading.Thread(target=slow_work, daemon=True).start()
+
+
+ttk.Button(root, text=&quot;Start&quot;, command=start).pack(pady=(0, 20))
+root.mainloop()</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Formidable: Success]</span></div><p>Anything slow on the main thread freezes the window. No repainting, no response to clicks, and after a few seconds the operating system helpfully offers to kill your application.</p>
+<p>So: slow work on a thread, and results back to the main thread via root.after. tkinter is not thread-safe, and updating a widget from a background thread will corrupt it in ways that look like haunting rather than like a bug.</p></div>
+
+    <h2>Other options</h2>
+    <div class="table-wrap"><table><thead><tr><th>Toolkit</th><th>Trade</th></tr></thead><tbody><tr><td><strong>tkinter</strong></td><td>Built in, everywhere, a bit dated. Perfect for small tools</td></tr><tr><td><strong>PySide6</strong> / <strong>PyQt</strong></td><td>Professional and vast. Qt licensing matters for PyQt; PySide6 is LGPL</td></tr><tr><td><strong>Kivy</strong></td><td>Touch and mobile, custom look</td></tr><tr><td><strong>Flet</strong></td><td>Flutter-based, modern-looking, quite new</td></tr><tr><td><strong>A local web app</strong></td><td>Honestly often the best answer: FastAPI plus a browser page (Lesson 44)</td></tr></tbody></table></div>
+    <div class="callout info"><span class="co-title">📦 Shipping a desktop app to someone who has no Python</span><p>This is Python's weakest spot, and Base Camp 4 said so. The tools are <a href='https://pyinstaller.org' target='_blank' rel='noopener'>PyInstaller</a> and <a href='https://briefcase.readthedocs.io' target='_blank' rel='noopener'>Briefcase</a>: they bundle the interpreter and your code into one executable. Expect a 30 to 80MB file, some antivirus false positives, and a genuinely fiddly first attempt. It works, but a compiled language earns its keep here.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>A unit converter</h3><p>Build a window with an entry, a dropdown of conversions, and a result label. Handle bad input without crashing.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import tkinter as tk
+from tkinter import ttk
+
+CONVERSIONS = {
+    &quot;Celsius to Fahrenheit&quot;: lambda c: c * 9 / 5 + 32,
+    &quot;Fahrenheit to Celsius&quot;: lambda f: (f - 32) * 5 / 9,
+    &quot;Kilometres to Miles&quot;: lambda km: km * 0.621371,
+    &quot;Miles to Kilometres&quot;: lambda mi: mi / 0.621371,
+}
+
+root = tk.Tk()
+root.title(&quot;Converter&quot;)
+
+value = tk.StringVar()
+choice = tk.StringVar(value=list(CONVERSIONS)[0])
+result = tk.StringVar(value=&quot;-&quot;)
+
+frame = ttk.Frame(root, padding=16)
+frame.grid(sticky=&quot;nsew&quot;)
+
+ttk.Entry(frame, textvariable=value, width=16).grid(row=0, column=0, padx=4)
+ttk.Combobox(frame, textvariable=choice, values=list(CONVERSIONS),
+             state=&quot;readonly&quot;, width=24).grid(row=0, column=1, padx=4)
+ttk.Label(frame, textvariable=result, font=(&quot;Helvetica&quot;, 16)).grid(
+    row=1, column=0, columnspan=2, pady=12)
+
+
+def convert(*_):
+    try:
+        number = float(value.get())
+    except ValueError:
+        result.set(&quot;Enter a number&quot; if value.get() else &quot;-&quot;)
+        return
+    result.set(f&quot;{CONVERSIONS[choice.get()](number):.2f}&quot;)
+
+
+value.trace_add(&quot;write&quot;, convert)      # convert as they type
+choice.trace_add(&quot;write&quot;, convert)
+
+root.mainloop()</code></pre><p><code>trace_add</code> reacts to the variable changing, so the result updates live with no Convert button at all. Removing a button is usually better interface design than adding one.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Why did it freeze?</h3><p>A user clicks Download and the window goes white and stops responding. What happened, and what are the two fixes?</p><details class="solution"><summary>Reveal solution</summary><p>The download is running on the main thread, so <code>mainloop()</code> never gets a chance to process events, including 'repaint yourself'. The operating system sees an application that has not responded and greys it out.</p><p><strong>Fix one:</strong> run the work on a background thread and send results back with <code>root.after(0, ...)</code>, as in the example above. This is right for network and disk work.</p><p><strong>Fix two:</strong> break the work into small chunks and schedule each with <code>root.after(10, next_chunk)</code>, so the loop runs between pieces. This suits work you can naturally divide, and avoids threads entirely.</p><p>Either way, show progress. A frozen window and a slow window look identical to the user; a progress bar is the difference between 'broken' and 'working'.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>CLI, GUI or web?</h3><p>For each, which interface would you build, and why?</p><ol><li>A tool you run every morning to tidy your downloads.</li><li>A tool for your non-technical colleague to rename photo batches.</li><li>A dashboard the whole team needs to see.</li><li>A step in an automated build pipeline.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>CLI.</strong> You can schedule it (Lesson 41), and it needs no clicking.</li><li><strong>GUI.</strong> Asking a non-programmer to open a terminal is asking them not to use your tool. tkinter, one window, a folder picker and a big button.</li><li><strong>Web.</strong> No installation, works on any device, one deployment to update. Lesson 44.</li><li><strong>CLI,</strong> with proper exit codes (Lesson 27). A pipeline cannot click anything.</li></ol><p>The underlying question is always 'who is holding the mouse, and where are they'. Choosing the interface before writing the logic saves rewriting the logic.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-49-desktop">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="48-games.html"><span class="dir">← Previous</span>Lesson 48: Making Games</a>
+      <a class="next" href="50-packaging.html"><span class="dir">Next →</span>Lesson 50: Packaging and Shipping</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 43: Web Scraping - The Python School</title>
+<meta name="description" content="Parsing HTML with BeautifulSoup, selectors, pagination, and the legal and ethical rules of scraping.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/43-scraping">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 43: Web Scraping - The Python School">
+<meta property="og:description" content="Parsing HTML with BeautifulSoup, selectors, pagination, and the legal and ethical rules of scraping.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/43-scraping">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 43: Web Scraping - The Python School">
+<meta name="twitter:description" content="Parsing HTML with BeautifulSoup, selectors, pagination, and the legal and ethical rules of scraping.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 43 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Web Scraping 🕸️</h1>
+    <p class="lede muted">When there is no API, the data is still there, in the page. Here is how to get it,
+    and the rules that keep you out of trouble.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The rules, before the code</h2>
+    <div class="callout danger"><span class="co-title">⚖️ Read this section properly</span><p>Scraping is legal in many places and not in others, and the deciding factors are usually the site's terms of service, what you do with the data, and whether you caused harm. This is not legal advice. What follows is the professional standard of behaviour.</p></div>
+    <ol class="steps">
+      <li><strong>Look for an API first.</strong> Most sites worth scraping have one. It will
+      be faster, more reliable and explicitly permitted.</li>
+      <li><strong>Read <code>/robots.txt</code>.</strong> It tells you which paths the operator
+      does not want automated access to. It is not legally binding everywhere, and ignoring it
+      is bad faith.</li>
+      <li><strong>Read the terms of service.</strong> Many explicitly prohibit automated
+      collection.</li>
+      <li><strong>Rate limit yourself.</strong> One request every second or two. You are a
+      guest on someone else's hardware, and they pay for it.</li>
+      <li><strong>Identify yourself</strong> in the User-Agent, with a way to contact you.</li>
+      <li><strong>Never scrape personal data</strong> without a lawful basis. GDPR and similar
+      laws apply to you even when the data is publicly visible.</li>
+      <li><strong>Cache aggressively.</strong> Fetch once, parse many times while
+      developing.</li>
+    </ol>
+    <pre data-verify="compile"><code>import urllib.robotparser
+
+rules = urllib.robotparser.RobotFileParser()
+rules.set_url(&quot;https://example.com/robots.txt&quot;)
+rules.read()
+
+if rules.can_fetch(&quot;my-scraper&quot;, &quot;https://example.com/products&quot;):
+    print(&quot;allowed&quot;)
+else:
+    print(&quot;robots.txt says no. Stop.&quot;)</code></pre>
+
+    <h2>Parsing HTML</h2>
+    <pre data-verify="compile"><code>from bs4 import BeautifulSoup      # pip install beautifulsoup4
+
+html = &quot;&quot;&quot;
+&lt;html&gt;&lt;body&gt;
+  &lt;h1 class=&quot;title&quot;&gt;Stan&#x27;s Previously Owned Vessels&lt;/h1&gt;
+  &lt;ul id=&quot;ships&quot;&gt;
+    &lt;li class=&quot;ship&quot; data-id=&quot;1&quot;&gt;&lt;span class=&quot;name&quot;&gt;Sea Monkey&lt;/span&gt;
+        &lt;span class=&quot;price&quot;&gt;£4,000&lt;/span&gt;&lt;/li&gt;
+    &lt;li class=&quot;ship&quot; data-id=&quot;2&quot;&gt;&lt;span class=&quot;name&quot;&gt;Flying Dutchman&lt;/span&gt;
+        &lt;span class=&quot;price&quot;&gt;£12,500&lt;/span&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;a href=&quot;/page/2&quot;&gt;Next&lt;/a&gt;
+&lt;/body&gt;&lt;/html&gt;
+&quot;&quot;&quot;
+
+soup = BeautifulSoup(html, &quot;html.parser&quot;)
+
+print(soup.h1.text)
+print(soup.find(&quot;span&quot;, class_=&quot;name&quot;).text)
+
+for ship in soup.find_all(&quot;li&quot;, class_=&quot;ship&quot;):
+    name = ship.find(&quot;span&quot;, class_=&quot;name&quot;).text
+    price = ship.find(&quot;span&quot;, class_=&quot;price&quot;).text
+    print(f&quot;{ship[&#x27;data-id&#x27;]}  {name:16} {price}&quot;)
+
+print(soup.find(&quot;a&quot;)[&quot;href&quot;])</code></pre>
+    <p>
+      That example needs <code>beautifulsoup4</code> installed, so it has no run button. The
+      standard library <em>does</em> include an HTML parser, though, and for a simple job it is
+      enough:
+    </p>
+    <pre class="run" data-verify="run"><code>from html.parser import HTMLParser
+
+
+class LinkFinder(HTMLParser):
+    &quot;&quot;&quot;Collect every href in a document. No packages required.&quot;&quot;&quot;
+
+    def __init__(self):
+        super().__init__()
+        self.links = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == &quot;a&quot;:
+            for name, value in attrs:
+                if name == &quot;href&quot;:
+                    self.links.append(value)
+
+
+finder = LinkFinder()
+finder.feed(&quot;&quot;&quot;
+&lt;p&gt;See &lt;a href=&quot;/python/&quot;&gt;the course&lt;/a&gt; and
+&lt;a href=&quot;https://rustyschool.com&quot;&gt;the school&lt;/a&gt;.&lt;/p&gt;
+&quot;&quot;&quot;)
+print(finder.links)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;/python/&#x27;, &#x27;https://rustyschool.com&#x27;]</code></pre>
+
+    <h2>Selectors, the concise way</h2>
+    <pre data-verify="compile"><code>from bs4 import BeautifulSoup
+
+soup = BeautifulSoup(&quot;&lt;div class=&#x27;card&#x27;&gt;&lt;h2&gt;Title&lt;/h2&gt;&lt;p&gt;Body&lt;/p&gt;&lt;/div&gt;&quot;, &quot;html.parser&quot;)
+
+print(soup.select_one(&quot;div.card h2&quot;).text)
+print([tag.name for tag in soup.select(&quot;div.card &gt; *&quot;)])
+print(soup.select(&quot;p&quot;)[0].get_text(strip=True))</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Selector</th><th>Matches</th></tr></thead><tbody><tr><td><code>div</code></td><td>every div</td></tr><tr><td><code>.card</code></td><td>anything with class card</td></tr><tr><td><code>#ships</code></td><td>the element with id ships</td></tr><tr><td><code>div.card p</code></td><td>a p anywhere inside a div.card</td></tr><tr><td><code>div &gt; p</code></td><td>a p that is a direct child</td></tr><tr><td><code>a[href^='/page']</code></td><td>links whose href starts with /page</td></tr></tbody></table></div>
+
+    <h2>A complete, polite scraper</h2>
+    <pre data-verify="compile"><code>import time
+from pathlib import Path
+
+import requests
+from bs4 import BeautifulSoup
+
+CACHE = Path(&quot;scrape-cache&quot;)
+HEADERS = {&quot;User-Agent&quot;: &quot;python-school-example (contact: you@example.com)&quot;}
+
+
+def get_page(url: str, session: requests.Session, delay: float = 1.5) -&gt; str:
+    &quot;&quot;&quot;Fetch a page, using a local cache so development costs the site nothing.&quot;&quot;&quot;
+    CACHE.mkdir(exist_ok=True)
+    key = CACHE / (url.replace(&quot;/&quot;, &quot;_&quot;).replace(&quot;:&quot;, &quot;&quot;) + &quot;.html&quot;)
+
+    if key.exists():
+        return key.read_text(encoding=&quot;utf-8&quot;)
+
+    response = session.get(url, timeout=10)
+    response.raise_for_status()
+    key.write_text(response.text, encoding=&quot;utf-8&quot;)
+    time.sleep(delay)          # only sleep when we really hit the network
+    return response.text
+
+
+def parse_ships(html: str) -&gt; list[dict]:
+    &quot;&quot;&quot;Pull the ship records out of one page.&quot;&quot;&quot;
+    soup = BeautifulSoup(html, &quot;html.parser&quot;)
+    ships = []
+    for item in soup.select(&quot;li.ship&quot;):
+        name = item.select_one(&quot;.name&quot;)
+        price = item.select_one(&quot;.price&quot;)
+        if not name or not price:
+            continue          # the page changed; skip rather than crash
+        ships.append({
+            &quot;id&quot;: item.get(&quot;data-id&quot;),
+            &quot;name&quot;: name.get_text(strip=True),
+            &quot;price&quot;: price.get_text(strip=True),
+        })
+    return ships
+
+
+def scrape_all(start_url: str, max_pages: int = 5) -&gt; list[dict]:
+    &quot;&quot;&quot;Follow &#x27;Next&#x27; links, politely, up to a hard limit.&quot;&quot;&quot;
+    results = []
+    url = start_url
+
+    with requests.Session() as session:
+        session.headers.update(HEADERS)
+        for _ in range(max_pages):
+            html = get_page(url, session)
+            results.extend(parse_ships(html))
+
+            soup = BeautifulSoup(html, &quot;html.parser&quot;)
+            next_link = soup.select_one(&quot;a.next&quot;)
+            if not next_link:
+                break
+            url = requests.compat.urljoin(url, next_link[&quot;href&quot;])
+
+    return results</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Medium: Success]</span></div><p>Note the hard limit on pages and the skip-rather-than-crash when a field is missing. Both exist because scrapers run unattended against pages that change without warning.</p>
+<p>A scraper with no page limit that follows links is a program that can crawl an entire site, or loop forever between two pages that link to each other. Put a ceiling on anything that follows links it did not choose.</p></div>
+
+    <h2>When the content is not in the HTML</h2>
+    <p>
+      Fetch a modern site and find an almost empty page: the content is loaded by JavaScript
+      after the page arrives, and <code>requests</code> does not run JavaScript. Three options,
+      in order of preference:
+    </p>
+    <ol>
+      <li><strong>Find the underlying API.</strong> Open your browser's developer tools,
+      Network tab, and reload. The page is almost certainly fetching JSON from an endpoint you
+      can call directly. This is faster and more stable than parsing HTML, and it is what
+      experienced scrapers do first.</li>
+      <li><strong>Look for embedded data.</strong> Many pages ship their data inside a
+      <code>&lt;script type="application/json"&gt;</code> tag.</li>
+      <li><strong>Drive a real browser</strong> with
+      <a href="https://playwright.dev/python/" target="_blank" rel="noopener">Playwright</a> or Selenium. Powerful, slow,
+      fragile, and a much heavier commitment.</li>
+    </ol>
+
+    <h2>Tables, the easy case</h2>
+    <pre data-verify="compile"><code>import pandas as pd      # pip install pandas lxml
+
+tables = pd.read_html(&quot;https://en.wikipedia.org/wiki/List_of_programming_languages&quot;)
+print(len(tables), &quot;tables found&quot;)
+print(tables[0].head())</code></pre>
+    <p>
+      If the data you want is already in an HTML <code>&lt;table&gt;</code>, one pandas call
+      turns every table on the page into a dataframe. It is worth checking for this before
+      writing any parsing code at all.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Extract structured data</h3><p>Parse this fragment with the standard library only and produce a list of dictionaries.</p><pre data-verify="skip"><code>&lt;div class=&quot;book&quot;&gt;&lt;span class=&quot;t&quot;&gt;Dune&lt;/span&gt;&lt;span class=&quot;y&quot;&gt;1965&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;book&quot;&gt;&lt;span class=&quot;t&quot;&gt;Neuromancer&lt;/span&gt;&lt;span class=&quot;y&quot;&gt;1984&lt;/span&gt;&lt;/div&gt;</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from html.parser import HTMLParser
+
+
+class BookParser(HTMLParser):
+    &quot;&quot;&quot;Collect book titles and years without any third-party packages.&quot;&quot;&quot;
+
+    def __init__(self):
+        super().__init__()
+        self.books = []
+        self.current = {}
+        self.field = None
+
+    def handle_starttag(self, tag, attrs):
+        classes = dict(attrs).get(&quot;class&quot;, &quot;&quot;)
+        if tag == &quot;div&quot; and &quot;book&quot; in classes:
+            self.current = {}
+        elif tag == &quot;span&quot; and classes in (&quot;t&quot;, &quot;y&quot;):
+            self.field = &quot;title&quot; if classes == &quot;t&quot; else &quot;year&quot;
+
+    def handle_data(self, data):
+        if self.field:
+            self.current[self.field] = data.strip()
+            self.field = None
+
+    def handle_endtag(self, tag):
+        if tag == &quot;div&quot; and self.current:
+            self.books.append(self.current)
+            self.current = {}
+
+
+parser = BookParser()
+parser.feed(&quot;&quot;&quot;
+&lt;div class=&quot;book&quot;&gt;&lt;span class=&quot;t&quot;&gt;Dune&lt;/span&gt;&lt;span class=&quot;y&quot;&gt;1965&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;book&quot;&gt;&lt;span class=&quot;t&quot;&gt;Neuromancer&lt;/span&gt;&lt;span class=&quot;y&quot;&gt;1984&lt;/span&gt;&lt;/div&gt;
+&quot;&quot;&quot;)
+
+for book in parser.books:
+    print(f&quot;{book[&#x27;title&#x27;]:12} ({book[&#x27;year&#x27;]})&quot;)</code></pre>
+<pre class="out"><code class="nohl">Dune         (1965)
+Neuromancer  (1984)</code></pre><p>This is a state machine: it remembers what it is currently inside. That is why <code>BeautifulSoup</code> exists, and why it is worth the install for anything beyond a simple document.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Would you scrape it?</h3><p>For each, decide: scrape, use an API, or do not touch it.</p><ol><li>Product prices from a shop that has a public API.</li><li>Your own posts from a forum you belong to.</li><li>Email addresses from a member directory.</li><li>Public weather data from a government site.</li><li>Every article from a news site, to train a model.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Use the API.</strong> Faster, allowed, and it will not break when they change their CSS.</li><li><strong>Fine,</strong> and check whether there is an export feature first. Your own data is the easiest case there is.</li><li><strong>Do not.</strong> Harvesting personal contact details is a data protection problem in most jurisdictions and a spam problem everywhere.</li><li><strong>Usually fine,</strong> and often explicitly encouraged. Check for a bulk download; government sites frequently publish the whole dataset.</li><li><strong>Careful.</strong> Copyright applies to the articles, terms of service usually forbid it, and this is the subject of active litigation. At minimum, read the terms and prefer licensed datasets.</li></ol></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Make a scraper survive a redesign</h3><p>Your scraper breaks every time the site changes. List four things that make one more durable.</p><details class="solution"><summary>Reveal solution</summary><ul><li><strong>Select on meaning, not on layout.</strong> <code>[data-product-id]</code> or a semantic class survives a redesign; <code>div &gt; div &gt; div:nth-child(3)</code> does not.</li><li><strong>Fail loudly on structure, quietly on content.</strong> If zero items parse, raise: the page has changed. If one item is missing a field, log it and continue.</li><li><strong>Cache raw HTML.</strong> When parsing breaks you can then debug against the exact page that failed, without hitting the site again.</li><li><strong>Write a test with a saved page.</strong> A stored HTML fixture plus an expected result turns 'it broke' into a failing test that shows you where.</li></ul><p>And the honest one: scrapers rot. Anything built on someone else's HTML is borrowed time, which is the strongest argument for checking one more time whether an API exists.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-43-scraping">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="42-http.html"><span class="dir">← Previous</span>Lesson 42: The Web: HTTP and APIs</a>
+      <a class="next" href="44-web-apps.html"><span class="dir">Next →</span>Lesson 44: Building a Web App</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

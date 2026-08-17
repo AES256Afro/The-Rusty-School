@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 51: Making Python Fast - The Python School</title>
+<meta name="description" content="Profiling with timeit and cProfile, algorithmic complexity, practical speedups, and calling Rust from Python.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/51-performance">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 51: Making Python Fast - The Python School">
+<meta property="og:description" content="Profiling with timeit and cProfile, algorithmic complexity, practical speedups, and calling Rust from Python.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/51-performance">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 51: Making Python Fast - The Python School">
+<meta name="twitter:description" content="Profiling with timeit and cProfile, algorithmic complexity, practical speedups, and calling Rust from Python.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 51 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Making Python Fast ⚡</h1>
+    <p class="lede muted">Python is slow, in the way a bicycle is slow. Most of the time the route matters
+    more than the vehicle, and this lesson is about finding the route.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The rule: measure, do not guess</h2>
+    <pre class="run" data-verify="run"><code>import timeit
+
+setup = &quot;data = list(range(1000))&quot;
+
+loop = timeit.timeit(&quot;total = 0\nfor n in data: total += n&quot;, setup=setup, number=1000)
+builtin = timeit.timeit(&quot;total = sum(data)&quot;, setup=setup, number=1000)
+
+print(f&quot;explicit loop faster than sum? {loop &lt; builtin}&quot;)
+print(f&quot;sum is at least twice as fast: {loop / builtin &gt; 2}&quot;)</code></pre>
+<pre class="out"><code class="nohl">explicit loop faster than sum? False
+sum is at least twice as fast: True</code></pre>
+    <p>
+      Note what is being asserted there: a direction, not a number. The exact ratio depends on
+      your machine, your Python version and what else is running, so a lesson that promised
+      "4.7 times faster" would be wrong for most readers. Benchmarks you publish should claim
+      only what they can defend.
+    </p>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Formidable: Success]</span></div><p>Programmers are famously bad at guessing where time goes. Decades of experience produce confident, wrong answers, because the bottleneck is nearly always somewhere unglamorous: a repeated lookup, an accidental quadratic, a call inside a loop that could be outside it.</p>
+<p>Donald Knuth's line about premature optimisation is usually quoted as a joke about laziness. The full sentence is an argument for measurement: he says we should forget small efficiencies about 97% of the time, and then adds that we should not pass up the critical 3%. Finding the 3% requires a profiler.</p></div>
+
+    <h2>cProfile: where the time actually goes</h2>
+    <pre class="run" data-verify="run"><code>import cProfile
+import io
+import pstats
+
+
+def slow_lookup(names, targets):
+    &quot;&quot;&quot;Deliberately quadratic: a list scan inside a loop.&quot;&quot;&quot;
+    return [name for name in targets if name in names]
+
+
+def fast_lookup(names, targets):
+    lookup = set(names)
+    return [name for name in targets if name in lookup]
+
+
+names = [f&quot;pirate{i}&quot; for i in range(4000)]
+targets = [f&quot;pirate{i}&quot; for i in range(0, 4000, 4)]
+
+profiler = cProfile.Profile()
+profiler.enable()
+slow = slow_lookup(names, targets)
+fast = fast_lookup(names, targets)
+profiler.disable()
+
+buffer = io.StringIO()
+pstats.Stats(profiler, stream=buffer).sort_stats(&quot;cumulative&quot;).print_stats(0)
+
+print(&quot;same answer:&quot;, slow == fast)
+print(&quot;matched:&quot;, len(fast))</code></pre>
+<pre class="out"><code class="nohl">same answer: True
+matched: 1000</code></pre>
+    <pre class="term"><code class="nohl">$ python -m cProfile -s cumulative myscript.py | head -15
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    2.417    2.417 myscript.py:1(&lt;module&gt;)
+        1    2.301    2.301    2.301    2.301 myscript.py:4(slow_lookup)
+        1    0.004    0.004    0.004    0.004 myscript.py:9(fast_lookup)</code></pre>
+    <p>
+      <code>tottime</code> is time inside that function alone; <code>cumtime</code> includes
+      everything it called. Sort by cumulative to find the expensive branch, then by tottime to
+      find the expensive line. One command, and the guessing stops.
+    </p>
+
+    <h2>Algorithms beat micro-optimisation, always</h2>
+    <pre class="run" data-verify="run"><code>import time
+
+names = [f&quot;pirate{i}&quot; for i in range(20000)]
+targets = [f&quot;pirate{i}&quot; for i in range(0, 20000, 2)]
+
+start = time.perf_counter()
+slow = [n for n in targets if n in names]          # list: scans every time
+slow_time = time.perf_counter() - start
+
+lookup = set(names)
+start = time.perf_counter()
+fast = [n for n in targets if n in lookup]         # set: instant
+fast_time = time.perf_counter() - start
+
+print(f&quot;same result: {slow == fast}&quot;)
+print(f&quot;set version at least 20x faster: {slow_time / fast_time &gt; 20}&quot;)</code></pre>
+<pre class="out"><code class="nohl">same result: True
+set version at least 20x faster: True</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Operation</th><th>list</th><th>set / dict</th></tr></thead><tbody><tr><td><code>x in collection</code></td><td>O(n): checks every item</td><td>O(1): effectively instant</td></tr><tr><td>append / add</td><td>O(1)</td><td>O(1)</td></tr><tr><td><code>collection[i]</code></td><td>O(1)</td><td>n/a (dict by key is O(1))</td></tr><tr><td>insert at the front</td><td>O(n)</td><td>use <code>collections.deque</code></td></tr></tbody></table></div>
+    <p>
+      That table is worth more than every micro-optimisation in this lesson combined. A loop
+      inside a loop over the same data is the accidental quadratic, and it is the single most
+      common cause of "it was fine in testing and unusable in production".
+    </p>
+
+    <h2>The practical speedups, in order of value</h2>
+    <pre class="run" data-verify="run"><code>import time
+
+# 1. Do less work: move invariant things out of the loop
+data = list(range(20000))
+
+start = time.perf_counter()
+result_bad = [x * len(data) for x in data]           # len() every iteration
+bad = time.perf_counter() - start
+
+start = time.perf_counter()
+size = len(data)
+result_good = [x * size for x in data]
+good = time.perf_counter() - start
+
+print(&quot;same:&quot;, result_bad == result_good)
+
+# 2. Build strings with join, not +=
+start = time.perf_counter()
+text = &quot;&quot;
+for i in range(20000):
+    text += str(i)            # a new string every time
+concat = time.perf_counter() - start
+
+start = time.perf_counter()
+joined = &quot;&quot;.join(str(i) for i in range(20000))
+join = time.perf_counter() - start
+
+print(&quot;same text:&quot;, text == joined)
+print(&quot;join at least as fast:&quot;, join &lt;= concat * 1.5)</code></pre>
+<pre class="out"><code class="nohl">same: True
+same text: True
+join at least as fast: True</code></pre>
+    <ol>
+      <li><strong>Pick the right data structure.</strong> Sets and dicts for lookup. Usually a
+      100x win or more.</li>
+      <li><strong>Do less.</strong> Cache with <code>functools.lru_cache</code>, hoist
+      invariants out of loops, and stop computing things nobody reads.</li>
+      <li><strong>Use the built-ins.</strong> <code>sum</code>, <code>min</code>,
+      <code>sorted</code>, <code>any</code> and <code>str.join</code> run in C.</li>
+      <li><strong>Use generators</strong> when you do not need the whole list (Lesson 34).</li>
+      <li><strong>Reach for NumPy</strong> for numeric arrays. Often 50x, sometimes far more
+      (Lesson 46).</li>
+      <li><strong>Then consider concurrency</strong> (Lessons 39 and 40), which helps waiting,
+      not computing.</li>
+      <li><strong>Then a faster language</strong> for the one function that matters.</li>
+    </ol>
+
+    <h2>Free speed from newer Pythons</h2>
+    <p>
+      Python has been getting substantially faster. The
+      <a href="https://github.com/faster-cpython" target="_blank" rel="noopener">Faster CPython</a> project delivered large
+      gains in 3.11, more in 3.12 and 3.13, and 3.14 continues. Upgrading is often the cheapest
+      performance work available: no code changes, and a benchmark suite you did not have to
+      write.
+    </p>
+    <pre class="term"><code class="nohl">$ python3.11 bench.py
+2.41s
+
+$ python3.13 bench.py
+1.52s
+
+# the same code, no changes</code></pre>
+
+    <h2>When Python genuinely is not enough</h2>
+    <div class="table-wrap"><table><thead><tr><th>Option</th><th>Effort</th><th>Typical gain</th></tr></thead><tbody><tr><td>Upgrade Python</td><td>Minutes</td><td>10 to 60%</td></tr><tr><td><code>functools.cache</code></td><td>One line</td><td>Unbounded, if there is repetition</td></tr><tr><td>NumPy for arrays</td><td>A rewrite of that section</td><td>10 to 100x</td></tr><tr><td><a href='https://docs.python.org/3/library/multiprocessing.html'>multiprocessing</a></td><td>Moderate</td><td>Up to the number of cores</td></tr><tr><td><a href='https://cython.org' target='_blank' rel='noopener'>Cython</a></td><td>Annotate a hot function</td><td>10 to 100x</td></tr><tr><td><a href='https://numba.pydata.org' target='_blank' rel='noopener'>Numba</a></td><td>One decorator, numeric code only</td><td>10 to 100x</td></tr><tr><td>Rewrite the hot function in Rust</td><td>A day, plus learning</td><td>10 to 200x</td></tr></tbody></table></div>
+
+    <h2>Calling Rust from Python</h2>
+    <p>
+      This is the pattern behind the fastest tools in the Python ecosystem, and it is much more
+      approachable than it sounds. You write the 5% that is slow in Rust and import it as an
+      ordinary Python module.
+    </p>
+    <pre data-verify="skip"><code>// src/lib.rs
+use pyo3::prelude::*;
+
+/// Count how many numbers below `limit` are prime.
+#[pyfunction]
+fn count_primes(limit: u64) -&gt; u64 {
+    (2..limit)
+        .filter(|n| (2..=(*n as f64).sqrt() as u64).all(|d| n % d != 0))
+        .count() as u64
+}
+
+#[pymodule]
+fn fastmath(m: &amp;Bound&lt;&#x27;_, PyModule&gt;) -&gt; PyResult&lt;()&gt; {
+    m.add_function(wrap_pyfunction!(count_primes, m)?)?;
+    Ok(())
+}</code></pre>
+    <pre data-verify="compile"><code># and then, from Python
+import fastmath
+
+print(fastmath.count_primes(1_000_000))      # the same answer, dramatically faster</code></pre>
+    <pre class="term"><code class="nohl">$ pip install maturin
+$ maturin init --bindings pyo3
+$ maturin develop          # builds the Rust and installs it into your venv</code></pre>
+    <div class="callout info"><span class="co-title">🦀 This is not a hypothetical</span><p><a href='https://github.com/astral-sh/ruff' target='_blank' rel='noopener'>ruff</a> replaced a stack of Python linters and is 10 to 100 times faster. <a href='https://github.com/astral-sh/uv' target='_blank' rel='noopener'>uv</a> did the same to pip. <a href='https://pola.rs' target='_blank' rel='noopener'>Polars</a> is doing it to pandas. <a href='https://docs.pydantic.dev' target='_blank' rel='noopener'>Pydantic</a> moved its core to Rust in version 2. All of them are used from Python, by Python programmers, who mostly never look at the Rust.</p><p>If that appeals, the <a href='../../learn/index.html'>Rusty School</a> is next door and teaches Rust from the same starting point as this course. Python plus Rust is an unusually strong pair of languages to know.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Find the bottleneck</h3><p>This function is slow. Profile it mentally, then fix it, then prove the fix.</p><pre data-verify="compile"><code>def find_duplicates(records):
+    duplicates = []
+    for record in records:
+        count = 0
+        for other in records:
+            if record[&quot;id&quot;] == other[&quot;id&quot;]:
+                count += 1
+        if count &gt; 1 and record[&quot;id&quot;] not in [d[&quot;id&quot;] for d in duplicates]:
+            duplicates.append(record)
+    return duplicates</code></pre><details class="solution"><summary>Reveal solution</summary><p>Three nested scans: the inner loop over all records, and a third scan of <code>duplicates</code> rebuilt on every iteration. That is O(n²) at best.</p><pre class="run" data-verify="run"><code>from collections import Counter
+import time
+
+
+def find_duplicates_fast(records):
+    &quot;&quot;&quot;One pass to count, one pass to collect. O(n).&quot;&quot;&quot;
+    counts = Counter(r[&quot;id&quot;] for r in records)
+    seen = set()
+    result = []
+    for record in records:
+        if counts[record[&quot;id&quot;]] &gt; 1 and record[&quot;id&quot;] not in seen:
+            seen.add(record[&quot;id&quot;])
+            result.append(record)
+    return result
+
+
+records = [{&quot;id&quot;: i % 500, &quot;name&quot;: f&quot;r{i}&quot;} for i in range(4000)]
+
+start = time.perf_counter()
+fast = find_duplicates_fast(records)
+elapsed = time.perf_counter() - start
+
+print(f&quot;{len(fast)} duplicate ids found&quot;)
+print(f&quot;fast enough: {elapsed &lt; 0.1}&quot;)</code></pre>
+<pre class="out"><code class="nohl">500 duplicate ids found
+fast enough: True</code></pre><p>The shape to recognise: any time you write a loop inside a loop over the same data, ask whether a <code>Counter</code>, a <code>set</code> or a <code>dict</code> would let you do it in one pass.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Cache the expensive call</h3><p>Use <code>functools.cache</code> to make a repeated calculation instant, and prove it worked.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import functools
+import time
+
+
+@functools.cache
+def expensive(n):
+    &quot;&quot;&quot;Pretend this is a slow API call or a heavy computation.&quot;&quot;&quot;
+    total = sum(i * i for i in range(n))
+    return total
+
+
+start = time.perf_counter()
+first = expensive(200_000)
+first_time = time.perf_counter() - start
+
+start = time.perf_counter()
+second = expensive(200_000)
+second_time = time.perf_counter() - start
+
+print(f&quot;same answer: {first == second}&quot;)
+print(f&quot;second call much faster: {second_time &lt; first_time / 10}&quot;)
+print(expensive.cache_info().hits, &quot;cache hit&quot;)</code></pre>
+<pre class="out"><code class="nohl">same answer: True
+second call much faster: True
+1 cache hit</code></pre><p>The caveats matter: arguments must be hashable, the function must be pure (Lesson 37), and an unbounded cache is a memory leak with good manners. Use <code>lru_cache(maxsize=1000)</code> when the input space is large.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Decide whether to optimise</h3><p>A report takes 45 seconds. Should you optimise it? What do you need to know first?</p><details class="solution"><summary>Reveal solution</summary><ul><li><strong>How often does it run?</strong> Once a month at 3am: leave it. Forty times a day while a person waits: fix it.</li><li><strong>Where do the 45 seconds go?</strong> Profile. If 43 of them are waiting on a database, no amount of Python tuning will help; the query or its indexes are the problem (Lesson 45).</li><li><strong>Is it blocking anyone?</strong> A background job that nobody waits for has a very different cost than a page load.</li><li><strong>What would the fix cost?</strong> Two days of work and permanent extra complexity, to save a person four seconds a week, is a bad trade and worth saying out loud.</li><li><strong>Is there a free win?</strong> A newer Python, one index, or one <code>@cache</code> is worth trying before a rewrite.</li></ul><p>Optimisation is an engineering decision, not a reflex. The correct answer is often 'no, and here is the measurement that says so'.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-51-performance">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="50-packaging.html"><span class="dir">← Previous</span>Lesson 50: Packaging and Shipping</a>
+      <a class="next" href="52-security.html"><span class="dir">Next →</span>Lesson 52: Security Basics</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

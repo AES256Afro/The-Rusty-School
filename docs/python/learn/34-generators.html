@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 34: Iterators and Generators - The Python School</title>
+<meta name="description" content="The iterator protocol, generator functions, yield, laziness, infinite sequences and itertools.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/34-generators">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 34: Iterators and Generators - The Python School">
+<meta property="og:description" content="The iterator protocol, generator functions, yield, laziness, infinite sequences and itertools.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/34-generators">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 34: Iterators and Generators - The Python School">
+<meta name="twitter:description" content="The iterator protocol, generator functions, yield, laziness, infinite sequences and itertools.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 34 of 52</nav>
+    <span class="badge l4">Level 4 · Pythonic</span>
+    <h1>Iterators and Generators 🌊</h1>
+    <p class="lede muted">How does a for loop actually work? The answer unlocks the ability to process a
+    hundred gigabyte file on a laptop with eight gigabytes of memory.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>What a for loop really does</h2>
+    <pre class="run" data-verify="run"><code>crew = [&quot;Guybrush&quot;, &quot;Elaine&quot;]
+
+it = iter(crew)          # ask for an iterator
+print(next(it))
+print(next(it))
+
+try:
+    next(it)
+except StopIteration:
+    print(&quot;StopIteration: that is the loop&#x27;s stop signal&quot;)</code></pre>
+<pre class="out"><code class="nohl">Guybrush
+Elaine
+StopIteration: that is the loop&#x27;s stop signal</code></pre>
+    <p>
+      Every <code>for</code> loop is that: call <code>iter()</code>, call <code>next()</code>
+      until <code>StopIteration</code>. Anything that supports those two calls can be looped
+      over, which is why <code>for</code> works identically on lists, strings, dictionaries,
+      files and things you write yourself.
+    </p>
+
+    <h2>Generators: iterators without the ceremony</h2>
+    <pre class="run" data-verify="run"><code>def countdown(n):
+    &quot;&quot;&quot;A generator: it yields values instead of returning one.&quot;&quot;&quot;
+    while n &gt; 0:
+        yield n
+        n -= 1
+    yield &quot;Liftoff!&quot;
+
+
+for value in countdown(3):
+    print(value)
+
+print(type(countdown(3)))
+print(list(countdown(2)))</code></pre>
+<pre class="out"><code class="nohl">3
+2
+1
+Liftoff!
+&lt;class &#x27;generator&#x27;&gt;
+[2, 1, &#x27;Liftoff!&#x27;]</code></pre>
+    <p>
+      One word, <code>yield</code>, changes everything. The function no longer runs to
+      completion and returns a value. It runs until the first <code>yield</code>, hands that
+      value out, and <strong>freezes</strong>, keeping all its local variables. The next
+      <code>next()</code> resumes exactly where it stopped.
+    </p>
+
+    <pre class="run" data-verify="run"><code>def noisy():
+    print(&quot;  starting&quot;)
+    yield 1
+    print(&quot;  woke up again&quot;)
+    yield 2
+    print(&quot;  finishing&quot;)
+
+
+gen = noisy()
+print(&quot;nothing has run yet&quot;)
+print(next(gen))
+print(next(gen))</code></pre>
+<pre class="out"><code class="nohl">nothing has run yet
+  starting
+1
+  woke up again
+2</code></pre>
+
+    <div class="voice" data-skill="conceptualization"><div class="v-head"><span class="v-name">CONCEPTUALIZATION</span><span class="v-check success">[Formidable: Success]</span></div><p>Calling a generator function runs none of its body. It hands you a paused computation: a program frozen mid-sentence, holding its own place.</p>
+<p>This is the same idea as async/await, and as coroutines in every language that has them. Once you see a function as something that can be suspended and resumed rather than something that runs start to finish, a whole category of programming opens up.</p></div>
+
+    <h2>Why it matters: memory</h2>
+    <pre class="run" data-verify="run"><code>import sys
+
+
+def squares_list(n):
+    return [i * i for i in range(n)]
+
+
+def squares_gen(n):
+    for i in range(n):
+        yield i * i
+
+
+as_list = squares_list(1_000_000)
+as_gen = squares_gen(1_000_000)
+
+print(f&quot;list:      {sys.getsizeof(as_list):&gt;10,} bytes&quot;)
+print(f&quot;generator: {sys.getsizeof(as_gen):&gt;10,} bytes&quot;)
+print(f&quot;same total: {sum(as_list) == sum(squares_gen(1_000_000))}&quot;)</code></pre>
+<pre class="out"><code class="nohl">list:       8,448,728 bytes
+generator:        200 bytes
+same total: True</code></pre>
+    <p>
+      Eight megabytes versus two hundred bytes, for the same answer. The generator never holds
+      more than one value at a time. For a million items on a modern laptop this is a
+      curiosity; for a log file bigger than your RAM it is the entire difference between
+      possible and impossible.
+    </p>
+
+    <h2>The real-world shape: processing a big file</h2>
+    <pre class="run" data-verify="run"><code>from pathlib import Path
+
+Path(&quot;server.log&quot;).write_text(&quot;&quot;&quot;INFO  started
+ERROR disk full
+INFO  retrying
+ERROR still full
+INFO  done
+&quot;&quot;&quot;, encoding=&quot;utf-8&quot;)
+
+
+def read_lines(path):
+    &quot;&quot;&quot;Yield each line, stripped. Never holds the whole file.&quot;&quot;&quot;
+    with open(path, encoding=&quot;utf-8&quot;) as f:
+        for line in f:
+            yield line.rstrip(&quot;\n&quot;)
+
+
+def only_errors(lines):
+    &quot;&quot;&quot;Yield only the ERROR lines.&quot;&quot;&quot;
+    for line in lines:
+        if line.startswith(&quot;ERROR&quot;):
+            yield line
+
+
+def messages(lines):
+    &quot;&quot;&quot;Yield just the message part.&quot;&quot;&quot;
+    for line in lines:
+        yield line.split(maxsplit=1)[1]
+
+
+pipeline = messages(only_errors(read_lines(&quot;server.log&quot;)))
+
+for message in pipeline:
+    print(message)</code></pre>
+<pre class="out"><code class="nohl">disk full
+still full</code></pre>
+    <p>
+      That is a pipeline. Nothing is read until the <code>for</code> loop pulls, and then each
+      line flows through all three stages one at a time. The file could be a terabyte and the
+      memory use would not change. This is exactly how Unix pipes work, and it is one of the
+      most reusable structures in programming.
+    </p>
+
+    <h2>Infinite sequences, which lists cannot do</h2>
+    <pre class="run" data-verify="run"><code>def fibonacci():
+    &quot;&quot;&quot;Every Fibonacci number. All of them. Forever.&quot;&quot;&quot;
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a + b
+
+
+from itertools import islice
+
+print(list(islice(fibonacci(), 10)))
+
+# find the first Fibonacci number over a thousand
+for n in fibonacci():
+    if n &gt; 1000:
+        print(&quot;first over 1000:&quot;, n)
+        break</code></pre>
+<pre class="out"><code class="nohl">[0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+first over 1000: 1597</code></pre>
+
+    <h2>Generator expressions</h2>
+    <pre class="run" data-verify="run"><code>numbers = range(1, 11)
+
+squares_list = [n * n for n in numbers]        # builds it all
+squares_gen = (n * n for n in numbers)         # builds nothing yet
+
+print(squares_list)
+print(type(squares_gen).__name__)
+print(sum(squares_gen))
+print(sum(squares_gen))          # exhausted! generators are one-shot</code></pre>
+<pre class="out"><code class="nohl">[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+generator
+385
+0</code></pre>
+    <div class="callout danger"><span class="co-title">🪤 A generator can only be walked once</span><p>Once consumed, it is empty, and it will not tell you: the second <code>sum</code> quietly returns 0. If you need the values twice, either build a list or call the generator function again. This catches everyone, usually in the form of 'my second loop did nothing'.</p></div>
+
+    <h2>yield from: delegating</h2>
+    <pre class="run" data-verify="run"><code>def chain(*iterables):
+    for it in iterables:
+        yield from it          # yield every value from that one
+
+
+def flatten(nested):
+    &quot;&quot;&quot;Flatten any depth of nested lists.&quot;&quot;&quot;
+    for item in nested:
+        if isinstance(item, list):
+            yield from flatten(item)
+        else:
+            yield item
+
+
+print(list(chain([1, 2], &quot;ab&quot;, (3, 4))))
+print(list(flatten([1, [2, [3, [4, 5]], 6], 7])))</code></pre>
+<pre class="out"><code class="nohl">[1, 2, &#x27;a&#x27;, &#x27;b&#x27;, 3, 4]
+[1, 2, 3, 4, 5, 6, 7]</code></pre>
+
+    <h2>Writing an iterator class</h2>
+    <pre class="run" data-verify="run"><code>class Countdown:
+    def __init__(self, start):
+        self.start = start
+
+    def __iter__(self):
+        &quot;&quot;&quot;Return a fresh iterator each time, so this can be looped twice.&quot;&quot;&quot;
+        n = self.start
+        while n &gt; 0:
+            yield n
+            n -= 1
+
+
+c = Countdown(3)
+print(list(c))
+print(list(c))          # works again, unlike a bare generator</code></pre>
+<pre class="out"><code class="nohl">[3, 2, 1]
+[3, 2, 1]</code></pre>
+    <p>
+      Making <code>__iter__</code> a generator function is the tidiest way to build a reusable
+      iterable. Each <code>for</code> loop calls <code>__iter__</code> again and gets a fresh
+      generator, so the one-shot problem disappears.
+    </p>
+
+    <h2>itertools: the ones worth knowing</h2>
+    <pre class="run" data-verify="run"><code>from itertools import count, cycle, islice, chain, groupby, pairwise, accumulate
+
+print(list(islice(count(10, 5), 4)))
+print(list(islice(cycle(&quot;ab&quot;), 5)))
+print(list(chain([1, 2], [3])))
+print(list(accumulate([1, 2, 3, 4])))
+print(list(pairwise([1, 2, 3, 4])))
+
+crew = [(&quot;deck&quot;, &quot;Otis&quot;), (&quot;deck&quot;, &quot;Meathook&quot;), (&quot;bridge&quot;, &quot;Elaine&quot;)]
+for station, people in groupby(crew, key=lambda pair: pair[0]):
+    print(station, [name for _, name in people])</code></pre>
+<pre class="out"><code class="nohl">[10, 15, 20, 25]
+[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;a&#x27;, &#x27;b&#x27;, &#x27;a&#x27;]
+[1, 2, 3]
+[1, 3, 6, 10]
+[(1, 2), (2, 3), (3, 4)]
+deck [&#x27;Otis&#x27;, &#x27;Meathook&#x27;]
+bridge [&#x27;Elaine&#x27;]</code></pre>
+    <div class="callout warn"><span class="co-title">🔤 groupby needs sorted input</span><p>It groups <em>consecutive</em> equal keys, like the Unix <code>uniq</code> command, not like SQL's GROUP BY. Sort by the same key first or you will get several groups with the same name. This surprises people constantly.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>A generator pipeline</h3><p>Write three generators that read numbers, keep the even ones, and square them. Chain them and prove nothing is computed until you ask.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def numbers(n):
+    print(&quot;  (numbers started)&quot;)
+    for i in range(1, n + 1):
+        yield i
+
+
+def evens(source):
+    for n in source:
+        if n % 2 == 0:
+            yield n
+
+
+def squared(source):
+    for n in source:
+        yield n * n
+
+
+pipeline = squared(evens(numbers(10)))
+print(&quot;built the pipeline, nothing has run&quot;)
+print(list(pipeline))</code></pre>
+<pre class="out"><code class="nohl">built the pipeline, nothing has run
+  (numbers started)
+[4, 16, 36, 64, 100]</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Read a file backwards</h3><p>Write a generator that yields the lines of a file in reverse order. Then explain honestly what it costs.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from pathlib import Path
+
+Path(&quot;log.txt&quot;).write_text(&quot;one\ntwo\nthree\n&quot;, encoding=&quot;utf-8&quot;)
+
+
+def reversed_lines(path):
+    &quot;&quot;&quot;Yield lines last-first. Reads the whole file: see the note.&quot;&quot;&quot;
+    with open(path, encoding=&quot;utf-8&quot;) as f:
+        lines = f.readlines()
+    for line in reversed(lines):
+        yield line.rstrip(&quot;\n&quot;)
+
+
+print(list(reversed_lines(&quot;log.txt&quot;)))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;three&#x27;, &#x27;two&#x27;, &#x27;one&#x27;]</code></pre><p>The honest cost: this loads the entire file into memory, which throws away the main benefit of a generator. Reading a file backwards genuinely requires either holding it all or seeking from the end in chunks, because you cannot know where the last line starts without reaching the end. Being able to say 'this generator is not actually lazy, and here is why' matters more than the code.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>A moving average</h3><p>Write a generator that yields the running average of a stream of numbers, using constant memory.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def running_average(numbers):
+    &quot;&quot;&quot;Yield the mean of everything seen so far.&quot;&quot;&quot;
+    total = 0
+    count = 0
+    for n in numbers:
+        total += n
+        count += 1
+        yield total / count
+
+
+for average in running_average([10, 20, 30, 40]):
+    print(f&quot;{average:.2f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">10.00
+15.00
+20.00
+25.00</code></pre><p>Two variables, regardless of stream length. This is what people mean by streaming computation, and it is how systems process data that will never fit in memory: keep only what you need to produce the next answer.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-34-generators">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="33-dataclasses.html"><span class="dir">← Previous</span>Lesson 33: Dataclasses, Enums and match</a>
+      <a class="next" href="35-decorators.html"><span class="dir">Next →</span>Lesson 35: Decorators</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

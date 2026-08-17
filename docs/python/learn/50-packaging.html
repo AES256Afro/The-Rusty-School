@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 50: Packaging and Shipping - The Python School</title>
+<meta name="description" content="pyproject.toml, building a package, publishing to PyPI, semantic versioning and GitHub Actions.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/50-packaging">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 50: Packaging and Shipping - The Python School">
+<meta property="og:description" content="pyproject.toml, building a package, publishing to PyPI, semantic versioning and GitHub Actions.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/50-packaging">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 50: Packaging and Shipping - The Python School">
+<meta name="twitter:description" content="pyproject.toml, building a package, publishing to PyPI, semantic versioning and GitHub Actions.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 50 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Packaging and Shipping 📦</h1>
+    <p class="lede muted">The final step from 'a folder of scripts' to 'a thing that exists in the world and
+    someone else can pip install'.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The shape of a package</h2>
+    <pre class="out"><code class="nohl">crew-manager/
+├── pyproject.toml          the one config file that matters
+├── README.md               what it is, shown on PyPI
+├── LICENSE                 without one, nobody may legally use it
+├── .gitignore
+├── src/
+│   └── crew_manager/
+│       ├── __init__.py     makes it a package; holds the version
+│       ├── core.py
+│       └── cli.py
+└── tests/
+    ├── test_core.py
+    └── test_cli.py</code></pre>
+    <div class="callout tip"><span class="co-title">📁 Why src/</span><p>Putting the package inside <code>src/</code> means your tests cannot accidentally import the local folder instead of the installed package. That sounds pedantic until the day your tests pass locally and the published package is missing a file nobody noticed. This is called the src layout and it is the current recommendation.</p></div>
+
+    <h2>pyproject.toml</h2>
+    <pre data-verify="skip"><code>[build-system]
+requires = [&quot;hatchling&quot;]
+build-backend = &quot;hatchling.build&quot;
+
+[project]
+name = &quot;crew-manager&quot;
+version = &quot;0.1.0&quot;
+description = &quot;Manage a pirate crew from the command line.&quot;
+readme = &quot;README.md&quot;
+requires-python = &quot;&gt;=3.11&quot;
+license = &quot;MIT&quot;
+authors = [{ name = &quot;Your Name&quot; }]
+keywords = [&quot;cli&quot;, &quot;pirates&quot;]
+classifiers = [
+    &quot;Programming Language :: Python :: 3&quot;,
+    &quot;License :: OSI Approved :: MIT License&quot;,
+    &quot;Operating System :: OS Independent&quot;,
+]
+dependencies = [
+    &quot;rich&gt;=13.0&quot;,
+]
+
+[project.optional-dependencies]
+dev = [&quot;pytest&gt;=8.0&quot;, &quot;ruff&gt;=0.6&quot;, &quot;mypy&gt;=1.10&quot;]
+
+[project.scripts]
+crew = &quot;crew_manager.cli:main&quot;
+
+[project.urls]
+Homepage = &quot;https://github.com/you/crew-manager&quot;
+Issues = &quot;https://github.com/you/crew-manager/issues&quot;</code></pre>
+    <p>
+      That <code>[project.scripts]</code> line is the good bit: after installing, the user gets
+      a <code>crew</code> command on their PATH that calls your <code>main</code> function. It
+      is how <code>pytest</code>, <code>ruff</code> and <code>pip</code> itself are installed.
+    </p>
+
+    <h2>Installing your own package while you work on it</h2>
+    <pre class="term"><code class="nohl">$ python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+$ pip install -e &quot;.[dev]&quot;
+
+Successfully installed crew-manager-0.1.0 (editable)
+
+$ crew --help
+usage: crew [-h] {add,list,remove} ...</code></pre>
+    <p>
+      <code>-e</code> means editable: the package is installed as a link to your source, so
+      your edits take effect immediately with no reinstall. <code>.[dev]</code> also pulls in
+      the optional development dependencies. This is the first command to run in any Python
+      project you clone.
+    </p>
+
+    <h2>Building and publishing</h2>
+    <pre class="term"><code class="nohl">$ pip install build twine
+$ python -m build
+
+Successfully built crew_manager-0.1.0.tar.gz and
+                   crew_manager-0.1.0-py3-none-any.whl
+
+# ALWAYS publish to the test index first
+$ twine upload --repository testpypi dist/*
+$ pip install --index-url https://test.pypi.org/simple/ crew-manager
+
+# then, when you are sure
+$ twine upload dist/*</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>File</th><th>What it is</th></tr></thead><tbody><tr><td><code>.whl</code> (wheel)</td><td>The built package. Fast to install: it is just unpacked</td></tr><tr><td><code>.tar.gz</code> (sdist)</td><td>The source. A fallback when a wheel does not fit the platform</td></tr></tbody></table></div>
+    <div class="callout danger"><span class="co-title">🔒 Use a token, not your password</span><p>Create a PyPI API token scoped to the single project, and store it in <code>~/.pypirc</code> or a CI secret. Better still, use <a href='https://docs.pypi.org/trusted-publishers/' target='_blank' rel='noopener'>trusted publishing</a>, which lets GitHub Actions publish with no long-lived secret at all.</p><p>And note: <strong>a version once published can never be replaced.</strong> You can only yank it and publish a new number. Test on TestPyPI first, every time.</p></div>
+
+    <h2>Version numbers mean something</h2>
+    <div class="table-wrap"><table><thead><tr><th>Change</th><th>Bump</th><th>Example</th></tr></thead><tbody><tr><td>Broke something that used to work</td><td><strong>MAJOR</strong></td><td>1.4.2 → 2.0.0</td></tr><tr><td>Added something, nothing broke</td><td><strong>MINOR</strong></td><td>1.4.2 → 1.5.0</td></tr><tr><td>Fixed a bug, no interface change</td><td><strong>PATCH</strong></td><td>1.4.2 → 1.4.3</td></tr><tr><td>Still working it out</td><td>0.x</td><td>0.1.0. Anything may change</td></tr></tbody></table></div>
+    <p>
+      This is <a href="https://semver.org" target="_blank" rel="noopener">semantic versioning</a>, and it is a promise to the
+      people installing your package. Breaking it, by changing behaviour in a patch release, is
+      the fastest way to lose users' trust, because their code broke while they were doing
+      nothing wrong.
+    </p>
+
+    <h2>Automating the checks</h2>
+    <pre data-verify="skip"><code># .github/workflows/ci.yml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [&quot;3.11&quot;, &quot;3.12&quot;, &quot;3.13&quot;]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: pip install -e &quot;.[dev]&quot;
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format check
+        run: ruff format --check .
+
+      - name: Type check
+        run: mypy src
+
+      - name: Test
+        run: pytest -v</code></pre>
+    <p>
+      Every push now runs your tests on three Python versions, on a clean machine, before you
+      can merge. That last part is the real value: it catches "works on my machine" the moment
+      it happens, and it proves your package installs from scratch.
+    </p>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Formidable: Success]</span></div><p>Publishing something, even something small, changes how you write code. You suddenly care about the interface, because changing it will inconvenience strangers.</p>
+<p>It is also a rite of passage. Your name on a package that anyone in the world can install is a genuinely different feeling from a folder of scripts, and it is worth doing once even if nobody but you ever installs it.</p></div>
+
+    <h2>Before you publish anything</h2>
+    <ul class="checklist">
+      <li>A README that shows installation and one working example in the first screen</li>
+      <li>A LICENSE file. Without one, the legal default is that nobody may use it</li>
+      <li>Tests that pass on a clean machine, not just yours</li>
+      <li>A name nobody has taken, checked on PyPI</li>
+      <li><code>requires-python</code> set honestly</li>
+      <li>Version 0.1.0, not 1.0.0, unless you mean it</li>
+      <li>No secrets, no API keys, no personal paths in the source</li>
+      <li>Uploaded to TestPyPI and installed from there successfully</li>
+    </ul>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Package something you have written</h3><p>Take any script from this course, give it the layout above, and install it editable with a console command.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code># src/wordtools/__init__.py
+&quot;&quot;&quot;Small text statistics helpers.&quot;&quot;&quot;
+
+__version__ = &quot;0.1.0&quot;
+
+from .core import word_count, most_common
+
+__all__ = [&quot;word_count&quot;, &quot;most_common&quot;]</code></pre><pre data-verify="compile"><code># src/wordtools/cli.py
+&quot;&quot;&quot;Command-line entry point.&quot;&quot;&quot;
+
+import argparse
+import sys
+from pathlib import Path
+
+from .core import most_common, word_count
+
+
+def main(argv=None) -&gt; int:
+    parser = argparse.ArgumentParser(prog=&quot;wordtools&quot;)
+    parser.add_argument(&quot;file&quot;, type=Path)
+    parser.add_argument(&quot;-n&quot;, &quot;--top&quot;, type=int, default=3)
+    args = parser.parse_args(argv)
+
+    try:
+        text = args.file.read_text(encoding=&quot;utf-8&quot;)
+    except FileNotFoundError:
+        print(f&quot;wordtools: no such file: {args.file}&quot;, file=sys.stderr)
+        return 1
+
+    print(f&quot;{word_count(text)} words&quot;)
+    for word, count in most_common(text, args.top):
+        print(f&quot;  {count:4}  {word}&quot;)
+    return 0
+
+
+if __name__ == &quot;__main__&quot;:
+    sys.exit(main())</code></pre><pre class="term"><code class="nohl">pip install -e &quot;.[dev]&quot;
+wordtools README.md --top 5</code></pre><p>With <code>[project.scripts] wordtools = "wordtools.cli:main"</code> in pyproject.toml, that command now exists on your PATH. You have built a real tool.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Which version number?</h3><p>You are at 2.3.1. What is the next version for each change?</p><ol><li>Fixed a crash on empty input.</li><li>Added an optional <code>--verbose</code> flag.</li><li>Renamed a function everyone uses.</li><li>Made an argument required that used to be optional.</li><li>Rewrote the internals, identical behaviour, three times faster.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>2.3.2.</strong> Patch.</li><li><strong>2.4.0.</strong> Minor: new feature, nothing broken.</li><li><strong>3.0.0.</strong> Major. Even with an alias left behind, it is a breaking change to the documented interface.</li><li><strong>3.0.0.</strong> Major. Every existing call now fails, which is the definition of breaking.</li><li><strong>2.3.2.</strong> Patch, arguably 2.4.0 if the speed is a headline feature. Users' code does not change either way.</li></ol><p>The test is always the same: could someone else's working code break if they upgrade without reading anything?</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Read a package's manifest</h3><p>Look at any package you use on PyPI and find: its licence, its minimum Python, its dependencies, when it was last released, and whether the source repository is linked and active. Then say whether you would depend on it.</p><details class="solution"><summary>Reveal solution</summary><p>The signals that matter, roughly in order:</p><ul><li><strong>Recent releases</strong> or recent commits. Two years of silence means you will be maintaining it.</li><li><strong>A permissive licence</strong> (MIT, BSD, Apache) unless you have checked that a copyleft one suits your use.</li><li><strong>Few dependencies of its own.</strong> Every one is a package you are also trusting, transitively.</li><li><strong>Issues being answered,</strong> even if not always fixed.</li><li><strong>A name that is not one typo away</strong> from a much more popular package (Lesson 26).</li></ul><p>Adding a dependency is a decision with a maintenance cost, not a free win. The standard library remains the safest dependency you will ever have.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-50-packaging">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="49-desktop.html"><span class="dir">← Previous</span>Lesson 49: Desktop Applications</a>
+      <a class="next" href="51-performance.html"><span class="dir">Next →</span>Lesson 51: Making Python Fast</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

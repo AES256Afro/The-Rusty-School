@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 46: Data Analysis - The Python School</title>
+<meta name="description" content="NumPy arrays, pandas DataFrames, loading and cleaning data, grouping, and honest analysis.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/46-data">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 46: Data Analysis - The Python School">
+<meta property="og:description" content="NumPy arrays, pandas DataFrames, loading and cleaning data, grouping, and honest analysis.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/46-data">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 46: Data Analysis - The Python School">
+<meta name="twitter:description" content="NumPy arrays, pandas DataFrames, loading and cleaning data, grouping, and honest analysis.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 46 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Data Analysis 📊</h1>
+    <p class="lede muted">This is why physicists, economists and machine learning researchers all ended up
+    writing Python. Two libraries, and a spreadsheet stops being big enough to matter.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Why not just use lists?</h2>
+    <pre class="run" data-verify="run"><code># Pure Python: a loop, and a new list
+prices = [10.0, 24.99, 3.25, 8.75]
+with_vat = [p * 1.2 for p in prices]
+print([round(p, 2) for p in with_vat])
+print(round(sum(prices) / len(prices), 2))</code></pre>
+<pre class="out"><code class="nohl">[12.0, 29.99, 3.9, 10.5]
+11.75</code></pre>
+    <pre data-verify="compile"><code>import numpy as np      # pip install numpy
+
+prices = np.array([10.0, 24.99, 3.25, 8.75])
+
+print(np.round(prices * 1.2, 2))      # no loop: applies to everything at once
+print(prices.mean(), prices.std().round(2))
+print(prices[prices &gt; 9])</code></pre>
+    <p>
+      Three differences that matter. The syntax is shorter. The operation applies to the whole
+      array at once, which is called <strong>vectorisation</strong>. And it runs perhaps fifty
+      times faster, because the loop happens in compiled C over a contiguous block of memory
+      rather than in Python over a list of separate objects.
+    </p>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Medium: Success]</span></div><p>This is the resolution of the 'Python is slow' argument from Base Camp 4. NumPy is not really Python: it is a thin, friendly skin over decades of highly optimised C and Fortran, including LAPACK, which physicists have been tuning since the 1970s.</p>
+<p>You write the experiment in a language designed for thinking, and the arithmetic runs in a language designed for speed. That trade is the whole reason scientific computing settled here.</p></div>
+
+    <h2>pandas: a spreadsheet you can program</h2>
+    <pre data-verify="compile"><code>import pandas as pd      # pip install pandas
+
+crew = pd.DataFrame([
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;role&quot;: &quot;captain&quot;, &quot;pay&quot;: 100, &quot;joined&quot;: &quot;1990-10-15&quot;},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;role&quot;: &quot;governor&quot;, &quot;pay&quot;: 250, &quot;joined&quot;: &quot;1990-10-15&quot;},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;role&quot;: &quot;lookout&quot;, &quot;pay&quot;: 40, &quot;joined&quot;: &quot;1991-01-03&quot;},
+    {&quot;name&quot;: &quot;Meathook&quot;, &quot;role&quot;: &quot;lookout&quot;, &quot;pay&quot;: 45, &quot;joined&quot;: &quot;1991-06-20&quot;},
+])
+
+print(crew.head())
+print(crew.shape)
+print(crew.dtypes)
+print(crew[&quot;pay&quot;].describe())</code></pre>
+    <pre class="out"><code class="nohl">       name      role  pay      joined
+0  Guybrush   captain  100  1990-10-15
+1    Elaine  governor  250  1990-10-15
+2      Otis   lookout   40  1991-01-03
+3  Meathook   lookout   45  1991-06-20
+
+(4, 4)
+
+name      object
+role      object
+pay        int64
+joined    object
+dtype: object
+
+count      4.000000
+mean     108.750000
+std      100.041658
+min       40.000000
+25%       43.750000
+50%       72.500000
+75%      137.500000
+max      250.000000
+Name: pay, dtype: float64</code></pre>
+    <p>
+      A <code>DataFrame</code> is a table with named columns, each column a typed array.
+      <code>.describe()</code> on a numeric column is usually the first thing you run on
+      unfamiliar data, and it will often tell you immediately that something is wrong.
+    </p>
+
+    <h2>Loading real data</h2>
+    <pre data-verify="compile"><code>import pandas as pd
+
+df = pd.read_csv(&quot;sales.csv&quot;)
+df = pd.read_json(&quot;data.json&quot;)
+df = pd.read_excel(&quot;report.xlsx&quot;)           # needs openpyxl
+df = pd.read_sql(&quot;SELECT * FROM crew&quot;, conn)
+df = pd.read_html(&quot;https://example.com/table&quot;)[0]
+
+df.to_csv(&quot;clean.csv&quot;, index=False)
+df.to_json(&quot;clean.json&quot;, orient=&quot;records&quot;, indent=2)</code></pre>
+    <p>
+      That list is most of why pandas won: whatever the data is in, one line loads it, and one
+      line writes it back out as something else.
+    </p>
+
+    <h2>Selecting, filtering, sorting</h2>
+    <pre data-verify="compile"><code>import pandas as pd
+
+crew = pd.DataFrame({
+    &quot;name&quot;: [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;, &quot;Meathook&quot;],
+    &quot;role&quot;: [&quot;captain&quot;, &quot;governor&quot;, &quot;lookout&quot;, &quot;lookout&quot;],
+    &quot;pay&quot;: [100, 250, 40, 45],
+})
+
+print(crew[&quot;pay&quot;].sum())
+print(crew[crew[&quot;pay&quot;] &gt; 50])
+print(crew[(crew[&quot;role&quot;] == &quot;lookout&quot;) &amp; (crew[&quot;pay&quot;] &gt; 42)])
+print(crew.sort_values(&quot;pay&quot;, ascending=False).head(2))
+print(crew.loc[crew[&quot;name&quot;] == &quot;Otis&quot;, &quot;pay&quot;])</code></pre>
+    <div class="callout warn"><span class="co-title">🪤 & and |, not and and or</span><p>pandas filters compare whole columns at once, so Python's <code>and</code> (which wants a single true or false) raises <code>ValueError: The truth value of a Series is ambiguous</code>. Use <code>&amp;</code> and <code>|</code>, and put brackets around each condition, because they bind more tightly than <code>==</code>.</p></div>
+
+    <h2>Grouping: the operation you will use most</h2>
+    <pre data-verify="compile"><code>import pandas as pd
+
+sales = pd.DataFrame({
+    &quot;region&quot;: [&quot;North&quot;, &quot;South&quot;, &quot;North&quot;, &quot;South&quot;, &quot;East&quot;],
+    &quot;seller&quot;: [&quot;Elaine&quot;, &quot;Otis&quot;, &quot;Guybrush&quot;, &quot;Meathook&quot;, &quot;Stan&quot;],
+    &quot;amount&quot;: [1200, 340, 890, 1150, 4200],
+})
+
+print(sales.groupby(&quot;region&quot;)[&quot;amount&quot;].sum().sort_values(ascending=False))
+print(sales.groupby(&quot;region&quot;).agg(
+    total=(&quot;amount&quot;, &quot;sum&quot;),
+    average=(&quot;amount&quot;, &quot;mean&quot;),
+    sellers=(&quot;seller&quot;, &quot;count&quot;),
+))</code></pre>
+    <pre class="out"><code class="nohl">region
+East     4200
+North    2090
+South    1490
+Name: amount, dtype: int64
+
+        total  average  sellers
+region
+East     4200   4200.0        1
+North    2090   1045.0        2
+South    1490    745.0        2</code></pre>
+    <p>
+      Split by a key, apply a calculation, combine the results. It is the same idea as SQL's
+      GROUP BY and as the dictionary-of-lists grouping you wrote by hand in Lesson 15, and it
+      is the single most useful data operation there is.
+    </p>
+
+    <h2>Cleaning: where the real time goes</h2>
+    <pre data-verify="compile"><code>import pandas as pd
+import numpy as np
+
+messy = pd.DataFrame({
+    &quot;name&quot;: [&quot;  Guybrush &quot;, &quot;ELAINE&quot;, None, &quot;Otis&quot;],
+    &quot;pay&quot;: [&quot;100&quot;, &quot;250&quot;, &quot;40&quot;, &quot;not recorded&quot;],
+    &quot;joined&quot;: [&quot;1990-10-15&quot;, &quot;15/10/1990&quot;, None, &quot;1991-01-03&quot;],
+})
+
+clean = messy.copy()
+clean[&quot;name&quot;] = clean[&quot;name&quot;].str.strip().str.title()
+clean[&quot;pay&quot;] = pd.to_numeric(clean[&quot;pay&quot;], errors=&quot;coerce&quot;)
+clean[&quot;joined&quot;] = pd.to_datetime(clean[&quot;joined&quot;], format=&quot;mixed&quot;, errors=&quot;coerce&quot;)
+
+print(clean)
+print(clean.isna().sum())
+print(clean.dropna(subset=[&quot;name&quot;, &quot;pay&quot;]))</code></pre>
+    <p>
+      <code>errors="coerce"</code> turns anything unparseable into <code>NaN</code> rather than
+      raising, which lets you see the whole extent of the mess before deciding what to do about
+      it. <code>.isna().sum()</code> counts the gaps per column and is the second thing you
+      should run on any new dataset.
+    </p>
+
+    <div class="callout danger"><span class="co-title">🧭 Deciding what to do with missing data is analysis, not cleanup</span><p>Dropping rows with gaps can silently bias your result, because the rows with missing data are often not a random sample. Filling them with the mean invents data that was never observed. Both are sometimes right. Neither is a default, and whichever you choose belongs in your write-up.</p></div>
+
+    <h2>An honest worked example</h2>
+    <pre data-verify="compile"><code>import pandas as pd
+
+df = pd.DataFrame({
+    &quot;month&quot;: [&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;],
+    &quot;sales&quot;: [100, 120, 118, 135, 150, 900],
+})
+
+print(f&quot;mean:   {df[&#x27;sales&#x27;].mean():.1f}&quot;)
+print(f&quot;median: {df[&#x27;sales&#x27;].median():.1f}&quot;)
+
+# a rough outlier check before believing either number
+q1, q3 = df[&quot;sales&quot;].quantile([0.25, 0.75])
+iqr = q3 - q1
+outliers = df[(df[&quot;sales&quot;] &lt; q1 - 1.5 * iqr) | (df[&quot;sales&quot;] &gt; q3 + 1.5 * iqr)]
+print(outliers)</code></pre>
+    <pre class="out"><code class="nohl">mean:   253.8
+median: 127.5
+
+  month  sales
+5   Jun    900</code></pre>
+    <p>
+      The mean says business more than doubled. The median says it grew steadily. One
+      exceptional June is dragging the mean, and reporting it without saying so would be
+      technically true and actively misleading. Always look at the distribution before quoting
+      an average, and say which one you used.
+    </p>
+
+    <h2>The wider ecosystem</h2>
+    <div class="table-wrap"><table><thead><tr><th>Tool</th><th>For</th></tr></thead><tbody><tr><td><strong>NumPy</strong></td><td>Arrays and numerical computing. The foundation everything else sits on</td></tr><tr><td><strong>pandas</strong></td><td>Tables, cleaning, grouping, time series</td></tr><tr><td><strong>Polars</strong></td><td>A faster pandas alternative, written in Rust, excellent for large data</td></tr><tr><td><strong>matplotlib</strong> / <strong>seaborn</strong></td><td>Charts (Lesson 47)</td></tr><tr><td><strong>scikit-learn</strong></td><td>Classical machine learning: regression, clustering, classification</td></tr><tr><td><strong>SciPy</strong></td><td>Statistics, optimisation, signal processing</td></tr><tr><td><strong>Jupyter</strong></td><td>Notebooks: code, output and prose interleaved. The standard workspace</td></tr><tr><td><strong>DuckDB</strong></td><td>SQL directly over CSV and Parquet files, extremely fast</td></tr></tbody></table></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Do it without pandas first</h3><p>Using only the standard library, load this CSV, compute the total and mean per region, and print a sorted report. Then note how many lines pandas would have taken.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import csv
+from collections import defaultdict
+from pathlib import Path
+from statistics import mean
+
+Path(&quot;sales.csv&quot;).write_text(&quot;&quot;&quot;region,seller,amount
+North,Elaine,1200
+South,Otis,340
+North,Guybrush,890
+South,Meathook,1150
+East,Stan,4200
+&quot;&quot;&quot;, encoding=&quot;utf-8&quot;)
+
+amounts = defaultdict(list)
+with open(&quot;sales.csv&quot;, newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as f:
+    for row in csv.DictReader(f):
+        amounts[row[&quot;region&quot;]].append(int(row[&quot;amount&quot;]))
+
+for region, values in sorted(amounts.items(), key=lambda kv: sum(kv[1]), reverse=True):
+    print(f&quot;{region:6} total {sum(values):5,}  mean {mean(values):7,.1f}  n={len(values)}&quot;)</code></pre>
+<pre class="out"><code class="nohl">East   total 4,200  mean 4,200.0  n=1
+North  total 2,090  mean 1,045.0  n=2
+South  total 1,490  mean   745.0  n=2</code></pre><p>In pandas that is two lines: <code>pd.read_csv(...)</code> then <code>.groupby('region')['amount'].agg(['sum','mean','count'])</code>. Both are correct. Knowing the long version means you know what the short one is doing, and it means you can still work on a machine where you cannot install anything.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Spot the misleading analysis</h3><p>A report says: 'average customer spend rose from £40 to £95, a 137% increase.' What would you ask before believing it?</p><details class="solution"><summary>Reveal solution</summary><ul><li><strong>Mean or median?</strong> One enterprise customer can move a mean and leave the typical customer untouched.</li><li><strong>Did the denominator change?</strong> If you dropped your cheapest tier, average spend rises while revenue falls.</li><li><strong>Same population?</strong> Comparing all customers against active customers only is a different question.</li><li><strong>How many customers?</strong> A jump from 3 to 5 customers is not a trend.</li><li><strong>What is the distribution?</strong> Plot it. Two numbers cannot describe a shape.</li><li><strong>Inflation, seasonality, currency?</strong> Compare like with like.</li></ul><p>Every one of those is a question about the data, not about Python. The library will happily compute a beautifully precise wrong answer, and noticing that is the actual skill.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Install and explore</h3><p>On your own machine, install pandas and load something real: a CSV export from your bank, a spreadsheet, or an open dataset. Run these five lines before anything else.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import pandas as pd
+
+df = pd.read_csv(&quot;your-data.csv&quot;)
+
+print(df.shape)            # how much is there
+print(df.dtypes)           # did anything numeric load as text
+print(df.head())           # what does a row look like
+print(df.isna().sum())     # where are the gaps
+print(df.describe())       # ranges, and any impossible values</code></pre><p>That is the standard first contact with any dataset, and it routinely finds problems before you waste an hour analysing them: a date column loaded as text, a price column with a currency symbol making it a string, negative ages, or a column that is 90% empty.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-46-data">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="45-databases.html"><span class="dir">← Previous</span>Lesson 45: Databases with SQLite</a>
+      <a class="next" href="47-charts.html"><span class="dir">Next →</span>Lesson 47: Charts and Visualisation</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

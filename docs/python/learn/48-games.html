@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 48: Making Games - The Python School</title>
+<meta name="description" content="The game loop, pygame basics, sprites, collision, input handling, and text adventures with no libraries.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/48-games">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 48: Making Games - The Python School">
+<meta property="og:description" content="The game loop, pygame basics, sprites, collision, input handling, and text adventures with no libraries.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/48-games">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 48: Making Games - The Python School">
+<meta name="twitter:description" content="The game loop, pygame basics, sprites, collision, input handling, and text adventures with no libraries.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 48 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>Making Games 🎮</h1>
+    <p class="lede muted">Games are the best way to learn programming, because the feedback is instant and
+    the bugs are funny. Here is the loop that every game ever written is built on.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Every game, ever</h2>
+    <pre class="run" data-verify="run"><code>def game_loop():
+    &quot;&quot;&quot;The structure under Doom, Tetris and Elden Ring alike.&quot;&quot;&quot;
+    running = True
+    while running:
+        # 1. handle input      what did the player just do?
+        # 2. update state      move everything, apply rules, check collisions
+        # 3. draw              paint the current state
+        # 4. wait              hold a steady frame rate
+        running = False
+    return &quot;game over&quot;
+
+
+print(game_loop())</code></pre>
+<pre class="out"><code class="nohl">game over</code></pre>
+    <p>
+      That is it. Sixty times a second, forever. Everything else is detail, and the detail is
+      where the fun is.
+    </p>
+
+    <h2>A complete text adventure, no libraries</h2>
+    <pre class="run" data-verify="run"><code>ROOMS = {
+    &quot;beach&quot;: {
+        &quot;description&quot;: &quot;A beach. A rubber chicken lies in the sand.&quot;,
+        &quot;exits&quot;: {&quot;north&quot;: &quot;jungle&quot;},
+        &quot;items&quot;: [&quot;rubber chicken&quot;],
+    },
+    &quot;jungle&quot;: {
+        &quot;description&quot;: &quot;Thick jungle. Something rustles.&quot;,
+        &quot;exits&quot;: {&quot;south&quot;: &quot;beach&quot;, &quot;east&quot;: &quot;clearing&quot;},
+        &quot;items&quot;: [],
+    },
+    &quot;clearing&quot;: {
+        &quot;description&quot;: &quot;A clearing with a locked chest.&quot;,
+        &quot;exits&quot;: {&quot;west&quot;: &quot;jungle&quot;},
+        &quot;items&quot;: [&quot;chest&quot;],
+    },
+}
+
+
+def play(commands):
+    &quot;&quot;&quot;Run a scripted game so the example is reproducible.&quot;&quot;&quot;
+    here = &quot;beach&quot;
+    carrying = []
+    output = []
+
+    for command in commands:
+        room = ROOMS[here]
+        match command.lower().split():
+            case [&quot;look&quot;]:
+                output.append(room[&quot;description&quot;])
+                if room[&quot;items&quot;]:
+                    output.append(&quot;You see: &quot; + &quot;, &quot;.join(room[&quot;items&quot;]))
+            case [&quot;go&quot;, direction] if direction in room[&quot;exits&quot;]:
+                here = room[&quot;exits&quot;][direction]
+                output.append(f&quot;You go {direction}. {ROOMS[here][&#x27;description&#x27;]}&quot;)
+            case [&quot;go&quot;, direction]:
+                output.append(f&quot;You cannot go {direction} from here.&quot;)
+            case [&quot;take&quot;, *words] if &quot; &quot;.join(words) in room[&quot;items&quot;]:
+                item = &quot; &quot;.join(words)
+                room[&quot;items&quot;].remove(item)
+                carrying.append(item)
+                output.append(f&quot;Taken: {item}.&quot;)
+            case [&quot;inventory&quot;] | [&quot;i&quot;]:
+                output.append(&quot;Carrying: &quot; + (&quot;, &quot;.join(carrying) or &quot;nothing&quot;))
+            case _:
+                output.append(f&quot;I do not understand {command!r}.&quot;)
+
+    return output
+
+
+for line in play([&quot;look&quot;, &quot;take rubber chicken&quot;, &quot;inventory&quot;, &quot;go north&quot;, &quot;go up&quot;, &quot;look&quot;]):
+    print(line)</code></pre>
+<pre class="out"><code class="nohl">A beach. A rubber chicken lies in the sand.
+You see: rubber chicken
+Taken: rubber chicken.
+Carrying: rubber chicken
+You go north. Thick jungle. Something rustles.
+You cannot go up from here.
+Thick jungle. Something rustles.</code></pre>
+    <p>
+      Dictionaries for the world, <code>match</code> for the parser, a list for the inventory.
+      Every technique in there came from Levels 2 and 4, and this is a real game. The workshop
+      builds it out properly with saving, locked doors and a win condition.
+    </p>
+
+    <h2>pygame: actual graphics</h2>
+    <pre data-verify="compile"><code>import pygame      # pip install pygame-ce
+
+WIDTH, HEIGHT = 640, 480
+PLAYER_SPEED = 300      # pixels per second, not per frame
+
+
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption(&quot;Escape from Melee Island&quot;)
+    clock = pygame.time.Clock()
+    font = pygame.font.SysFont(None, 28)
+
+    player = pygame.Rect(WIDTH // 2, HEIGHT // 2, 32, 32)
+    treasure = pygame.Rect(500, 100, 24, 24)
+    score = 0
+    running = True
+
+    while running:
+        delta = clock.tick(60) / 1000        # seconds since the last frame
+
+        # 1. input
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                running = False
+
+        keys = pygame.key.get_pressed()
+        dx = (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * PLAYER_SPEED * delta
+        dy = (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * PLAYER_SPEED * delta
+
+        # 2. update
+        player.x = max(0, min(WIDTH - player.width, player.x + int(dx)))
+        player.y = max(0, min(HEIGHT - player.height, player.y + int(dy)))
+
+        if player.colliderect(treasure):
+            score += 1
+            treasure.topleft = (
+                (treasure.x * 7 + 113) % (WIDTH - 24),
+                (treasure.y * 5 + 71) % (HEIGHT - 24),
+            )
+
+        # 3. draw
+        screen.fill((18, 22, 27))
+        pygame.draw.rect(screen, (255, 222, 87), treasure)
+        pygame.draw.rect(screen, (69, 132, 182), player)
+        screen.blit(font.render(f&quot;Treasure: {score}&quot;, True, (233, 238, 244)), (10, 10))
+        pygame.display.flip()
+
+    pygame.quit()
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre>
+
+    <div class="callout tip"><span class="co-title">⏱️ Multiply movement by delta time</span><p><code>player.x += 5</code> moves five pixels per <em>frame</em>, so the game runs at double speed on a 120Hz monitor. <code>speed * delta</code> moves a fixed distance per <em>second</em>, so it behaves identically everywhere. This is the single most common beginner bug in game programming, and it is why old PC games become unplayable on modern hardware.</p></div>
+
+    <h2>Sprites and groups</h2>
+    <pre data-verify="compile"><code>import pygame
+
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((16, 16))
+        self.image.fill((255, 222, 87))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.bob = 0.0
+
+    def update(self, delta):
+        self.bob += delta
+        self.rect.y += int(2 * (self.bob % 1 &lt; 0.5) - 1)
+
+
+coins = pygame.sprite.Group(Coin(100, 100), Coin(200, 150))
+
+# in the loop:
+#   coins.update(delta)
+#   coins.draw(screen)
+#   collected = pygame.sprite.spritecollide(player_sprite, coins, dokill=True)</code></pre>
+    <p>
+      <code>Sprite</code> and <code>Group</code> are pygame's answer to "I now have four
+      hundred coins". A group updates and draws everything in one call, and
+      <code>spritecollide</code> handles the collisions. This is the point where the classes
+      from Lesson 31 stop being an exercise and start being load-bearing.
+    </p>
+
+    <h2>The wider landscape</h2>
+    <div class="table-wrap"><table><thead><tr><th>Tool</th><th>Best for</th><th>Note</th></tr></thead><tbody><tr><td><strong>pygame-ce</strong></td><td>2D games, learning, jams</td><td>The maintained community fork. Use this, not the original pygame</td></tr><tr><td><strong>Arcade</strong></td><td>2D with a more modern API</td><td>Built on OpenGL, nice sprite handling</td></tr><tr><td><strong>Pyxel</strong></td><td>Tiny retro games</td><td>16 colours, 4 channels, delightful constraints</td></tr><tr><td><strong>Ren'Py</strong></td><td>Visual novels</td><td>A whole engine, and genuinely popular commercially</td></tr><tr><td><strong>Godot</strong></td><td>Serious 2D and 3D</td><td>GDScript is Python-like; a real engine with an editor</td></tr><tr><td><strong>Bevy</strong> (Rust)</td><td>Performance-critical games</td><td>The <a href='../../learn/index.html'>sister school</a> covers it</td></tr></tbody></table></div>
+
+    <div class="voice" data-skill="drama"><div class="v-head"><span class="v-name">DRAMA</span><span class="v-check success">[Medium: Success]</span></div><p>Let us be honest with the student. Nobody ships a commercial 3D game in Python, and pretending otherwise would be a disservice.</p>
+<p>But Python is arguably the best language in existence for <em>learning</em> game programming, and for game jams, prototypes and tools. Every studio has Python somewhere in its pipeline. And a finished small game teaches more than an unfinished large one, in any language.</p></div>
+
+    <h2>Finishing a game is the hard part</h2>
+    <ul>
+      <li><strong>Make the smallest playable thing first.</strong> One screen, one mechanic. If
+      it is not fun with rectangles, art will not save it.</li>
+      <li><strong>Playtest early on someone else.</strong> Watch without helping. Everything
+      they struggle with is your bug, not theirs.</li>
+      <li><strong>Scope down twice.</strong> Then again. Almost every unfinished hobby game
+      died of ambition.</li>
+      <li><strong>Ship it.</strong> A tiny finished game beats a magnificent unfinished one,
+      every single time.</li>
+    </ul>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Add a feature to the adventure</h3><p>Add a locked chest that opens only if the player is carrying a key, with a key hidden in the jungle.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>ROOMS = {
+    &quot;jungle&quot;: {&quot;description&quot;: &quot;Thick jungle.&quot;, &quot;exits&quot;: {&quot;east&quot;: &quot;clearing&quot;},
+               &quot;items&quot;: [&quot;rusty key&quot;]},
+    &quot;clearing&quot;: {&quot;description&quot;: &quot;A clearing with a locked chest.&quot;, &quot;exits&quot;: {&quot;west&quot;: &quot;jungle&quot;},
+                 &quot;items&quot;: []},
+}
+
+CHEST_OPEN = False
+
+
+def play(commands):
+    global CHEST_OPEN
+    here = &quot;jungle&quot;
+    carrying = []
+    output = []
+
+    for command in commands:
+        room = ROOMS[here]
+        match command.lower().split():
+            case [&quot;take&quot;, *words] if &quot; &quot;.join(words) in room[&quot;items&quot;]:
+                item = &quot; &quot;.join(words)
+                room[&quot;items&quot;].remove(item)
+                carrying.append(item)
+                output.append(f&quot;Taken: {item}.&quot;)
+            case [&quot;go&quot;, direction] if direction in room[&quot;exits&quot;]:
+                here = room[&quot;exits&quot;][direction]
+                output.append(f&quot;You go {direction}.&quot;)
+            case [&quot;open&quot;, &quot;chest&quot;] if here != &quot;clearing&quot;:
+                output.append(&quot;There is no chest here.&quot;)
+            case [&quot;open&quot;, &quot;chest&quot;] if &quot;rusty key&quot; not in carrying:
+                output.append(&quot;The chest is locked. You have no key.&quot;)
+            case [&quot;open&quot;, &quot;chest&quot;]:
+                CHEST_OPEN = True
+                output.append(&quot;The key turns. Inside: the Secret of Monkey Island.&quot;)
+            case _:
+                output.append(f&quot;You cannot do that.&quot;)
+
+    return output
+
+
+for line in play([&quot;open chest&quot;, &quot;go east&quot;, &quot;open chest&quot;, &quot;go west&quot;,
+                  &quot;take rusty key&quot;, &quot;go east&quot;, &quot;open chest&quot;]):
+    print(line)</code></pre>
+<pre class="out"><code class="nohl">There is no chest here.
+You go east.
+The chest is locked. You have no key.
+You go west.
+Taken: rusty key.
+You go east.
+The key turns. Inside: the Secret of Monkey Island.</code></pre><p>Note the order of the <code>case</code> clauses: the most specific guard first. Put the unguarded <code>open chest</code> earlier and it would swallow the other two, which is the same ordering trap as FizzBuzz in Lesson 7.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Design a game loop on paper</h3><p>For a game of Pong, write out what happens in each of the four loop phases.</p><details class="solution"><summary>Reveal solution</summary><pre class="out"><code class="nohl">1. INPUT
+   read up/down keys for player 1 and player 2 (or read the AI&#x27;s decision)
+   check for quit and pause
+
+2. UPDATE
+   move paddles by speed * delta, clamped to the screen
+   move ball by velocity * delta
+   if ball hits top or bottom wall: invert vertical velocity
+   if ball overlaps a paddle: invert horizontal velocity, add spin from
+       paddle movement, increase speed slightly
+   if ball passes the left or right edge: award a point, reset to centre,
+       serve towards the player who conceded
+   if either score reaches 11: state = game over
+
+3. DRAW
+   clear the screen
+   draw both paddles, the ball, the centre line, both scores
+   if game over: draw the winner and &#x27;press space&#x27;
+   flip the buffer
+
+4. WAIT
+   clock.tick(60), and capture delta for the next frame</code></pre><p>Writing this out before coding is worth twenty minutes. Nearly every difficult game bug is really an ordering problem: collision checked before movement, or the score checked after the reset.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Fix the frame-rate bug</h3><p>This game is unplayably fast on one machine and sluggish on another.</p><pre data-verify="skip"><code>while running:
+    clock.tick(60)
+    player.x += 5
+    enemy.y += 2</code></pre><details class="solution"><summary>Reveal solution</summary><pre data-verify="skip"><code>while running:
+    delta = clock.tick(60) / 1000        # seconds since the last frame
+
+    player.x += PLAYER_SPEED * delta     # pixels per second
+    enemy.y += ENEMY_SPEED * delta</code></pre><p><code>clock.tick(60)</code> caps the frame rate but cannot guarantee it: a slow machine drops to 30fps and everything moves at half speed, while an uncapped 144Hz display runs at more than double. Multiplying by elapsed time makes movement depend on the clock rather than on the hardware.</p><p>The same principle applies to every animation, physics step and timer in any real-time program, not just games.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-48-games">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="47-charts.html"><span class="dir">← Previous</span>Lesson 47: Charts and Visualisation</a>
+      <a class="next" href="49-desktop.html"><span class="dir">Next →</span>Lesson 49: Desktop Applications</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

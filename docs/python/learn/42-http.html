@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 42: The Web: HTTP and APIs - The Python School</title>
+<meta name="description" content="How HTTP works, using requests, status codes, headers, authentication, JSON APIs and rate limits.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/42-http">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 42: The Web: HTTP and APIs - The Python School">
+<meta property="og:description" content="How HTTP works, using requests, status codes, headers, authentication, JSON APIs and rate limits.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/42-http">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 42: The Web: HTTP and APIs - The Python School">
+<meta name="twitter:description" content="How HTTP works, using requests, status codes, headers, authentication, JSON APIs and rate limits.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 42 of 52</nav>
+    <span class="badge l5">Level 5 · In the Wild</span>
+    <h1>The Web: HTTP and APIs 🌐</h1>
+    <p class="lede muted">Talking to other people's servers is where Python stops being a language you are
+    learning and starts being a tool that does things.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>What actually happens</h2>
+    <p>
+      Your program opens a connection, sends a small block of text describing what it wants,
+      and gets a small block of text back with the answer attached. That is HTTP. It is
+      genuinely this simple.
+    </p>
+    <pre class="out"><code class="nohl">GET /repos/python/cpython HTTP/1.1
+Host: api.github.com
+Accept: application/json
+User-Agent: python-school-example
+
+--- and the reply ---
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+X-RateLimit-Remaining: 59
+
+{&quot;name&quot;: &quot;cpython&quot;, &quot;stargazers_count&quot;: 63000, ...}</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Method</th><th>Means</th><th>Should it change anything?</th></tr></thead><tbody><tr><td><code>GET</code></td><td>give me this</td><td>No. Safe to repeat</td></tr><tr><td><code>POST</code></td><td>here is something new</td><td>Yes. Repeating creates duplicates</td></tr><tr><td><code>PUT</code></td><td>replace this entirely</td><td>Yes, but repeating is harmless</td></tr><tr><td><code>PATCH</code></td><td>change part of this</td><td>Yes</td></tr><tr><td><code>DELETE</code></td><td>remove this</td><td>Yes, and repeating is usually harmless</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Status</th><th>Family</th><th>Means</th></tr></thead><tbody><tr><td><code>200</code>, <code>201</code>, <code>204</code></td><td>2xx success</td><td>It worked</td></tr><tr><td><code>301</code>, <code>302</code>, <code>304</code></td><td>3xx redirect</td><td>Look elsewhere, or you already have it</td></tr><tr><td><code>400</code></td><td>4xx your fault</td><td>Malformed request</td></tr><tr><td><code>401</code> / <code>403</code></td><td></td><td>Not authenticated / not allowed</td></tr><tr><td><code>404</code></td><td></td><td>No such thing</td></tr><tr><td><code>429</code></td><td></td><td>Slow down, you are rate limited</td></tr><tr><td><code>500</code>, <code>502</code>, <code>503</code></td><td>5xx their fault</td><td>Their server broke. Retrying may help</td></tr></tbody></table></div>
+
+    <h2>requests, the one everyone uses</h2>
+    <pre data-verify="compile"><code>import requests
+
+response = requests.get(&quot;https://api.github.com/repos/python/cpython&quot;, timeout=10)
+
+print(response.status_code)
+print(response.headers[&quot;content-type&quot;])
+
+data = response.json()
+print(data[&quot;full_name&quot;], &quot;has&quot;, data[&quot;stargazers_count&quot;], &quot;stars&quot;)</code></pre>
+    <p>
+      No run button on this lesson's network examples: the school's in-browser Python has no
+      network access, deliberately. Install <code>requests</code> in a virtual environment
+      (Lesson 26) and run these on your own machine.
+    </p>
+
+    <h2>Doing it properly</h2>
+    <pre data-verify="compile"><code>import requests
+
+
+def fetch_repo(owner: str, name: str) -&gt; dict:
+    &quot;&quot;&quot;Fetch one repository, raising a clear error on failure.&quot;&quot;&quot;
+    url = f&quot;https://api.github.com/repos/{owner}/{name}&quot;
+    response = requests.get(
+        url,
+        headers={
+            &quot;Accept&quot;: &quot;application/vnd.github+json&quot;,
+            &quot;User-Agent&quot;: &quot;python-school-example&quot;,
+        },
+        timeout=10,
+    )
+    response.raise_for_status()      # turns 4xx and 5xx into an exception
+    return response.json()
+
+
+try:
+    repo = fetch_repo(&quot;python&quot;, &quot;cpython&quot;)
+    print(repo[&quot;description&quot;])
+except requests.HTTPError as err:
+    print(f&quot;HTTP {err.response.status_code}: {err.response.reason}&quot;)
+except requests.Timeout:
+    print(&quot;the server took too long&quot;)
+except requests.RequestException as err:
+    print(f&quot;network problem: {err}&quot;)</code></pre>
+    <div class="callout danger"><span class="co-title">⏱️ Always pass a timeout</span><p><code>requests</code> waits <strong>forever</strong> by default. One unresponsive server will hang your program until someone kills it. Every single request in production code should have a timeout, and ten seconds is a reasonable starting guess.</p></div>
+
+    <h2>Query parameters, headers and POST</h2>
+    <pre data-verify="compile"><code>import requests
+
+# query string, built and escaped for you
+response = requests.get(
+    &quot;https://api.github.com/search/repositories&quot;,
+    params={&quot;q&quot;: &quot;language:python stars:&gt;10000&quot;, &quot;sort&quot;: &quot;stars&quot;, &quot;per_page&quot;: 5},
+    timeout=10,
+)
+
+for repo in response.json()[&quot;items&quot;]:
+    print(f&quot;{repo[&#x27;stargazers_count&#x27;]:&gt;7,}  {repo[&#x27;full_name&#x27;]}&quot;)
+
+# sending JSON
+created = requests.post(
+    &quot;https://httpbin.org/post&quot;,
+    json={&quot;name&quot;: &quot;Guybrush&quot;, &quot;role&quot;: &quot;captain&quot;},
+    timeout=10,
+)
+print(created.json()[&quot;json&quot;])
+
+# a form, and a file
+requests.post(&quot;https://httpbin.org/post&quot;, data={&quot;field&quot;: &quot;value&quot;}, timeout=10)</code></pre>
+    <p>
+      Use <code>params=</code> rather than gluing a query string together yourself: it escapes
+      spaces and symbols correctly. <code>json=</code> sets the content type and encodes the
+      body; <code>data=</code> sends a form instead.
+    </p>
+
+    <h2>Authentication, and keeping the key out of your code</h2>
+    <pre data-verify="compile"><code>import os
+import requests
+
+API_KEY = os.environ.get(&quot;WEATHER_API_KEY&quot;)
+if not API_KEY:
+    raise SystemExit(&quot;Set WEATHER_API_KEY first. Never hard-code it.&quot;)
+
+response = requests.get(
+    &quot;https://api.example.com/v1/forecast&quot;,
+    headers={&quot;Authorization&quot;: f&quot;Bearer {API_KEY}&quot;},
+    timeout=10,
+)</code></pre>
+    <pre data-verify="skip"><code># .env  (and add .env to .gitignore, today, before you forget)
+WEATHER_API_KEY=abc123
+GITHUB_TOKEN=ghp_xxxxxxxx</code></pre>
+    <pre data-verify="compile"><code>from dotenv import load_dotenv      # pip install python-dotenv
+import os
+
+load_dotenv()
+key = os.environ[&quot;WEATHER_API_KEY&quot;]</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Legendary: Success]</span></div><p>A committed API key is not a small mistake. Bots scan every public commit on GitHub within seconds of it being pushed, and cloud keys have generated five figure bills overnight.</p>
+<p>Environment variables, a .env file that is gitignored, and the knowledge that git history is forever: deleting the key in a later commit does not remove it. If you ever push one, revoke it immediately. Not later. Immediately.</p></div>
+
+    <h2>Sessions: faster, and less repetition</h2>
+    <pre data-verify="compile"><code>import requests
+
+with requests.Session() as session:
+    session.headers.update({
+        &quot;User-Agent&quot;: &quot;python-school-example&quot;,
+        &quot;Accept&quot;: &quot;application/json&quot;,
+    })
+
+    for name in [&quot;cpython&quot;, &quot;peps&quot;]:
+        response = session.get(f&quot;https://api.github.com/repos/python/{name}&quot;, timeout=10)
+        if response.ok:
+            print(name, response.json()[&quot;stargazers_count&quot;])</code></pre>
+    <p>
+      A session reuses the underlying TCP connection, which makes repeated calls to the same
+      host noticeably faster, and lets you set headers and cookies once. Use one whenever you
+      make more than a single request.
+    </p>
+
+    <h2>Being a good citizen</h2>
+    <pre data-verify="compile"><code>import time
+import requests
+
+
+def fetch_all(urls, session, delay=0.5, max_retries=3):
+    &quot;&quot;&quot;Fetch every URL politely: rate limited, with retries and backoff.&quot;&quot;&quot;
+    results = []
+
+    for url in urls:
+        for attempt in range(1, max_retries + 1):
+            response = session.get(url, timeout=10)
+
+            if response.status_code == 429:
+                wait = int(response.headers.get(&quot;Retry-After&quot;, 2 ** attempt))
+                print(f&quot;rate limited, waiting {wait}s&quot;)
+                time.sleep(wait)
+                continue
+
+            if response.status_code &gt;= 500:
+                wait = 2 ** attempt
+                print(f&quot;server error, retrying in {wait}s&quot;)
+                time.sleep(wait)
+                continue
+
+            response.raise_for_status()
+            results.append(response.json())
+            break
+        else:
+            print(f&quot;giving up on {url}&quot;)
+
+        time.sleep(delay)
+
+    return results</code></pre>
+    <ul>
+      <li><strong>Honour 429 and Retry-After.</strong> Ignoring them gets your key banned.</li>
+      <li><strong>Back off exponentially</strong> on server errors: 1s, 2s, 4s. Hammering a
+      struggling server is how a small outage becomes a large one.</li>
+      <li><strong>Never retry a POST blindly.</strong> You may create the same order twice.</li>
+      <li><strong>Identify yourself</strong> in the User-Agent. Some APIs require it, and it
+      lets an operator contact you instead of blocking you.</li>
+    </ul>
+
+    <h2>Without any packages at all</h2>
+    <pre data-verify="compile"><code>import json
+import urllib.request
+
+request = urllib.request.Request(
+    &quot;https://api.github.com/repos/python/cpython&quot;,
+    headers={&quot;User-Agent&quot;: &quot;python-school-example&quot;},
+)
+
+with urllib.request.urlopen(request, timeout=10) as response:
+    data = json.loads(response.read().decode(&quot;utf-8&quot;))
+
+print(data[&quot;name&quot;])</code></pre>
+    <p>
+      <code>urllib</code> is in the standard library and needs nothing installed, which matters
+      on a locked-down machine or in a tiny container. It is clumsier than
+      <code>requests</code> for anything complicated, which is exactly why
+      <code>requests</code> is the most downloaded package on PyPI.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Read an API's documentation</h3><p>Pick a free API with no key required: <code>https://api.github.com</code>, <code>https://pokeapi.co</code>, or <code>https://api.open-meteo.com</code>. Fetch something, print three fields, and handle a 404 gracefully.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import requests
+
+
+def get_pokemon(name: str) -&gt; dict | None:
+    &quot;&quot;&quot;Fetch one pokemon, or None if there is no such thing.&quot;&quot;&quot;
+    response = requests.get(f&quot;https://pokeapi.co/api/v2/pokemon/{name.lower()}&quot;, timeout=10)
+    if response.status_code == 404:
+        return None
+    response.raise_for_status()
+    return response.json()
+
+
+for name in [&quot;pikachu&quot;, &quot;guybrush&quot;]:
+    data = get_pokemon(name)
+    if data is None:
+        print(f&quot;{name}: no such pokemon&quot;)
+        continue
+    types = &quot;, &quot;.join(t[&quot;type&quot;][&quot;name&quot;] for t in data[&quot;types&quot;])
+    print(f&quot;{data[&#x27;name&#x27;]}: {data[&#x27;height&#x27;]}dm, {data[&#x27;weight&#x27;]}hg, type {types}&quot;)</code></pre><p>Treating 404 as a normal answer rather than an error is a real design decision. 'Not found' is information; letting it raise makes every caller wrap the call in a try block.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Cache the responses</h3><p>Extend the fetch so repeated calls for the same thing read from a local JSON file instead of hitting the network.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>import json
+from pathlib import Path
+
+import requests
+
+CACHE = Path(&quot;api-cache&quot;)
+
+
+def fetch_cached(name: str, max_age_calls: int = 1) -&gt; dict:
+    &quot;&quot;&quot;Fetch a pokemon, using a local cache file when one exists.&quot;&quot;&quot;
+    CACHE.mkdir(exist_ok=True)
+    cache_file = CACHE / f&quot;{name.lower()}.json&quot;
+
+    if cache_file.exists():
+        print(f&quot;  (cache hit: {name})&quot;)
+        return json.loads(cache_file.read_text(encoding=&quot;utf-8&quot;))
+
+    response = requests.get(f&quot;https://pokeapi.co/api/v2/pokemon/{name.lower()}&quot;, timeout=10)
+    response.raise_for_status()
+    data = response.json()
+
+    cache_file.write_text(json.dumps(data), encoding=&quot;utf-8&quot;)
+    print(f&quot;  (fetched and cached: {name})&quot;)
+    return data</code></pre><p>Caching is politeness as well as speed: it is the single most effective way to stay inside a rate limit while developing, because the twentieth run of your script costs the API nothing. Real caches also need expiry, which is where the famous joke about cache invalidation comes from.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Read the status code table again</h3><p>Your script starts returning 403. What are the three most likely causes, and how would you tell them apart?</p><details class="solution"><summary>Reveal solution</summary><ol><li><strong>A missing or wrong key.</strong> Check whether the same URL works unauthenticated, and print the response body: most APIs explain the refusal in JSON.</li><li><strong>Rate limiting dressed as 403.</strong> GitHub does exactly this for unauthenticated requests. Look for <code>X-RateLimit-Remaining: 0</code> in the response headers.</li><li><strong>A missing User-Agent or a blocked one.</strong> Several APIs and most CDNs reject default Python user agents outright.</li></ol><p>The general lesson: when a request fails, print <code>response.status_code</code>, <code>response.headers</code> and <code>response.text</code> before guessing. The answer is nearly always sitting in the response you did not read.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-42-http">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="41-automation.html"><span class="dir">← Previous</span>Lesson 41: Automating the Boring Things</a>
+      <a class="next" href="43-scraping.html"><span class="dir">Next →</span>Lesson 43: Web Scraping</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
