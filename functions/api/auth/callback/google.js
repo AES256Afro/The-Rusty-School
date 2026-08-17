@@ -3,27 +3,35 @@
 // (name and picture; we never request the email), and open a session.
 
 import {
-  redirect,
   parseCookies,
   clearCookieHeader,
   signIn,
   STATE_COOKIE,
+  RETURN_COOKIE,
+  returnPath,
 } from "../../_lib.js";
 
-function fail(reason, detail) {
+function fail(reason, detail, dest) {
   const params = new URLSearchParams({ error: reason, from: "google" });
   if (detail) {
     params.set("detail", String(detail).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 40));
   }
-  return redirect("/account.html?" + params.toString(), {
-    "Set-Cookie": clearCookieHeader(STATE_COOKIE, "/api/auth"),
+  return new Response(null, {
+    status: 302,
+    headers: [
+      ["Location", (dest || "/account.html") + "?" + params.toString()],
+      ["Set-Cookie", clearCookieHeader(STATE_COOKIE, "/api/auth")],
+      ["Set-Cookie", clearCookieHeader(RETURN_COOKIE, "/api/auth")],
+    ],
   });
 }
 
 export async function onRequestGet(context) {
   const { request, env } = context;
+  // Which school started this sign-in? Set on the way out, read here.
+  const dest = returnPath(parseCookies(request)[RETURN_COOKIE]);
   if (!env.DB || !env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
-    return fail("google-not-configured");
+    return fail("google-not-configured", null, dest);
   }
 
   const url = new URL(request.url);
@@ -31,7 +39,7 @@ export async function onRequestGet(context) {
   const state = url.searchParams.get("state");
   const expected = parseCookies(request)[STATE_COOKIE];
   if (!code || !state || !expected || state !== expected) {
-    return fail("state-mismatch");
+    return fail("state-mismatch", null, dest);
   }
 
   const tokenResp = await fetch("https://oauth2.googleapis.com/token", {
@@ -47,7 +55,7 @@ export async function onRequestGet(context) {
   });
   const tokenData = await tokenResp.json().catch(() => ({}));
   if (!tokenData.access_token) {
-    return fail("token-exchange-failed", tokenData.error || tokenResp.status);
+    return fail("token-exchange-failed", tokenData.error || tokenResp.status, dest);
   }
 
   const profileResp = await fetch(
@@ -55,7 +63,7 @@ export async function onRequestGet(context) {
     { headers: { Authorization: "Bearer " + tokenData.access_token } }
   );
   const profile = await profileResp.json().catch(() => ({}));
-  if (!profile.sub) return fail("profile-fetch-failed");
+  if (!profile.sub) return fail("profile-fetch-failed", null, dest);
 
   const sessionCookie = await signIn(
     env,
@@ -68,9 +76,10 @@ export async function onRequestGet(context) {
   return new Response(null, {
     status: 302,
     headers: [
-      ["Location", "/account.html?welcome=1"],
+      ["Location", dest + "?welcome=1"],
       ["Set-Cookie", sessionCookie],
       ["Set-Cookie", clearCookieHeader(STATE_COOKIE, "/api/auth")],
+      ["Set-Cookie", clearCookieHeader(RETURN_COOKIE, "/api/auth")],
     ],
   });
 }

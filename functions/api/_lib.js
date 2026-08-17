@@ -11,7 +11,33 @@
 export const LESSON_ID = /^[a-z0-9][a-z0-9-]{1,39}$/;
 export const SESSION_COOKIE = "rusty_session";
 export const STATE_COOKIE = "rusty_oauth_state";
+export const RETURN_COOKIE = "rusty_oauth_from";
 export const SESSION_DAYS = 90;
+
+// A learner who finishes both schools has 188 completions today (28 Rust
+// lessons + 9 projects + 36 dojo puzzles, 68 Python lessons + 10 projects
+// + 37 pit puzzles), and the campus is still growing. The cap exists to
+// bound a malicious payload, not to bound a real student, so it needs
+// obvious headroom above the largest honest total.
+export const MAX_PROGRESS_IDS = 2000;
+
+// Where to send someone after they sign in. An allowlist rather than a
+// free-form return path, so this can never become an open redirect: the
+// only thing that crosses the OAuth round trip is a short key.
+const RETURN_DESTINATIONS = {
+  python: "/python/account.html",
+  rust: "/account.html",
+};
+
+export function returnKey(value) {
+  return Object.prototype.hasOwnProperty.call(RETURN_DESTINATIONS, value)
+    ? value
+    : "rust";
+}
+
+export function returnPath(key) {
+  return RETURN_DESTINATIONS[returnKey(key)];
+}
 
 export function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
@@ -108,8 +134,8 @@ export function safeParseProgress(text) {
   try {
     const p = JSON.parse(text || "{}");
     return {
-      done: Array.isArray(p.done) ? p.done.filter((x) => LESSON_ID.test(String(x))).slice(0, 200) : [],
-      counted: Array.isArray(p.counted) ? p.counted.filter((x) => LESSON_ID.test(String(x))).slice(0, 200) : [],
+      done: Array.isArray(p.done) ? p.done.filter((x) => LESSON_ID.test(String(x))).slice(0, MAX_PROGRESS_IDS) : [],
+      counted: Array.isArray(p.counted) ? p.counted.filter((x) => LESSON_ID.test(String(x))).slice(0, MAX_PROGRESS_IDS) : [],
       quizBest: sanitizeQuizBest(p.quizBest),
     };
   } catch {

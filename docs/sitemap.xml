@@ -236,6 +236,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://rustyschool.com/python/account</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://rustyschool.com/python/achievements</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

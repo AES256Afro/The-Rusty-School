@@ -605,6 +605,107 @@ def playground() -> str:
 
 
 # ------------------------------------------------------------------ achievements
+def account() -> str:
+    """The Python School's account page.
+
+    Deliberately the same flow as the Rusty School's: one campus, one
+    session, one database row. Signing in here signs you in there, and
+    the OAuth round trip carries a `from=python` marker so you land back
+    on this page rather than being dumped at the other school's door.
+    """
+    body = """
+  <section class="lesson-header">
+    <span class="kicker">Optional, always</span>
+    <h1>Your <span class="grad">account</span> 🎒</h1>
+    <p class="lede muted">
+      The school works perfectly without one. Your progress lives in this browser and
+      signing in is <strong>never required</strong>. Sign in only if you want your lessons,
+      puzzles, XP and quiz scores to follow you between devices. Nothing is harvested,
+      profiled or sold, we store almost nothing, and you can see, download or erase all of
+      it right here. The details are in the
+      <a href="../privacy.html">one-page privacy promise</a>.
+    </p>
+  </section>
+
+  <div id="account-root" class="section" style="padding-top:6px">
+    <div class="card"><p class="muted">Checking your session…</p></div>
+  </div>
+
+  <!-- Signed-out view -->
+  <template id="tpl-signed-out">
+    <div class="card" style="max-width:560px">
+      <h3 style="margin-top:0">Sign in to sync</h3>
+      <p class="muted small">
+        We ask your provider for the bare minimum: a display name and a picture.
+        No email, no contacts, no posting rights, no permission to read anything of yours.
+      </p>
+      <div class="cta-row" id="provider-buttons"></div>
+      <p class="muted small" id="provider-note" hidden>
+        Sign-in is being set up and is not live quite yet. Your progress is safe in this
+        browser meanwhile. 🐍
+      </p>
+      <p class="muted small" id="auth-error" hidden></p>
+    </div>
+  </template>
+
+  <!-- Signed-in view -->
+  <template id="tpl-signed-in">
+    <div class="card" style="max-width:560px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <img id="acct-avatar" alt="" style="width:56px;height:56px;border-radius:50%;background:var(--surface-2)">
+        <div>
+          <h3 style="margin:0" id="acct-name"></h3>
+          <p class="muted small" style="margin:2px 0 0">signed in with <span id="acct-provider"></span></p>
+        </div>
+      </div>
+      <p style="margin-top:16px" id="acct-progress"></p>
+      <p class="muted small" id="acct-sync-note"></p>
+      <div class="cta-row">
+        <a class="btn btn-ghost btn-small" href="learn/index.html">Continue learning →</a>
+        <a class="btn btn-ghost btn-small" href="/api/me/export">Download my data</a>
+        <button class="btn btn-ghost btn-small" id="btn-signout" type="button">Sign out</button>
+      </div>
+      <hr class="soft" style="margin:22px 0">
+      <p class="muted small">
+        Deleting your account erases your name, picture and synced progress from our
+        database immediately and permanently. Progress saved in your browsers stays in
+        those browsers.
+      </p>
+      <button class="btn btn-ghost btn-small" id="btn-delete" type="button" style="border-color:var(--red);color:var(--red)">
+        Delete my account
+      </button>
+    </div>
+  </template>
+
+  <div class="callout info" style="max-width:560px">
+    <span class="co-title">🎓 One account, both schools</span>
+    This is the same account as the <a href="../account.html">Rusty School's</a>. Sign in at
+    either and your progress follows you to the other: finished lessons, solved puzzles,
+    best quiz scores, milestones, XP and achievements. There is even an achievement
+    (Bilingual 🦀) for learning at both.
+  </div>
+
+  <div class="callout" style="max-width:560px">
+    <span class="co-title">📦 What syncing actually includes</span>
+    Completed lessons and puzzles, best quiz scores, and which completions were already
+    counted toward the public banner, so moving between devices never double-counts.
+    That is the entire list. Your playground code never leaves your browser, because the
+    Python in this school runs <em>in</em> your browser.
+  </div>
+"""
+    return page(
+        path="account.html",
+        title=f"Your account - {SCHOOL}",
+        description=(
+            "Optional sign-in for the Python School: sync your lessons, puzzles and quiz "
+            "scores across devices. No email collected, and you can erase everything."
+        ),
+        body=body,
+        canonical=SITE + "/python/account",
+        main_class="container narrow",
+    )
+
+
 def achievements() -> str:
     body = """
   <section class="lesson-header">
@@ -632,7 +733,7 @@ def achievements() -> str:
   <div class="callout info" style="margin-top:26px">
     <span class="co-title">🔒 Where this is stored</span>
     In your browser, in localStorage, like everything else here. If you
-    <a href="../account.html">sign in</a> (optional, GitHub or Google, no email collected)
+    <a href="account.html">sign in</a> (optional, GitHub or Google, no email collected)
     it follows you between devices and between both schools on this campus. If you never
     sign in, nothing about you is ever sent anywhere.
   </div>

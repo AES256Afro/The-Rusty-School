@@ -146,6 +146,7 @@ def build_all() -> list[tuple[str, str]]:
     out.append(("setup.html", pages.setup()))
     out.append(("playground.html", pages.playground()))
     out.append(("achievements.html", pages.achievements()))
+    out.append(("account.html", pages.account()))
     out.append(("pit.html", pit.build()))
     out.append(("insults.html", insults.build()))
     out.append(("quiz.html", quizzes.build()))
