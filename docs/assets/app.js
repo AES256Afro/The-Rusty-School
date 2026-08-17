@@ -1359,15 +1359,17 @@
         const row = document.getElementById("provider-buttons");
         const note = document.getElementById("provider-note");
         let any = false;
+        // from=rust is the default, but saying so keeps both schools
+        // symmetrical and makes the round trip obvious to a reader.
         if (providers.github) {
           any = true;
           row.insertAdjacentHTML("beforeend",
-            '<a class="btn btn-primary" href="/api/auth/github">Sign in with GitHub</a>');
+            '<a class="btn btn-primary" href="/api/auth/github?from=rust">Sign in with GitHub</a>');
         }
         if (providers.google) {
           any = true;
           row.insertAdjacentHTML("beforeend",
-            '<a class="btn btn-ghost" href="/api/auth/google">Sign in with Google</a>');
+            '<a class="btn btn-ghost" href="/api/auth/google?from=rust">Sign in with Google</a>');
         }
         if (!any) note.hidden = false;
       });

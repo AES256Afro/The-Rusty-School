@@ -30,6 +30,7 @@ NAV = [
     ("pit.html", "Snake Pit"),
     ("playground.html", "Playground"),
     ("quiz.html", "Quizzes"),
+    ("account.html", "Account"),
 ]
 
 FOOTER_LINKS = [

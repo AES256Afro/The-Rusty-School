@@ -1604,6 +1604,106 @@ _failed = not _ok
     }
   }
 
+  /* ================= account page =================
+     The same session, the same database row and the same API as the
+     Rusty School: one campus, one account. The only Python-specific
+     part is `?from=python` on the sign-in links, which the OAuth
+     callback uses to send you back to this page instead of the other
+     school's. */
+  const AUTH_ERRORS = {
+    "state-mismatch": "The sign-in attempt expired or was tampered with. Please try again.",
+    "token-exchange-failed": "The provider rejected the sign-in. Please try again.",
+    "profile-fetch-failed": "We couldn't read your public profile. Please try again.",
+    "github-not-configured": "GitHub sign-in isn't switched on yet.",
+    "google-not-configured": "Google sign-in isn't switched on yet.",
+  };
+
+  function progressSummary(done) {
+    const py = done.filter((d) => d.startsWith("py-") && !d.startsWith("py-quiz")).length;
+    const pit = done.filter((d) => d.startsWith("pypit-")).length;
+    const build = done.filter((d) => d.startsWith("pybuild-")).length;
+    const rust = done.filter((d) =>
+      !d.startsWith("py-") && !d.startsWith("pypit-") && !d.startsWith("pybuild-")).length;
+    const bits = [];
+    const plural = (n, one, many) => n + " " + (n === 1 ? one : many);
+    if (py) bits.push("📚 <strong>" + plural(py, "Python lesson", "Python lessons") + "</strong>");
+    if (pit) bits.push("🐍 <strong>" + plural(pit, "pit puzzle", "pit puzzles") + "</strong>");
+    if (build) bits.push("🔨 <strong>" + plural(build, "project", "projects") + "</strong>");
+    if (rust) bits.push("🦀 <strong>" + plural(rust, "Rusty School item", "Rusty School items") + "</strong>");
+    if (!bits.length) return "Nothing synced yet. Finish a lesson and it appears here.";
+    const last = bits.pop();
+    return (bits.length ? bits.join(", ") + " and " + last : last) + " synced to your account.";
+  }
+
+  function initAccount(me) {
+    const root = document.getElementById("account-root");
+    if (!root) return;
+
+    if (me && me.signedIn) {
+      root.innerHTML = "";
+      root.appendChild(document.getElementById("tpl-signed-in").content.cloneNode(true));
+      const avatar = document.getElementById("acct-avatar");
+      if (me.avatar) avatar.src = me.avatar; else avatar.style.display = "none";
+      document.getElementById("acct-name").textContent = me.name || "Programmer";
+      document.getElementById("acct-provider").textContent = me.provider;
+      document.getElementById("acct-progress").innerHTML =
+        progressSummary((me.progress && me.progress.done) || []);
+      document.getElementById("acct-sync-note").textContent =
+        "Progress syncs automatically whenever you finish a lesson, puzzle or quiz on any " +
+        "signed-in device, at either school.";
+
+      document.getElementById("btn-signout").addEventListener("click", () => {
+        fetch("/api/auth/logout", { method: "POST" }).finally(() => location.reload());
+      });
+      document.getElementById("btn-delete").addEventListener("click", () => {
+        const sure = confirm(
+          "Delete your account? Your name, picture, and synced progress will be " +
+          "erased from our database immediately and permanently."
+        );
+        if (!sure) return;
+        fetch("/api/me", { method: "DELETE" }).finally(() => {
+          location.href = "account.html";
+        });
+      });
+      return;
+    }
+
+    root.innerHTML = "";
+    root.appendChild(document.getElementById("tpl-signed-out").content.cloneNode(true));
+
+    const params = new URLSearchParams(location.search);
+    const err = params.get("error");
+    if (err) {
+      const el = document.getElementById("auth-error");
+      let msg = "⚠️ " + (AUTH_ERRORS[err] || "Sign-in failed. Please try again.");
+      const from = params.get("from");
+      const detail = params.get("detail");
+      if (from) msg += " [" + from + (detail ? ": " + detail : "") + "]";
+      el.textContent = msg;
+      el.hidden = false;
+    }
+
+    fetch("/api/auth/providers")
+      .then((r) => (r.ok ? r.json() : {}))
+      .catch(() => ({}))
+      .then((providers) => {
+        const row = document.getElementById("provider-buttons");
+        const note = document.getElementById("provider-note");
+        let any = false;
+        if (providers.github) {
+          any = true;
+          row.insertAdjacentHTML("beforeend",
+            '<a class="btn btn-primary" href="/api/auth/github?from=python">Sign in with GitHub</a>');
+        }
+        if (providers.google) {
+          any = true;
+          row.insertAdjacentHTML("beforeend",
+            '<a class="btn btn-ghost" href="/api/auth/google?from=python">Sign in with Google</a>');
+        }
+        if (!any) note.hidden = false;
+      });
+  }
+
   /* ================= boot ================= */
   document.addEventListener("DOMContentLoaded", async () => {
     initTheme();
@@ -1614,10 +1714,11 @@ _failed = not _ok
     const themeBtn = document.querySelector(".theme-toggle");
     if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
 
-    await syncProgress(1500);
+    const me = await syncProgress(1500);
     initProgress();
     renderXp();
     initGuidance();
+    initAccount(me);
     initAchievements();
     initQuizzes();
     initDuel();
