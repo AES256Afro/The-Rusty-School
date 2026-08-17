@@ -745,12 +745,13 @@ _proj(
     title="The Capstone: Your Own Jarvis", emoji="🤖",
     after="Level 6",
     difficulty=5,
-    blurb="The graduation project: assemble the full personal AI assistant from Level 6, then "
-          "make it genuinely yours with your own tools and data.",
-    lede="Everything, together. Take the Jarvis you assembled in Lesson 61 and finish it as a "
-         "real, extensible, personal assistant: memory, streaming, tools you wrote, your own "
-         "documents, a spending cap. This is the project that proves the whole course to "
-         "yourself.",
+    blurb="The graduation project. The Jarvis Build walks you through it a step at a time; "
+          "this is the same thing set as a spec, for when you would rather not be walked.",
+    lede="Everything, together: memory, streaming, tools you wrote, your own documents, a "
+         "spending cap. If you want the guided version, with every step explained, that is "
+         "The Jarvis Build and it is twelve chapters long. This page is the same project "
+         "stated as a spec, for people who would rather struggle first and read second. "
+         "Both end with the same program. Neither is cheating.",
     spec=[
         "A chat loop with persistent memory and streaming (Lessons 55, 56).",
         "At least two tools you wrote yourself, run through a safe tool loop (Lesson 57).",

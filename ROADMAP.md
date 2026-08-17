@@ -6,6 +6,7 @@ A campus of two schools, live at [rustyschool.com](https://rustyschool.com):
 |---|---|---|
 | Lessons | 28, five levels | 68, seven levels |
 | Workshop projects | 9, capstone included | 10, capstone included |
+| Flagship build | (none yet) | **The Jarvis Build**, 12 guided chapters |
 | Puzzles | 36 (the Dojo, six belts) | 37 (the Snake Pit, six tiers) |
 | Quizzes | 5 | 7 |
 | Runs code in the page | via the official Rust Playground | real CPython, in your browser (Pyodide) |
@@ -177,6 +178,11 @@ Roughly in order of audience overlap:
 
 Kept short, because a changelog is not a roadmap. Newest first.
 
+- **The Jarvis Build.** The school's flagship project: twelve guided chapters
+  that take a beginner from an empty folder to a personal AI assistant with
+  memory, streaming, tools, retrieval over their own notes, an installed
+  command and a hard spending cap. Every step explained rather than
+  specified. Level 6 teaches the ideas; this builds the thing.
 - **Accessibility pass (M5).** Every badge and kicker on both schools now
   clears WCAG AA in both themes. The Level 0 badge had been sitting at
   1.78:1 in light mode, because its colour is a syntax-highlighting token

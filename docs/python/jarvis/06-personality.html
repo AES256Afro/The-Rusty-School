@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 6: Giving Jarvis a Character - The Python School</title>
+<meta name="description" content="Use the system prompt to set behaviour, tone and honesty rules, and keep it in a file you can edit.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/06-personality">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 6: Giving Jarvis a Character - The Python School">
+<meta property="og:description" content="Use the system prompt to set behaviour, tone and honesty rules, and keep it in a file you can edit.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/06-personality">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 6: Giving Jarvis a Character - The Python School">
+<meta name="twitter:description" content="Use the system prompt to set behaviour, tone and honesty rules, and keep it in a file you can edit.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 6 of 12 · Part 2, Make it feel real</nav>
+    <span class="badge l6">Jarvis · Chapter 6</span>
+    <h1>Giving Jarvis a Character 🎭</h1>
+    <p class="lede muted">One extra argument turns a generic chatbot into your assistant. It is also where you set the rules that stop it confidently making things up.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Use the system prompt to set behaviour, tone and honesty rules, and keep it in a file you can edit.</p>
+      <span class="jg-time">about 20 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>The system prompt</h2>
+
+<p>Alongside <code>messages</code> there is a <code>system</code> argument. It is not part
+of the conversation; it is standing instructions that apply to every turn.</p>
+
+<pre data-verify="compile"><code>response = client.messages.create(
+    model=&quot;claude-haiku-4-5&quot;,
+    max_tokens=1000,
+    system=&quot;You are Jarvis, a terse and slightly dry personal assistant. &quot;
+           &quot;Answer in at most three sentences unless asked for detail. &quot;
+           &quot;If you do not know something, say so plainly instead of guessing.&quot;,
+    messages=messages,
+)</code></pre>
+
+<p>Add that to your chat loop and the character changes immediately. Same model, same
+code, different behaviour, because you told it what job it has.</p>
+
+<h2>What actually belongs in there</h2>
+
+<p>Beginners write "you are a helpful assistant" and stop, which does almost nothing. The
+useful contents are specific and testable:</p>
+
+<ul>
+  <li><strong>Who it is and who it is for.</strong> "You are Jarvis, a personal assistant
+    running on your owner's own machine."</li>
+  <li><strong>How long answers should be.</strong> Genuinely the highest-impact line you
+    can write. Models default to thorough; most personal use wants terse.</li>
+  <li><strong>What to do when unsure.</strong> "Say you do not know rather than guessing."
+    This meaningfully reduces confident nonsense.</li>
+  <li><strong>Anything it must never claim.</strong> Especially once it has tools:
+    "Never say you did something you were not able to do."</li>
+</ul>
+
+<p>Vague instructions produce vague behaviour. "Be concise" is weaker than "at most three
+sentences unless asked for detail", because the second one is checkable.</p>
+
+<h2>Put the persona in a file</h2>
+
+<p>Hard-coding the personality means editing Python every time you want a different tone.
+Put it in <code>persona.txt</code> instead, and read it at startup:</p>
+
+<pre class="run" data-verify="run"><code>from pathlib import Path
+
+DEFAULT_PERSONA = (
+    &quot;You are Jarvis, a personal assistant running on your owner&#x27;s own machine.\n&quot;
+    &quot;Be brief and concrete. Three sentences unless more is genuinely needed.\n&quot;
+    &quot;If you are unsure, say so rather than inventing an answer.\n&quot;
+    &quot;Never claim to have done something you were not able to do.&quot;
+)
+
+
+def load_persona(path=&quot;persona.txt&quot;):
+    &quot;&quot;&quot;Read the system prompt from a file, falling back to the default.
+
+    Keeping the persona in a text file means you can edit how your
+    assistant behaves without touching code.
+    &quot;&quot;&quot;
+    p = Path(path)
+    if p.exists():
+        text = p.read_text(encoding=&quot;utf-8&quot;).strip()
+        if text:
+            return text
+    return DEFAULT_PERSONA
+
+
+# no persona.txt in this folder yet, so we get the default
+persona = load_persona(&quot;does-not-exist.txt&quot;)
+print(persona.splitlines()[0])
+print(&quot;lines:&quot;, len(persona.splitlines()))</code></pre>
+<pre class="out"><code class="nohl">You are Jarvis, a personal assistant running on your owner&#x27;s own machine.
+lines: 4</code></pre>
+
+<p>Now tuning your assistant is editing a text file. That matters more than it sounds:
+you will fiddle with this a lot, and the friction of opening a source file is enough to
+stop you bothering.</p>
+
+<h2>Telling it things it cannot know</h2>
+
+<p>A model has no idea what today's date is, what your name is, or which machine it is
+running on. It is not being coy; that information was simply never sent. If you want it to
+know, put it in the system prompt.</p>
+
+<pre class="run" data-verify="run"><code>from datetime import date
+
+
+def build_system_prompt(persona, user_name=None, today=None):
+    &quot;&quot;&quot;Persona plus a little live context the model cannot know on its own.&quot;&quot;&quot;
+    parts = [persona]
+    if user_name:
+        parts.append(f&quot;You are talking to {user_name}.&quot;)
+    if today:
+        parts.append(f&quot;Today&#x27;s date is {today.isoformat()}.&quot;)
+    return &quot;\n\n&quot;.join(parts)
+
+
+prompt = build_system_prompt(
+    &quot;You are Jarvis, a terse assistant.&quot;,
+    user_name=&quot;Ada&quot;,
+    today=date(2026, 8, 17),
+)
+print(prompt)</code></pre>
+<pre class="out"><code class="nohl">You are Jarvis, a terse assistant.
+
+You are talking to Ada.
+
+Today&#x27;s date is 2026-08-17.</code></pre>
+
+<p>This is the same principle as chapter 4, arriving from a different direction:
+<strong>everything it knows, you sent</strong>. Memory, personality and context are all
+just text you assemble before the call.</p>
+
+<h2>A warning about what this is not</h2>
+
+<p>The system prompt shapes behaviour. It is not a security boundary. Someone typing at
+your assistant can ask it to ignore its instructions, and it may partly comply. That is
+fine here, because it is your own assistant on your own machine and the only person you
+could fool is yourself.</p>
+
+<p>It matters enormously in chapter 9, when we give it the ability to run code. The rule
+there is the one that actually holds: safety comes from what your Python code refuses to
+do, never from what the prompt asked the model not to do.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong>Nothing changed</strong> The <code>system</code> argument goes on the API
+    call, not in the <code>messages</code> list. It is a sibling of
+    <code>messages</code>.</li>
+  <li><strong>It ignores the length instruction</strong> Make it numeric and specific.
+    "Three sentences" beats "concise" every time.</li>
+  <li><strong>It has forgotten the persona later in a long chat</strong> It has not; the
+    system prompt is resent on every call. Long conversations simply dilute it. Restating
+    the most important rule at the end of the persona helps.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Your assistant answers in the voice you specified, and editing <code>persona.txt</code> changes its behaviour on the next run without touching any Python.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-06"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="05-streaming.html"><span class="dir">← Previous</span>Words as They Arrive</a>
+      <a class="next" href="07-persistence.html"><span class="dir">Next →</span>Remembering Between Runs</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

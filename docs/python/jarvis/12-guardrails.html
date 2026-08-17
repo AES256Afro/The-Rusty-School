@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 12: Guardrails, and Where to Go Next - The Python School</title>
+<meta name="description" content="Add a hard spending cap, honest error messages and a loop limit, then decide what to build next.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/12-guardrails">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 12: Guardrails, and Where to Go Next - The Python School">
+<meta property="og:description" content="Add a hard spending cap, honest error messages and a loop limit, then decide what to build next.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/12-guardrails">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 12: Guardrails, and Where to Go Next - The Python School">
+<meta name="twitter:description" content="Add a hard spending cap, honest error messages and a loop limit, then decide what to build next.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 12 of 12 · Part 4, Make it yours</nav>
+    <span class="badge l6">Jarvis · Chapter 12</span>
+    <h1>Guardrails, and Where to Go Next 🚦</h1>
+    <p class="lede muted">The last chapter is the one that lets you stop worrying about it. A daily cap it cannot exceed, errors that explain themselves, and a tool loop that cannot run away. Then: what to build once this works.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Add a hard spending cap, honest error messages and a loop limit, then decide what to build next.</p>
+      <span class="jg-time">about 30 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>A cap it cannot exceed</h2>
+
+<p>Every horror story about surprise API bills has the same shape: a loop nobody bounded,
+running unattended. The fix is not vigilance, it is arithmetic.</p>
+
+<pre class="run" data-verify="run"><code>import json
+from datetime import date
+from pathlib import Path
+
+PRICES = {
+    &quot;claude-haiku-4-5&quot;: (1.00, 5.00),
+    &quot;claude-sonnet-5&quot;: (3.00, 15.00),
+    &quot;claude-opus-5&quot;: (5.00, 25.00),
+}
+
+
+def cost_of(model, tokens_in, tokens_out):
+    &quot;&quot;&quot;Dollars for one call. Unknown models are priced as the dearest we know.&quot;&quot;&quot;
+    price_in, price_out = PRICES.get(model, (5.00, 25.00))
+    return (tokens_in / 1_000_000) * price_in + (tokens_out / 1_000_000) * price_out
+
+
+class SpendTracker:
+    &quot;&quot;&quot;Track spending per day, and refuse to go over the limit.&quot;&quot;&quot;
+
+    def __init__(self, limit_usd, path=&quot;spend.json&quot;, today=None):
+        self.limit = limit_usd
+        self.path = Path(path)
+        self.today = (today or date.today()).isoformat()
+        self.spent = self._load()
+
+    def _load(self):
+        if not self.path.exists():
+            return 0.0
+        try:
+            data = json.loads(self.path.read_text())
+        except json.JSONDecodeError:
+            return 0.0
+        return float(data.get(self.today, 0.0))
+
+    def would_exceed(self, estimate):
+        return self.spent + estimate &gt; self.limit
+
+    def record(self, amount):
+        self.spent += amount
+        self.path.write_text(json.dumps({self.today: round(self.spent, 6)}))
+
+    def remaining(self):
+        return max(0.0, self.limit - self.spent)
+
+
+t = SpendTracker(limit_usd=0.05, path=&quot;demo-spend.json&quot;, today=date(2026, 8, 17))
+print(f&quot;one call costs ${cost_of(&quot;claude-haiku-4-5&quot;, 600, 300):.5f}&quot;)
+
+for i in range(1, 30):
+    c = cost_of(&quot;claude-haiku-4-5&quot;, 600, 300)
+    if t.would_exceed(c):
+        print(f&quot;stopped at call {i}: ${t.spent:.4f} spent, limit ${t.limit}&quot;)
+        break
+    t.record(c)
+
+print(f&quot;remaining: ${t.remaining():.4f}&quot;)
+Path(&quot;demo-spend.json&quot;).unlink()</code></pre>
+<pre class="out"><code class="nohl">one call costs $0.00210
+stopped at call 24: $0.0483 spent, limit $0.05
+remaining: $0.0017</code></pre>
+
+<p>Read what that actually does. Before each call it estimates the cost, asks whether that
+would break the limit, and refuses if so. The number lives in a file, so the cap survives
+restarts. It cannot be talked out of it, because it is not a request to the model, it is
+your own code declining to make the call.</p>
+
+<p>Wire it in around the API call: check <code>would_exceed</code> before, call
+<code>record</code> after using the real <code>usage</code> numbers from the response.
+Estimate pessimistically, record accurately.</p>
+
+<h2>Counting tokens properly</h2>
+
+<p>To estimate before you spend, you need to know how big your request is. The API will
+tell you exactly, and it is worth being firm about this:</p>
+
+<pre class="run" data-verify="run"><code># Before an expensive call you can ask the API how many tokens your
+# messages actually are, rather than guessing. This is the ONLY correct
+# way to count tokens for these models: a general-purpose tokenizer from
+# another ecosystem will give you a confidently wrong number.
+#
+#   count = client.messages.count_tokens(
+#       model=cfg.model,
+#       system=system_prompt,
+#       messages=messages,
+#   )
+#   estimated_input = count.input_tokens
+#
+# Then estimate the output as your max_tokens ceiling, which is the worst
+# case, and check that against the budget before spending anything.
+
+def estimate_worst_case(input_tokens, max_tokens, price_in, price_out):
+    return (input_tokens / 1_000_000) * price_in + (max_tokens / 1_000_000) * price_out
+
+
+print(f&quot;${estimate_worst_case(1200, 1000, 1.00, 5.00):.5f} worst case&quot;)
+print(f&quot;${estimate_worst_case(1200, 1000, 5.00, 25.00):.5f} on the big model&quot;)</code></pre>
+<pre class="out"><code class="nohl">$0.00620 worst case
+$0.03100 on the big model</code></pre>
+
+<div class="callout warn">
+  <span class="co-title">🔢 Do not use a tokenizer from somewhere else</span>
+  <p>You will find advice suggesting general-purpose tokenizer libraries for counting
+  tokens. Those are built for other model families and will give you a number that is
+  confidently wrong, sometimes by a lot. Use
+  <code>client.messages.count_tokens()</code>, which counts the way the model that will
+  actually bill you counts.</p>
+</div>
+
+<h2>Errors that say what to do</h2>
+
+<p>Right now, any API problem exits with a stack trace. Every one of these has an obvious
+human-readable meaning:</p>
+
+<pre data-verify="compile"><code>import anthropic
+
+
+def ask_safely(client, **kwargs):
+    &quot;&quot;&quot;Turn every documented failure into a sentence a human can act on.
+
+    The SDK already retries rate limits and server errors for you with
+    exponential backoff, so there is no hand-rolled retry loop here.
+    Adding one on top usually makes things worse, not better.
+    &quot;&quot;&quot;
+    try:
+        return client.messages.create(**kwargs), None
+    except anthropic.AuthenticationError:
+        return None, &quot;Your API key was rejected. Check ANTHROPIC_API_KEY.&quot;
+    except anthropic.RateLimitError:
+        return None, &quot;Rate limited even after retries. Wait a minute and try again.&quot;
+    except anthropic.BadRequestError as exc:
+        return None, f&quot;The request was malformed: {exc}&quot;
+    except anthropic.NotFoundError:
+        return None, &quot;That model name does not exist. Check your config.&quot;
+    except anthropic.APIConnectionError:
+        return None, &quot;Could not reach the API. Check your internet connection.&quot;
+    except anthropic.APIStatusError as exc:
+        return None, f&quot;The API returned an error ({exc.status_code}). Try again shortly.&quot;</code></pre>
+
+<p>Note what is <em>not</em> there: a hand-written retry loop. The SDK already retries
+rate limits and server errors with exponential backoff. Wrapping your own retries around
+that gives you retries of retries, which turns a brief hiccup into a long, expensive
+stall. If you want different behaviour, configure <code>max_retries</code> on the client
+rather than building a second mechanism.</p>
+
+<h2>A tool loop that cannot run away</h2>
+
+<p>Chapter 8's loop breaks when the model stops asking for tools. If something unexpected
+comes back, that is an unbounded loop making paid API calls. Bound it:</p>
+
+<pre class="run" data-verify="run"><code>def tool_loop_guard(max_rounds=5):
+    &quot;&quot;&quot;A generator that yields round numbers and stops. The point is that
+    the loop CANNOT run forever, no matter what comes back.&quot;&quot;&quot;
+    for i in range(1, max_rounds + 1):
+        yield i
+
+
+rounds = list(tool_loop_guard(5))
+print(&quot;rounds allowed:&quot;, rounds)
+print(&quot;a runaway loop stops after&quot;, len(rounds), &quot;API calls, not infinity&quot;)</code></pre>
+<pre class="out"><code class="nohl">rounds allowed: [1, 2, 3, 4, 5]
+a runaway loop stops after 5 API calls, not infinity</code></pre>
+
+<p>Five rounds is generous for a personal assistant; genuine multi-step work rarely needs
+more. If you hit the limit, tell the user plainly that it gave up rather than pretending
+the answer is complete.</p>
+
+<h2>The habits worth keeping</h2>
+
+<ul>
+  <li><strong>Cap before you launch, not after a surprise.</strong> Set the limit low
+    enough that hitting it is annoying rather than expensive.</li>
+  <li><strong>Estimate pessimistically, record accurately.</strong> Assume the full
+    <code>max_tokens</code> before the call; record what really happened after.</li>
+  <li><strong>Bound every loop that spends money.</strong> Every single one.</li>
+  <li><strong>Log the cost where you can see it.</strong> A dim line showing today's total
+    after each reply is the cheapest possible defence against drift.</li>
+</ul>
+
+<h2>Things worth knowing that this build skipped</h2>
+
+<ul>
+  <li><strong>Prompt caching.</strong> If your system prompt and notes are stable, the API
+    can cache that prefix and charge a fraction for it. The single biggest cost win
+    available once your assistant is real.</li>
+  <li><strong>The tool runner.</strong> The SDK can write chapter 8's loop for you from
+    decorated Python functions. Worth adopting now that you know what it is doing.</li>
+  <li><strong>Embeddings.</strong> The upgrade to chapter 10's word matching, for when
+    "plumber" should find "boiler engineer".</li>
+  <li><strong>Structured output.</strong> You can require a reply to match a schema, which
+    turns the model into something you can call like a function rather than parse like
+    prose.</li>
+</ul>
+
+<h2>Where to take it</h2>
+
+<ul>
+  <li><strong>A web interface</strong> with FastAPI (Lesson 44), so you can use it from
+    your phone on your own network.</li>
+  <li><strong>A daily briefing:</strong> run it on a schedule, have it read your calendar
+    and notes, and write you a short summary each morning.</li>
+  <li><strong>Tools for the things you actually do.</strong> This is the real answer. The
+    assistant becomes useful in proportion to how well its tools fit your life, and nobody
+    else can write those.</li>
+  <li><strong>A local model</strong> (Lesson 60) if you would rather nothing left your
+    machine at all. Slower and less capable, and the privacy is absolute.</li>
+</ul>
+
+<div class="callout tip">
+  <span class="co-title">🎓 What you actually learned here</span>
+  <p>Not "how to use an AI API". You learned that an agent is a while loop, that memory is
+  a list, that tools are a dictionary of functions your code controls, that retrieval is
+  a search followed by string concatenation, and that safety is a boundary in your own
+  code rather than a polite request. Every AI system you meet from now on, however
+  impressive the marketing, is built from these parts. You will recognise them.</p>
+</div>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Your assistant refuses to make a call that would break the daily cap, prints a helpful sentence instead of a stack trace when the key is wrong, and gives up gracefully after five tool rounds. You have built the thing.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-12"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="11-a-real-program.html"><span class="dir">← Previous</span>From Script to Real Program</a>
+      <a class="next" href="../build/index.html"><span class="dir">Next →</span>The Project Workshop</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

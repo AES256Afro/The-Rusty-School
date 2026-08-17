@@ -354,6 +354,7 @@ _failed = not _ok
   const XP_LESSON = 100;
   const XP_PUZZLE = 60;
   const XP_PROJECT = 250;
+  const XP_JARVIS = 150;
   const XP_QUIZ_Q = 20;
 
   const RANKS = [
@@ -404,6 +405,7 @@ _failed = not _ok
     let xp = 0;
     done.forEach((id) => {
       if (id.startsWith("pypit-")) xp += XP_PUZZLE;
+      else if (id.startsWith("pyjarvis-")) xp += XP_JARVIS;
       else if (id.startsWith("pybuild-")) xp += XP_PROJECT;
       else if (id.startsWith("py-")) xp += XP_LESSON;
     });
@@ -753,6 +755,9 @@ _failed = not _ok
   function projectsDoneCount() {
     return countDoneIn(course().projects.map((p) => p.id));
   }
+  function jarvisDoneCount() {
+    return countDoneIn((course().jarvis || []).map((c) => c.id));
+  }
 
   const MILESTONES = [
     { id: "camp", icon: "🏕️", name: "Camp Struck",
@@ -782,9 +787,12 @@ _failed = not _ok
     { id: "wild", icon: "🌍", name: "In the Wild",
       blurb: "Automation, the web, data, games, hardware. You have seen what people actually build for a living.",
       need: () => levelProgress(5) },
-    { id: "jarvis", icon: "🤖", name: "Jarvis Online",
-      blurb: "The capstone track complete: a private AI assistant you built, own, and understand end to end.",
+    { id: "jarvis", icon: "🧠", name: "The Ideas Behind It",
+      blurb: "Level 6 complete. You understand what a language model actually is, and how memory, tools and retrieval really work underneath.",
       need: () => levelProgress(6) },
+    { id: "jarvisbuild", icon: "🤖", name: "Jarvis Is Alive",
+      blurb: "You built your own AI assistant from an empty folder: memory, tools, your notes, and a spending cap you set yourself.",
+      need: () => [jarvisDoneCount(), (course().jarvis || []).length] },
     { id: "shipped", icon: "🚢", name: "Shipped It",
       blurb: "Every workshop project finished. You have a folder of programs that are yours.",
       need: () => [projectsDoneCount(), course().projects.length] },
@@ -867,6 +875,22 @@ _failed = not _ok
         href: UP + "pit.html",
         cta: "Enter the pit",
       });
+    }
+
+    const jarvis = c.jarvis || [];
+    if (jarvis.length && lessonsDoneCount() >= 30 && jarvisDoneCount() < jarvis.length) {
+      const nextCh = jarvis.find((ch) => !done.has(ch.id));
+      if (nextCh) {
+        out.push({
+          icon: "🤖",
+          title: jarvisDoneCount() === 0 ? "The Jarvis Build" : nextCh.title,
+          why: jarvisDoneCount() === 0
+            ? "The flagship project: build your own AI assistant from an empty folder, one explained step at a time."
+            : "Chapter " + (jarvisDoneCount() + 1) + " of the Jarvis build.",
+          href: UP + nextCh.href,
+          cta: jarvisDoneCount() === 0 ? "Start the build" : "Continue the build",
+        });
+      }
     }
 
     if (anyLesson && !getFlags()["duel-won"]) {

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 5: Words as They Arrive - The Python School</title>
+<meta name="description" content="Make replies appear word by word instead of after an uncomfortable silence.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/05-streaming">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 5: Words as They Arrive - The Python School">
+<meta property="og:description" content="Make replies appear word by word instead of after an uncomfortable silence.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/05-streaming">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 5: Words as They Arrive - The Python School">
+<meta name="twitter:description" content="Make replies appear word by word instead of after an uncomfortable silence.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 5 of 12 · Part 2, Make it feel real</nav>
+    <span class="badge l6">Jarvis · Chapter 5</span>
+    <h1>Words as They Arrive ⚡</h1>
+    <p class="lede muted">The difference between a program that feels broken and one that feels alive is about six lines. Nothing gets faster; it just stops making you wait in the dark.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Make replies appear word by word instead of after an uncomfortable silence.</p>
+      <span class="jg-time">about 20 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>The problem with waiting</h2>
+
+<p>Ask your chat loop for something long and you get several seconds of nothing, then a
+wall of text. The program is working perfectly. It just looks like it has crashed.</p>
+
+<p>Streaming fixes the feeling, not the speed. The full answer takes exactly as long
+either way, but you start reading after a quarter of a second instead of staring at a
+blank line.</p>
+
+<h2>The smallest streaming program</h2>
+
+<pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+with client.messages.stream(
+    model=&quot;claude-haiku-4-5&quot;,
+    max_tokens=1000,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Explain what a variable is, in two sentences.&quot;}],
+) as stream:
+    for text in stream.text_stream:
+        print(text, end=&quot;&quot;, flush=True)
+
+print()</code></pre>
+
+<p>Three things changed from chapter 3:</p>
+
+<ul>
+  <li><code>client.messages.stream(...)</code> instead of <code>.create(...)</code>.</li>
+  <li>It is used with <code>with</code>, because a stream is a resource that must be
+    closed properly. Lesson 21 covered <code>with</code> for files; identical idea.</li>
+  <li>You loop over <code>stream.text_stream</code>, which hands you small pieces of text
+    as they arrive.</li>
+</ul>
+
+<h2>Why <code>end=""</code> and <code>flush=True</code></h2>
+
+<p>These two arguments are doing real work, and it is worth understanding rather than
+copying.</p>
+
+<pre class="run" data-verify="run"><code># print() normally waits for a newline before actually showing anything,
+# because writing to a terminal is slow and buffering is faster. When you
+# print word-by-word with no newlines, that buffering is exactly wrong:
+# the text sits in memory and appears all at once anyway.
+#
+# flush=True says &quot;show it now&quot;. end=&quot;&quot; says &quot;no newline after this&quot;.
+for word in [&quot;Streaming &quot;, &quot;means &quot;, &quot;you &quot;, &quot;see &quot;, &quot;it &quot;, &quot;arrive.&quot;]:
+    print(word, end=&quot;&quot;, flush=True)
+print()
+
+print(&quot;...and end=&#x27;&#x27; is what stopped each piece landing on its own line.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Streaming means you see it arrive.
+...and end=&#x27;&#x27; is what stopped each piece landing on its own line.</code></pre>
+
+<p><code>end=""</code> stops <code>print</code> adding a newline after every fragment,
+which would otherwise give you one word per line. <code>flush=True</code> forces the text
+onto the screen immediately instead of letting Python buffer it, which would defeat the
+entire point by showing everything at the end anyway.</p>
+
+<h2>Getting the whole message back</h2>
+
+<p>Streaming gives you pieces, but you still need the finished thing: to store in memory,
+and to read usage numbers off. The stream will assemble it for you.</p>
+
+<pre data-verify="compile"><code>with client.messages.stream(
+    model=&quot;claude-haiku-4-5&quot;,
+    max_tokens=1000,
+    messages=messages,
+) as stream:
+    for text in stream.text_stream:
+        print(text, end=&quot;&quot;, flush=True)
+
+    # After the stream finishes, ask for the assembled message.
+    # This is how you get usage numbers and stop_reason while streaming.
+    final = stream.get_final_message()
+
+print()
+print(&quot;tokens out:&quot;, final.usage.output_tokens)</code></pre>
+
+<p><code>get_final_message()</code> hands back the same kind of object
+<code>.create()</code> would have returned, with <code>.content</code>,
+<code>.usage</code> and <code>.stop_reason</code> all present. So you get the responsive
+feel and the useful metadata, rather than choosing.</p>
+
+<h2>The streaming chat loop</h2>
+
+<p>Update <code>chat.py</code>:</p>
+
+<pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+MODEL = &quot;claude-haiku-4-5&quot;
+
+messages = []
+
+print(&quot;Jarvis ready. Ctrl-C to leave.&quot;)
+
+try:
+    while True:
+        user_input = input(&quot;\nyou&gt; &quot;).strip()
+        if not user_input:
+            continue
+
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input})
+
+        print(&quot;jarvis&gt; &quot;, end=&quot;&quot;, flush=True)
+        with client.messages.stream(
+            model=MODEL,
+            max_tokens=1000,
+            messages=messages,
+        ) as stream:
+            for text in stream.text_stream:
+                print(text, end=&quot;&quot;, flush=True)
+            final = stream.get_final_message()
+        print()
+
+        # Rebuild the reply text from the finished message, rather than
+        # gluing together the pieces we printed. One source of truth.
+        reply = &quot;&quot;.join(b.text for b in final.content if b.type == &quot;text&quot;)
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply})
+
+except KeyboardInterrupt:
+    print(&quot;\n\nBye.&quot;)</code></pre>
+
+<p>Run it and ask for something long, like a recipe or an explanation. It writes to you
+now, rather than at you.</p>
+
+<h2>One subtlety worth noticing</h2>
+
+<p>The reply stored in memory is rebuilt from <code>final.content</code>, not from
+concatenating the fragments you printed. Both would usually work, but there is only one
+correct source of truth for what the model actually said, and it is the finished message.
+Building your history out of display side effects is the kind of shortcut that produces a
+bug six chapters later that nobody can find.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong>Text still appears all at once</strong> You dropped <code>flush=True</code>,
+    or your terminal is aggressively buffering. Some IDE consoles do this; try a real
+    terminal.</li>
+  <li><strong>Every word on its own line</strong> You dropped <code>end=""</code>.</li>
+  <li><strong><code>AttributeError</code> on <code>final</code></strong> You called
+    <code>get_final_message()</code> outside the <code>with</code> block. It has to happen
+    while the stream is still open.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p>Ask <code>chat.py</code> to explain something at length. Words appear progressively, and it still remembers earlier turns.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-05"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="04-memory.html"><span class="dir">← Previous</span>A Conversation, Not a Goldfish</a>
+      <a class="next" href="06-personality.html"><span class="dir">Next →</span>Giving Jarvis a Character</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

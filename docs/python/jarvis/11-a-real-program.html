@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis 11: From Script to Real Program - The Python School</title>
+<meta name="description" content="Reorganise into a proper package, add command-line arguments, and install it so you can type `jarvis` from anywhere.">
+<link rel="canonical" href="https://rustyschool.com/python/jarvis/11-a-real-program">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Jarvis 11: From Script to Real Program - The Python School">
+<meta property="og:description" content="Reorganise into a proper package, add command-line arguments, and install it so you can type `jarvis` from anywhere.">
+<meta property="og:url" content="https://rustyschool.com/python/jarvis/11-a-real-program">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jarvis 11: From Script to Real Program - The Python School">
+<meta name="twitter:description" content="Reorganise into a proper package, add command-line arguments, and install it so you can type `jarvis` from anywhere.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/course.js"></script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../jarvis/index.html">Jarvis</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <a href="../account.html">Account</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← The Jarvis Build</a> ·
+      Chapter 11 of 12 · Part 4, Make it yours</nav>
+    <span class="badge l6">Jarvis · Chapter 11</span>
+    <h1>From Script to Real Program 📦</h1>
+    <p class="lede muted">Everything works, but it is one long file you run with python3 chat.py from one specific folder. This chapter turns it into software: something with a shape, settings, arguments and a name.</p>
+    <div class="jarvis-goal">
+      <span class="jg-label">Goal</span>
+      <p>Reorganise into a proper package, add command-line arguments, and install it so you can type `jarvis` from anywhere.</p>
+      <span class="jg-time">about 30 minutes</span>
+    </div>
+  </section>
+
+  <div class="lesson-body">
+
+<h2>Why bother</h2>
+
+<p>A single file is genuinely fine at 100 lines. Yours is heading past 300, and it mixes
+four separate concerns: settings, memory, tools and the conversation loop. Splitting them
+means you can change how memory works without reading the tool code, and it is the
+difference between a script you wrote and a program you maintain.</p>
+
+<p>Also, honestly: typing <code>jarvis</code> instead of
+<code>python3 ~/projects/jarvis/chat.py</code> is the moment it stops feeling like an
+exercise.</p>
+
+<h2>The shape</h2>
+
+<pre class="term"><code class="nohl">jarvis/
+├── .venv/                  (not committed)
+├── .gitignore
+├── persona.txt             how it behaves, editable without code
+├── notes/                  your documents (not committed)
+├── sessions/               saved conversations (not committed)
+├── pyproject.toml          how to install it
+└── jarvis/
+    ├── __init__.py
+    ├── __main__.py         so `python -m jarvis` works
+    ├── config.py           settings in one place
+    ├── memory.py           load, save, trim
+    ├── tools.py            the registry and your tools
+    └── chat.py             the loop that ties it together</code></pre>
+
+<p>Four modules, each with one job. Lesson 20 covers imports and packages if the
+<code>__init__.py</code> is unfamiliar.</p>
+
+<h2>Settings in one place</h2>
+
+<p>Constants scattered through a program are a slow-motion bug. Gather them:</p>
+
+<pre class="run" data-verify="run"><code>import os
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Config:
+    &quot;&quot;&quot;Every setting in one place, with sensible defaults.
+
+    frozen=True makes it immutable: nothing deep in the program can
+    quietly change your spending cap halfway through a session.
+    &quot;&quot;&quot;
+    model: str = &quot;claude-haiku-4-5&quot;
+    max_tokens: int = 1000
+    keep_pairs: int = 10
+    daily_limit_usd: float = 0.50
+    max_tool_rounds: int = 5
+    notes_dir: str = &quot;notes&quot;
+
+    @classmethod
+    def from_env(cls):
+        &quot;&quot;&quot;Let environment variables override any default.&quot;&quot;&quot;
+        return cls(
+            model=os.environ.get(&quot;JARVIS_MODEL&quot;, cls.model),
+            max_tokens=int(os.environ.get(&quot;JARVIS_MAX_TOKENS&quot;, cls.max_tokens)),
+            keep_pairs=int(os.environ.get(&quot;JARVIS_KEEP_PAIRS&quot;, cls.keep_pairs)),
+            daily_limit_usd=float(os.environ.get(&quot;JARVIS_DAILY_LIMIT&quot;, cls.daily_limit_usd)),
+        )
+
+
+cfg = Config()
+print(&quot;model      :&quot;, cfg.model)
+print(&quot;daily limit:&quot;, cfg.daily_limit_usd)
+
+try:
+    cfg.daily_limit_usd = 999.0
+except Exception as exc:
+    print(&quot;cannot be changed at runtime:&quot;, type(exc).__name__)</code></pre>
+<pre class="out"><code class="nohl">model      : claude-haiku-4-5
+daily limit: 0.5
+cannot be changed at runtime: FrozenInstanceError</code></pre>
+
+<p><code>frozen=True</code> is doing something specific: it makes the config immutable, so
+no function deep in the call stack can quietly raise your own spending cap. Settings you
+can change from anywhere are settings you cannot reason about.</p>
+
+<p><code>from_env</code> means you can try a bigger model for one session without editing
+anything:</p>
+
+<pre class="term"><code class="nohl">JARVIS_MODEL=claude-sonnet-5 jarvis</code></pre>
+
+<h2>Command-line arguments</h2>
+
+<p><code>argparse</code> is in the standard library and gives you a real interface,
+including <code>--help</code>, for about ten lines:</p>
+
+<pre class="run" data-verify="run"><code>import argparse
+
+
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(
+        prog=&quot;jarvis&quot;,
+        description=&quot;A personal assistant that runs on your own machine.&quot;,
+    )
+    parser.add_argument(&quot;question&quot;, nargs=&quot;*&quot;,
+                        help=&quot;Ask one question and exit. Omit for an interactive session.&quot;)
+    parser.add_argument(&quot;--model&quot;, help=&quot;Override the model for this run.&quot;)
+    parser.add_argument(&quot;--fresh&quot;, action=&quot;store_true&quot;,
+                        help=&quot;Start with empty memory, ignoring saved history.&quot;)
+    parser.add_argument(&quot;--no-notes&quot;, action=&quot;store_true&quot;,
+                        help=&quot;Do not search your notes for this run.&quot;)
+    return parser.parse_args(argv)
+
+
+# one-shot mode
+a = parse_args([&quot;what&quot;, &quot;time&quot;, &quot;is&quot;, &quot;it?&quot;])
+print(&quot;question:&quot;, &quot; &quot;.join(a.question))
+print(&quot;interactive:&quot;, not a.question)
+
+# interactive with overrides
+b = parse_args([&quot;--fresh&quot;, &quot;--model&quot;, &quot;claude-sonnet-5&quot;])
+print(&quot;fresh:&quot;, b.fresh, &quot;| model:&quot;, b.model, &quot;| interactive:&quot;, not b.question)</code></pre>
+<pre class="out"><code class="nohl">question: what time is it?
+interactive: False
+fresh: True | model: claude-sonnet-5 | interactive: True</code></pre>
+
+<p>The <code>nargs="*"</code> on <code>question</code> is what enables both modes: words
+after the command mean "answer this and exit", nothing means "open an interactive
+session". One-shot mode is the one you will actually use most, because it lets you ask a
+quick question without leaving what you were doing.</p>
+
+<h2>Installing it as a command</h2>
+
+<p>A small <code>pyproject.toml</code> is all it takes:</p>
+
+<pre data-verify="skip"><code>[project]
+name = &quot;jarvis&quot;
+version = &quot;0.1.0&quot;
+description = &quot;A personal assistant that runs on my own machine&quot;
+requires-python = &quot;&gt;=3.10&quot;
+dependencies = [&quot;anthropic&quot;]
+
+[project.scripts]
+jarvis = &quot;jarvis.chat:main&quot;
+
+[build-system]
+requires = [&quot;setuptools&gt;=61&quot;]
+build-backend = &quot;setuptools.build_meta&quot;</code></pre>
+
+<p>The important part is <code>[project.scripts]</code>. It says: make a command called
+<code>jarvis</code> that runs the <code>main</code> function in <code>jarvis/chat.py</code>.
+Install it in editable mode so your edits take effect immediately:</p>
+
+<pre class="term"><code class="nohl">pip install -e .</code></pre>
+
+<p>Now, from any folder, with the virtual environment active:</p>
+
+<pre class="term"><code class="nohl">$ jarvis what is the capital of Peru?
+Lima.
+
+$ jarvis
+Jarvis ready. Ctrl-C to leave.
+you&gt; </code></pre>
+
+<div class="callout tip">
+  <span class="co-title">🧭 Making it work outside the virtual environment</span>
+  <p>The <code>jarvis</code> command only exists while <code>.venv</code> is active, which
+  is a bit annoying for something you want constantly. The clean fix is
+  <a href="https://pipx.pypa.io" target="_blank" rel="noopener">pipx</a>, which installs a
+  command into its own isolated environment and puts it on your PATH permanently:
+  <code>pipx install -e .</code> from the project folder. That is how most Python
+  command-line tools are meant to be installed.</p>
+</div>
+
+<h2>Where the files should actually live</h2>
+
+<p>One wrinkle you will hit immediately: if <code>notes/</code> and
+<code>sessions/</code> are relative paths, they resolve against wherever you happen to be
+standing when you run the command. Ask a question from your Documents folder and it looks
+for notes there.</p>
+
+<p>Fix it by anchoring to your home directory rather than the working directory:
+<code>Path.home() / ".jarvis" / "notes"</code>. That is the convention almost every
+command-line tool follows, and it means <code>jarvis</code> behaves identically from
+anywhere.</p>
+
+<h2>If it went wrong</h2>
+
+<ul>
+  <li><strong><code>ModuleNotFoundError: No module named 'jarvis'</code></strong> You ran
+    <code>pip install -e .</code> from the wrong folder. It must be the one containing
+    <code>pyproject.toml</code>.</li>
+  <li><strong><code>jarvis: command not found</code></strong> The virtual environment is
+    not active, or the install failed. Check with <code>pip show jarvis</code>.</li>
+  <li><strong>It cannot find your notes any more</strong> Exactly the relative-path
+    problem above. Anchor to <code>Path.home()</code>.</li>
+</ul>
+
+
+    <div class="jarvis-checkpoint">
+      <span class="jc-label">✅ Checkpoint</span>
+      <p><code>jarvis --help</code> prints usage. <code>jarvis what time is it?</code> answers and exits. Plain <code>jarvis</code> opens an interactive session, from any folder on your machine.</p>
+    </div>
+
+    <button class="complete-btn" data-lesson="pyjarvis-11"
+      data-label="Mark chapter complete"
+      data-done-label="✓ Chapter done. Onwards.">Mark chapter complete</button>
+    <span class="xp-gain">+150 XP</span>
+
+    <div class="lesson-nav">
+      <a href="10-your-notes.html"><span class="dir">← Previous</span>Jarvis Reads Your Notes</a>
+      <a class="next" href="12-guardrails.html"><span class="dir">Next →</span>Guardrails, and Where to Go Next</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../jarvis/index.html">The Jarvis Build</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

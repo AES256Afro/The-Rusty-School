@@ -50,7 +50,7 @@ too: it reads the shipped HTML in `docs/` rather than the sources, so the index
 can never claim something the site does not actually say.
 
 `pyverify.py` is the Python analogue of the Rust school's "compile every example
-before publishing" rule: it executes all 586 runnable examples (and all 37 Snake
+before publishing" rule: it executes all 621 runnable examples (and all 37 Snake
 Pit puzzles, and the workshop reference solutions) and checks each one's real output
 against what the lesson promises. Nothing ships until it runs. The generator, the
 verifier, and the whole course are themselves the Level-3 reading exercise, exactly
@@ -60,6 +60,15 @@ Highlights: Base Camp (code-free foundations), Levels 1-5 (the language and what
 people build with it), Level 6 (Build Your Own Jarvis), the **Snake Pit** (verified
 predict/fix/bug puzzles in six tiers), and the **Insult Compiler** (Monkey-Island
 error-message swordfighting). Accounts and progress are shared with the Rust school.
+
+### The Jarvis Build
+
+`docs/python/jarvis/` is the school's flagship project: twelve guided chapters that walk
+a beginner from an empty folder to a working personal AI assistant, with every step
+explained. Content lives in `tools/pycourse/jarvis_data.py`, rendered by
+`tools/pycourse/jarvis.py`. Its runnable examples are output-verified like everything
+else; the blocks that call the Anthropic API are parse-checked instead, since CI has
+neither a network nor a key.
 
 ## What's inside
 

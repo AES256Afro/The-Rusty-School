@@ -37,12 +37,14 @@ def _project_page(project: dict, prev: dict | None, nxt: dict | None) -> str:
         )
     else:
         reference_block = callout(
-            "info", "🏗️ The reference lives in the lessons",
-            "<p>This capstone's reference is the full four-file build in "
-            "<a href='../learn/61-assemble-jarvis.html'>Lesson 61</a>, extended with your own "
-            "tools and the safety net from "
-            "<a href='../learn/62-ethics-cost.html'>Lesson 62</a>. Build it, then make it "
-            "yours.</p>")
+            "info", "🏗️ The reference is a whole guided build",
+            "<p>This one is too big for a single reveal-the-answer block, so its reference "
+            "is <a href='../jarvis/index.html'>The Jarvis Build</a>: twelve chapters that "
+            "construct exactly this program one explained step at a time, from an empty "
+            "folder to an installed command. Every piece of the spec above has a chapter.</p>"
+            "<p class='muted small'>Try the spec cold first if you want the harder, better "
+            "version of this experience. The build will still be there when you get stuck, "
+            "and getting stuck is the point.</p>")
 
     nav_prev = (f'<a href="{prev["slug"]}.html"><span class="dir">← Previous</span>'
                 f'Project {prev["num"]}: {prev["title"]}</a>'
