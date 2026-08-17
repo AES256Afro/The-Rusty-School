@@ -2,6 +2,10 @@
 /target
 Cargo.lock
 
+# Python bytecode: generated on every build, never source
+__pycache__/
+*.py[cod]
+
 # macOS
 .DS_Store
 
