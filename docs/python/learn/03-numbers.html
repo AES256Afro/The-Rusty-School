@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3: Numbers and Maths - The Python School</title>
+<meta name="description" content="Integers, floats, operators, integer division and modulo, and why 0.1 + 0.2 is not 0.3.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/03-numbers">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 3: Numbers and Maths - The Python School">
+<meta property="og:description" content="Integers, floats, operators, integer division and modulo, and why 0.1 + 0.2 is not 0.3.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/03-numbers">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 3: Numbers and Maths - The Python School">
+<meta name="twitter:description" content="Integers, floats, operators, integer division and modulo, and why 0.1 + 0.2 is not 0.3.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 3 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Numbers and Maths 🔢</h1>
+    <p class="lede muted">Python is a very good calculator that happens to also be a programming language.
+    Ten minutes here saves you an entire category of confusing bug.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Two kinds of number</h2>
+    <pre class="run" data-verify="run"><code>crew = 12          # int: a whole number
+speed = 9.5        # float: a number with a decimal point
+
+print(type(crew))
+print(type(speed))</code></pre>
+<pre class="out"><code class="nohl">&lt;class &#x27;int&#x27;&gt;
+&lt;class &#x27;float&#x27;&gt;</code></pre>
+    <p>
+      <code>int</code> is short for integer, meaning whole. <code>float</code> is short for
+      floating point, which refers to the decimal point being able to move around. That is the
+      whole distinction, and it matters more than it looks.
+    </p>
+
+    <div class="callout tip"><span class="co-title">♾️ Python integers do not overflow</span><p>In most languages an integer has a maximum size and quietly wraps around when you exceed it, which has caused real satellites to fail. Python integers grow to fit memory. <code>2 ** 1000</code> is a perfectly ordinary thing to ask for, and Python will hand you all 302 digits.</p></div>
+    <pre class="run" data-verify="run"><code>print(2 ** 100)</code></pre>
+<pre class="out"><code class="nohl">1267650600228229401496703205376</code></pre>
+
+    <h2>The operators</h2>
+    <div class="table-wrap"><table><thead><tr><th>You write</th><th>It means</th><th>Example</th><th>Result</th></tr></thead><tbody><tr><td><code>+</code></td><td>add</td><td><code>7 + 3</code></td><td><code>10</code></td></tr><tr><td><code>-</code></td><td>subtract</td><td><code>7 - 3</code></td><td><code>4</code></td></tr><tr><td><code>*</code></td><td>multiply</td><td><code>7 * 3</code></td><td><code>21</code></td></tr><tr><td><code>/</code></td><td>divide (always a float)</td><td><code>7 / 2</code></td><td><code>3.5</code></td></tr><tr><td><code>//</code></td><td>divide and throw away the remainder</td><td><code>7 // 2</code></td><td><code>3</code></td></tr><tr><td><code>%</code></td><td>the remainder only</td><td><code>7 % 2</code></td><td><code>1</code></td></tr><tr><td><code>**</code></td><td>to the power of</td><td><code>7 ** 2</code></td><td><code>49</code></td></tr></tbody></table></div>
+    <pre class="run" data-verify="run"><code>print(7 / 2)
+print(7 // 2)
+print(7 % 2)
+print(7 ** 2)
+print(10 / 5)      # still a float, even though it divides exactly</code></pre>
+<pre class="out"><code class="nohl">3.5
+3
+1
+49
+2.0</code></pre>
+
+    <h2>The two division signs are worth your attention</h2>
+    <p>
+      <code>//</code> and <code>%</code> look like curiosities. They are two of the most
+      useful operators in programming.
+    </p>
+    <pre class="run" data-verify="run"><code>total_minutes = 137
+
+hours = total_minutes // 60      # how many whole hours fit
+minutes = total_minutes % 60     # what is left over
+
+print(f&quot;{total_minutes} minutes is {hours}h {minutes}m&quot;)</code></pre>
+<pre class="out"><code class="nohl">137 minutes is 2h 17m</code></pre>
+    <p>That pattern converts seconds to clocks, pennies to pounds, and items to pages.</p>
+    <p><code>%</code> also answers "is this divisible by":</p>
+    <pre class="run" data-verify="run"><code>for number in [10, 15, 21, 30]:
+    if number % 5 == 0:
+        print(f&quot;{number} divides by 5 exactly&quot;)
+    else:
+        print(f&quot;{number} does not&quot;)</code></pre>
+<pre class="out"><code class="nohl">10 divides by 5 exactly
+15 divides by 5 exactly
+21 does not
+30 divides by 5 exactly</code></pre>
+    <p>
+      "Remainder is zero" is how you test for even numbers (<code>n % 2 == 0</code>), how you
+      make something happen every tenth time round a loop, and how you write FizzBuzz, the
+      most famous interview question there is.
+    </p>
+
+    <h2>Order of operations</h2>
+    <pre class="run" data-verify="run"><code>print(2 + 3 * 4)        # multiplication happens first
+print((2 + 3) * 4)      # brackets win
+print(2 ** 3 ** 2)      # powers go right to left: 2 ** 9</code></pre>
+<pre class="out"><code class="nohl">14
+20
+512</code></pre>
+    <p>
+      The rules are the ones you learned at school. The advice is simpler than the rules:
+      <strong>use brackets whenever there is the slightest doubt</strong>. They cost nothing
+      and they are free documentation.
+    </p>
+
+    <h2>The 0.1 + 0.2 scandal</h2>
+    <pre class="run" data-verify="run"><code>print(0.1 + 0.2)</code></pre>
+<pre class="out"><code class="nohl">0.30000000000000004</code></pre>
+
+    <div class="voice" data-skill="half-light"><div class="v-head"><span class="v-name">HALF LIGHT</span><span class="v-check failure">[Legendary: Failure]</span></div><p>The machine is broken. The foundations are rotten. Nothing can be trusted.</p>
+<p>Sit down. Nothing is broken. This is arithmetic working exactly as specified, and every language on this planet does it: JavaScript, Java, C, Rust, your pocket calculator if you push it hard enough.</p></div>
+
+    <p>
+      Computers store floats in binary. In binary, one tenth is a recurring number, exactly as
+      one third is recurring in decimal (0.3333...). You have to stop writing digits somewhere,
+      so the stored value is very slightly off, and the errors add up. The standard that
+      defines this behaviour is <a href="https://en.wikipedia.org/wiki/IEEE_754" target="_blank" rel="noopener">IEEE 754</a>,
+      published in 1985 and implemented by essentially every CPU on earth.
+    </p>
+    <p>What to actually do about it:</p>
+    <pre class="run" data-verify="run"><code># 1. Never compare floats with ==
+print(0.1 + 0.2 == 0.3)
+
+# 2. Compare with a tolerance instead
+import math
+print(math.isclose(0.1 + 0.2, 0.3))
+
+# 3. Round for display
+print(round(0.1 + 0.2, 2))
+
+# 4. For money, use exact decimal arithmetic
+from decimal import Decimal
+print(Decimal(&quot;0.1&quot;) + Decimal(&quot;0.2&quot;))</code></pre>
+<pre class="out"><code class="nohl">False
+True
+0.3
+0.3</code></pre>
+    <p>
+      Rule of thumb: floats for measurements, <code>Decimal</code> for money, ints for
+      counting. Financial software that uses floats for currency is a bug with a launch party.
+    </p>
+
+    <h2>Converting between types</h2>
+    <pre class="run" data-verify="run"><code>print(int(&quot;42&quot;) + 1)        # text to whole number
+print(float(&quot;3.5&quot;) + 1)     # text to decimal
+print(str(42) + &quot; crabs&quot;)   # number to text
+print(int(9.99))            # float to int: chops, does not round
+print(round(9.99))          # this is what you usually wanted</code></pre>
+<pre class="out"><code class="nohl">43
+4.5
+42 crabs
+9
+10</code></pre>
+    <div class="callout danger"><span class="co-title">🪤 int() chops, it does not round</span><p><code>int(9.99)</code> is <code>9</code>. It removes everything after the point rather than rounding to the nearest. If you want nearest, say <code>round()</code>. This mistake has caused real money to go missing in real systems.</p></div>
+
+    <h2>The maths module</h2>
+    <pre class="run" data-verify="run"><code>import math
+
+print(math.sqrt(144))
+print(math.pi)
+print(math.floor(9.99), math.ceil(9.01))
+print(math.factorial(5))</code></pre>
+<pre class="out"><code class="nohl">12.0
+3.141592653589793
+9 10
+120</code></pre>
+    <p>
+      <code>import</code> loads a module: a file of code somebody else already wrote and
+      tested. <code>math</code> ships with Python. Lesson 20 covers imports properly, but you
+      can use them now with no ceremony.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Split the bill</h3><p>A meal costs 87.50 and is shared by 4 people, with a 15% tip. Print the total including tip, and what each person pays, both to two decimal places.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>bill = 87.50
+people = 4
+tip_rate = 0.15
+
+tip = bill * tip_rate
+total = bill + tip
+each = total / people
+
+print(f&quot;Bill:  {bill:.2f}&quot;)
+print(f&quot;Tip:   {tip:.2f}&quot;)
+print(f&quot;Total: {total:.2f}&quot;)
+print(f&quot;Each:  {each:.2f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Bill:  87.50
+Tip:   13.12
+Total: 100.62
+Each:  25.16</code></pre><p>Look closely at the tip. The true answer is 13.125, and Python printed <strong>13.12</strong>, not 13.13. That is not a bug, it is two of this lesson's ideas colliding: <code>round</code> and <code>:.2f</code> use round-half-to-even (so exact halves go to the even digit, which spreads rounding error out instead of always pushing it up), and floats cannot hold most decimals exactly anyway. For a tip, nobody cares. For a payroll system, this is why you use <code>Decimal</code>.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Seconds to a clock</h3><p>Turn 9,384 seconds into hours, minutes and seconds. Use <code>//</code> and <code>%</code> and nothing else clever.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>total = 9384
+
+hours = total // 3600
+remainder = total % 3600
+minutes = remainder // 60
+seconds = remainder % 60
+
+print(f&quot;{hours}h {minutes}m {seconds}s&quot;)
+print(f&quot;{hours:02d}:{minutes:02d}:{seconds:02d}&quot;)</code></pre>
+<pre class="out"><code class="nohl">2h 36m 24s
+02:36:24</code></pre><p>The <code>:02d</code> means 'a whole number, at least two digits, padded with a zero'. That is how you make a clock look like a clock.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Predict, then run</h3><p>Work out each answer on paper first.</p><pre data-verify="compile"><code>print(17 // 5)
+print(-17 // 5)
+print(17 % 5)
+print(-17 % 5)</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>3</code>, then <code>-4</code>, then <code>2</code>, then <code>3</code>.</p><p>The negative ones surprise nearly everybody. Python's <code>//</code> rounds <em>down</em> (towards negative infinity), not towards zero, so -17 // 5 is -4 rather than -3. And <code>%</code> always takes the sign of the right-hand side, so -17 % 5 is a positive 3.</p><p>This is genuinely different from C, Java and Rust, which round towards zero. Python's choice is more mathematically consistent and occasionally more surprising. Now you know, which puts you ahead of a lot of working programmers.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-03-numbers">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="02-variables.html"><span class="dir">← Previous</span>Lesson 2: Variables: Naming Things</a>
+      <a class="next" href="04-strings.html"><span class="dir">Next →</span>Lesson 4: Text: Strings in Depth</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

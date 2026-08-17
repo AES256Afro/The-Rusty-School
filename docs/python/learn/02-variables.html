@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2: Variables: Naming Things - The Python School</title>
+<meta name="description" content="Assignment, variable names, PEP 8 conventions, and how Python&#x27;s dynamic typing actually works.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/02-variables">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 2: Variables: Naming Things - The Python School">
+<meta property="og:description" content="Assignment, variable names, PEP 8 conventions, and how Python&#x27;s dynamic typing actually works.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/02-variables">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 2: Variables: Naming Things - The Python School">
+<meta name="twitter:description" content="Assignment, variable names, PEP 8 conventions, and how Python&#x27;s dynamic typing actually works.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 2 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Variables: Naming Things 📦</h1>
+    <p class="lede muted">A program that cannot remember anything can only do one thing. Variables are how
+    a program remembers, and naming them well is a genuine craft.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>A label stuck on a value</h2>
+    <pre class="run" data-verify="run"><code>name = &quot;Guybrush&quot;
+grog = 7
+
+print(name)
+print(grog)</code></pre>
+<pre class="out"><code class="nohl">Guybrush
+7</code></pre>
+    <p>
+      The <code>=</code> is not the equals of mathematics. Read it as "gets" or "is now":
+      <em>name gets "Guybrush"</em>. It is an instruction, and it always runs right to left:
+      work out the value on the right, then attach the label on the left.
+    </p>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Easy: Success]</span></div><p>This is why x = x + 1 is not the nonsense it looks like. The right side is computed first using the old value, and only then is the label moved to the answer. In maths that line has no solutions. In programming it means 'add one'.</p></div>
+
+    <h2>Changing your mind</h2>
+    <pre class="run" data-verify="run"><code>score = 0
+print(&quot;Start:&quot;, score)
+
+score = 10
+print(&quot;After one insult:&quot;, score)
+
+score = score + 5
+print(&quot;After the follow-up:&quot;, score)
+
+score += 5          # the same thing, written the way everyone writes it
+print(&quot;Final:&quot;, score)</code></pre>
+<pre class="out"><code class="nohl">Start: 0
+After one insult: 10
+After the follow-up: 15
+Final: 20</code></pre>
+    <p>
+      A variable is a label, and labels can move. Nothing is carved in stone.
+      <code>+=</code> is shorthand, and its family is worth memorising now:
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Shorthand</th><th>Means</th><th>Example</th></tr></thead><tbody><tr><td><code>x += 3</code></td><td><code>x = x + 3</code></td><td>add</td></tr><tr><td><code>x -= 3</code></td><td><code>x = x - 3</code></td><td>subtract</td></tr><tr><td><code>x *= 2</code></td><td><code>x = x * 2</code></td><td>double</td></tr><tr><td><code>x /= 2</code></td><td><code>x = x / 2</code></td><td>halve</td></tr></tbody></table></div>
+
+    <div class="callout info"><span class="co-title">🦀 A note for anyone who has seen Rust</span><p>In Rust, variables are locked by default and you must ask for permission to change one. Python is the opposite: everything is changeable, always, and it trusts you completely. That trust is why Python is fast to write and why big Python programs need discipline that the compiler will not enforce for you.</p></div>
+
+    <h2>Python never asks you for a type</h2>
+    <pre class="run" data-verify="run"><code>thing = 42
+print(thing, type(thing))
+
+thing = &quot;now I am text&quot;
+print(thing, type(thing))
+
+thing = 3.5
+print(thing, type(thing))</code></pre>
+<pre class="out"><code class="nohl">42 &lt;class &#x27;int&#x27;&gt;
+now I am text &lt;class &#x27;str&#x27;&gt;
+3.5 &lt;class &#x27;float&#x27;&gt;</code></pre>
+    <p>
+      The <em>value</em> has a type; the <em>label</em> does not. This is called dynamic
+      typing, and it is a huge part of why Python feels light. It is also how you get a
+      program that runs fine for a month and then explodes because a variable you assumed was
+      a number turned out to be text. Level 4 shows you type hints, which let you write down
+      your assumptions so tools can check them.
+    </p>
+
+    <h2>The rules for names</h2>
+    <div class="table-wrap"><table><thead><tr><th>Rule</th><th>Good</th><th>Bad</th></tr></thead><tbody><tr><td>Letters, digits and underscores only</td><td><code>player_2</code></td><td><code>player-2</code> (that is a minus sign)</td></tr><tr><td>Cannot start with a digit</td><td><code>score_1</code></td><td><code>1st_score</code></td></tr><tr><td>Case matters</td><td><code>name</code> and <code>Name</code> are different</td><td>assuming they are the same</td></tr><tr><td>No spaces</td><td><code>total_gold</code></td><td><code>total gold</code></td></tr><tr><td>Not a Python keyword</td><td><code>class_name</code></td><td><code>class</code>, <code>for</code>, <code>if</code></td></tr></tbody></table></div>
+    <p>And the conventions, which are not rules but might as well be:</p>
+    <ul>
+      <li><strong>lower_case_with_underscores</strong> for variables and functions. This is
+      called snake_case and, yes, that is a happy coincidence.</li>
+      <li><strong>ALL_CAPS</strong> for things that should never change:
+      <code>MAX_PLAYERS = 8</code>.</li>
+      <li><strong>CapWords</strong> for classes, which you meet in Lesson 31.</li>
+    </ul>
+    <p>
+      These come from <a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8</a>, Python's official
+      style guide. Following it means any Python programmer on earth can read your code
+      without friction. It is worth the ten seconds.
+    </p>
+
+    <h2>Naming is the actual skill</h2>
+    <pre class="run" data-verify="run"><code># Technically fine. Humanly useless.
+a = 5
+b = 3
+c = a * b
+
+# What the same code should look like
+rows = 5
+seats_per_row = 3
+total_seats = rows * seats_per_row
+
+print(f&quot;The theatre holds {total_seats} people.&quot;)</code></pre>
+<pre class="out"><code class="nohl">The theatre holds 15 people.</code></pre>
+    <p>
+      Both versions run identically. Only one of them can be understood at 2am during an
+      outage. There is an old joke that the two hard problems in computer science are cache
+      invalidation, naming things, and off-by-one errors. The joke is only funny because the
+      middle one is true.
+    </p>
+
+    <div class="voice" data-skill="rhetoric"><div class="v-head"><span class="v-name">RHETORIC</span><span class="v-check success">[Medium: Success]</span></div><p>A name is an argument you are making about what something is. 'data' claims nothing. 'unpaid_invoices' claims a great deal, and if the variable ever holds a paid invoice, the name itself becomes the bug report.</p></div>
+
+    <h2>Several at once</h2>
+    <pre class="run" data-verify="run"><code>x, y = 10, 20
+print(x, y)
+
+x, y = y, x          # swap, with no temporary variable
+print(x, y)
+
+a = b = c = 0        # all three point at the same 0
+print(a, b, c)</code></pre>
+<pre class="out"><code class="nohl">10 20
+20 10
+0 0 0</code></pre>
+    <p>
+      That swap line is a small piece of Python showing off. In most languages it takes three
+      lines and a temporary variable. You will use it more than you expect.
+    </p>
+
+    <div class="callout warn"><span class="co-title">🪤 Using a name before it exists</span><p>Python reads top to bottom. Using a variable before you have assigned it gives you <code>NameError: name 'total' is not defined</code>. Ninety percent of the time that means a typo: <code>totl</code> in one place and <code>total</code> in another. Python will not guess what you meant, and that is a kindness.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Ship's manifest</h3><p>Create variables for a ship's name, its crew size and its top speed in knots. Print a sentence using all three. Then the crew grows by 4: update the variable and print the sentence again.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>ship_name = &quot;Sea Monkey&quot;
+crew_size = 12
+top_speed = 9.5
+
+print(f&quot;The {ship_name} sails with {crew_size} crew at {top_speed} knots.&quot;)
+
+crew_size += 4
+print(f&quot;After recruitment: {crew_size} crew.&quot;)</code></pre>
+<pre class="out"><code class="nohl">The Sea Monkey sails with 12 crew at 9.5 knots.
+After recruitment: 16 crew.</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Predict the output</h3><p>Do not run it. What does this print, and why?</p><pre data-verify="compile"><code>a = 5
+b = a
+a = 100
+print(a, b)</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>100 5</code>.</p><p><code>b = a</code> copied the <em>value</em> that <code>a</code> was pointing at, at that moment. It did not tie the two labels together. Changing <code>a</code> afterwards has no effect on <code>b</code>.</p><p>Keep this picture. In Lesson 11 you will meet lists, where the same line behaves quite differently, and this is the memory that will save you.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Rename for clarity</h3><p>Rewrite this so a stranger could understand it in one read.</p><pre data-verify="compile"><code>p = 24.99
+q = 3
+r = p * q
+s = r * 0.2
+t = r + s
+print(t)</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>price_each = 24.99
+quantity = 3
+subtotal = price_each * quantity
+vat = subtotal * 0.2
+total = subtotal + vat
+
+print(f&quot;Total including VAT: {total:.2f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Total including VAT: 89.96</code></pre><p>The <code>:.2f</code> means 'show this number with two decimal places', which you will meet properly in Lesson 4. Without it you would get <code>89.964</code>, and money with three decimal places makes accountants reach for their pens.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-02-variables">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="01-hello.html"><span class="dir">← Previous</span>Lesson 1: Hello, World!</a>
+      <a class="next" href="03-numbers.html"><span class="dir">Next →</span>Lesson 3: Numbers and Maths</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

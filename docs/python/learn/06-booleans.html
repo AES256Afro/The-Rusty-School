@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 6: True, False and Questions - The Python School</title>
+<meta name="description" content="Booleans, comparison operators, and, or, not, truthiness, and the == versus is trap.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/06-booleans">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 6: True, False and Questions - The Python School">
+<meta property="og:description" content="Booleans, comparison operators, and, or, not, truthiness, and the == versus is trap.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/06-booleans">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 6: True, False and Questions - The Python School">
+<meta name="twitter:description" content="Booleans, comparison operators, and, or, not, truthiness, and the == versus is trap.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 6 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>True, False and Questions ⚖️</h1>
+    <p class="lede muted">Before a program can decide anything, it has to ask a question that has exactly
+    two possible answers. Here is how Python asks.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>A third kind of value</h2>
+    <pre class="run" data-verify="run"><code>sunny = True
+raining = False
+
+print(sunny, type(sunny))
+print(raining)</code></pre>
+<pre class="out"><code class="nohl">True &lt;class &#x27;bool&#x27;&gt;
+False</code></pre>
+    <p>
+      Capital T, capital F, no quotes. <code>"True"</code> with quotes is a piece of text and
+      a completely different thing. The type is named <code>bool</code> after George Boole,
+      a Victorian mathematician who worked out the algebra of true and false about ninety
+      years before there was a computer to run it on.
+    </p>
+
+    <h2>Comparisons produce booleans</h2>
+    <pre class="run" data-verify="run"><code>print(5 &gt; 3)
+print(5 &lt; 3)
+print(5 == 5)      # equal? two equals signs!
+print(5 != 5)      # not equal
+print(5 &gt;= 5)
+print(&quot;a&quot; &lt; &quot;b&quot;)   # alphabetical order</code></pre>
+<pre class="out"><code class="nohl">True
+False
+True
+False
+True
+True</code></pre>
+
+    <div class="callout danger"><span class="co-title">🪤 One equals sign or two</span><p><code>=</code> assigns a value. <code>==</code> asks a question. Writing <code>if x = 5</code> is a <code>SyntaxError</code> in Python, which is a kindness: in C it silently compiles and has caused decades of bugs.</p></div>
+
+    <h2>Combining questions</h2>
+    <pre class="run" data-verify="run"><code>age = 25
+has_ticket = True
+banned = False
+
+print(age &gt;= 18 and has_ticket)
+print(age &gt;= 65 or has_ticket)
+print(not banned)
+print(age &gt;= 18 and has_ticket and not banned)</code></pre>
+<pre class="out"><code class="nohl">True
+True
+True
+True</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Operator</th><th>True when</th><th>Think of it as</th></tr></thead><tbody><tr><td><code>and</code></td><td>both sides are true</td><td>the strict bouncer</td></tr><tr><td><code>or</code></td><td>at least one side is true</td><td>the generous bouncer</td></tr><tr><td><code>not</code></td><td>flips true to false</td><td>the contrarian</td></tr></tbody></table></div>
+    <p>
+      Python uses the English words, not <code>&amp;&amp;</code> and <code>||</code> like most
+      other languages. Read your conditions out loud: if the sentence makes sense in English,
+      it is probably right.
+    </p>
+
+    <h3>Chained comparisons, a genuine Python nicety</h3>
+    <pre class="run" data-verify="run"><code>score = 75
+
+print(0 &lt;= score &lt;= 100)          # Python allows this and it means what you think
+print(70 &lt; score &lt; 80)</code></pre>
+<pre class="out"><code class="nohl">True
+True</code></pre>
+    <p>
+      Most languages force you to write <code>score >= 0 and score &lt;= 100</code>. Python
+      lets you write it the way a mathematician would. It is one of those small touches that
+      make people fond of the language.
+    </p>
+
+    <h2>Truthiness: everything can answer the question</h2>
+    <p>
+      Python will happily treat any value as a yes or no. The rule is simple and worth
+      committing to memory: <strong>empty and zero are false, everything else is true</strong>.
+    </p>
+    <pre class="run" data-verify="run"><code>print(bool(0), bool(1), bool(-1))
+print(bool(&quot;&quot;), bool(&quot;a&quot;), bool(&quot; &quot;))
+print(bool([]), bool([1]))
+print(bool({}), bool({&quot;a&quot;: 1}))
+print(bool(None))</code></pre>
+<pre class="out"><code class="nohl">False True True
+False True True
+False True
+False True
+False</code></pre>
+    <p>This is why real Python code looks like this:</p>
+    <pre class="run" data-verify="run"><code>name = &quot;&quot;
+
+if not name:
+    print(&quot;You did not give me a name.&quot;)
+
+crew = [&quot;Otis&quot;]
+if crew:
+    print(f&quot;There are {len(crew)} aboard.&quot;)</code></pre>
+<pre class="out"><code class="nohl">You did not give me a name.
+There are 1 aboard.</code></pre>
+    <p>
+      <code>if crew:</code> rather than <code>if len(crew) > 0:</code>. Shorter, and every
+      Python programmer reads it instantly. Note the space in <code>bool(" ")</code> is
+      <code>True</code>: a space is a character, so the string is not empty. That distinction
+      has ruined many a form validator.
+    </p>
+
+    <h2>None: the value that means "nothing here"</h2>
+    <pre class="run" data-verify="run"><code>winner = None
+
+print(winner)
+print(winner is None)
+print(type(winner))</code></pre>
+<pre class="out"><code class="nohl">None
+True
+&lt;class &#x27;NoneType&#x27;&gt;</code></pre>
+    <p>
+      <code>None</code> is Python's way of saying "deliberately empty". It is not zero and not
+      an empty string; it is the absence of a value. Functions that do not return anything
+      return <code>None</code>, and it is the standard placeholder for "not decided yet".
+    </p>
+
+    <h2>== versus is</h2>
+    <pre class="run" data-verify="run"><code>a = [1, 2, 3]
+b = [1, 2, 3]
+c = a
+
+print(a == b)     # same contents?
+print(a is b)     # the very same object in memory?
+print(a is c)</code></pre>
+<pre class="out"><code class="nohl">True
+False
+True</code></pre>
+    <div class="voice" data-skill="perception"><div class="v-head"><span class="v-name">PERCEPTION</span><span class="v-check success">[Medium: Success]</span></div><p>Two identical twins are equal but not identical. Point at one twin and give the finger a second name, and now you have two names for one person: that is 'is'. Python's == asks 'do these look the same', is asks 'are these literally the same thing'.</p></div>
+    <p>
+      The rule in practice: use <code>==</code> for everything, except when comparing against
+      <code>None</code>, <code>True</code> or <code>False</code>, where the convention is
+      <code>is</code>. So: <code>if value is None:</code>, always.
+    </p>
+
+    <h2>Short circuits</h2>
+    <pre class="run" data-verify="run"><code>def expensive_check():
+    print(&quot;  (this ran)&quot;)
+    return True
+
+print(&quot;First:&quot;)
+result = False and expensive_check()
+
+print(&quot;Second:&quot;)
+result = True or expensive_check()
+
+print(&quot;Neither of those printed the marker, because Python stopped early.&quot;)</code></pre>
+<pre class="out"><code class="nohl">First:
+Second:
+Neither of those printed the marker, because Python stopped early.</code></pre>
+    <p>
+      With <code>and</code>, if the left side is false the answer is already false, so Python
+      never looks at the right side. This is not just an optimisation, it is a tool: it lets
+      you write <code>if name and name[0] == "G":</code> without crashing on an empty name,
+      because the second half never runs when the first half fails.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Can they ride?</h3><p>A rollercoaster requires a height of at least 140cm, an age of at least 12, and that the rider is not currently holding a full mug of grog. Write the condition and test it with a few values.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>height = 152
+age = 14
+holding_grog = False
+
+can_ride = height &gt;= 140 and age &gt;= 12 and not holding_grog
+print(f&quot;Cleared to ride: {can_ride}&quot;)
+
+# and one who is not
+print(f&quot;Second rider:    {130 &gt;= 140 and 30 &gt;= 12 and not False}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Cleared to ride: True
+Second rider:    False</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Predict the truthiness</h3><p>For each, say True or False before running.</p><pre data-verify="compile"><code>print(bool(&quot;False&quot;))
+print(bool(0.0))
+print(bool([0]))
+print(bool(&quot; &quot;))
+print(None == False)</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><code>True</code>. It is a non-empty string. The contents are irrelevant.</li><li><code>False</code>. Zero is zero, even as a float.</li><li><code>True</code>. The list has one item in it. That the item is falsy does not matter.</li><li><code>True</code>. A space is a character.</li><li><code>False</code>. None is not False, it is None. This is exactly why the convention is <code>is None</code>.</li></ol></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Fix the login check</h3><p>This is supposed to allow entry when the password matches and the account is not locked. It has two bugs.</p><pre data-verify="skip"><code>password = &quot;grog&quot;
+locked = False
+
+if password = &quot;grog&quot; and locked == True:
+    print(&quot;Welcome&quot;)</code></pre><details class="solution"><summary>Reveal solution</summary><p>Bug one: <code>=</code> instead of <code>==</code>, which is a <code>SyntaxError</code>. Bug two: the logic is backwards; it demands the account <em>is</em> locked.</p><pre class="run" data-verify="run"><code>password = &quot;grog&quot;
+locked = False
+
+if password == &quot;grog&quot; and not locked:
+    print(&quot;Welcome&quot;)</code></pre>
+<pre class="out"><code class="nohl">Welcome</code></pre><p><code>not locked</code> rather than <code>locked == False</code>: shorter, and it reads like the sentence you would say out loud.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-06-booleans">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="05-input.html"><span class="dir">← Previous</span>Lesson 5: Talking to the Human</a>
+      <a class="next" href="07-decisions.html"><span class="dir">Next →</span>Lesson 7: Making Decisions</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 20: Modules and the Standard Library - The Python School</title>
+<meta name="description" content="Importing, writing your own modules, the __main__ guard, and a tour of the most useful standard library modules.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/20-modules">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 20: Modules and the Standard Library - The Python School">
+<meta property="og:description" content="Importing, writing your own modules, the __main__ guard, and a tour of the most useful standard library modules.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/20-modules">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 20: Modules and the Standard Library - The Python School">
+<meta name="twitter:description" content="Importing, writing your own modules, the __main__ guard, and a tour of the most useful standard library modules.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 20 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Modules and the Standard Library 📚</h1>
+    <p class="lede muted">Everything so far has lived in one file. Real programs are many files, and Python
+    ships with hundreds of them already written for you.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>import</h2>
+    <pre class="run" data-verify="run"><code>import random
+import math
+
+print(math.sqrt(16))
+print(math.pi)
+
+random.seed(42)                      # makes the &quot;random&quot; repeatable
+print(random.randint(1, 100))
+print(random.choice([&quot;grog&quot;, &quot;map&quot;, &quot;sword&quot;]))</code></pre>
+<pre class="out"><code class="nohl">4.0
+3.141592653589793
+82
+grog</code></pre>
+    <p>
+      <code>import math</code> makes the module available, and you reach into it with a dot.
+      <code>random.seed(42)</code> fixes the sequence so the same "random" numbers come out
+      every time, which is invaluable for testing and for lessons like this one that promise
+      you an exact output.
+    </p>
+
+    <h2>The four import styles</h2>
+    <pre class="run" data-verify="run"><code>import math
+from math import sqrt
+from math import sqrt as square_root
+import statistics as stats
+
+print(math.sqrt(9))
+print(sqrt(9))
+print(square_root(9))
+print(stats.mean([1, 2, 3, 4]))</code></pre>
+<pre class="out"><code class="nohl">3.0
+3.0
+3.0
+2.5</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Style</th><th>When</th></tr></thead><tbody><tr><td><code>import x</code></td><td>The default. Always obvious where a name came from</td></tr><tr><td><code>from x import y</code></td><td>When you use y constantly and the origin is obvious</td></tr><tr><td><code>import x as y</code></td><td>For long names, or by convention (<code>import pandas as pd</code>)</td></tr><tr><td><code>from x import *</code></td><td>Never. It dumps unknown names into your file and hides collisions</td></tr></tbody></table></div>
+
+    <h2>Writing your own module</h2>
+    <p>A module is just a <code>.py</code> file. Make <code>pirate_tools.py</code>:</p>
+    <pre data-verify="compile"><code>&quot;&quot;&quot;Helpers for pirate arithmetic.&quot;&quot;&quot;
+
+INSULT_LIMIT = 8
+
+
+def format_name(first, last):
+    &quot;&quot;&quot;Return a properly capitalised full name.&quot;&quot;&quot;
+    return f&quot;{first.title()} {last.title()}&quot;
+
+
+def can_duel(insults):
+    &quot;&quot;&quot;True if this pirate knows enough insults to duel.&quot;&quot;&quot;
+    return insults &gt;= INSULT_LIMIT</code></pre>
+    <p>Then, in another file in the same folder:</p>
+    <pre data-verify="compile"><code>import pirate_tools
+
+print(pirate_tools.format_name(&quot;guybrush&quot;, &quot;threepwood&quot;))
+print(pirate_tools.can_duel(9))
+print(pirate_tools.INSULT_LIMIT)</code></pre>
+    <p>
+      That is the whole mechanism. When your file passes about two hundred lines, or when a
+      group of functions clearly belong together, split them out. Future you will be grateful.
+    </p>
+
+    <h2>The __main__ guard</h2>
+    <pre class="run" data-verify="run"><code>def add(a, b):
+    return a + b
+
+
+if __name__ == &quot;__main__&quot;:
+    print(&quot;Running directly, so here is a demo:&quot;)
+    print(add(2, 3))</code></pre>
+<pre class="out"><code class="nohl">Running directly, so here is a demo:
+5</code></pre>
+    <p>
+      Python sets <code>__name__</code> to <code>"__main__"</code> when a file is run directly,
+      and to the module's name when it is imported. So that block runs when you type
+      <code>python3 thing.py</code> and stays quiet when another file imports it.
+    </p>
+    <div class="callout tip"><span class="co-title">🎯 Why this matters</span><p>Without the guard, importing a module runs everything in it, including your test prints and, memorably for someone, an entire database migration. Put definitions at the top level and <em>actions</em> inside the guard. It is one of the strongest conventions in Python.</p></div>
+
+    <h2>A tour of the batteries</h2>
+    <p>
+      This is the part people mean by "batteries included". Every one of these ships with
+      Python and needs no installation.
+    </p>
+
+    <h3>Numbers, chance and time</h3>
+    <pre class="run" data-verify="run"><code>import random, statistics, datetime
+
+random.seed(7)
+rolls = [random.randint(1, 6) for _ in range(10)]
+print(rolls)
+print(f&quot;mean {statistics.mean(rolls)}, median {statistics.median(rolls)}&quot;)
+
+born = datetime.date(1990, 10, 15)
+print(f&quot;Monkey Island was released on a {born.strftime(&#x27;%A&#x27;)}&quot;)</code></pre>
+<pre class="out"><code class="nohl">[3, 2, 4, 6, 1, 1, 5, 1, 3, 5]
+mean 3.1, median 3.0
+Monkey Island was released on a Monday</code></pre>
+
+    <h3>Text and data formats</h3>
+    <pre class="run" data-verify="run"><code>import json, textwrap
+
+data = {&quot;ship&quot;: &quot;Sea Monkey&quot;, &quot;crew&quot;: [&quot;Otis&quot;, &quot;Meathook&quot;]}
+encoded = json.dumps(data)
+print(encoded)
+print(json.loads(encoded)[&quot;crew&quot;][0])
+
+long = &quot;The rubber chicken with a pulley in the middle is arguably the finest item in adventure gaming.&quot;
+print(textwrap.fill(long, width=45))</code></pre>
+<pre class="out"><code class="nohl">{&quot;ship&quot;: &quot;Sea Monkey&quot;, &quot;crew&quot;: [&quot;Otis&quot;, &quot;Meathook&quot;]}
+Otis
+The rubber chicken with a pulley in the
+middle is arguably the finest item in
+adventure gaming.</code></pre>
+
+    <h3>Collections and iteration tools</h3>
+    <pre class="run" data-verify="run"><code>from collections import Counter, deque
+from itertools import combinations
+
+print(Counter(&quot;mississippi&quot;).most_common(2))
+
+queue = deque([&quot;a&quot;, &quot;b&quot;])
+queue.appendleft(&quot;start&quot;)
+print(list(queue))
+
+print(list(combinations([&quot;grog&quot;, &quot;map&quot;, &quot;sword&quot;], 2)))</code></pre>
+<pre class="out"><code class="nohl">[(&#x27;i&#x27;, 4), (&#x27;s&#x27;, 4)]
+[&#x27;start&#x27;, &#x27;a&#x27;, &#x27;b&#x27;]
+[(&#x27;grog&#x27;, &#x27;map&#x27;), (&#x27;grog&#x27;, &#x27;sword&#x27;), (&#x27;map&#x27;, &#x27;sword&#x27;)]</code></pre>
+
+    <h3>Files, paths and the system</h3>
+    <pre class="run" data-verify="run"><code>import sys, pathlib, os
+
+print(sys.version_info.major, sys.version_info.minor)
+p = pathlib.Path(&quot;data&quot;) / &quot;crew.json&quot;
+print(p)
+print(p.suffix, p.stem, p.parent)</code></pre>
+<pre class="out"><code class="nohl">3 13
+data/crew.json
+.json crew data</code></pre>
+
+    <h3>The genuinely useful oddities</h3>
+    <div class="table-wrap"><table><thead><tr><th>Module</th><th>For</th></tr></thead><tbody><tr><td><code>hashlib</code></td><td>Hashing: checksums, and password storage done properly</td></tr><tr><td><code>secrets</code></td><td>Cryptographically safe random values for tokens and passwords</td></tr><tr><td><code>uuid</code></td><td>Unique identifiers</td></tr><tr><td><code>argparse</code></td><td>Command-line arguments (Lesson 27)</td></tr><tr><td><code>logging</code></td><td>Grown-up printing (Lesson 28)</td></tr><tr><td><code>unittest</code></td><td>Testing without installing anything (Lesson 29)</td></tr><tr><td><code>sqlite3</code></td><td>A real SQL database, in one file, built in (Lesson 45)</td></tr><tr><td><code>csv</code></td><td>Spreadsheet data, with the quoting rules handled (Lesson 23)</td></tr><tr><td><code>re</code></td><td>Regular expressions (Lesson 25)</td></tr><tr><td><code>timeit</code></td><td>Measuring how slow something really is (Lesson 51)</td></tr></tbody></table></div>
+
+    <pre class="run" data-verify="run"><code>import hashlib, secrets, uuid
+
+print(hashlib.sha256(b&quot;swordfish&quot;).hexdigest()[:16])
+print(len(secrets.token_hex(16)))
+print(len(str(uuid.uuid4())))</code></pre>
+<pre class="out"><code class="nohl">b9f195c5cc7ef6af
+32
+36</code></pre>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Medium: Success]</span></div><p>There are over two hundred modules in there. Nobody knows them all, and nobody needs to. The valuable habit is not memorisation, it is suspicion: before you write forty lines to parse a date or shuffle a deck, spend thirty seconds searching the standard library index. The answer is there surprisingly often, and it has been tested by millions of people.</p></div>
+
+    <h2>Where do modules come from?</h2>
+    <pre data-verify="compile"><code>import sys
+
+# Python looks in these places, in order, for anything you import
+for entry in sys.path[:3]:
+    print(repr(entry))</code></pre>
+    <p>
+      <code>sys.path</code> is the search list: your script's folder first, then the standard
+      library, then installed packages. This is why a file of your own called
+      <code>random.py</code> breaks everything: yours is found first, and the real one becomes
+      unreachable. Do not name your files after standard modules. Everyone does it once.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Dice statistics</h3><p>Roll two dice a thousand times and report how often each total appeared, as a percentage, using the standard library. Seed with 1 so your answer matches.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import random
+from collections import Counter
+
+random.seed(1)
+
+totals = Counter(random.randint(1, 6) + random.randint(1, 6) for _ in range(1000))
+
+for total in sorted(totals):
+    pct = totals[total] / 10
+    print(f&quot;{total:2}  {&#x27;#&#x27; * int(pct):18} {pct:.1f}%&quot;)</code></pre>
+<pre class="out"><code class="nohl"> 2  ##                 2.6%
+ 3  #####              5.2%
+ 4  #######            7.0%
+ 5  ###########        11.0%
+ 6  ##############     14.7%
+ 7  ################   16.8%
+ 8  #############      13.6%
+ 9  ###########        11.4%
+10  #######            7.7%
+11  #######            7.1%
+12  ##                 2.9%</code></pre><p>The shape is the famous bell curve: seven is the most common total because there are six ways to roll it and only one way to roll two.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Build a module</h3><p>Write <code>textstats.py</code> with three functions (word count, average word length, most common word) and a <code>__main__</code> block that demonstrates them. Then describe how another file would use it.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>&quot;&quot;&quot;Simple statistics about a piece of text.&quot;&quot;&quot;
+
+from collections import Counter
+
+
+def word_count(text):
+    &quot;&quot;&quot;How many words in text.&quot;&quot;&quot;
+    return len(text.split())
+
+
+def average_word_length(text):
+    &quot;&quot;&quot;Mean length of the words in text, to one decimal place.&quot;&quot;&quot;
+    words = text.split()
+    if not words:
+        return 0.0
+    return round(sum(len(w) for w in words) / len(words), 1)
+
+
+def most_common_word(text):
+    &quot;&quot;&quot;The word that appears most often, lowercased.&quot;&quot;&quot;
+    words = [w.strip(&quot;.,!?&quot;).lower() for w in text.split()]
+    return Counter(words).most_common(1)[0][0]
+
+
+if __name__ == &quot;__main__&quot;:
+    sample = &quot;The rubber chicken. The pulley. The middle.&quot;
+    print(word_count(sample))
+    print(average_word_length(sample))
+    print(most_common_word(sample))</code></pre>
+<pre class="out"><code class="nohl">7
+5.3
+the</code></pre><p>Another file would write <code>import textstats</code> then <code>textstats.word_count(essay)</code>, and the demo block would stay silent.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Find the module</h3><p>For each task, name the standard library module that already does it. No code required, just the search skill.</p><ol><li>Work out how many days until Christmas.</li><li>Generate a secure password reset token.</li><li>Read a spreadsheet exported as CSV where some fields contain commas.</li><li>Zip up a folder for backup.</li><li>Pretty-print a deeply nested dictionary.</li><li>Find every file ending in .jpg in a folder tree.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><code>datetime</code>, subtracting two dates gives a <code>timedelta</code>.</li><li><code>secrets</code>. Not <code>random</code>, which is predictable and explicitly documented as unsuitable for security.</li><li><code>csv</code>. Splitting on commas by hand breaks on the first quoted field, guaranteed.</li><li><code>shutil.make_archive</code>, or <code>zipfile</code> for more control.</li><li><code>pprint</code>, or <code>json.dumps(x, indent=2)</code>.</li><li><code>pathlib</code>: <code>Path('.').rglob('*.jpg')</code>.</li></ol><p>The skill being trained here is the reflex to look before you build. It is worth more than any individual module.</p></details></div>
+
+    <div class="callout info"><span class="co-title">🎉 That is Level 2</span><p>Lists, tuples, dictionaries, sets, nested data, comprehensions, functions, arguments, scope and modules. You now have the toolbox that the rest of Python is built out of. Take the <a href='../quiz.html'>Level 2 quiz</a>, and build something from the <a href='../build/index.html'>workshop</a> before Level 3 turns your scripts into software.</p></div>
+
+
+    <button class="complete-btn" data-lesson="py-20-modules">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="19-scope.html"><span class="dir">← Previous</span>Lesson 19: Scope: Where Names Live</a>
+      <a class="next" href="../build/index.html"><span class="dir">Next →</span>The Project Workshop</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

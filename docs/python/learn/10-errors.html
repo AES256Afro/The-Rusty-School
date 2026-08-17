@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10: Reading Errors Without Fear - The Python School</title>
+<meta name="description" content="How to read a Python traceback, the most common exception types, and a systematic debugging method.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/10-errors">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 10: Reading Errors Without Fear - The Python School">
+<meta property="og:description" content="How to read a Python traceback, the most common exception types, and a systematic debugging method.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/10-errors">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 10: Reading Errors Without Fear - The Python School">
+<meta name="twitter:description" content="How to read a Python traceback, the most common exception types, and a systematic debugging method.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 10 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Reading Errors Without Fear 🚨</h1>
+    <p class="lede muted">This is the most valuable lesson in Level 1. Not because errors are interesting,
+    but because the gap between a beginner and a competent programmer is mostly the speed at
+    which they read an error message.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>An error is a bug report written for you, by the machine, instantly, for free</h2>
+    <p>
+      Nobody writes correct code first time. Not you, not anyone. What separates people is
+      that experienced programmers glance at the error, mutter something, and fix it in four
+      seconds, while beginners feel a jolt of dread and start changing things at random.
+    </p>
+    <p>The dread is unnecessary. The message contains the answer. Here is how to read it.</p>
+
+    <h2>Anatomy of a traceback</h2>
+    <pre class="traceback"><code class="nohl">Traceback (most recent call last):
+  File &quot;adventure.py&quot;, line 12, in &lt;module&gt;
+    show_room(rooms[3])
+              ~~~~~^^^
+IndexError: list index out of range</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Line</th><th>What it is telling you</th></tr></thead><tbody><tr><td><code>Traceback (most recent call last)</code></td><td>A list of what called what. The <strong>last</strong> entry is where it actually broke</td></tr><tr><td><code>File "adventure.py", line 12</code></td><td>Exactly where to look</td></tr><tr><td><code>show_room(rooms[3])</code></td><td>The line itself</td></tr><tr><td><code>~~~~~^^^</code></td><td>Which part of the line went wrong. Python 3.11 added these and they are wonderful</td></tr><tr><td><code>IndexError</code></td><td>The category of problem</td></tr><tr><td><code>list index out of range</code></td><td>The specific problem, in English</td></tr></tbody></table></div>
+
+    <div class="voice" data-skill="composure"><div class="v-head"><span class="v-name">COMPOSURE</span><span class="v-check success">[Medium: Success]</span></div><p>Read the bottom line first. Then the file and line number. Then, only if you still need it, the middle. Most beginners read top to bottom, get lost in the call stack, and never reach the sentence that explains everything.</p></div>
+
+    <h2>The eight you will actually meet</h2>
+
+    <h3>1. SyntaxError: it is not valid Python</h3>
+    <pre data-verify="skip"><code>print(&quot;hello&quot;</code></pre>
+    <pre class="traceback"><code class="nohl">  File &quot;hello.py&quot;, line 1
+    print(&quot;hello&quot;
+         ^
+SyntaxError: &#x27;(&#x27; was never closed</code></pre>
+    <p>
+      Caught before anything runs. Almost always a missing bracket, quote or colon. Key
+      insight: <strong>look at the line above the one Python names</strong>. An unclosed
+      bracket on line 8 is often only noticed on line 9.
+    </p>
+
+    <h3>2. IndentationError: your spacing is wrong</h3>
+    <pre class="traceback"><code class="nohl">  File &quot;game.py&quot;, line 4
+    print(&quot;inside&quot;)
+    ^
+IndentationError: expected an indented block after &#x27;if&#x27; statement on line 3</code></pre>
+    <p>
+      You wrote a colon and then did not indent, or indented inconsistently. Four spaces, no
+      tabs.
+    </p>
+
+    <h3>3. NameError: you used a name that does not exist</h3>
+    <pre data-verify="skip"><code>score = 10
+print(scroe)</code></pre>
+    <pre class="traceback"><code class="nohl">NameError: name &#x27;scroe&#x27; is not defined. Did you mean: &#x27;score&#x27;?</code></pre>
+    <p>
+      Ninety percent of the time: a typo. Python 3.12 even suggests the correction. The other
+      ten percent: you used a variable before creating it, or created it inside a function and
+      tried to use it outside (Lesson 19).
+    </p>
+
+    <h3>4. TypeError: right idea, wrong kind of thing</h3>
+    <pre data-verify="skip"><code>print(&quot;Total: &quot; + 42)</code></pre>
+    <pre class="traceback"><code class="nohl">TypeError: can only concatenate str (not &quot;int&quot;) to str</code></pre>
+    <p>The fix is usually a conversion or an f-string:</p>
+    <pre class="run" data-verify="run"><code>print(&quot;Total: &quot; + str(42))
+print(f&quot;Total: {42}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Total: 42
+Total: 42</code></pre>
+
+    <h3>5. ValueError: right type, impossible value</h3>
+    <pre data-verify="skip"><code>int(&quot;twelve&quot;)</code></pre>
+    <pre class="traceback"><code class="nohl">ValueError: invalid literal for int() with base 10: &#x27;twelve&#x27;</code></pre>
+    <p>
+      A string is exactly what <code>int()</code> wants; that particular string is not a
+      number. This is the error that user input causes, constantly.
+    </p>
+
+    <h3>6. IndexError: past the end</h3>
+    <pre data-verify="skip"><code>crew = [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+print(crew[3])</code></pre>
+    <pre class="traceback"><code class="nohl">IndexError: list index out of range</code></pre>
+    <p>
+      Three items means positions 0, 1 and 2. The last is always <code>len(x) - 1</code>, or
+      simply <code>x[-1]</code>. This is the classic off-by-one.
+    </p>
+
+    <h3>7. KeyError: no such dictionary key</h3>
+    <pre class="traceback"><code class="nohl">KeyError: &#x27;captain&#x27;</code></pre>
+    <p>
+      You asked a dictionary for something it does not have. Lesson 13 shows you
+      <code>.get()</code>, which returns a default instead of exploding.
+    </p>
+
+    <h3>8. AttributeError: that thing cannot do that</h3>
+    <pre data-verify="skip"><code>number = 42
+number.upper()</code></pre>
+    <pre class="traceback"><code class="nohl">AttributeError: &#x27;int&#x27; object has no attribute &#x27;upper&#x27;</code></pre>
+    <p>
+      <code>.upper()</code> is a string thing. Numbers do not have it. This one usually means
+      a variable is not holding the type you thought it was, which makes it a good moment to
+      <code>print(type(x))</code> and find out.
+    </p>
+
+    <h2>A method that always works</h2>
+    <p>
+      When the message alone is not enough, do not start changing lines at random. Do this
+      instead. It is slower for thirty seconds and faster for the next two hours.
+    </p>
+    <ol class="steps">
+      <li><strong>Read the last line.</strong> Out loud if necessary. It names the problem.</li>
+      <li><strong>Go to the file and line number.</strong> Look at that line, and the one
+      above it.</li>
+      <li><strong>Print what you assumed.</strong> The bug is always in the gap between what
+      you believe and what is true. Make the belief visible:
+        <pre class="run" data-verify="run"><code>row = &quot;12,Guybrush,pirate&quot;
+parts = row.split(&quot;,&quot;)
+
+print(f&quot;{parts=}&quot;)
+print(f&quot;{len(parts)=}&quot;)
+print(f&quot;{type(parts[0])=}&quot;)</code></pre>
+<pre class="out"><code class="nohl">parts=[&#x27;12&#x27;, &#x27;Guybrush&#x27;, &#x27;pirate&#x27;]
+len(parts)=3
+type(parts[0])=&lt;class &#x27;str&#x27;&gt;</code></pre></li>
+      <li><strong>Cut the program in half.</strong> Does the first half do what you expect?
+      Then the bug is in the second half. Repeat. Ten halvings finds a bug in a thousand
+      lines.</li>
+      <li><strong>Explain it to a duck.</strong> Out loud, line by line, to a rubber duck or a
+      houseplant. You will very often catch it yourself mid-sentence. This is a real, named,
+      widely used technique.</li>
+    </ol>
+
+    <div class="voice" data-skill="rubber-duck"><div class="v-head"><span class="v-name">RUBBER DUCK</span><span class="v-check success">[Easy: Success]</span></div><p>Go on. Tell me what line four does. No, not what it is supposed to do. What it does.</p>
+<p>...ah. You did not expect that either, did you.</p></div>
+
+    <h2>When you genuinely need help</h2>
+    <p>A good question gets an answer in minutes. A bad one gets silence. The difference:</p>
+    <div class="table-wrap"><table><thead><tr><th>Include</th><th>Why</th></tr></thead><tbody><tr><td>What you are trying to do</td><td>One sentence of context</td></tr><tr><td>The smallest code that shows the problem</td><td>Not your whole file. Cut it down; you will often solve it while cutting</td></tr><tr><td>The <em>full</em> error message, as text</td><td>Not a screenshot, not just the last line</td></tr><tr><td>What you already tried</td><td>Stops people repeating your work</td></tr><tr><td>Your Python version</td><td><code>python3 --version</code></td></tr></tbody></table></div>
+    <p>
+      The act of writing that up solves the problem outright often enough to have a name: it
+      is why Stack Overflow's "ask a question" page is the world's most effective debugger.
+    </p>
+
+    <div class="callout tip"><span class="co-title">🤖 On asking an AI</span><p>Modern language models are genuinely good at reading tracebacks, and it is fine to use one. Two rules keep it from rotting your skill: <strong>read the error yourself first</strong> and form a hypothesis, and <strong>make it explain rather than just fix</strong>. 'Why did this happen' teaches you something; 'give me the corrected code' teaches you nothing and you will meet the same bug next week. Level 6 has you build your own assistant, which makes this even more tempting, so the habit is worth forming now.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Diagnose without running</h3><p>For each, name the exception type and the fix.</p><pre data-verify="skip"><code># A
+print(&quot;Result: &quot; + 10)
+
+# B
+name = input(&quot;Name: &quot;)
+print(nmae)
+
+# C
+numbers = [1, 2, 3]
+print(numbers[3])
+
+# D
+print(int(&quot;3.5&quot;))</code></pre><details class="solution"><summary>Reveal solution</summary><p><strong>A:</strong> <code>TypeError</code>. Use <code>f"Result: {10}"</code> or <code>str(10)</code>.</p><p><strong>B:</strong> <code>NameError</code>. <code>nmae</code> is a typo for <code>name</code>.</p><p><strong>C:</strong> <code>IndexError</code>. Three items live at 0, 1, 2. Use <code>numbers[-1]</code> for the last one.</p><p><strong>D:</strong> <code>ValueError</code>. <code>int()</code> will not parse a decimal point in a string. Use <code>int(float("3.5"))</code>, which gives 3.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Fix the whole program</h3><p>Four bugs. Find them by running it and reading each error in turn, fixing one at a time. Resist the urge to fix them all at once by eye.</p><pre data-verify="skip"><code>crew = [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+
+print(&quot;Crew size: &quot; + len(crew))
+
+for i in range(4):
+    print(crew[i])
+
+if len(crew) &gt; 2
+    print(&quot;A full crew&quot;)</code></pre><details class="solution"><summary>Reveal solution</summary><p>In the order Python finds them:</p><ol><li><code>SyntaxError</code>: the <code>if</code> line has no colon. Syntax errors are found before anything runs, so this one comes first even though it is last in the file.</li><li><code>TypeError</code>: <code>"Crew size: " + len(crew)</code> adds text to a number.</li><li><code>IndexError</code>: <code>range(4)</code> reaches index 3, and there are only three crew.</li><li>Not an error, but a design bug: hard-coding 4 instead of using <code>len(crew)</code> means adding a crew member silently breaks the program.</li></ol><pre class="run" data-verify="run"><code>crew = [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+
+print(f&quot;Crew size: {len(crew)}&quot;)
+
+for name in crew:
+    print(name)
+
+if len(crew) &gt; 2:
+    print(&quot;A full crew&quot;)</code></pre>
+<pre class="out"><code class="nohl">Crew size: 3
+Guybrush
+Elaine
+Otis
+A full crew</code></pre><p>Note the final version does not just fix the errors, it removes the possibility of two of them. <code>for name in crew</code> cannot go out of range, ever. That is the difference between fixing a bug and fixing a class of bugs.</p></details></div>
+
+    <div class="callout info"><span class="co-title">🎉 That is Level 1</span><p>You now know printing, variables, numbers, text, input, booleans, decisions, both kinds of loop, and how to read an error. That is genuinely enough to write useful programs. Take the <a href='../quiz.html'>Level 1 quiz</a>, warm up in the <a href='../pit.html'>Snake Pit</a>, then go and build <a href='../build/index.html'>the first two projects</a> before Level 2. Reading about programming and doing it are different skills, and only one of them is the job.</p></div>
+
+
+    <button class="complete-btn" data-lesson="py-10-errors">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="09-for.html"><span class="dir">← Previous</span>Lesson 9: Loops That Count: for</a>
+      <a class="next" href="11-lists.html"><span class="dir">Next →</span>Lesson 11: Lists: Many Things at Once</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

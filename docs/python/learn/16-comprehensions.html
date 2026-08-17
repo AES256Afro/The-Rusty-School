@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 16: Comprehensions - The Python School</title>
+<meta name="description" content="List, dict and set comprehensions, filtering, and when a comprehension is the wrong choice.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/16-comprehensions">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 16: Comprehensions - The Python School">
+<meta property="og:description" content="List, dict and set comprehensions, filtering, and when a comprehension is the wrong choice.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/16-comprehensions">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 16: Comprehensions - The Python School">
+<meta name="twitter:description" content="List, dict and set comprehensions, filtering, and when a comprehension is the wrong choice.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 16 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Comprehensions ✨</h1>
+    <p class="lede muted">Take a loop that builds a list, and fold it into a single line that reads like a
+    sentence. Used well this is Python at its best. Used badly it is a war crime.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>From loop to comprehension</h2>
+    <p>Here is the loop you already know:</p>
+    <pre class="run" data-verify="run"><code>squares = []
+for n in range(1, 6):
+    squares.append(n * n)
+print(squares)</code></pre>
+<pre class="out"><code class="nohl">[1, 4, 9, 16, 25]</code></pre>
+    <p>And here it is again:</p>
+    <pre class="run" data-verify="run"><code>squares = [n * n for n in range(1, 6)]
+print(squares)</code></pre>
+<pre class="out"><code class="nohl">[1, 4, 9, 16, 25]</code></pre>
+    <p>
+      The pieces are the same, rearranged. The thing you append comes first, then the loop.
+      Read it aloud: "n times n, for each n in one to five".
+    </p>
+    <pre class="out"><code class="nohl">[  n * n     for n in range(1, 6)  ]
+   ^^^^^     ^^^^^^^^^^^^^^^^^^^^
+   what      where it comes from
+   you keep</code></pre>
+
+    <h2>Adding a filter</h2>
+    <pre class="run" data-verify="run"><code>numbers = [4, 9, 15, 22, 30, 7]
+
+evens = [n for n in numbers if n % 2 == 0]
+print(evens)
+
+big_doubled = [n * 2 for n in numbers if n &gt; 10]
+print(big_doubled)</code></pre>
+<pre class="out"><code class="nohl">[4, 22, 30]
+[30, 44, 60]</code></pre>
+    <p>The <code>if</code> goes at the end and decides what gets in. Reading order:</p>
+    <ol>
+      <li>Take each <code>n</code> from <code>numbers</code>,</li>
+      <li>keep it only if the condition is true,</li>
+      <li>and put <code>n * 2</code> in the new list.</li>
+    </ol>
+
+    <h2>Transforming text</h2>
+    <pre class="run" data-verify="run"><code>crew = [&quot;  guybrush &quot;, &quot;ELAINE&quot;, &quot; otis  &quot;]
+
+tidy = [name.strip().title() for name in crew]
+print(tidy)
+
+lengths = [len(name) for name in tidy]
+print(lengths)
+
+initials = [name[0] for name in tidy]
+print(initials)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Otis&#x27;]
+[8, 6, 4]
+[&#x27;G&#x27;, &#x27;E&#x27;, &#x27;O&#x27;]</code></pre>
+
+    <h2>Dictionary and set comprehensions</h2>
+    <pre class="run" data-verify="run"><code>words = [&quot;grog&quot;, &quot;sword&quot;, &quot;map&quot;]
+
+lengths = {word: len(word) for word in words}
+print(lengths)
+
+first_letters = {word[0] for word in words}
+print(sorted(first_letters))
+
+scores = {&quot;Guybrush&quot;: 95, &quot;Elaine&quot;: 88, &quot;Otis&quot;: 42}
+passed = {name: score for name, score in scores.items() if score &gt;= 50}
+print(passed)</code></pre>
+<pre class="out"><code class="nohl">{&#x27;grog&#x27;: 4, &#x27;sword&#x27;: 5, &#x27;map&#x27;: 3}
+[&#x27;g&#x27;, &#x27;m&#x27;, &#x27;s&#x27;]
+{&#x27;Guybrush&#x27;: 95, &#x27;Elaine&#x27;: 88}</code></pre>
+    <p>
+      Same syntax, different brackets. <code>[ ]</code> makes a list, <code>{ }</code> with a
+      colon makes a dictionary, <code>{ }</code> without makes a set. Filtering a dictionary
+      down to the entries you want is one of the most useful lines in day-to-day Python.
+    </p>
+
+    <h2>The conditional version</h2>
+    <pre class="run" data-verify="run"><code>numbers = [4, 9, 15, 22]
+
+labels = [&quot;even&quot; if n % 2 == 0 else &quot;odd&quot; for n in numbers]
+print(labels)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;even&#x27;, &#x27;odd&#x27;, &#x27;odd&#x27;, &#x27;even&#x27;]</code></pre>
+    <div class="callout warn"><span class="co-title">🤔 Two different ifs, two different places</span><p><code>[x for x in items if cond]</code> filters: the if is at the end and decides what is included. <code>[a if cond else b for x in items]</code> chooses: the if is at the front and decides what value each item becomes. If you need an <code>else</code>, it goes at the front. This trips up everyone.</p></div>
+
+    <h2>Nested loops in a comprehension</h2>
+    <pre class="run" data-verify="run"><code>pairs = [(a, b) for a in &quot;AB&quot; for b in [1, 2]]
+print(pairs)
+
+grid = [[1, 2], [3, 4], [5, 6]]
+flat = [n for row in grid for n in row]
+print(flat)</code></pre>
+<pre class="out"><code class="nohl">[(&#x27;A&#x27;, 1), (&#x27;A&#x27;, 2), (&#x27;B&#x27;, 1), (&#x27;B&#x27;, 2)]
+[1, 2, 3, 4, 5, 6]</code></pre>
+    <p>
+      The loops read in the same order you would write them normally: outer first, inner
+      second. Flattening a list of lists is the common case and worth memorising as a phrase.
+    </p>
+
+    <h2>Generator expressions: the lazy cousin</h2>
+    <pre class="run" data-verify="run"><code>numbers = range(1, 1_000_001)
+
+# builds a million-item list in memory first
+total_list = sum([n * n for n in numbers])
+
+# produces one value at a time and never stores them all
+total_gen = sum(n * n for n in numbers)
+
+print(total_list == total_gen)
+print(f&quot;{total_gen:,}&quot;)</code></pre>
+<pre class="out"><code class="nohl">True
+333,333,833,333,500,000</code></pre>
+    <p>
+      Round brackets (or none at all, inside a function call) give you a
+      <strong>generator expression</strong>: it computes values on demand instead of building
+      the whole list. For a million squares that is the difference between using about 40MB of
+      memory and using almost none. When you are feeding straight into
+      <code>sum</code>, <code>max</code>, <code>any</code> or a <code>for</code> loop, drop the
+      square brackets. Lesson 34 goes deeper.
+    </p>
+
+    <h2>any and all</h2>
+    <pre class="run" data-verify="run"><code>scores = [95, 88, 42, 71]
+
+print(any(s &lt; 50 for s in scores))
+print(all(s &gt;= 40 for s in scores))
+print(sum(1 for s in scores if s &gt;= 70))</code></pre>
+<pre class="out"><code class="nohl">True
+True
+3</code></pre>
+    <p>
+      <code>any</code> and <code>all</code> plus a generator expression is how you ask "is
+      there at least one" and "is every single one" in a single readable line. They also stop
+      early as soon as the answer is decided.
+    </p>
+
+    <h2>When not to use one</h2>
+    <pre class="run" data-verify="run"><code># Do not do this to people.
+result = [y for x in range(10) if x % 2 == 0 for y in range(x) if y % 3 == 0 and y &gt; 1]
+print(result)</code></pre>
+<pre class="out"><code class="nohl">[3, 3, 3, 6]</code></pre>
+
+    <div class="voice" data-skill="rhetoric"><div class="v-head"><span class="v-name">RHETORIC</span><span class="v-check success">[Medium: Success]</span></div><p>You wrote it, and today you understand it. That is not the test. The test is whether a colleague can read it at speed on a Friday afternoon, or whether you can in March.</p>
+<p>If a comprehension needs more than one loop and one condition, or it does not fit comfortably on one line, write the loop. Nobody has ever been fired for clarity.</p></div>
+
+    <p>Also: if the loop is doing something rather than collecting something, use a loop.</p>
+    <pre class="run" data-verify="run"><code># wrong: building a list of Nones purely for the side effect
+# [print(n) for n in range(3)]
+
+# right
+for n in range(3):
+    print(n)</code></pre>
+<pre class="out"><code class="nohl">0
+1
+2</code></pre>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Rewrite as comprehensions</h3><p>Turn each of these into one line.</p><pre data-verify="compile"><code># A
+result = []
+for word in [&quot;grog&quot;, &quot;map&quot;, &quot;sword&quot;]:
+    result.append(word.upper())
+
+# B
+long_words = []
+for word in [&quot;grog&quot;, &quot;a&quot;, &quot;sword&quot;, &quot;of&quot;]:
+    if len(word) &gt; 2:
+        long_words.append(word)
+
+# C
+lengths = {}
+for word in [&quot;grog&quot;, &quot;map&quot;]:
+    lengths[word] = len(word)</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>result = [word.upper() for word in [&quot;grog&quot;, &quot;map&quot;, &quot;sword&quot;]]
+long_words = [w for w in [&quot;grog&quot;, &quot;a&quot;, &quot;sword&quot;, &quot;of&quot;] if len(w) &gt; 2]
+lengths = {word: len(word) for word in [&quot;grog&quot;, &quot;map&quot;]}
+
+print(result)
+print(long_words)
+print(lengths)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;GROG&#x27;, &#x27;MAP&#x27;, &#x27;SWORD&#x27;]
+[&#x27;grog&#x27;, &#x27;sword&#x27;]
+{&#x27;grog&#x27;: 4, &#x27;map&#x27;: 3}</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>FizzBuzz in one line</h3><p>Produce a list of the FizzBuzz results for 1 to 15 using a single comprehension. Then decide whether you would actually ship it.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>result = [
+    &quot;FizzBuzz&quot; if n % 15 == 0
+    else &quot;Fizz&quot; if n % 3 == 0
+    else &quot;Buzz&quot; if n % 5 == 0
+    else str(n)
+    for n in range(1, 16)
+]
+print(result)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;1&#x27;, &#x27;2&#x27;, &#x27;Fizz&#x27;, &#x27;4&#x27;, &#x27;Buzz&#x27;, &#x27;Fizz&#x27;, &#x27;7&#x27;, &#x27;8&#x27;, &#x27;Fizz&#x27;, &#x27;Buzz&#x27;, &#x27;11&#x27;, &#x27;Fizz&#x27;, &#x27;13&#x27;, &#x27;14&#x27;, &#x27;FizzBuzz&#x27;]</code></pre><p>It works, and chained conditional expressions are legal. Would you ship it? Probably not: the loop version from Lesson 9 is clearer and just as short in practice. The right answer to 'can Python do this in one line' is often 'yes, and no'.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Filter records</h3><p>From a list of dictionaries, produce a list of the names of everyone paid more than 50, sorted alphabetically.</p><pre data-verify="compile"><code>crew = [
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;pay&quot;: 100},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;pay&quot;: 40},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;pay&quot;: 250},
+    {&quot;name&quot;: &quot;Meathook&quot;, &quot;pay&quot;: 45},
+]</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>crew = [
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;pay&quot;: 100},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;pay&quot;: 40},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;pay&quot;: 250},
+    {&quot;name&quot;: &quot;Meathook&quot;, &quot;pay&quot;: 45},
+]
+
+well_paid = sorted(m[&quot;name&quot;] for m in crew if m[&quot;pay&quot;] &gt; 50)
+print(well_paid)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Elaine&#x27;, &#x27;Guybrush&#x27;]</code></pre><p>A generator expression passed straight to <code>sorted</code>, with no intermediate list. This is what fluent Python looks like: not clever, just direct.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-16-comprehensions">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="15-nested.html"><span class="dir">← Previous</span>Lesson 15: Nested Data</a>
+      <a class="next" href="17-functions.html"><span class="dir">Next →</span>Lesson 17: Functions: Naming a Process</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

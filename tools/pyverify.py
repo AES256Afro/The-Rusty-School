@@ -73,10 +73,35 @@ def find_python() -> str:
     raise SystemExit("No Python 3.11+ found. Set PYTHON_SCHOOL_PYTHON to one.")
 
 
+# When a human runs a program in a terminal, the characters they type are
+# echoed back by the terminal itself, so the transcript in a lesson shows
+# "Name: Guybrush" on one line. Piped stdin is not echoed, and the school's
+# in-browser runner echoes deliberately so the output looks like a terminal.
+# This preamble makes the verifier agree with both of them.
+ECHO_INPUT = '''\
+import builtins as _b, sys as _s
+_real = _b.input
+
+
+def _echoing_input(prompt=""):
+    _s.stdout.write(str(prompt))
+    line = _real()
+    _s.stdout.write(line + "\\n")
+    return line
+
+
+_b.input = _echoing_input
+'''
+
+
 def run_snippet(python: str, src: str, stdin: str, workdir: Path) -> tuple[int, str]:
     """Run one snippet in a scratch directory and return (code, merged output)."""
     script = workdir / "snippet.py"
     script.write_text(src, encoding="utf-8")
+    # sitecustomize is imported automatically at startup, which keeps the
+    # snippet file itself pristine so traceback line numbers stay honest
+    (workdir / "sitecustomize.py").write_text(ECHO_INPUT, encoding="utf-8")
+    env = dict(os.environ, PYTHONPATH=str(workdir))
     proc = subprocess.run(
         [python, str(script)],
         input=stdin,
@@ -84,6 +109,7 @@ def run_snippet(python: str, src: str, stdin: str, workdir: Path) -> tuple[int, 
         text=True,
         timeout=TIMEOUT,
         cwd=workdir,
+        env=env,
     )
     return proc.returncode, (proc.stdout + proc.stderr)
 

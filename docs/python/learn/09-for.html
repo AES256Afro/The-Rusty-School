@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 9: Loops That Count: for - The Python School</title>
+<meta name="description" content="The for loop, range(), enumerate(), looping over strings and lists, and nested loops.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/09-for">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 9: Loops That Count: for - The Python School">
+<meta property="og:description" content="The for loop, range(), enumerate(), looping over strings and lists, and nested loops.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/09-for">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 9: Loops That Count: for - The Python School">
+<meta name="twitter:description" content="The for loop, range(), enumerate(), looping over strings and lists, and nested loops.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 9 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Loops That Count: for 🔂</h1>
+    <p class="lede muted">If while is 'keep going until', for is 'do this once for each of these'. It is the
+    loop you will write ninety percent of the time.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>for: once for each item</h2>
+    <pre class="run" data-verify="run"><code>for item in [&quot;rubber chicken&quot;, &quot;grog&quot;, &quot;map&quot;, &quot;sword&quot;]:
+    print(f&quot;You are carrying: {item}&quot;)</code></pre>
+<pre class="out"><code class="nohl">You are carrying: rubber chicken
+You are carrying: grog
+You are carrying: map
+You are carrying: sword</code></pre>
+    <p>
+      Read it as English: "for each item in this collection, do the following". The variable
+      <code>item</code> is created by the loop and takes each value in turn. You do not
+      declare it, you do not increment it, and you cannot get the counting wrong, because
+      there is no counting.
+    </p>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Medium: Success]</span></div><p>Notice what just disappeared. No counter to initialise, no condition to get backwards, no increment to forget, no off-by-one at the end. An entire genus of bug, extinct, because you described what you wanted instead of how to step through it.</p></div>
+
+    <h2>range: when you want numbers</h2>
+    <pre class="run" data-verify="run"><code>for n in range(5):
+    print(n)</code></pre>
+<pre class="out"><code class="nohl">0
+1
+2
+3
+4</code></pre>
+    <p>
+      <code>range(5)</code> gives five numbers <strong>starting at 0</strong>: 0, 1, 2, 3, 4.
+      Five numbers, not up to five. This is the same start-included, end-excluded rule as
+      slicing, and it is consistent throughout the language.
+    </p>
+    <pre class="run" data-verify="run"><code>print(list(range(5)))
+print(list(range(1, 6)))
+print(list(range(0, 20, 5)))
+print(list(range(10, 0, -2)))</code></pre>
+<pre class="out"><code class="nohl">[0, 1, 2, 3, 4]
+[1, 2, 3, 4, 5]
+[0, 5, 10, 15]
+[10, 8, 6, 4, 2]</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Written</th><th>Means</th></tr></thead><tbody><tr><td><code>range(stop)</code></td><td>0 up to but not including stop</td></tr><tr><td><code>range(start, stop)</code></td><td>start up to but not including stop</td></tr><tr><td><code>range(start, stop, step)</code></td><td>as above, jumping by step (negative counts down)</td></tr></tbody></table></div>
+
+    <h2>Looping over text</h2>
+    <pre class="run" data-verify="run"><code>for letter in &quot;GROG&quot;:
+    print(letter, end=&quot; &quot;)
+
+print()
+
+word = &quot;banana&quot;
+count = 0
+for letter in word:
+    if letter == &quot;a&quot;:
+        count += 1
+print(f&quot;{count} letter a&#x27;s in {word}&quot;)</code></pre>
+<pre class="out"><code class="nohl">G R O G
+3 letter a&#x27;s in banana</code></pre>
+
+    <h2>enumerate: when you need the position too</h2>
+    <pre class="run" data-verify="run"><code>crew = [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+
+# The clumsy way, which you see beginners write:
+for i in range(len(crew)):
+    print(f&quot;{i}: {crew[i]}&quot;)
+
+print(&quot;---&quot;)
+
+# The Python way:
+for i, name in enumerate(crew):
+    print(f&quot;{i}: {name}&quot;)
+
+print(&quot;---&quot;)
+
+# Humans count from 1:
+for position, name in enumerate(crew, start=1):
+    print(f&quot;{position}. {name}&quot;)</code></pre>
+<pre class="out"><code class="nohl">0: Guybrush
+1: Elaine
+2: Otis
+---
+0: Guybrush
+1: Elaine
+2: Otis
+---
+1. Guybrush
+2. Elaine
+3. Otis</code></pre>
+    <div class="callout tip"><span class="co-title">🎯 The rule of thumb</span><p>If you ever write <code>for i in range(len(something))</code>, stop. You almost certainly want <code>for item in something</code>, or <code>enumerate</code> if you genuinely need the index. Experienced reviewers spot that pattern instantly.</p></div>
+
+    <h2>zip: walking two collections together</h2>
+    <pre class="run" data-verify="run"><code>names = [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;LeChuck&quot;]
+roles = [&quot;pirate&quot;, &quot;governor&quot;, &quot;ghost&quot;]
+
+for name, role in zip(names, roles):
+    print(f&quot;{name:10} is a {role}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Guybrush   is a pirate
+Elaine     is a governor
+LeChuck    is a ghost</code></pre>
+    <p>
+      <code>zip</code> stops at the shortest one, which is usually what you want and
+      occasionally a silent bug. If you need it to complain about mismatched lengths, use
+      <code>zip(a, b, strict=True)</code>, added in Python 3.10.
+    </p>
+
+    <h2>Accumulating: the pattern behind everything</h2>
+    <pre class="run" data-verify="run"><code>prices = [4.50, 12.00, 3.25, 8.75]
+
+total = 0
+for price in prices:
+    total += price
+
+print(f&quot;Total: {total:.2f}&quot;)
+print(f&quot;Average: {total / len(prices):.2f}&quot;)
+print(f&quot;Built in: {sum(prices):.2f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Total: 28.50
+Average: 7.12
+Built in: 28.50</code></pre>
+    <p>
+      Start with an empty accumulator, add to it each time round, use it after. That shape
+      (with a list, a string, a dictionary or a counter) is behind a huge fraction of all
+      programs. Python also has <code>sum</code>, <code>min</code>, <code>max</code> and
+      <code>len</code> built in, and you should use them when they fit.
+    </p>
+
+    <h2>Nested loops</h2>
+    <pre class="run" data-verify="run"><code>for row in range(1, 4):
+    for col in range(1, 4):
+        print(f&quot;{row * col:3}&quot;, end=&quot;&quot;)
+    print()</code></pre>
+<pre class="out"><code class="nohl">  1  2  3
+  2  4  6
+  3  6  9</code></pre>
+    <p>
+      The inner loop runs completely for every single step of the outer one: three rows times
+      three columns is nine prints. This is how you handle grids, tables, chessboards and
+      images. It is also where performance goes to die: two nested loops over 1,000 items each
+      is a million steps. Lesson 51 has more to say about that.
+    </p>
+
+    <h2>FizzBuzz, finally complete</h2>
+    <pre class="run" data-verify="run"><code>for n in range(1, 21):
+    if n % 15 == 0:
+        print(&quot;FizzBuzz&quot;)
+    elif n % 3 == 0:
+        print(&quot;Fizz&quot;)
+    elif n % 5 == 0:
+        print(&quot;Buzz&quot;)
+    else:
+        print(n)</code></pre>
+<pre class="out"><code class="nohl">1
+2
+Fizz
+4
+Buzz
+Fizz
+7
+8
+Fizz
+Buzz
+11
+Fizz
+13
+14
+FizzBuzz
+16
+17
+Fizz
+19
+Buzz</code></pre>
+    <p>
+      That is the whole of the famous interview screening question. It exists because a
+      startling number of applicants cannot write it, and what it really tests is whether you
+      thought about the order of the conditions.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Times table</h3><p>Print the 7 times table from 7 x 1 to 7 x 12, one line each, neatly aligned.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>for n in range(1, 13):
+    print(f&quot;7 x {n:2} = {7 * n:3}&quot;)</code></pre>
+<pre class="out"><code class="nohl">7 x  1 =   7
+7 x  2 =  14
+7 x  3 =  21
+7 x  4 =  28
+7 x  5 =  35
+7 x  6 =  42
+7 x  7 =  49
+7 x  8 =  56
+7 x  9 =  63
+7 x 10 =  70
+7 x 11 =  77
+7 x 12 =  84</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Count the vowels</h3><p>Count how many vowels are in a phrase, and report which ones appeared.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>phrase = &quot;The Secret of Monkey Island&quot;
+
+vowels = &quot;aeiou&quot;
+count = 0
+found = &quot;&quot;
+
+for letter in phrase.lower():
+    if letter in vowels:
+        count += 1
+        if letter not in found:
+            found += letter
+
+print(f&quot;{count} vowels&quot;)
+print(f&quot;which were: {found}&quot;)</code></pre>
+<pre class="out"><code class="nohl">8 vowels
+which were: eoia</code></pre><p><code>in</code> works on strings as well as lists, and reads exactly as you would say it out loud. It is one of Python's nicest small features.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Draw a triangle</h3><p>Print a right-angled triangle of stars, five rows tall, then the same triangle upside down.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>for row in range(1, 6):
+    print(&quot;*&quot; * row)
+
+print()
+
+for row in range(5, 0, -1):
+    print(&quot;*&quot; * row)</code></pre>
+<pre class="out"><code class="nohl">*
+**
+***
+****
+*****
+
+*****
+****
+***
+**
+*</code></pre><p>No inner loop needed: multiplying a string does the repetition for you. When you can replace a loop with an expression, the code usually gets clearer, not just shorter.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-09-for">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="08-while.html"><span class="dir">← Previous</span>Lesson 8: Loops That Repeat: while</a>
+      <a class="next" href="10-errors.html"><span class="dir">Next →</span>Lesson 10: Reading Errors Without Fear</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

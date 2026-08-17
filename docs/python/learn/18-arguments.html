@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 18: Arguments in Depth - The Python School</title>
+<meta name="description" content="Default values, keyword-only arguments, *args and **kwargs, and the mutable default trap.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/18-arguments">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 18: Arguments in Depth - The Python School">
+<meta property="og:description" content="Default values, keyword-only arguments, *args and **kwargs, and the mutable default trap.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/18-arguments">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 18: Arguments in Depth - The Python School">
+<meta name="twitter:description" content="Default values, keyword-only arguments, *args and **kwargs, and the mutable default trap.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 18 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Arguments in Depth 🎛️</h1>
+    <p class="lede muted">Python's argument handling is unusually flexible, which makes functions pleasant
+    to call and hides exactly one legendary landmine.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Default values</h2>
+    <pre class="run" data-verify="run"><code>def greet(name, greeting=&quot;Welcome&quot;):
+    return f&quot;{greeting}, {name}.&quot;
+
+
+print(greet(&quot;Guybrush&quot;))
+print(greet(&quot;Elaine&quot;, &quot;Good evening&quot;))
+print(greet(&quot;Otis&quot;, greeting=&quot;Get out&quot;))</code></pre>
+<pre class="out"><code class="nohl">Welcome, Guybrush.
+Good evening, Elaine.
+Get out, Otis.</code></pre>
+    <p>
+      Arguments with defaults are optional and must come after the ones without. Defaults are
+      how a function grows new abilities without breaking every existing call, which matters
+      enormously once other people use your code.
+    </p>
+
+    <h2>The famous landmine</h2>
+    <pre class="run" data-verify="run"><code>def add_crew(name, crew=[]):        # do NOT do this
+    crew.append(name)
+    return crew
+
+
+print(add_crew(&quot;Guybrush&quot;))
+print(add_crew(&quot;Elaine&quot;))
+print(add_crew(&quot;Otis&quot;))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Guybrush&#x27;]
+[&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;]
+[&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Otis&#x27;]</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Legendary: Success]</span></div><p>Look at it. Every call was supposed to start from an empty list, and they are all sharing one.</p>
+<p>The default value is created once, when the function is defined, not each time it is called. There is exactly one list, it lives on the function object itself, and every call that does not pass its own gets that same one. It has been quietly accumulating since the program started.</p></div>
+
+    <p>The fix is always the same:</p>
+    <pre class="run" data-verify="run"><code>def add_crew(name, crew=None):
+    if crew is None:
+        crew = []
+    crew.append(name)
+    return crew
+
+
+print(add_crew(&quot;Guybrush&quot;))
+print(add_crew(&quot;Elaine&quot;))
+print(add_crew(&quot;Otis&quot;, [&quot;LeChuck&quot;]))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Guybrush&#x27;]
+[&#x27;Elaine&#x27;]
+[&#x27;LeChuck&#x27;, &#x27;Otis&#x27;]</code></pre>
+    <div class="callout danger"><span class="co-title">📏 The rule, memorised in one line</span><p><strong>Never use a mutable value as a default.</strong> Not a list, not a dictionary, not a set. Use <code>None</code> and create it inside. Numbers, strings, tuples and booleans are immutable and perfectly safe.</p></div>
+
+    <h2>*args: any number of positional arguments</h2>
+    <pre class="run" data-verify="run"><code>def total(*numbers):
+    print(f&quot;got {numbers} which is a {type(numbers).__name__}&quot;)
+    return sum(numbers)
+
+
+print(total(1, 2, 3))
+print(total(10, 20))
+print(total())</code></pre>
+<pre class="out"><code class="nohl">got (1, 2, 3) which is a tuple
+6
+got (10, 20) which is a tuple
+30
+got () which is a tuple
+0</code></pre>
+    <p>
+      The star collects every extra positional argument into a tuple. The name
+      <code>args</code> is pure convention; the star is what does the work.
+    </p>
+
+    <h2>**kwargs: any number of named arguments</h2>
+    <pre class="run" data-verify="run"><code>def describe(**details):
+    for key, value in details.items():
+        print(f&quot;{key:10} {value}&quot;)
+
+
+describe(name=&quot;Guybrush&quot;, role=&quot;pirate&quot;, insults=8)</code></pre>
+<pre class="out"><code class="nohl">name       Guybrush
+role       pirate
+insults    8</code></pre>
+    <p>Two stars collect named arguments into a dictionary. Both together:</p>
+    <pre class="run" data-verify="run"><code>def log(message, *tags, level=&quot;INFO&quot;, **extra):
+    tag_text = f&quot; [{&#x27; &#x27;.join(tags)}]&quot; if tags else &quot;&quot;
+    extra_text = &quot;&quot;.join(f&quot; {k}={v}&quot; for k, v in extra.items())
+    print(f&quot;{level}: {message}{tag_text}{extra_text}&quot;)
+
+
+log(&quot;Ship departed&quot;)
+log(&quot;Ship sank&quot;, &quot;urgent&quot;, &quot;nautical&quot;, level=&quot;ERROR&quot;, depth=40, souls=12)</code></pre>
+<pre class="out"><code class="nohl">INFO: Ship departed
+ERROR: Ship sank [urgent nautical] depth=40 souls=12</code></pre>
+    <p>
+      The order is fixed and worth remembering: positional, <code>*args</code>,
+      keyword-with-defaults, <code>**kwargs</code>. You will see this signature constantly in
+      library code, and now it is not mysterious.
+    </p>
+
+    <h2>Unpacking at the call site</h2>
+    <pre class="run" data-verify="run"><code>def make_pirate(name, role, insults):
+    return f&quot;{name} the {role} ({insults} insults)&quot;
+
+
+details = [&quot;Guybrush&quot;, &quot;pirate&quot;, 8]
+print(make_pirate(*details))
+
+as_dict = {&quot;name&quot;: &quot;Elaine&quot;, &quot;role&quot;: &quot;governor&quot;, &quot;insults&quot;: 3}
+print(make_pirate(**as_dict))</code></pre>
+<pre class="out"><code class="nohl">Guybrush the pirate (8 insults)
+Elaine the governor (3 insults)</code></pre>
+    <p>
+      The same stars work in reverse when calling: <code>*</code> spreads a list into
+      positional arguments, <code>**</code> spreads a dictionary into named ones. This is how
+      you pass configuration around without writing out every field.
+    </p>
+
+    <h2>Forcing arguments to be named</h2>
+    <pre class="run" data-verify="run"><code>def transfer(amount, *, from_account, to_account):
+    return f&quot;Moving {amount} from {from_account} to {to_account}&quot;
+
+
+print(transfer(100, from_account=&quot;checking&quot;, to_account=&quot;savings&quot;))
+# transfer(100, &quot;checking&quot;, &quot;savings&quot;)   # TypeError: takes 1 positional argument</code></pre>
+<pre class="out"><code class="nohl">Moving 100 from checking to savings</code></pre>
+    <p>
+      A bare <code>*</code> in the signature means "everything after this must be passed by
+      name". Use it whenever the arguments could be confused with each other. Nobody has ever
+      swapped two accounts by accident when the names were required.
+    </p>
+    <p>
+      There is a mirror feature: a <code>/</code> in the signature marks arguments that must be
+      positional. You will see it in the standard library's documentation and rarely need to
+      write it.
+    </p>
+
+    <h2>Mutable arguments change the caller's data</h2>
+    <pre class="run" data-verify="run"><code>def add_item(inventory, item):
+    inventory.append(item)          # changes the caller&#x27;s list
+
+
+def add_item_safely(inventory, item):
+    return inventory + [item]       # returns a new list
+
+
+bag = [&quot;map&quot;]
+add_item(bag, &quot;grog&quot;)
+print(bag)
+
+bag2 = [&quot;map&quot;]
+new_bag = add_item_safely(bag2, &quot;grog&quot;)
+print(bag2, new_bag)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;map&#x27;, &#x27;grog&#x27;]
+[&#x27;map&#x27;] [&#x27;map&#x27;, &#x27;grog&#x27;]</code></pre>
+    <p>
+      Both are legitimate designs. What matters is that you choose deliberately and say so in
+      the name and the docstring. A function that quietly modifies what you handed it is a
+      function that will surprise someone, and the someone is usually you.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Flexible greeter</h3><p>Write <code>greet</code> that takes any number of names, plus an optional greeting and an optional excited flag that adds an exclamation mark. The flag must be keyword-only.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def greet(*names, greeting=&quot;Hello&quot;, excited=False):
+    &quot;&quot;&quot;Greet everyone by name.&quot;&quot;&quot;
+    if not names:
+        return f&quot;{greeting}, nobody.&quot;
+    joined = &quot;, &quot;.join(names[:-1]) + &quot; and &quot; + names[-1] if len(names) &gt; 1 else names[0]
+    end = &quot;!&quot; if excited else &quot;.&quot;
+    return f&quot;{greeting}, {joined}{end}&quot;
+
+
+print(greet(&quot;Guybrush&quot;))
+print(greet(&quot;Guybrush&quot;, &quot;Elaine&quot;))
+print(greet(&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;, greeting=&quot;Ahoy&quot;, excited=True))
+print(greet())</code></pre>
+<pre class="out"><code class="nohl">Hello, Guybrush.
+Hello, Guybrush and Elaine.
+Ahoy, Guybrush, Elaine and Otis!
+Hello, nobody.</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Spot the landmine</h3><p>This cache is meant to remember results. Why does it leak between calls, and how would you fix it while keeping the feature?</p><pre data-verify="compile"><code>def remember(key, value, store={}):
+    store[key] = value
+    return store</code></pre><details class="solution"><summary>Reveal solution</summary><p>It is the mutable default again, except here the sharing is arguably the intent: it does successfully cache. The problem is that it is invisible, un-resettable, and shared with every other caller in the program including code you did not write.</p><p>If you want a cache, say so out loud:</p><pre class="run" data-verify="run"><code>_store = {}
+
+
+def remember(key, value, store=None):
+    &quot;&quot;&quot;Remember a value. Uses the module cache unless given its own store.&quot;&quot;&quot;
+    target = _store if store is None else store
+    target[key] = value
+    return target
+
+
+print(remember(&quot;a&quot;, 1))
+print(remember(&quot;b&quot;, 2))
+print(remember(&quot;c&quot;, 3, store={}))</code></pre>
+<pre class="out"><code class="nohl">{&#x27;a&#x27;: 1}
+{&#x27;a&#x27;: 1, &#x27;b&#x27;: 2}
+{&#x27;c&#x27;: 3}</code></pre><p>Now the shared state has a name, lives at module level where a reader will see it, and can be bypassed. Python also has <code>functools.lru_cache</code> for real caching, which Lesson 35 covers.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Pass-through wrapper</h3><p>Write <code>shout</code> that calls any function with any arguments and prints the result in capitals. It must work with functions you have never seen.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def shout(func, *args, **kwargs):
+    &quot;&quot;&quot;Call func with whatever it was given, and print the result loudly.&quot;&quot;&quot;
+    result = func(*args, **kwargs)
+    print(str(result).upper())
+    return result
+
+
+def introduce(name, role=&quot;pirate&quot;):
+    return f&quot;{name} the {role}&quot;
+
+
+shout(introduce, &quot;Guybrush&quot;)
+shout(introduce, &quot;Elaine&quot;, role=&quot;governor&quot;)
+shout(max, 3, 9, 2)</code></pre>
+<pre class="out"><code class="nohl">GUYBRUSH THE PIRATE
+ELAINE THE GOVERNOR
+9</code></pre><p>Collecting with <code>*args, **kwargs</code> and immediately spreading them again is the standard shape of any wrapper. It is exactly how decorators work, which is Lesson 35, and you have now written the hard part of one.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-18-arguments">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="17-functions.html"><span class="dir">← Previous</span>Lesson 17: Functions: Naming a Process</a>
+      <a class="next" href="19-scope.html"><span class="dir">Next →</span>Lesson 19: Scope: Where Names Live</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

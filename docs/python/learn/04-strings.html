@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 4: Text: Strings in Depth - The Python School</title>
+<meta name="description" content="f-strings, indexing, slicing, string methods, escapes and immutability, with examples you can run.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/04-strings">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 4: Text: Strings in Depth - The Python School">
+<meta property="og:description" content="f-strings, indexing, slicing, string methods, escapes and immutability, with examples you can run.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/04-strings">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 4: Text: Strings in Depth - The Python School">
+<meta name="twitter:description" content="f-strings, indexing, slicing, string methods, escapes and immutability, with examples you can run.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 4 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Text: Strings in Depth ✂️</h1>
+    <p class="lede muted">Most programs are mostly text: names, messages, files, web pages, prompts to
+    language models. Python's text handling is one of the best there is.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>f-strings: the only way you need</h2>
+    <p>
+      Putting values inside text used to be awkward. Since Python 3.6 there is one obviously
+      correct way, and it is lovely. Put an <code>f</code> before the quote and then put
+      expressions inside curly braces.
+    </p>
+    <pre class="run" data-verify="run"><code>name = &quot;Guybrush&quot;
+insults = 7
+
+print(f&quot;{name} knows {insults} insults.&quot;)
+print(f&quot;After tonight, {insults + 3}.&quot;)
+print(f&quot;His name in capitals is {name.upper()}.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Guybrush knows 7 insults.
+After tonight, 10.
+His name in capitals is GUYBRUSH.</code></pre>
+    <p>Anything that produces a value can go in the braces: maths, function calls, anything.</p>
+
+    <h3>Formatting inside the braces</h3>
+    <pre class="run" data-verify="run"><code>price = 1234.5678
+ratio = 0.8734
+name = &quot;grog&quot;
+
+print(f&quot;{price:.2f}&quot;)        # two decimal places
+print(f&quot;{price:,.2f}&quot;)       # thousands separators too
+print(f&quot;{ratio:.1%}&quot;)        # as a percentage
+print(f&quot;{name:&gt;12}|&quot;)        # right aligned in 12 characters
+print(f&quot;{name:&lt;12}|&quot;)        # left aligned
+print(f&quot;{name:^12}|&quot;)        # centred
+print(f&quot;{42:04d}&quot;)           # padded with zeros</code></pre>
+<pre class="out"><code class="nohl">1234.57
+1,234.57
+87.3%
+        grog|
+grog        |
+    grog    |
+0042</code></pre>
+    <p>
+      Those alignment tools are how you print a table that lines up without fighting it. There
+      is a whole <a href="https://docs.python.org/3/library/string.html#format-specification-mini-language" target="_blank" rel="noopener">format specification mini-language</a>
+      behind them; the seven above cover nearly everything you will ever need.
+    </p>
+
+    <div class="callout tip"><span class="co-title">🐛 The debugging f-string</span><p>Put <code>=</code> after a variable inside the braces and Python prints the name as well as the value. It is the fastest debugging tool in the language and far too few people know about it.</p></div>
+    <pre class="run" data-verify="run"><code>total = 47
+items = 3
+print(f&quot;{total=} {items=} {total / items=:.2f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">total=47 items=3 total / items=15.67</code></pre>
+
+    <h2>Strings are sequences</h2>
+    <p>
+      A string is a row of characters, each with a numbered position. Python counts from
+      <strong>zero</strong>, which feels wrong for about a week and then feels obvious forever.
+    </p>
+    <pre class="run" data-verify="run"><code>word = &quot;MONKEY&quot;
+#        012345
+#       -654321   (negative numbers count from the right)
+
+print(word[0])
+print(word[3])
+print(word[-1])
+print(len(word))</code></pre>
+<pre class="out"><code class="nohl">M
+K
+Y
+6</code></pre>
+
+    <h3>Slicing: taking a piece</h3>
+    <pre class="run" data-verify="run"><code>title = &quot;The Secret of Monkey Island&quot;
+
+print(title[0:3])       # from 0, up to but NOT including 3
+print(title[4:10])      # characters 4 through 9
+print(title[:3])        # from the start
+print(title[14:])       # to the end
+print(title[-6:])       # the last six
+print(title[::2])       # every second character
+print(title[::-1])      # backwards</code></pre>
+<pre class="out"><code class="nohl">The
+Secret
+The
+Monkey Island
+Island
+TeSce fMne sad
+dnalsI yeknoM fo terceS ehT</code></pre>
+    <p>
+      The rule that trips everyone: the start is included, the end is not.
+      <code>[0:3]</code> gives you three characters. It looks arbitrary until you notice
+      <code>[0:3]</code> and <code>[3:6]</code> fit together perfectly with no gap and no
+      overlap, which is why it was chosen.
+    </p>
+
+    <div class="voice" data-skill="visual-calculus"><div class="v-head"><span class="v-name">VISUAL CALCULUS</span><span class="v-check success">[Medium: Success]</span></div><p>Do not picture the numbers on the characters. Picture them in the gaps between the characters, like fence posts: |T|h|e| with 0 before the T and 3 after the e. Slicing cuts at the posts. Suddenly it is obvious.</p></div>
+
+    <h2>Strings cannot be changed</h2>
+    <pre class="run" data-verify="run"><code>word = &quot;grog&quot;
+# word[0] = &quot;f&quot;     # this raises TypeError
+
+better = &quot;f&quot; + word[1:]
+print(word)
+print(better)</code></pre>
+<pre class="out"><code class="nohl">grog
+frog</code></pre>
+    <p>
+      Strings are <strong>immutable</strong>: every operation makes a new string rather than
+      editing the old one. This sounds like a limitation and is actually a gift. It means a
+      string handed to a function cannot be secretly altered under your feet, which removes a
+      whole species of bug.
+    </p>
+
+    <h2>The methods that do the real work</h2>
+    <pre class="run" data-verify="run"><code>messy = &quot;   The Governor, ELAINE Marley   &quot;
+
+print(messy.strip())
+print(messy.strip().lower())
+print(messy.strip().upper())
+print(messy.strip().title())
+print(messy.strip().replace(&quot;Marley&quot;, &quot;Threepwood&quot;))
+print(len(messy), len(messy.strip()))</code></pre>
+<pre class="out"><code class="nohl">The Governor, ELAINE Marley
+the governor, elaine marley
+THE GOVERNOR, ELAINE MARLEY
+The Governor, Elaine Marley
+The Governor, ELAINE Threepwood
+33 27</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Method</th><th>Does</th><th>Example result</th></tr></thead><tbody><tr><td><code>.strip()</code></td><td>Remove whitespace at both ends</td><td><code>'hi'</code></td></tr><tr><td><code>.lower()</code> / <code>.upper()</code></td><td>Change case</td><td><code>'hi'</code> / <code>'HI'</code></td></tr><tr><td><code>.title()</code></td><td>Capitalise Each Word</td><td><code>'Hi There'</code></td></tr><tr><td><code>.replace(a, b)</code></td><td>Swap every a for b</td><td><code>'ho ho'</code></td></tr><tr><td><code>.split(sep)</code></td><td>Break into a list</td><td><code>['a', 'b']</code></td></tr><tr><td><code>.join(items)</code></td><td>Glue a list together</td><td><code>'a-b'</code></td></tr><tr><td><code>.startswith(x)</code></td><td>True or False</td><td><code>True</code></td></tr><tr><td><code>.find(x)</code></td><td>Position, or -1 if absent</td><td><code>4</code></td></tr><tr><td><code>.count(x)</code></td><td>How many times</td><td><code>2</code></td></tr><tr><td><code>.zfill(n)</code></td><td>Pad with leading zeros</td><td><code>'007'</code></td></tr></tbody></table></div>
+
+    <h3>split and join, the two workhorses</h3>
+    <pre class="run" data-verify="run"><code>crew = &quot;Guybrush,Elaine,Otis,Meathook&quot;
+
+members = crew.split(&quot;,&quot;)
+print(members)
+print(len(members), &quot;crew members&quot;)
+
+print(&quot; and &quot;.join(members))
+print(&quot;\n&quot;.join(members))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Otis&#x27;, &#x27;Meathook&#x27;]
+4 crew members
+Guybrush and Elaine and Otis and Meathook
+Guybrush
+Elaine
+Otis
+Meathook</code></pre>
+    <p>
+      <code>split</code> and <code>join</code> are opposites, and between them they handle a
+      startling proportion of real-world data work. Note the slightly backwards-looking
+      <code>separator.join(list)</code> order. Everyone writes it the wrong way round the
+      first ten times.
+    </p>
+
+    <h2>Escapes: characters with special jobs</h2>
+    <pre class="run" data-verify="run"><code>print(&quot;Line one\nLine two&quot;)
+print(&quot;Column\tone\tColumn two&quot;)
+print(&quot;She said \&quot;hello\&quot; to me.&quot;)
+print(&#x27;It\&#x27;s fine with single quotes too.&#x27;)
+print(&quot;A backslash: \\&quot;)
+print(r&quot;A raw string ignores escapes: C:\new\table&quot;)</code></pre>
+<pre class="out"><code class="nohl">Line one
+Line two
+Column	one	Column two
+She said &quot;hello&quot; to me.
+It&#x27;s fine with single quotes too.
+A backslash: \
+A raw string ignores escapes: C:\new\table</code></pre>
+    <p>
+      That last one matters on Windows and in Lesson 25 on regular expressions.
+      <code>"C:
+ew"</code> contains a newline, because <code>\n</code> is special.
+      <code>r"C:
+ew"</code> is the literal text you meant.
+    </p>
+
+    <h2>Multi-line strings</h2>
+    <pre class="run" data-verify="run"><code>sign = &quot;&quot;&quot;
+   ==========================
+     STAN&#x27;S PREVIOUSLY OWNED
+        VESSELS
+   ==========================
+&quot;&quot;&quot;
+print(sign)</code></pre>
+<pre class="out"><code class="nohl">   ==========================
+     STAN&#x27;S PREVIOUSLY OWNED
+        VESSELS
+   ==========================</code></pre>
+    <p>
+      Three quotes let a string span lines. These are also how Python documents functions
+      (Lesson 17) and how you will write prompts for a language model in Level 6.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Clean up user input</h3><p>Someone typed <code>"  ELAINE.MARLEY@melee.gov  "</code>. Produce a tidy lowercase address with no surrounding spaces, then print just the part before the @ and just the domain.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>raw = &quot;  ELAINE.MARLEY@melee.gov  &quot;
+
+email = raw.strip().lower()
+user, domain = email.split(&quot;@&quot;)
+
+print(f&quot;clean:  {email}&quot;)
+print(f&quot;user:   {user}&quot;)
+print(f&quot;domain: {domain}&quot;)</code></pre>
+<pre class="out"><code class="nohl">clean:  elaine.marley@melee.gov
+user:   elaine.marley
+domain: melee.gov</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Initials</h3><p>From a full name like <code>"guybrush ulysses threepwood"</code>, print initials in the form <code>G.U.T.</code></p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>full = &quot;guybrush ulysses threepwood&quot;
+
+parts = full.split()
+initials = &quot;.&quot;.join(part[0].upper() for part in parts) + &quot;.&quot;
+print(initials)</code></pre>
+<pre class="out"><code class="nohl">G.U.T.</code></pre><p>That <code>for</code> inside the brackets is a generator expression, and you meet it properly in Lesson 16. Reading it aloud works: 'the first letter, uppercased, of each part'.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Is it a palindrome?</h3><p>Check whether a phrase reads the same backwards, ignoring case and spaces. Test it on <code>"Never odd or even"</code>.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>phrase = &quot;Never odd or even&quot;
+
+cleaned = phrase.lower().replace(&quot; &quot;, &quot;&quot;)
+print(cleaned)
+print(cleaned == cleaned[::-1])</code></pre>
+<pre class="out"><code class="nohl">neveroddoreven
+True</code></pre><p><code>[::-1]</code> is the idiomatic Python reverse. It reads as 'the whole thing, stepping backwards', and once you have seen it twice you will never forget it.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-04-strings">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="03-numbers.html"><span class="dir">← Previous</span>Lesson 3: Numbers and Maths</a>
+      <a class="next" href="05-input.html"><span class="dir">Next →</span>Lesson 5: Talking to the Human</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

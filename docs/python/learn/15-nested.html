@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 15: Nested Data - The Python School</title>
+<meta name="description" content="Working with lists of dictionaries, safe navigation of deep structures, and shallow versus deep copies.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/15-nested">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 15: Nested Data - The Python School">
+<meta property="og:description" content="Working with lists of dictionaries, safe navigation of deep structures, and shallow versus deep copies.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/15-nested">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 15: Nested Data - The Python School">
+<meta name="twitter:description" content="Working with lists of dictionaries, safe navigation of deep structures, and shallow versus deep copies.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 15 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Nested Data 🪆</h1>
+    <p class="lede muted">Real data is never a flat list. It is a list of records, each with fields, some of
+    which are themselves lists. Here is how to keep your head.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The shape you will meet a thousand times</h2>
+    <pre class="run" data-verify="run"><code>crew = [
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;role&quot;: &quot;captain&quot;, &quot;skills&quot;: [&quot;insults&quot;, &quot;sailing&quot;]},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;role&quot;: &quot;governor&quot;, &quot;skills&quot;: [&quot;politics&quot;, &quot;swordplay&quot;, &quot;rescue&quot;]},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;role&quot;: &quot;lookout&quot;, &quot;skills&quot;: []},
+]
+
+print(len(crew))
+print(crew[0][&quot;name&quot;])
+print(crew[1][&quot;skills&quot;][0])
+print(len(crew[2][&quot;skills&quot;]))</code></pre>
+<pre class="out"><code class="nohl">3
+Guybrush
+politics
+0</code></pre>
+    <p>
+      A list of dictionaries. Every API response, every CSV file, every database query result
+      and every JSON file you ever open will look roughly like this. Read the access
+      left to right: <code>crew[1]</code> is a dictionary,
+      <code>["skills"]</code> is its list, <code>[0]</code> is the first of those.
+    </p>
+
+    <h2>Looping over it</h2>
+    <pre class="run" data-verify="run"><code>crew = [
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;role&quot;: &quot;captain&quot;, &quot;skills&quot;: [&quot;insults&quot;, &quot;sailing&quot;]},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;role&quot;: &quot;governor&quot;, &quot;skills&quot;: [&quot;politics&quot;, &quot;swordplay&quot;, &quot;rescue&quot;]},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;role&quot;: &quot;lookout&quot;, &quot;skills&quot;: []},
+]
+
+for member in crew:
+    skills = &quot;, &quot;.join(member[&quot;skills&quot;]) or &quot;none listed&quot;
+    print(f&quot;{member[&#x27;name&#x27;]:10} ({member[&#x27;role&#x27;]:9}) {skills}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Guybrush   (captain  ) insults, sailing
+Elaine     (governor ) politics, swordplay, rescue
+Otis       (lookout  ) none listed</code></pre>
+    <p>
+      <code>x or y</code> gives you <code>x</code> unless it is falsy, in which case
+      <code>y</code>. An empty string is falsy, so an empty skill list produces "none listed".
+      That is the truthiness rule from Lesson 6 doing real work.
+    </p>
+
+    <div class="callout warn"><span class="co-title">🪤 Quotes inside f-strings</span><p>Notice <code>{{member['name']}}</code> uses single quotes inside a double-quoted f-string. Before Python 3.12 reusing the same quote character inside the braces was an error. It is legal now, but mixing them is still clearer and works on every version.</p></div>
+
+    <h2>Filtering and summarising</h2>
+    <pre class="run" data-verify="run"><code>crew = [
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;role&quot;: &quot;captain&quot;, &quot;pay&quot;: 100},
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;role&quot;: &quot;governor&quot;, &quot;pay&quot;: 250},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;role&quot;: &quot;lookout&quot;, &quot;pay&quot;: 40},
+    {&quot;name&quot;: &quot;Meathook&quot;, &quot;role&quot;: &quot;lookout&quot;, &quot;pay&quot;: 45},
+]
+
+lookouts = [m for m in crew if m[&quot;role&quot;] == &quot;lookout&quot;]
+print([m[&quot;name&quot;] for m in lookouts])
+
+total = sum(m[&quot;pay&quot;] for m in crew)
+print(f&quot;Total wages: {total}&quot;)
+
+richest = max(crew, key=lambda m: m[&quot;pay&quot;])
+print(f&quot;Best paid: {richest[&#x27;name&#x27;]}&quot;)
+
+by_pay = sorted(crew, key=lambda m: m[&quot;pay&quot;], reverse=True)
+for m in by_pay:
+    print(f&quot;  {m[&#x27;pay&#x27;]:4}  {m[&#x27;name&#x27;]}&quot;)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Otis&#x27;, &#x27;Meathook&#x27;]
+Total wages: 435
+Best paid: Elaine
+   250  Elaine
+   100  Guybrush
+    45  Meathook
+    40  Otis</code></pre>
+    <p>
+      Those square-bracket lines are list comprehensions, which is the next lesson. Even
+      before you can write them, you can read them: "the name of m, for every m in crew".
+    </p>
+
+    <h2>Grouping</h2>
+    <pre class="run" data-verify="run"><code>crew = [
+    {&quot;name&quot;: &quot;Guybrush&quot;, &quot;role&quot;: &quot;captain&quot;},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;role&quot;: &quot;lookout&quot;},
+    {&quot;name&quot;: &quot;Meathook&quot;, &quot;role&quot;: &quot;lookout&quot;},
+]
+
+by_role = {}
+for member in crew:
+    role = member[&quot;role&quot;]
+    by_role.setdefault(role, []).append(member[&quot;name&quot;])
+
+for role, names in by_role.items():
+    print(f&quot;{role}: {&#x27;, &#x27;.join(names)}&quot;)</code></pre>
+<pre class="out"><code class="nohl">captain: Guybrush
+lookout: Otis, Meathook</code></pre>
+    <p>
+      <code>setdefault(key, [])</code> means "give me the list at this key, creating an empty
+      one first if needed". It is the standard grouping idiom. The tidier alternative:
+    </p>
+    <pre class="run" data-verify="run"><code>from collections import defaultdict
+
+pairs = [(&quot;captain&quot;, &quot;Guybrush&quot;), (&quot;lookout&quot;, &quot;Otis&quot;), (&quot;lookout&quot;, &quot;Meathook&quot;)]
+
+by_role = defaultdict(list)
+for role, name in pairs:
+    by_role[role].append(name)
+
+print(dict(by_role))</code></pre>
+<pre class="out"><code class="nohl">{&#x27;captain&#x27;: [&#x27;Guybrush&#x27;], &#x27;lookout&#x27;: [&#x27;Otis&#x27;, &#x27;Meathook&#x27;]}</code></pre>
+
+    <h2>Navigating safely when data is missing</h2>
+    <pre class="run" data-verify="run"><code>response = {&quot;user&quot;: {&quot;profile&quot;: {&quot;name&quot;: &quot;Elaine&quot;}}}
+broken = {&quot;user&quot;: {}}
+
+print(response[&quot;user&quot;][&quot;profile&quot;][&quot;name&quot;])
+
+# this would raise KeyError on `broken`
+name = broken.get(&quot;user&quot;, {}).get(&quot;profile&quot;, {}).get(&quot;name&quot;, &quot;unknown&quot;)
+print(name)</code></pre>
+<pre class="out"><code class="nohl">Elaine
+unknown</code></pre>
+    <p>
+      Chained <code>.get()</code> calls with <code>{}</code> as the default let you walk a
+      deep structure without exploding when a level is missing. Real API responses are missing
+      fields constantly, and this pattern is the difference between a script that survives
+      contact with reality and one that does not.
+    </p>
+
+    <h2>Shallow copies bite here</h2>
+    <pre class="run" data-verify="run"><code>import copy
+
+original = {&quot;name&quot;: &quot;ship&quot;, &quot;crew&quot;: [&quot;Otis&quot;, &quot;Meathook&quot;]}
+
+shallow = original.copy()
+deep = copy.deepcopy(original)
+
+shallow[&quot;crew&quot;].append(&quot;Stowaway&quot;)
+
+print(&quot;original:&quot;, original[&quot;crew&quot;])
+print(&quot;deep:    &quot;, deep[&quot;crew&quot;])</code></pre>
+<pre class="out"><code class="nohl">original: [&#x27;Otis&#x27;, &#x27;Meathook&#x27;, &#x27;Stowaway&#x27;]
+deep:     [&#x27;Otis&#x27;, &#x27;Meathook&#x27;]</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Medium: Success]</span></div><p>The shallow copy copied the outer dictionary and then pointed at the very same inner list. You changed something you believed you owned and altered the original from a distance. This is the bug that takes a whole afternoon, because the line that breaks is nowhere near the line that caused it.</p>
+<p>copy.deepcopy() copies all the way down. It is slower. Use it when you mean it.</p></div>
+
+    <h2>Printing nested data readably</h2>
+    <pre class="run" data-verify="run"><code>import json
+
+game = {
+    &quot;title&quot;: &quot;Monkey Island&quot;,
+    &quot;crew&quot;: [{&quot;name&quot;: &quot;Guybrush&quot;, &quot;insults&quot;: 8}],
+}
+
+print(game)
+print()
+print(json.dumps(game, indent=2))</code></pre>
+<pre class="out"><code class="nohl">{&#x27;title&#x27;: &#x27;Monkey Island&#x27;, &#x27;crew&#x27;: [{&#x27;name&#x27;: &#x27;Guybrush&#x27;, &#x27;insults&#x27;: 8}]}
+
+{
+  &quot;title&quot;: &quot;Monkey Island&quot;,
+  &quot;crew&quot;: [
+    {
+      &quot;name&quot;: &quot;Guybrush&quot;,
+      &quot;insults&quot;: 8
+    }
+  ]
+}</code></pre>
+    <p>
+      <code>json.dumps(x, indent=2)</code> is the fastest way to see the shape of confusing
+      data. Keep it in your fingers. There is also <code>pprint</code> in the standard library,
+      which does the same job while keeping Python's own notation.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Report from records</h3><p>From this data, print each film with its average rating to one decimal place, sorted best first.</p><pre data-verify="compile"><code>films = [
+    {&quot;title&quot;: &quot;Monkey Island&quot;, &quot;ratings&quot;: [9, 8, 10]},
+    {&quot;title&quot;: &quot;Disco Elysium&quot;, &quot;ratings&quot;: [10, 10, 9]},
+    {&quot;title&quot;: &quot;Grim Fandango&quot;, &quot;ratings&quot;: [9, 9, 9]},
+]</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>films = [
+    {&quot;title&quot;: &quot;Monkey Island&quot;, &quot;ratings&quot;: [9, 8, 10]},
+    {&quot;title&quot;: &quot;Disco Elysium&quot;, &quot;ratings&quot;: [10, 10, 9]},
+    {&quot;title&quot;: &quot;Grim Fandango&quot;, &quot;ratings&quot;: [9, 9, 9]},
+]
+
+def average(film):
+    return sum(film[&quot;ratings&quot;]) / len(film[&quot;ratings&quot;])
+
+
+for film in sorted(films, key=average, reverse=True):
+    print(f&quot;{film[&#x27;title&#x27;]:15} {average(film):.1f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Disco Elysium   9.7
+Monkey Island   9.0
+Grim Fandango   9.0</code></pre><p>Giving the key function a name instead of using a lambda makes this read beautifully: 'sorted by average, biggest first'.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Invert the structure</h3><p>Turn a dictionary of person to skills into a dictionary of skill to the people who have it.</p><pre data-verify="compile"><code>people = {
+    &quot;Guybrush&quot;: [&quot;insults&quot;, &quot;sailing&quot;],
+    &quot;Elaine&quot;: [&quot;politics&quot;, &quot;sailing&quot;],
+    &quot;Otis&quot;: [&quot;complaining&quot;],
+}</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>people = {
+    &quot;Guybrush&quot;: [&quot;insults&quot;, &quot;sailing&quot;],
+    &quot;Elaine&quot;: [&quot;politics&quot;, &quot;sailing&quot;],
+    &quot;Otis&quot;: [&quot;complaining&quot;],
+}
+
+by_skill = {}
+for person, skills in people.items():
+    for skill in skills:
+        by_skill.setdefault(skill, []).append(person)
+
+for skill in sorted(by_skill):
+    print(f&quot;{skill:12} {&#x27;, &#x27;.join(by_skill[skill])}&quot;)</code></pre>
+<pre class="out"><code class="nohl">complaining  Otis
+insults      Guybrush
+politics     Elaine
+sailing      Guybrush, Elaine</code></pre><p>A loop inside a loop over nested data, building a new nested structure. This exact shape appears in search indexes, tag clouds and recommendation systems.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Survive the missing field</h3><p>Print each user's city, using 'unknown' when any part of the path is missing. Do not let it crash.</p><pre data-verify="compile"><code>users = [
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;address&quot;: {&quot;city&quot;: &quot;Melee&quot;}},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;address&quot;: {}},
+    {&quot;name&quot;: &quot;Guybrush&quot;},
+]</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>users = [
+    {&quot;name&quot;: &quot;Elaine&quot;, &quot;address&quot;: {&quot;city&quot;: &quot;Melee&quot;}},
+    {&quot;name&quot;: &quot;Otis&quot;, &quot;address&quot;: {}},
+    {&quot;name&quot;: &quot;Guybrush&quot;},
+]
+
+for user in users:
+    city = user.get(&quot;address&quot;, {}).get(&quot;city&quot;, &quot;unknown&quot;)
+    print(f&quot;{user[&#x27;name&#x27;]:10} {city}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Elaine     Melee
+Otis       unknown
+Guybrush   unknown</code></pre></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-15-nested">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="14-sets.html"><span class="dir">← Previous</span>Lesson 14: Sets: No Duplicates Allowed</a>
+      <a class="next" href="16-comprehensions.html"><span class="dir">Next →</span>Lesson 16: Comprehensions</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

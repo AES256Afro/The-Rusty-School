@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 14: Sets: No Duplicates Allowed - The Python School</title>
+<meta name="description" content="Sets, deduplication, membership testing, and set operations like union and intersection.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/14-sets">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 14: Sets: No Duplicates Allowed - The Python School">
+<meta property="og:description" content="Sets, deduplication, membership testing, and set operations like union and intersection.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/14-sets">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 14: Sets: No Duplicates Allowed - The Python School">
+<meta name="twitter:description" content="Sets, deduplication, membership testing, and set operations like union and intersection.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 14 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Sets: No Duplicates Allowed 🎯</h1>
+    <p class="lede muted">The container everyone forgets exists, and then uses constantly once they
+    remember. A set is a bag where nothing appears twice and order means nothing.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Duplicates simply vanish</h2>
+    <pre class="run" data-verify="run"><code>visited = {&quot;Melee&quot;, &quot;Monkey&quot;, &quot;Melee&quot;, &quot;Booty&quot;, &quot;Monkey&quot;}
+print(sorted(visited))
+print(len(visited))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Booty&#x27;, &#x27;Melee&#x27;, &#x27;Monkey&#x27;]
+3</code></pre>
+    <div class="callout warn"><span class="co-title">🔀 Why sorted() is in that example</span><p>A set has <strong>no order</strong>, and printing one raw shows its items in whatever arrangement the internal table happens to produce. That arrangement can differ between runs, between machines and between Python versions. Every example on this page sorts before printing, and you should too, whenever a human is going to read the output.</p></div>
+    <p>
+      Curly braces like a dictionary, but with single values instead of pairs. Adding
+      something already present does nothing at all, which is the entire point.
+    </p>
+    <div class="callout warn"><span class="co-title">🪤 The empty set</span><p><code>{{}}</code> is an empty <em>dictionary</em>, not an empty set. Python had dictionaries first and they got the braces. For an empty set you must write <code>set()</code>.</p></div>
+
+    <h2>The one-line deduplicate</h2>
+    <pre class="run" data-verify="run"><code>names = [&quot;Otis&quot;, &quot;Elaine&quot;, &quot;Otis&quot;, &quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+
+unique = list(set(names))
+print(sorted(unique))
+print(f&quot;{len(names)} entries, {len(unique)} unique&quot;)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Elaine&#x27;, &#x27;Guybrush&#x27;, &#x27;Otis&#x27;]
+6 entries, 3 unique</code></pre>
+    <p>
+      Note the <code>sorted</code>. Sets have no order, so <code>list(set(...))</code> can
+      come back in any arrangement. If you need the original order preserved while removing
+      duplicates, use a dictionary instead, which keeps insertion order:
+    </p>
+    <pre class="run" data-verify="run"><code>names = [&quot;Otis&quot;, &quot;Elaine&quot;, &quot;Otis&quot;, &quot;Guybrush&quot;, &quot;Elaine&quot;]
+print(list(dict.fromkeys(names)))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Otis&#x27;, &#x27;Elaine&#x27;, &#x27;Guybrush&#x27;]</code></pre>
+
+    <h2>Membership, at speed</h2>
+    <pre class="run" data-verify="run"><code>allowed = {&quot;guybrush&quot;, &quot;elaine&quot;, &quot;otis&quot;}
+
+print(&quot;elaine&quot; in allowed)
+print(&quot;lechuck&quot; in allowed)
+
+allowed.add(&quot;meathook&quot;)
+allowed.discard(&quot;otis&quot;)        # no error if it is absent
+print(sorted(allowed))</code></pre>
+<pre class="out"><code class="nohl">True
+False
+[&#x27;elaine&#x27;, &#x27;guybrush&#x27;, &#x27;meathook&#x27;]</code></pre>
+    <p>
+      <code>in</code> on a set is effectively instant no matter how big the set is, exactly
+      like a dictionary key lookup and for the same reason. <code>in</code> on a list checks
+      items one at a time. If you are testing membership against thousands of items inside a
+      loop, converting the list to a set once can turn minutes into milliseconds.
+    </p>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Medium: Success]</span></div><p>This is the first optimisation worth learning, because it is not a trick, it is a correction. You were using the wrong container. Choosing the right data structure beats clever code almost every time, and it usually makes the code shorter too.</p></div>
+
+    <h2>Set arithmetic</h2>
+    <pre class="run" data-verify="run"><code>pirates = {&quot;Guybrush&quot;, &quot;LeChuck&quot;, &quot;Meathook&quot;}
+governors = {&quot;Elaine&quot;, &quot;Guybrush&quot;}
+
+print(sorted(pirates | governors))      # union: everyone
+print(sorted(pirates &amp; governors))      # intersection: in both
+print(sorted(pirates - governors))      # difference: pirates only
+print(sorted(pirates ^ governors))      # symmetric difference: in one but not both</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Elaine&#x27;, &#x27;Guybrush&#x27;, &#x27;LeChuck&#x27;, &#x27;Meathook&#x27;]
+[&#x27;Guybrush&#x27;]
+[&#x27;LeChuck&#x27;, &#x27;Meathook&#x27;]
+[&#x27;Elaine&#x27;, &#x27;LeChuck&#x27;, &#x27;Meathook&#x27;]</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Operator</th><th>Method</th><th>Means</th></tr></thead><tbody><tr><td><code>|</code></td><td><code>.union()</code></td><td>in either</td></tr><tr><td><code>&amp;</code></td><td><code>.intersection()</code></td><td>in both</td></tr><tr><td><code>-</code></td><td><code>.difference()</code></td><td>in the first only</td></tr><tr><td><code>^</code></td><td><code>.symmetric_difference()</code></td><td>in exactly one</td></tr><tr><td><code>&lt;=</code></td><td><code>.issubset()</code></td><td>all of these are in that</td></tr></tbody></table></div>
+    <p>
+      These turn fiddly loops into one readable line. "Which users signed up but never logged
+      in" is <code>signed_up - logged_in</code>. "Which tags do these two articles share" is
+      <code>a &amp; b</code>. Whenever you catch yourself writing a loop with an
+      <code>if x in other_list</code> inside it, stop and ask whether this is set arithmetic
+      wearing a disguise.
+    </p>
+
+    <h2>What sets cannot do</h2>
+    <ul>
+      <li><strong>No order.</strong> There is no <code>set[0]</code>. If order matters, you
+      want a list.</li>
+      <li><strong>No duplicates,</strong> obviously. If you need to count occurrences, you
+      want <code>Counter</code>.</li>
+      <li><strong>Items must be immutable,</strong> for the same hashing reason as dictionary
+      keys. Sets of tuples are fine, sets of lists are not.</li>
+    </ul>
+
+    <h2>Choosing a container</h2>
+    <div class="table-wrap"><table><thead><tr><th>If you need...</th><th>Use</th><th>Why</th></tr></thead><tbody><tr><td>An ordered collection you will change</td><td><code>list</code></td><td>The default. Order and duplicates both kept</td></tr><tr><td>A fixed group that belongs together</td><td><code>tuple</code></td><td>Cannot be changed by accident, can be a dict key</td></tr><tr><td>Lookup by name or id</td><td><code>dict</code></td><td>Instant lookup, readable code</td></tr><tr><td>Uniqueness or fast membership</td><td><code>set</code></td><td>Duplicates gone, <code>in</code> is instant</td></tr><tr><td>Counting occurrences</td><td><code>Counter</code></td><td>A dict that starts every count at zero</td></tr></tbody></table></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Common interests</h3><p>Two people list their hobbies. Print what they share, what only the first one does, and the combined list, all sorted.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>alice = {&quot;sailing&quot;, &quot;insults&quot;, &quot;cartography&quot;, &quot;grog&quot;}
+bob = {&quot;grog&quot;, &quot;swordfighting&quot;, &quot;sailing&quot;}
+
+print(&quot;Both:      &quot;, sorted(alice &amp; bob))
+print(&quot;Alice only:&quot;, sorted(alice - bob))
+print(&quot;Together:  &quot;, sorted(alice | bob))</code></pre>
+<pre class="out"><code class="nohl">Both:       [&#x27;grog&#x27;, &#x27;sailing&#x27;]
+Alice only: [&#x27;cartography&#x27;, &#x27;insults&#x27;]
+Together:   [&#x27;cartography&#x27;, &#x27;grog&#x27;, &#x27;insults&#x27;, &#x27;sailing&#x27;, &#x27;swordfighting&#x27;]</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Unique words</h3><p>Count how many distinct words appear in a sentence, ignoring case and full stops, and list any that appear more than once.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>text = &quot;The dog saw the cat. The cat saw the dog.&quot;
+
+words = text.lower().replace(&quot;.&quot;, &quot;&quot;).split()
+unique = set(words)
+
+print(f&quot;{len(words)} words, {len(unique)} distinct&quot;)
+
+repeated = sorted(w for w in unique if words.count(w) &gt; 1)
+print(&quot;repeated:&quot;, repeated)</code></pre>
+<pre class="out"><code class="nohl">10 words, 4 distinct
+repeated: [&#x27;cat&#x27;, &#x27;dog&#x27;, &#x27;saw&#x27;, &#x27;the&#x27;]</code></pre><p>Honest note: <code>words.count(w)</code> inside a loop scans the whole list every time, which is wasteful. For ten words nobody cares; for ten million you would use <code>Counter</code>. Knowing when you are allowed not to care is part of the job.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Which container?</h3><p>Pick the right one for each, and say why.</p><ol><li>Every unique IP address that hit a web server today.</li><li>The order players took their turns in.</li><li>Looking up a product's price by its barcode.</li><li>Checking whether a word is in a 300,000 word dictionary, a million times.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>set.</strong> Unique is in the requirement.</li><li><strong>list.</strong> Order is the entire point, and repeats are possible.</li><li><strong>dict</strong>, keyed by barcode. Instant lookup by name.</li><li><strong>set.</strong> A list would do 300,000 comparisons per check, a million times over. A set does one. This is the difference between a program that finishes and one you kill after an hour.</li></ol></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-14-sets">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="13-dicts.html"><span class="dir">← Previous</span>Lesson 13: Dictionaries: Look It Up</a>
+      <a class="next" href="15-nested.html"><span class="dir">Next →</span>Lesson 15: Nested Data</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

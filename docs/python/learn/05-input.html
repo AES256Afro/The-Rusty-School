@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 5: Talking to the Human - The Python School</title>
+<meta name="description" content="input(), converting what comes back, and why input() always hands you text.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/05-input">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 5: Talking to the Human - The Python School">
+<meta property="og:description" content="input(), converting what comes back, and why input() always hands you text.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/05-input">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 5: Talking to the Human - The Python School">
+<meta name="twitter:description" content="input(), converting what comes back, and why input() always hands you text.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 5 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Talking to the Human 💬</h1>
+    <p class="lede muted">So far your programs have monologued. Time to let them listen, and to meet the
+    trap that catches every single beginner exactly once.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>input() asks a question</h2>
+    <pre class="run" data-verify="run" data-stdin="Guybrush Threepwood"><code>name = input(&quot;What is your name? &quot;)
+print(f&quot;Nice to meet you, {name}.&quot;)</code></pre>
+<pre class="out"><code class="nohl">What is your name? Guybrush Threepwood
+Nice to meet you, Guybrush Threepwood.</code></pre>
+    <p>
+      When you press ▶ run here, your browser pops up a box. In a terminal, the program stops
+      and waits for you to type and press Enter. Either way, <code>input()</code> hands back
+      whatever the human typed, and you catch it in a variable.
+    </p>
+    <p>
+      Note the trailing space in <code>"What is your name? "</code>. Without it, the cursor
+      would sit flush against the question mark and look wrong. Small thing, and people notice.
+    </p>
+
+    <h2>The trap</h2>
+    <p>Everything <code>input()</code> returns is text. Everything. Always.</p>
+    <pre class="run" data-verify="run" data-stdin="30"><code>age = input(&quot;How old are you? &quot;)
+print(f&quot;You said: {age}&quot;)
+print(f&quot;Its type is: {type(age)}&quot;)</code></pre>
+<pre class="out"><code class="nohl">How old are you? 30
+You said: 30
+Its type is: &lt;class &#x27;str&#x27;&gt;</code></pre>
+    <p>So this breaks:</p>
+    <pre data-verify="skip"><code>age = input(&quot;How old are you? &quot;)
+print(age + 10)</code></pre>
+    <pre class="traceback"><code class="nohl">Traceback (most recent call last):
+  File &quot;ages.py&quot;, line 2, in &lt;module&gt;
+    print(age + 10)
+          ~~~~^~~~
+TypeError: can only concatenate str (not &quot;int&quot;) to str</code></pre>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Easy: Success]</span></div><p>Read the error as English and it is telling the truth precisely: you asked to add a str and an int, and Python refuses to guess which one you meant. Should '30' + 10 be 40, or '3010'? Both are defensible. Python declines to flip a coin on your behalf.</p></div>
+
+    <p>The fix is to convert, explicitly:</p>
+    <pre class="run" data-verify="run" data-stdin="30"><code>age = int(input(&quot;How old are you? &quot;))
+print(f&quot;In ten years you will be {age + 10}.&quot;)</code></pre>
+<pre class="out"><code class="nohl">How old are you? 30
+In ten years you will be 40.</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>You want</th><th>Wrap it in</th><th>Example</th></tr></thead><tbody><tr><td>A whole number</td><td><code>int()</code></td><td><code>int(input("Age? "))</code></td></tr><tr><td>A decimal</td><td><code>float()</code></td><td><code>float(input("Price? "))</code></td></tr><tr><td>Text</td><td>nothing at all</td><td><code>input("Name? ")</code></td></tr></tbody></table></div>
+
+    <h2>What if they type nonsense?</h2>
+    <p>
+      <code>int("banana")</code> raises <code>ValueError</code> and your program stops dead.
+      Level 3 teaches the proper defence (<code>try</code>/<code>except</code>, Lesson 22).
+      Until then, know that this is the correct instinct to be worried about: any program that
+      trusts what a human typed is one typo away from a crash.
+    </p>
+    <div class="callout info"><span class="co-title">🛡️ A preview of the grown-up answer</span><p>You are not expected to understand this yet. It is here so that when you reach Lesson 22 it feels familiar rather than new.</p></div>
+    <pre class="run" data-verify="run" data-stdin="three"><code>raw = input(&quot;How many? &quot;)
+
+try:
+    count = int(raw)
+    print(f&quot;Right, {count} of them.&quot;)
+except ValueError:
+    print(f&quot;&#x27;{raw}&#x27; is not a number I can use. Try digits only.&quot;)</code></pre>
+<pre class="out"><code class="nohl">How many? three
+&#x27;three&#x27; is not a number I can use. Try digits only.</code></pre>
+
+    <h2>Several questions</h2>
+    <pre class="run" data-verify="run" data-stdin="Guybrush&#10;Sea Monkey&#10;12"><code>name = input(&quot;Name: &quot;)
+ship = input(&quot;Ship: &quot;)
+crew = int(input(&quot;Crew size: &quot;))
+
+print()
+print(&quot;=&quot; * 34)
+print(f&quot;  Captain {name}&quot;)
+print(f&quot;  Vessel:  {ship}&quot;)
+print(f&quot;  Crew:    {crew} ({crew * 2} legs)&quot;)
+print(&quot;=&quot; * 34)</code></pre>
+<pre class="out"><code class="nohl">Name: Guybrush
+Ship: Sea Monkey
+Crew size: 12
+
+==================================
+  Captain Guybrush
+  Vessel:  Sea Monkey
+  Crew:    12 (24 legs)
+==================================</code></pre>
+    <p>
+      Two small tricks worth stealing: <code>print()</code> with nothing in it prints an empty
+      line, and <code>"=" * 34</code> repeats a character to draw a rule. Multiplying text is
+      a Python nicety you will use constantly for quick command-line output.
+    </p>
+
+    <h2>The other half: printing well</h2>
+    <pre class="run" data-verify="run"><code>print(&quot;no&quot;, &quot;newline&quot;, &quot;between these&quot;, end=&quot; -&gt; &quot;)
+print(&quot;see?&quot;)
+
+print(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, sep=&quot; | &quot;)
+print(&quot;2026&quot;, &quot;08&quot;, &quot;17&quot;, sep=&quot;-&quot;)</code></pre>
+<pre class="out"><code class="nohl">no newline between these -&gt; see?
+a | b | c
+2026-08-17</code></pre>
+    <p>
+      <code>end=</code> replaces the newline that <code>print</code> normally adds, and
+      <code>sep=</code> replaces the space it puts between items. Two keyword arguments,
+      surprisingly handy, and a first look at a Python feature you meet properly in Lesson 18.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>The tavern greeter</h3><p>Ask for a name and a favourite drink, then print a greeting that uses both, with the name in title case however they typed it.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run" data-stdin="  gUYBRUSH  &#10;  GROG  "><code>name = input(&quot;Name: &quot;)
+drink = input(&quot;Poison of choice: &quot;)
+
+print(f&quot;Welcome to the Scumm Bar, {name.strip().title()}.&quot;)
+print(f&quot;One {drink.strip().lower()}, coming up.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Name:   gUYBRUSH
+Poison of choice:   GROG
+Welcome to the Scumm Bar, Guybrush.
+One grog, coming up.</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Rectangle calculator</h3><p>Ask for a width and a height as decimals, then print the area and the perimeter to one decimal place.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run" data-stdin="3.5&#10;4.2"><code>width = float(input(&quot;Width: &quot;))
+height = float(input(&quot;Height: &quot;))
+
+area = width * height
+perimeter = 2 * (width + height)
+
+print(f&quot;Area:      {area:.1f}&quot;)
+print(f&quot;Perimeter: {perimeter:.1f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Width: 3.5
+Height: 4.2
+Area:      14.7
+Perimeter: 15.4</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Find the bug</h3><p>This is meant to add two numbers. Why does entering 2 and 3 produce <code>23</code>?</p><pre data-verify="skip"><code>a = input(&quot;First number: &quot;)
+b = input(&quot;Second number: &quot;)
+print(a + b)</code></pre><details class="solution"><summary>Reveal solution</summary><p>Because <code>a</code> and <code>b</code> are strings, and <code>+</code> on two strings glues them together instead of adding. <code>"2" + "3"</code> is <code>"23"</code>, which is correct behaviour for the code that was actually written.</p><pre class="run" data-verify="run" data-stdin="2&#10;3"><code>a = int(input(&quot;First number: &quot;))
+b = int(input(&quot;Second number: &quot;))
+print(a + b)</code></pre>
+<pre class="out"><code class="nohl">First number: 2
+Second number: 3
+5</code></pre><p>This bug is a rite of passage. You get it once, you never get it again.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-05-input">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="04-strings.html"><span class="dir">← Previous</span>Lesson 4: Text: Strings in Depth</a>
+      <a class="next" href="06-booleans.html"><span class="dir">Next →</span>Lesson 6: True, False and Questions</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
