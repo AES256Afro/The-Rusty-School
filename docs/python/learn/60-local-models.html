@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 60: Running Models Locally - The Python School</title>
+<meta name="description" content="Running open-weight models on your own hardware with Ollama, the privacy and cost trade-offs, and when local wins.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/60-local-models">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 60: Running Models Locally - The Python School">
+<meta property="og:description" content="Running open-weight models on your own hardware with Ollama, the privacy and cost trade-offs, and when local wins.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/60-local-models">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 60: Running Models Locally - The Python School">
+<meta name="twitter:description" content="Running open-weight models on your own hardware with Ollama, the privacy and cost trade-offs, and when local wins.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 60 of 62</nav>
+    <span class="badge l6">Level 6 · Build Your Own Jarvis</span>
+    <h1>Running Models Locally 🏠</h1>
+    <p class="lede muted">You do not always need someone else's server. Open models now run on a decent
+    laptop: private, free per use, offline. Here is when that is the right call, and how.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Why run a model yourself?</h2>
+    <p>
+      A cloud model is someone else's computer. That is often exactly right: you get the most
+      capable models with zero setup. But it means your data leaves your machine, you pay per
+      token, and you need a connection. Running an <strong>open-weight</strong> model locally
+      flips all three.
+    </p>
+    <div class="table-wrap"><table><thead><tr><th></th><th>Cloud model (Lessons 54-59)</th><th>Local model</th></tr></thead><tbody><tr><td>Capability</td><td>The frontier: the very best models</td><td>Very good and improving fast, but a step behind the best</td></tr><tr><td>Privacy</td><td>Data goes to the provider</td><td>Nothing leaves your machine, ever</td></tr><tr><td>Cost</td><td>Per token; adds up with volume</td><td>Free per use after the hardware you already own</td></tr><tr><td>Offline</td><td>No</td><td>Yes, works on a plane or in a bunker</td></tr><tr><td>Setup</td><td>One <code>pip install</code></td><td>Download a model file (gigabytes), run a local server</td></tr><tr><td>Hardware</td><td>None; it is their problem</td><td>Yours; more RAM and a GPU help a lot</td></tr></tbody></table></div>
+
+    <h2>Ollama: the easy way in</h2>
+    <p>
+      <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> is the simplest way
+      to run open models. Install it, pull a model, and it runs a local server on your machine
+      that speaks a familiar API. Downloading a model is one command:
+    </p>
+    <pre class="term"><code class="nohl"># install Ollama from ollama.com, then:
+ollama pull llama3.2          # download an open model (a few GB)
+ollama run llama3.2           # chat with it right in the terminal
+
+# it now serves an API at http://localhost:11434</code></pre>
+    <p>
+      That is genuinely it. You are now running a capable language model with no account, no key,
+      no bill, and no data leaving your laptop. The models are open-weight releases from Meta
+      (Llama), Mistral, Google (Gemma), Alibaba (Qwen) and others, and there are small ones
+      (a few gigabytes, runs on a laptop) up to large ones (needs a serious GPU).
+    </p>
+
+    <h2>Talking to it from Python</h2>
+    <pre data-verify="compile"><code># Ollama exposes a simple local HTTP API. requests (Lesson 42) is all you need.
+import requests
+
+
+def ask_local(prompt, model=&quot;llama3.2&quot;):
+    &quot;&quot;&quot;Send a prompt to a model running locally via Ollama.&quot;&quot;&quot;
+    response = requests.post(
+        &quot;http://localhost:11434/api/chat&quot;,
+        json={
+            &quot;model&quot;: model,
+            &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            &quot;stream&quot;: False,
+        },
+        timeout=120,      # local models can be slow on modest hardware
+    )
+    response.raise_for_status()
+    return response.json()[&quot;message&quot;][&quot;content&quot;]
+
+
+# print(ask_local(&quot;Explain recursion in one sentence.&quot;))
+print(&quot;Same chat shape as the cloud: messages in, a reply out. Just a different URL.&quot;)</code></pre>
+    <p>
+      Look at the shape: a list of messages, a reply out. It is the same mental model as the
+      cloud API, which is the whole point. Ollama even offers an OpenAI-compatible endpoint, so
+      much cloud code runs against it by changing only the base URL and dropping the key.
+    </p>
+
+    <pre data-verify="compile"><code># Ollama also has its own tidy Python library (pip install ollama)
+import ollama
+
+
+def chat_local(messages, model=&quot;llama3.2&quot;):
+    &quot;&quot;&quot;A local chat that streams, mirroring Lesson 56&#x27;s cloud version.&quot;&quot;&quot;
+    stream = ollama.chat(model=model, messages=messages, stream=True)
+    reply = &quot;&quot;
+    for chunk in stream:
+        piece = chunk[&quot;message&quot;][&quot;content&quot;]
+        reply += piece
+        print(piece, end=&quot;&quot;, flush=True)
+    print()
+    return reply
+
+
+# Same streaming feel as the cloud, running entirely on your machine.
+print(&quot;Local streaming chat: identical ergonomics, zero data leaving the room.&quot;)</code></pre>
+
+    <h2>The honest limitations</h2>
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Formidable: Success]</span></div><p>Do not oversell local models to yourself. On genuinely hard reasoning, long coding tasks, or subtle instructions, the best cloud models are still clearly ahead, and a small model on a laptop can be frustrating.</p>
+<p>But the gap narrows every few months, and for a huge range of everyday tasks, summarising, drafting, classifying, answering questions about your own documents, a local model is already completely sufficient. The right question is never 'is local as good as the frontier'. It is 'is local good enough for this task', and surprisingly often it is.</p></div>
+
+    <div class="table-wrap"><table><thead><tr><th>Task</th><th>Local model?</th></tr></thead><tbody><tr><td>Summarise an email, draft a reply</td><td>Yes, easily</td></tr><tr><td>Classify or tag text in bulk</td><td>Yes, and it is free per item</td></tr><tr><td>Answer questions about your private notes (RAG)</td><td>Yes, and beautifully private</td></tr><tr><td>Anything with confidential data</td><td>Yes, this is local's home turf</td></tr><tr><td>Hard multi-step reasoning or debugging</td><td>Use a frontier cloud model</td></tr><tr><td>Long, complex agentic tasks</td><td>Frontier cloud model, for now</td></tr><tr><td>Offline, on a plane, in a secure facility</td><td>Local is your only option, and it works</td></tr></tbody></table></div>
+
+    <h2>The hybrid pattern: use both</h2>
+    <p>
+      You do not have to choose once and forever. A smart assistant routes: cheap, private,
+      local for the easy majority of tasks, and a frontier cloud model for the hard minority.
+      This is exactly the "pick the right tool" thinking from Base Camp 4 and the performance
+      lesson (Lesson 51), applied to models.
+    </p>
+    <pre class="run" data-verify="run"><code>def route(task_difficulty, is_private):
+    &quot;&quot;&quot;Choose local or cloud based on the task. A real router might ask a
+    cheap model to judge difficulty, or use rules like these.&quot;&quot;&quot;
+    if is_private:
+        return &quot;local&quot;                      # sensitive data never leaves
+    if task_difficulty == &quot;hard&quot;:
+        return &quot;cloud-frontier&quot;             # worth the cost and the round trip
+    return &quot;local&quot;                          # the cheap, private default
+
+
+for difficulty, private in [(&quot;easy&quot;, False), (&quot;hard&quot;, False), (&quot;easy&quot;, True), (&quot;hard&quot;, True)]:
+    choice = route(difficulty, private)
+    print(f&quot;{difficulty:5} / private={private!s:5} -&gt; {choice}&quot;)</code></pre>
+<pre class="out"><code class="nohl">easy  / private=False -&gt; local
+hard  / private=False -&gt; cloud-frontier
+easy  / private=True  -&gt; local
+hard  / private=True  -&gt; local</code></pre>
+    <p>
+      Note the bottom row: a hard <em>and</em> private task stays local even though local is
+      weaker, because the privacy requirement outranks the capability preference. Encoding that
+      priority in your router, rather than always reaching for the best model, is what makes an
+      assistant trustworthy.
+    </p>
+
+    <div class="callout info"><span class="co-title">🦀 A campus connection</span><p>Running models efficiently is a systems problem: memory layout, quantisation, squeezing a model into limited RAM. A lot of the fast local-inference tooling (<a href='https://github.com/ggml-org/llama.cpp' target='_blank' rel='noopener'>llama.cpp</a> and friends) is written in C and C++ for exactly the reasons Base Camp 4 gave: you need predictable speed and tight control over memory. If that appeals, it is the same instinct that leads people next door to <a href='../../learn/index.html'>the Rusty School</a>.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Make your code model-agnostic</h3><p>Write a single <code>ask</code> function that talks to either a cloud model or a local one depending on a flag, returning text either way. This is the abstraction that lets the rest of your Jarvis not care where the model lives.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>def ask(prompt, backend=&quot;local&quot;):
+    &quot;&quot;&quot;One interface, two backends. The caller never has to know which.&quot;&quot;&quot;
+    if backend == &quot;local&quot;:
+        import requests
+        r = requests.post(
+            &quot;http://localhost:11434/api/chat&quot;,
+            json={&quot;model&quot;: &quot;llama3.2&quot;,
+                  &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+                  &quot;stream&quot;: False},
+            timeout=120,
+        )
+        r.raise_for_status()
+        return r.json()[&quot;message&quot;][&quot;content&quot;]
+
+    if backend == &quot;cloud&quot;:
+        import anthropic
+        client = anthropic.Anthropic()
+        resp = client.messages.create(
+            model=&quot;claude-sonnet-5&quot;, max_tokens=1024,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+        )
+        return resp.content[0].text
+
+    raise ValueError(f&quot;unknown backend: {backend}&quot;)
+
+
+# The rest of Jarvis calls ask(prompt, backend) and stays blissfully unaware.
+print(&quot;One function, two worlds. Swap backend without touching anything else.&quot;)</code></pre><p>This is the same lesson as Lesson 32's duck typing and Lesson 37's injection: code to an interface, not an implementation. Now you can develop against a free local model and switch to a frontier one for the hard cases, changing one argument.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>When is local the answer?</h3><p>For each, argue for local or cloud.</p><ol><li>A startup processing millions of documents a day.</li><li>A doctor summarising patient notes.</li><li>A hobbyist's home automation assistant.</li><li>A student who wants the single best answers for hard homework.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Mixed, leaning local at scale.</strong> At millions a day, per-token cloud costs are enormous, so running open models on their own servers can save a fortune, if the tasks are within local capability. The hardest cases might still go to the cloud.</li><li><strong>Local, on a controlled machine.</strong> Patient data is exactly what must not be casually sent to a third party. Local (or a specially contracted, compliant cloud service) is the responsible path, with careful handling of the notes themselves.</li><li><strong>Local.</strong> Free per use, private, works when the internet is down, and home-automation tasks are well within a small model's ability. Close to a perfect fit.</li><li><strong>Cloud frontier.</strong> When you specifically want the very best reasoning on hard problems, that is what the frontier models are for. (Though the honest advice for homework is to use it to <em>understand</em>, not to answer for you; Lesson 62 and Lesson 10's note both say why.)</li></ol></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-60-local-models">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="59-voice.html"><span class="dir">← Previous</span>Lesson 59: Giving Jarvis a Voice</a>
+      <a class="next" href="61-assemble-jarvis.html"><span class="dir">Next →</span>Lesson 61: Assemble Your Jarvis</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

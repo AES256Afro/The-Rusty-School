@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 53: How Language Models Actually Work - The Python School</title>
+<meta name="description" content="Tokens, next-token prediction, temperature and context windows, demystified with runnable pure-Python demos.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/53-how-llms-work">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 53: How Language Models Actually Work - The Python School">
+<meta property="og:description" content="Tokens, next-token prediction, temperature and context windows, demystified with runnable pure-Python demos.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/53-how-llms-work">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 53: How Language Models Actually Work - The Python School">
+<meta name="twitter:description" content="Tokens, next-token prediction, temperature and context windows, demystified with runnable pure-Python demos.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 53 of 62</nav>
+    <span class="badge l6">Level 6 · Build Your Own Jarvis</span>
+    <h1>How Language Models Actually Work 🧠</h1>
+    <p class="lede muted">Before you build an assistant on top of one, spend fifteen minutes on what a
+    language model really is. It is simpler, and stranger, than the marketing suggests.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The one-sentence version</h2>
+    <p>
+      A large language model is a function that, given some text, predicts the next chunk of
+      text. That is the whole thing. Everything else, the conversations, the code, the
+      apparent reasoning, is that one operation run over and over, very fast, at enormous
+      scale.
+    </p>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Medium: Success]</span></div><p>The technical name is autoregressive next-token prediction. 'Autoregressive' means each prediction is fed back in to make the next one. The model that started the current era, the transformer, was described in a 2017 paper with the memorable title 'Attention Is All You Need'. Everything since is that idea, scaled up roughly a millionfold.</p></div>
+
+    <h2>Tokens: the pieces text is chopped into</h2>
+    <p>
+      Models do not see letters or words. They see <strong>tokens</strong>: chunks that are
+      often a word, sometimes part of a word, sometimes punctuation. Here is a toy tokeniser
+      that splits on the same rough boundaries, so you can feel the idea:
+    </p>
+    <pre class="run" data-verify="run"><code>import re
+
+def toy_tokenise(text):
+    &quot;&quot;&quot;Split into word-ish and punctuation tokens. A real tokeniser is cleverer.&quot;&quot;&quot;
+    return re.findall(r&quot;\w+|[^\w\s]&quot;, text)
+
+
+sentence = &quot;Jarvis, what&#x27;s the weather? It&#x27;s 25 degrees.&quot;
+tokens = toy_tokenise(sentence)
+
+print(tokens)
+print(f&quot;{len(tokens)} tokens for {len(sentence)} characters&quot;)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Jarvis&#x27;, &#x27;,&#x27;, &#x27;what&#x27;, &quot;&#x27;&quot;, &#x27;s&#x27;, &#x27;the&#x27;, &#x27;weather&#x27;, &#x27;?&#x27;, &#x27;It&#x27;, &quot;&#x27;&quot;, &#x27;s&#x27;, &#x27;25&#x27;, &#x27;degrees&#x27;, &#x27;.&#x27;]
+14 tokens for 44 characters</code></pre>
+    <p>
+      Real tokenisers (the model's, not this toy) use subword pieces learned from data, so a
+      common word is one token and a rare one is several. A useful rule of thumb for English:
+      <strong>one token is about four characters, or roughly ¾ of a word</strong>. This
+      matters because you pay per token, and the context window is measured in tokens.
+    </p>
+    <div class="callout warn"><span class="co-title">🔢 Do not count tokens by hand</span><p>Token counts are model-specific and not obvious. In Lesson 62 you will meet the API's own <code>count_tokens</code> endpoint, which is the only accurate way. Do not reach for a library called <code>tiktoken</code>: that is a different company's tokeniser and it miscounts for Claude, badly on code and non-English text.</p></div>
+
+    <h2>Prediction, made concrete</h2>
+    <p>
+      "Predict the next token" sounds abstract, so here is a tiny model that genuinely does it.
+      It reads some text, learns which word tends to follow which, and then generates new text
+      by sampling. This is a <strong>Markov chain</strong>: a language model with the
+      intelligence turned almost all the way down, but the exact same shape.
+    </p>
+    <pre class="run" data-verify="run"><code>import random
+from collections import defaultdict
+
+random.seed(7)
+
+corpus = &quot;&quot;&quot;the cat sat on the mat the cat ate the fish
+the dog sat on the log the dog ate the bone the cat ran&quot;&quot;&quot;
+
+# Learn: for each word, which words have followed it?
+following = defaultdict(list)
+words = corpus.split()
+for current, nxt in zip(words, words[1:]):
+    following[current].append(nxt)
+
+# Generate: start somewhere, then keep predicting the next word
+word = &quot;the&quot;
+output = [word]
+for _ in range(11):
+    choices = following[word]
+    word = random.choice(choices)
+    output.append(word)
+
+print(&quot; &quot;.join(output))</code></pre>
+<pre class="out"><code class="nohl">the log the dog sat on the log the cat sat on</code></pre>
+    <p>
+      That is next-token prediction, in eight lines. A real model does the same thing, but
+      instead of a lookup table of one-word history it has hundreds of billions of learned
+      parameters weighing the entire preceding text, so its "which comes next" is
+      breathtakingly more informed. The mechanism is identical; the sophistication is not.
+    </p>
+
+    <h2>Temperature: the creativity dial</h2>
+    <p>
+      The model does not output one next token, it outputs a <em>probability</em> for every
+      possible token. <strong>Temperature</strong> controls how you pick from those
+      probabilities. Low temperature always takes the likeliest; high temperature spreads the
+      love. Here is the actual maths, on a toy set of scores:
+    </p>
+    <pre class="run" data-verify="run"><code>import math
+
+def softmax_with_temperature(scores, temperature):
+    &quot;&quot;&quot;Turn raw scores into probabilities, sharpened or flattened by temperature.&quot;&quot;&quot;
+    scaled = [s / temperature for s in scores]
+    biggest = max(scaled)
+    exps = [math.exp(s - biggest) for s in scaled]
+    total = sum(exps)
+    return [e / total for e in exps]
+
+
+tokens = [&quot;cat&quot;, &quot;dog&quot;, &quot;banana&quot;]
+scores = [3.0, 2.0, 0.5]        # the model&#x27;s raw confidence in each
+
+for temp in [0.2, 1.0, 2.0]:
+    probs = softmax_with_temperature(scores, temp)
+    shown = &quot;, &quot;.join(f&quot;{t} {p:.0%}&quot; for t, p in zip(tokens, probs))
+    print(f&quot;temp {temp}: {shown}&quot;)</code></pre>
+<pre class="out"><code class="nohl">temp 0.2: cat 99%, dog 1%, banana 0%
+temp 1.0: cat 69%, dog 25%, banana 6%
+temp 2.0: cat 53%, dog 32%, banana 15%</code></pre>
+    <p>
+      At temperature 0.2 the model almost always says "cat": predictable, focused, a little
+      boring. At 2.0 it will surprise you, sometimes wonderfully, sometimes with "banana". For
+      an assistant that answers factual questions you want low temperature; for a brainstorming
+      partner, higher. Note: some of the newest models manage this internally and do not expose
+      a temperature knob, which is a design choice, not a limitation.
+    </p>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Formidable: Success]</span></div><p>Sit with this, because it dissolves a lot of confusion. The model is not looking anything up, and it has no database of facts to consult. It is sampling plausible continuations of text.</p>
+<p>That is why it can write a beautiful, fluent, completely fabricated citation: a fake reference is a plausible continuation of academic-sounding text. The fluency and the fabrication come from the exact same mechanism. Understanding this is your single best defence against trusting it wrongly.</p></div>
+
+    <h2>The context window: its entire short-term memory</h2>
+    <p>
+      A model has no memory between calls. Everything it "knows" about your conversation is the
+      text you send it each time, and that text has a size limit called the
+      <strong>context window</strong>, measured in tokens. Modern windows are large (the models
+      you will use hold around a million tokens, hundreds of pages), but they are finite.
+    </p>
+    <ul>
+      <li>Everything counts: your system prompt, the whole conversation history, any documents
+      you paste in, and the reply being generated.</li>
+      <li>When you build a chatbot, <strong>you</strong> resend the history every turn. The
+      model is not remembering; you are reminding. Lesson 55 builds exactly this.</li>
+      <li>Run past the window and the oldest text must be dropped or summarised, which is why
+      long chats sometimes "forget" the start.</li>
+    </ul>
+
+    <h2>What this means for building Jarvis</h2>
+    <div class="table-wrap"><table><thead><tr><th>The model...</th><th>So your code must...</th></tr></thead><tbody><tr><td>has no memory between calls</td><td>resend the conversation each turn (Lesson 55)</td></tr><tr><td>predicts plausible text, not truth</td><td>verify anything that matters; never trust blindly</td></tr><tr><td>charges per token, both directions</td><td>watch length and count tokens (Lesson 62)</td></tr><tr><td>has a finite context window</td><td>manage history; drop or summarise the oldest</td></tr><tr><td>cannot take actions on its own</td><td>give it tools and run them yourself (Lesson 57)</td></tr><tr><td>knows nothing past its training cutoff</td><td>feed it fresh data yourself (Lesson 58)</td></tr></tbody></table></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Feel the tokeniser</h3><p>Run the toy tokeniser on a few of your own sentences. Find a word it splits oddly, and one it keeps whole. Then estimate: how many tokens is a 500-word email, roughly?</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import re
+
+def toy_tokenise(text):
+    return re.findall(r&quot;\w+|[^\w\s]&quot;, text)
+
+
+for text in [&quot;Hello!&quot;, &quot;antidisestablishmentarianism&quot;, &quot;don&#x27;t&quot;, &quot;user@example.com&quot;]:
+    print(f&quot;{text!r:35} -&gt; {toy_tokenise(text)}&quot;)
+
+print()
+print(&quot;A 500-word email is roughly&quot;, round(500 / 0.75), &quot;tokens&quot;)</code></pre>
+<pre class="out"><code class="nohl">&#x27;Hello!&#x27;                            -&gt; [&#x27;Hello&#x27;, &#x27;!&#x27;]
+&#x27;antidisestablishmentarianism&#x27;      -&gt; [&#x27;antidisestablishmentarianism&#x27;]
+&quot;don&#x27;t&quot;                             -&gt; [&#x27;don&#x27;, &quot;&#x27;&quot;, &#x27;t&#x27;]
+&#x27;user@example.com&#x27;                  -&gt; [&#x27;user&#x27;, &#x27;@&#x27;, &#x27;example&#x27;, &#x27;.&#x27;, &#x27;com&#x27;]
+
+A 500-word email is roughly 667 tokens</code></pre><p>The real model would split that long word into several subword tokens and keep <code>don't</code> more sensibly. The ¾-word rule is an estimate; the API's counter is the truth.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Turn the temperature dial</h3><p>Change the toy Markov generator to prefer the most common next word most of the time (low temperature) instead of choosing uniformly. Observe how the output gets more repetitive.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import random
+from collections import Counter
+
+random.seed(1)
+
+corpus = &quot;the cat sat the cat ran the cat ate the dog sat&quot;
+words = corpus.split()
+
+following = {}
+for current, nxt in zip(words, words[1:]):
+    following.setdefault(current, Counter())[nxt] += 1
+
+
+def next_word(word, greedy):
+    counts = following.get(word)
+    if not counts:
+        return &quot;the&quot;
+    if greedy:
+        return counts.most_common(1)[0][0]      # always the likeliest: temp near 0
+    population = list(counts.elements())
+    return random.choice(population)            # weighted by frequency: temp near 1
+
+
+for greedy in (True, False):
+    word, out = &quot;the&quot;, [&quot;the&quot;]
+    for _ in range(7):
+        word = next_word(word, greedy)
+        out.append(word)
+    label = &quot;greedy (cold)&quot; if greedy else &quot;sampled (warm)&quot;
+    print(f&quot;{label:15} {&#x27; &#x27;.join(out)}&quot;)</code></pre>
+<pre class="out"><code class="nohl">greedy (cold)   the cat sat the cat sat the cat
+sampled (warm)  the cat ate the cat sat the dog</code></pre><p>Greedy decoding loops forever on the most common path. This is exactly why a real assistant set to temperature 0 can get repetitive, and why a little randomness usually reads better.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Explain it to a skeptic</h3><p>A friend says: 'The AI told me a confident, detailed answer that turned out to be completely made up. It lied to me.' Using this lesson, explain what actually happened, in three sentences.</p><details class="solution"><summary>Reveal solution</summary><p>Something like: <em>It did not lie, because lying needs an intent it does not have. It generates text that is a plausible continuation of your question, and a confident, detailed, wrong answer is often more plausible-sounding than an honest 'I don't know'. The fluency you trusted and the fabrication you got burned by are the same mechanism, which is why you verify anything that matters.</em></p><p>This framing, sometimes called 'hallucination' though 'confabulation' is more accurate, is the most important thing to internalise before you build on top of a model. It is not a bug they will fully fix; it is a property of what the thing is.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-53-how-llms-work">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="52-security.html"><span class="dir">← Previous</span>Lesson 52: Security Basics</a>
+      <a class="next" href="54-first-api-call.html"><span class="dir">Next →</span>Lesson 54: Your First API Call</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

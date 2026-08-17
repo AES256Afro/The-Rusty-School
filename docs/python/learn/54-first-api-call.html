@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 54: Your First API Call - The Python School</title>
+<meta name="description" content="Getting an API key, keeping it secret with .env, installing the SDK, and making your first request to a model.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/54-first-api-call">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 54: Your First API Call - The Python School">
+<meta property="og:description" content="Getting an API key, keeping it secret with .env, installing the SDK, and making your first request to a model.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/54-first-api-call">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 54: Your First API Call - The Python School">
+<meta name="twitter:description" content="Getting an API key, keeping it secret with .env, installing the SDK, and making your first request to a model.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 54 of 62</nav>
+    <span class="badge l6">Level 6 · Build Your Own Jarvis</span>
+    <h1>Your First API Call 🔑</h1>
+    <p class="lede muted">Everything so far has been you and Python. Now Python talks to a model running in
+    a data centre. The code is short. The key discipline is the whole lesson.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Which model provider?</h2>
+    <p>
+      Every major provider works the same way: you send text over HTTPS, you get text back, you
+      pay per token. This track uses Anthropic's Claude, because its Python library is clean,
+      its documentation is excellent, and (relevant to this campus) its fastest tools are
+      written in Rust. The <em>shape</em> of everything here transfers directly to OpenAI,
+      Google, Mistral or a local model; only the import line and the model names change.
+    </p>
+    <div class="callout info"><span class="co-title">🧭 The pattern is portable</span><p>Learn the ideas here, not the exact function names. 'Send a list of messages, get a reply, loop for a conversation, stream for responsiveness, give it tools to act' is true of every chat model. Swapping providers later is an afternoon, not a rewrite.</p></div>
+
+    <h2>Step 1: get a key, and understand what it is</h2>
+    <p>
+      Sign up at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>,
+      add a little credit (a few dollars lasts a long time at these token prices), and create an
+      API key. It looks like <code>sk-ant-...</code> and it is, in effect, a password that can
+      spend your money. Treat it exactly like one.
+    </p>
+    <div class="callout danger"><span class="co-title">🚨 A leaked key is a real bill</span><p>Bots scan every public commit on GitHub within <em>seconds</em> of it being pushed. A leaked cloud or model key has generated genuine four- and five-figure bills overnight. If you ever expose a key, revoke it immediately in the console, not later. And remember Lesson 52: deleting it in a new commit does not remove it from git history.</p></div>
+
+    <h2>Step 2: keep the key out of your code</h2>
+    <p>
+      The key never, ever goes in a <code>.py</code> file. It goes in an environment variable,
+      loaded from a <code>.env</code> file that git is told to ignore. This is exactly the
+      pattern from Lessons 42 and 52, and here is why it exists.
+    </p>
+    <pre data-verify="skip"><code># .env  (this file is SECRET and gitignored, never committed)
+ANTHROPIC_API_KEY=sk-ant-your-real-key-here</code></pre>
+    <pre data-verify="skip"><code># .gitignore  (add this on your very first commit, before you forget)
+.env
+.venv/
+__pycache__/</code></pre>
+    <p>Then load it. Two ways, both fine:</p>
+    <pre data-verify="skip"><code>import os
+
+# The bare way: the variable must already be in your shell&#x27;s environment
+api_key = os.environ.get(&quot;ANTHROPIC_API_KEY&quot;)
+if not api_key:
+    raise SystemExit(&quot;Set ANTHROPIC_API_KEY. See the README. Never hard-code it.&quot;)
+
+print(&quot;Key loaded:&quot;, api_key[:7] + &quot;...&quot; if api_key else &quot;MISSING&quot;)</code></pre>
+    <pre data-verify="compile"><code># The convenient way: python-dotenv reads the .env file for you
+from dotenv import load_dotenv      # pip install python-dotenv
+import os
+
+load_dotenv()                        # reads .env into the environment
+api_key = os.environ[&quot;ANTHROPIC_API_KEY&quot;]</code></pre>
+
+    <div class="voice" data-skill="paranoia"><div class="v-head"><span class="v-name">PARANOIA</span><span class="v-check success">[Formidable: Success]</span></div><p>Build the habit so deeply that hard-coding a key feels physically wrong. .env in .gitignore, on the first commit, every project, no exceptions.</p>
+<p>The people who leak keys are not careless amateurs. They are experienced engineers in a hurry who typed the key in 'just for a second to test'. The second becomes a commit becomes a bill. The discipline is the skill.</p></div>
+
+    <h2>Step 3: install the library</h2>
+    <pre class="term"><code class="nohl">python3 -m venv .venv
+source .venv/bin/activate        # .venv\Scripts\activate on Windows
+python -m pip install anthropic python-dotenv</code></pre>
+    <p>
+      A virtual environment (Lesson 26), then the official SDK plus the dotenv helper. On your
+      own machine this is two minutes. In the browser it cannot run at all, which is why this
+      whole level has no ▶ buttons: real assistants need the network and a key, and the school
+      keeps both out of your browser on purpose.
+    </p>
+
+    <h2>Step 4: the first call</h2>
+    <pre data-verify="compile"><code>import anthropic
+
+# The client reads ANTHROPIC_API_KEY from the environment automatically.
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model=&quot;claude-opus-5&quot;,
+    max_tokens=1024,
+    messages=[
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;In one sentence, what is Python good for?&quot;},
+    ],
+)
+
+# The reply is a list of content blocks. Pull the text out.
+for block in response.content:
+    if block.type == &quot;text&quot;:
+        print(block.text)</code></pre>
+    <p>Take that apart, because every field matters:</p>
+    <div class="table-wrap"><table><thead><tr><th>Piece</th><th>What it is</th></tr></thead><tbody><tr><td><code>anthropic.Anthropic()</code></td><td>The client. Finds your key in the environment on its own</td></tr><tr><td><code>model="claude-opus-5"</code></td><td>Which model. Opus is the most capable; see the table below</td></tr><tr><td><code>max_tokens=1024</code></td><td>A hard ceiling on the reply length. Required. You pay for what comes back</td></tr><tr><td><code>messages=[...]</code></td><td>The conversation, as a list of role/content dicts</td></tr><tr><td><code>"role": "user"</code></td><td>Who is speaking: <code>user</code> is you, <code>assistant</code> is the model</td></tr><tr><td><code>response.content</code></td><td>A list of blocks; the text lives in blocks of type <code>text</code></td></tr></tbody></table></div>
+
+    <h2>Choosing a model</h2>
+    <div class="table-wrap"><table><thead><tr><th>Model id</th><th>Best for</th><th>Rough cost per 1M tokens (in / out)</th></tr></thead><tbody><tr><td><code>claude-opus-5</code></td><td>The hardest reasoning, coding, long tasks</td><td>$5 / $25</td></tr><tr><td><code>claude-sonnet-5</code></td><td>The everyday workhorse: fast, cheap, very capable</td><td>$3 / $15</td></tr><tr><td><code>claude-haiku-4-5</code></td><td>Simple, high-volume, latency-sensitive tasks</td><td>$1 / $5</td></tr></tbody></table></div>
+    <p>
+      For most of your Jarvis, <code>claude-sonnet-5</code> is the right default: nearly the
+      capability of Opus at a fraction of the price and latency. Reach for Opus on genuinely
+      hard problems, Haiku for cheap bulk classification. A million tokens is a lot of text, so
+      a few dollars of credit goes further than you would think.
+    </p>
+    <div class="callout warn"><span class="co-title">⏱️ Prices and names change</span><p>Model names and prices move. The exact strings above are current as this lesson was written; check <a href='https://docs.claude.com/en/docs/about-claude/models' target='_blank' rel='noopener'>the model docs</a> and the pricing page before you rely on a number. The code shape does not change.</p></div>
+
+    <h2>A system prompt: telling it who to be</h2>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model=&quot;claude-sonnet-5&quot;,
+    max_tokens=1024,
+    system=&quot;You are Jarvis, a concise and slightly witty assistant. &quot;
+           &quot;Answer in at most two sentences. Never invent facts.&quot;,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Should I bring an umbrella?&quot;}],
+)
+
+print(response.content[0].text)</code></pre>
+    <p>
+      The <code>system</code> parameter sets the assistant's standing instructions: its
+      persona, its rules, its constraints. It is separate from the conversation and applies to
+      every turn. This is where your Jarvis gets its personality and its guardrails, and you
+      will spend real time tuning it.
+    </p>
+
+    <h2>When it goes wrong</h2>
+    <pre data-verify="compile"><code>import anthropic
+
+client = anthropic.Anthropic()
+
+try:
+    response = client.messages.create(
+        model=&quot;claude-sonnet-5&quot;,
+        max_tokens=1024,
+        messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello&quot;}],
+    )
+    print(response.content[0].text)
+except anthropic.AuthenticationError:
+    print(&quot;Your API key is missing or wrong. Check ANTHROPIC_API_KEY.&quot;)
+except anthropic.RateLimitError:
+    print(&quot;Too many requests. Wait a moment and retry.&quot;)
+except anthropic.APIStatusError as err:
+    print(f&quot;The API returned an error: {err.status_code}&quot;)
+except anthropic.APIConnectionError:
+    print(&quot;Could not reach the API. Check your internet connection.&quot;)</code></pre>
+    <p>
+      The library raises typed exceptions, exactly the sort you handled in Lesson 22. Catch the
+      specific ones you can do something about: a bad key, a rate limit, a network drop. The
+      SDK already retries transient failures a couple of times on its own.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Make the call yours</h3><p>On your own machine, with your key in <code>.env</code>, write a program that asks the model to explain one thing you have always wondered about, with a system prompt that makes it answer like a patient teacher. Run it. You are now talking to a model from your own code.</p><details class="solution"><summary>Reveal solution</summary><pre data-verify="compile"><code>from dotenv import load_dotenv
+import anthropic
+
+load_dotenv()
+client = anthropic.Anthropic()
+
+response = client.messages.create(
+    model=&quot;claude-sonnet-5&quot;,
+    max_tokens=500,
+    system=&quot;You are a patient teacher. Explain clearly, use one analogy, &quot;
+           &quot;and check for the most common misconception at the end.&quot;,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Why is the sky blue?&quot;}],
+)
+
+print(response.content[0].text)</code></pre><p>The moment this prints a real answer is the moment this stops being a course and starts being a thing you built.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Audit for leaks</h3><p>Here is a beginner's first script. Find the three security problems before it ever reaches GitHub.</p><pre data-verify="skip"><code>import anthropic
+
+client = anthropic.Anthropic(api_key=&quot;sk-ant-api03-RealKey123&quot;)
+response = client.messages.create(
+    model=&quot;claude-sonnet-5&quot;, max_tokens=1024,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: input(&quot;Ask: &quot;)}])
+print(response.content[0].text)</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><strong>The key is hard-coded.</strong> The moment this is committed, the key is public and git history keeps it forever. Load it from the environment.</li><li><strong>No <code>.gitignore</code> shown,</strong> so even the fix (a <code>.env</code> file) would get committed unless <code>.env</code> is ignored first.</li><li><strong>No error handling and no <code>max_tokens</code> discipline</strong> around user input: a hostile or accidental prompt can run up cost or crash with an unhandled exception.</li></ol><p>The fix is everything in this lesson: environment variable, gitignore, typed exception handling. None of it is hard; all of it is habit.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-54-first-api-call">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="53-how-llms-work.html"><span class="dir">← Previous</span>Lesson 53: How Language Models Actually Work</a>
+      <a class="next" href="55-memory.html"><span class="dir">Next →</span>Lesson 55: Conversations and Memory</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
