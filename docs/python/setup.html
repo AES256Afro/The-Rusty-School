@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup Lab - The Python School</title>
+<meta name="description" content="Install Python and an editor on Windows, macOS or Linux, with a troubleshooting table for every common error.">
+<link rel="canonical" href="https://rustyschool.com/python/setup">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Setup Lab - The Python School">
+<meta property="og:description" content="Install Python and an editor on Windows, macOS or Linux, with a troubleshooting table for every common error.">
+<meta property="og:url" content="https://rustyschool.com/python/setup">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Setup Lab - The Python School">
+<meta name="twitter:description" content="Install Python and an editor on Windows, macOS or Linux, with a troubleshooting table for every common error.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="assets/monty.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="build/index.html">Build</a>
+      <a href="pit.html">Snake Pit</a>
+      <a href="playground.html">Playground</a>
+      <a href="quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+
+  <section class="lesson-header">
+    <span class="kicker">The Setup Lab</span>
+    <h1>Set up your <span class="grad">Python lab</span> 🔧</h1>
+    <p class="lede muted">
+      Ten minutes, once. Pick your operating system below. Every step says what to type,
+      what you should see, and what to do when you see something else instead.
+    </p>
+  </section>
+
+  <div class="callout tip">
+    <span class="co-title">🧪 You do not need any of this to start</span>
+    Every example in Levels 1 and 2 runs in your browser, and the
+    <a href="playground.html">Playground</a> is a complete editor with nothing installed.
+    Come back here when you want to work with real files on your own machine, which is
+    around Lesson 21.
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="windows">🪟 Windows</button>
+    <button class="tab-btn" data-tab="macos">🍎 macOS</button>
+    <button class="tab-btn" data-tab="linux">🐧 Linux</button>
+    <button class="tab-btn" data-tab="editor">✏️ Editor</button>
+    <button class="tab-btn" data-tab="trouble">🚑 When it breaks</button>
+  </div>
+
+  <div class="tab-panel active" id="tab-windows">
+    <h2>Windows</h2>
+    <ol class="steps">
+      <li><strong>Download the installer.</strong> Go to
+        <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> and press the big
+        yellow button. It detects Windows automatically.</li>
+      <li><strong>Tick the box. This is the whole lesson.</strong> On the first installer
+        screen there is a checkbox at the bottom: <strong>"Add python.exe to PATH"</strong>.
+        Tick it. If you miss it, the terminal will not find Python and you will spend an hour
+        confused. Then press "Install Now".
+        <div class="callout danger" style="margin-top:8px">
+          <span class="co-title">🪤 Ninety percent of Windows setup pain</span>
+          is that unticked box. If you already installed without it, re-run the installer,
+          choose "Modify", and add it.
+        </div></li>
+      <li><strong>Open PowerShell.</strong> Press Start, type <code>powershell</code>, press
+        Enter.</li>
+      <li><strong>Check it worked.</strong>
+        <pre class="term"><code class="nohl">PS C:\Users\you&gt; python --version
+Python 3.13.5</code></pre>
+        Any 3.11 or newer is fine.</li>
+      <li><strong>Check pip too.</strong> pip installs other people's code and comes with
+        Python.
+        <pre class="term"><code class="nohl">PS C:\Users\you&gt; pip --version
+pip 25.0 from C:\... (python 3.13)</code></pre></li>
+    </ol>
+    <div class="callout warn"><span class="co-title">🏪 A note on the Microsoft Store version</span><p>Typing <code>python</code> on a fresh Windows sometimes opens the Store. That is a placeholder, not Python. Install from python.org instead: the Store build sandboxes file access in ways that will confuse you later.</p></div>
+  </div>
+
+  <div class="tab-panel" id="tab-macos">
+    <h2>macOS</h2>
+    <ol class="steps">
+      <li><strong>Do not use the Python that is already there.</strong> macOS ships an old
+        Python for its own use. Leave it alone.</li>
+      <li><strong>Install a real one.</strong> Either download from
+        <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> and run the
+        <code>.pkg</code>, or if you use Homebrew:
+        <pre class="term"><code class="nohl">brew install python@3.13</code></pre></li>
+      <li><strong>Open Terminal.</strong> Cmd+Space, type <code>terminal</code>, Enter.</li>
+      <li><strong>Check it.</strong>
+        <pre class="term"><code class="nohl">$ python3 --version
+Python 3.13.5</code></pre>
+        Always <code>python3</code> with the 3, on macOS.</li>
+      <li><strong>Check pip.</strong>
+        <pre class="term"><code class="nohl">$ python3 -m pip --version
+pip 25.0 from /opt/homebrew/... (python 3.13)</code></pre>
+        Using <code>python3 -m pip</code> rather than bare <code>pip</code> guarantees you are
+        installing into the same Python you are running. Make it a habit.</li>
+    </ol>
+  </div>
+
+  <div class="tab-panel" id="tab-linux">
+    <h2>Linux</h2>
+    <p>It is already installed. Check which version:</p>
+    <pre class="term"><code class="nohl">$ python3 --version
+Python 3.12.3</code></pre>
+    <p>If it is older than 3.11, or <code>pip</code> and <code>venv</code> are missing:</p>
+    <pre class="term"><code class="nohl"># Debian, Ubuntu, Mint
+sudo apt update &amp;&amp; sudo apt install python3 python3-pip python3-venv
+
+# Fedora
+sudo dnf install python3 python3-pip
+
+# Arch
+sudo pacman -S python python-pip</code></pre>
+    <div class="callout warn"><span class="co-title">🐧 Do not fight your system Python</span><p>On Linux the system Python belongs to your package manager, and installing things into it with <code>sudo pip</code> can break system tools. Newer distros block it outright with an <code>externally-managed-environment</code> error. That error is protecting you. Use a virtual environment (Lesson 26); it is two commands and it makes the problem disappear forever.</p></div>
+  </div>
+
+  <div class="tab-panel" id="tab-editor">
+    <h2>An editor that helps you</h2>
+    <p>
+      Take <a href="https://code.visualstudio.com" target="_blank" rel="noopener">VS Code</a> unless you have a reason not to.
+      It is free, runs everywhere, and every tutorial on earth assumes it.
+    </p>
+    <ol class="steps">
+      <li><strong>Install VS Code</strong> from the link above.</li>
+      <li><strong>Install the Python extension.</strong> Open the Extensions panel (the
+        blocks icon in the sidebar), search "Python", install the one published by Microsoft.
+        You get colouring, error squiggles, autocomplete and a Run button.</li>
+      <li><strong>Open a folder, not a file.</strong> File, Open Folder, choose your
+        <code>python-school</code> folder. This one habit prevents a surprising amount of
+        confusion later.</li>
+      <li><strong>Pick your interpreter.</strong> Press Ctrl+Shift+P (Cmd+Shift+P on Mac),
+        type "Python: Select Interpreter", choose the 3.13 you just installed.</li>
+      <li><strong>Turn on format-on-save</strong> once you reach Lesson 30. Settings, search
+        "format on save", tick it. Never argue about spacing again.</li>
+    </ol>
+    <div class="callout tip"><span class="co-title">⌨️ The four shortcuts worth memorising</span><p><code>Ctrl+S</code> save. <code>Ctrl+/</code> comment out the selected lines. <code>Ctrl+Shift+P</code> the command palette, which can do everything. <code>Ctrl+`</code> opens a terminal inside the editor, already standing in your project folder. On a Mac, Cmd instead of Ctrl.</p></div>
+  </div>
+
+  <div class="tab-panel" id="tab-trouble">
+    <h2>When it breaks</h2>
+    <div class="table-wrap"><table><thead><tr><th>What you see</th><th>What it means</th><th>What to do</th></tr></thead><tbody><tr><td><code>command not found: python3</code><br><code>'python' is not recognized</code></td><td>The shell cannot find Python</td><td>Windows: reinstall with 'Add to PATH' ticked. All: close and reopen the terminal after installing</td></tr><tr><td><code>can't open file 'hello.py'</code></td><td>You are not in the folder that holds the file</td><td>Run <code>ls</code> (or <code>dir</code>) and look. <code>cd</code> to the right folder</td></tr><tr><td><code>SyntaxError: invalid syntax</code></td><td>A typo. Very often a missing bracket or quote on the line ABOVE the one named</td><td>Read the line number, then look one line up. Lesson 10 covers this properly</td></tr><tr><td><code>IndentationError</code></td><td>Your spacing is inconsistent</td><td>Use four spaces per level, never tabs. In VS Code: 'Convert Indentation to Spaces'</td></tr><tr><td><code>ModuleNotFoundError: No module named 'x'</code></td><td>That package is not installed in the Python you are running</td><td><code>python3 -m pip install x</code>, and see Lesson 26 on virtual environments</td></tr><tr><td><code>externally-managed-environment</code></td><td>Linux is protecting its system Python</td><td>Make a virtual environment: <code>python3 -m venv .venv</code> then activate it</td></tr><tr><td>Two Pythons, wrong one runs</td><td>PATH order</td><td><code>which python3</code> (macOS/Linux) or <code>where python</code> (Windows) shows which one wins</td></tr></tbody></table></div>
+    <h3>The universal check</h3>
+    <p>When anything is confusing, ask Python itself which Python is talking:</p>
+    <pre data-verify="compile"><code>import sys
+print(sys.version)
+print(sys.executable)</code></pre>
+    <p>
+      That prints the exact version and the exact file being run. Nine times out of ten,
+      "it works in my editor but not my terminal" is those two lines disagreeing.
+    </p>
+  </div>
+
+  <section class="section">
+    <h2>Prove the lab works</h2>
+    <p>Make a file called <code>hello.py</code>, put this in it, and run
+    <code>python3 hello.py</code>:</p>
+    <pre data-verify="compile"><code>import sys
+
+print(&quot;Python is installed and working.&quot;)
+print(f&quot;Version: {sys.version.split()[0]}&quot;)
+print(&quot;Lab status: operational. Go and learn something.&quot;)</code></pre>
+    <p>
+      Three lines of output means you are done. Go to
+      <a href="learn/index.html">Level 1</a>.
+    </p>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Set up your lab</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

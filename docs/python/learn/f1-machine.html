@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base Camp 1: What a Computer Actually Is - The Python School</title>
+<meta name="description" content="CPU, memory, storage and binary explained with no jargon: what is really happening when you run a program.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/f1-machine">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Base Camp 1: What a Computer Actually Is - The Python School">
+<meta property="og:description" content="CPU, memory, storage and binary explained with no jargon: what is really happening when you run a program.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/f1-machine">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Base Camp 1: What a Computer Actually Is - The Python School">
+<meta name="twitter:description" content="CPU, memory, storage and binary explained with no jargon: what is really happening when you run a program.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Base Camp 1 of 6</nav>
+    <span class="badge l0">Level 0 · Base Camp</span>
+    <h1>What a Computer Actually Is 🧠</h1>
+    <p class="lede muted">Before you tell a machine what to do, it helps to know what the machine is.
+    Good news: it is much dumber than you think, and that is exactly why it works.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The world's fastest, dumbest kitchen</h2>
+    <p>
+      Picture a kitchen with one cook. The cook is unbelievably fast: billions of
+      actions per second. The cook is also completely literal and has no imagination
+      whatsoever. If your recipe says "add salt" without saying how much, the cook
+      does not guess. The cook stops and files a complaint.
+    </p>
+    <p>That kitchen is your computer. The parts:</p>
+    <div class="table-wrap"><table><thead><tr><th>The part</th><th>In the kitchen</th><th>What it really does</th></tr></thead><tbody><tr><td><strong>CPU</strong></td><td>The cook</td><td>Follows instructions, one at a time, absurdly fast</td></tr><tr><td><strong>RAM</strong> (memory)</td><td>The counter top</td><td>Holds what you are working on right now. Wiped when the power goes</td></tr><tr><td><strong>Disk</strong> (storage)</td><td>The pantry</td><td>Keeps things after you switch off. Slower to reach</td></tr><tr><td><strong>Input</strong></td><td>Someone shouting an order</td><td>Keyboard, mouse, microphone, network</td></tr><tr><td><strong>Output</strong></td><td>The plate leaving the window</td><td>Screen, speakers, files, network</td></tr></tbody></table></div>
+    <p>
+      That is it. That is the whole machine. Every app you have ever used, every game,
+      every video call, is that loop: get input, move things around on the counter,
+      produce output. Repeat several billion times a second until someone pulls the plug.
+    </p>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Easy: Success]</span></div><p>The pattern has a name: the stored-program computer, sketched out by John von Neumann and colleagues in 1945. The radical idea was that instructions and data could live in the same memory. Before that, you rewired the machine to change the program. Literally. With cables.</p></div>
+
+    <h2>Why everything is numbers</h2>
+    <p>
+      A computer stores everything using switches that are either off or on. One switch is
+      a <strong>bit</strong>. Eight of them make a <strong>byte</strong>, which gives 256
+      possible combinations, which is enough for one letter in the old days or a fragment
+      of a character today.
+    </p>
+    <p>
+      Counting with two symbols instead of ten is <strong>binary</strong>. You already know
+      how this works, you just do it with ten fingers instead of two:
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Binary</th><th>Meaning</th><th>In decimal</th></tr></thead><tbody><tr><td><code>0001</code></td><td>one 1</td><td>1</td></tr><tr><td><code>0010</code></td><td>one 2</td><td>2</td></tr><tr><td><code>0011</code></td><td>one 2 and one 1</td><td>3</td></tr><tr><td><code>1010</code></td><td>one 8 and one 2</td><td>10</td></tr><tr><td><code>11111111</code></td><td>128+64+32+16+8+4+2+1</td><td>255</td></tr></tbody></table></div>
+    <p>
+      Text is numbers too. There is a giant agreed-upon table called
+      <a href="https://home.unicode.org" target="_blank" rel="noopener">Unicode</a> that says "the number 65 means capital A"
+      and "the number 128013 means 🐍". Images are numbers for colours. Sound is numbers for
+      air pressure. Your holiday photos, your bank balance and the entire internet are, at
+      the bottom, extremely long numbers being pushed around by a very fast idiot.
+    </p>
+
+    <div class="callout tip"><span class="co-title">🎮 Game metaphor</span><p>Think of a game's <em>tick</em>: 60 times a second the console reads your controller, updates every position, and draws a frame. That is input, process, output, sixty times a second. Your program will do the same thing, just slower and with fewer explosions.</p></div>
+
+    <h2>What "running a program" means</h2>
+    <p>
+      A program is a file full of instructions. Running it means: copy the instructions from
+      the pantry (disk) onto the counter (memory), then let the cook (CPU) work through
+      them. When the cook reaches the end, the program stops and the counter is cleared.
+    </p>
+    <p>
+      The CPU does not understand English, or Python, or anything you would recognise as
+      language. It understands a few hundred numeric instructions with names like "add these
+      two numbers" and "jump back four instructions". Everything else, every language you
+      have ever heard of, exists to spare you from writing that by hand.
+    </p>
+
+    <div class="voice" data-skill="perception"><div class="v-head"><span class="v-name">PERCEPTION</span><span class="v-check success">[Medium: Success]</span></div><p>Look closer at the phrase 'jump back four instructions'. That is a loop. That is the whole idea of a loop, at the bottom of the machine, and you will meet it again in Lesson 8 wearing a nicer coat.</p></div>
+
+    <h2>Fast, but not magic</h2>
+    <p>
+      A modern CPU runs at a few billion cycles per second. Some scale, so the numbers stop
+      being abstract:
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Roughly how long</th><th>If one CPU cycle were one second</th></tr></thead><tbody><tr><td>Add two numbers</td><td>under a nanosecond</td><td>1 second</td></tr><tr><td>Read from memory (RAM)</td><td>about 100 nanoseconds</td><td>about 2 minutes</td></tr><tr><td>Read from a fast SSD</td><td>about 100 microseconds</td><td>about 1 day</td></tr><tr><td>Fetch a web page</td><td>about 100 milliseconds</td><td>about 3 years</td></tr></tbody></table></div>
+    <p>
+      This table explains most performance advice you will ever hear. Touching the network is
+      millions of times slower than doing arithmetic, which is why programs that feel slow are
+      almost never "doing too much maths" and almost always "waiting for something".
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Name the parts</h3><p>Without looking back up the page: which part of the computer forgets everything when you turn the power off, and which part remembers?</p><details class="solution"><summary>Reveal solution</summary><p>RAM (memory) forgets. Disk (storage) remembers. That is why an app asks you to save: saving means copying from the counter to the pantry.</p><p>This is also why 'have you tried turning it off and on again' works so often. It wipes the counter and starts clean.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Count like a computer</h3><p>What is <code>0110</code> in ordinary decimal numbers? The columns, from right to left, are worth 1, 2, 4, 8.</p><details class="solution"><summary>Reveal solution</summary><p><strong>6</strong>. There is a 4 and a 2 switched on: 4 + 2 = 6.</p></details></div>
+
+    <div class="callout info"><span class="co-title">📚 Want the deeper version?</span><p>The Rusty School's Level 0 covers the same ground from a systems angle, and goes further into how memory is laid out: <a href='../../learn/f1-computers.html'>How a Computer Thinks</a>. Two explanations of the same thing from different angles is one of the best learning tricks there is.</p></div>
+
+
+    <button class="complete-btn" data-lesson="py-f1-machine">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="index.html"><span class="dir">← Back</span>The curriculum</a>
+      <a class="next" href="f2-programming.html"><span class="dir">Next →</span>Base Camp 2: What Programming Actually Is</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

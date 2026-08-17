@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base Camp 2: What Programming Actually Is - The Python School</title>
+<meta name="description" content="Algorithms, instructions, and why programming languages exist. Plus the three things every program does.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/f2-programming">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Base Camp 2: What Programming Actually Is - The Python School">
+<meta property="og:description" content="Algorithms, instructions, and why programming languages exist. Plus the three things every program does.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/f2-programming">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Base Camp 2: What Programming Actually Is - The Python School">
+<meta name="twitter:description" content="Algorithms, instructions, and why programming languages exist. Plus the three things every program does.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Base Camp 2 of 6</nav>
+    <span class="badge l0">Level 0 · Base Camp</span>
+    <h1>What Programming Actually Is 📜</h1>
+    <p class="lede muted">Programming is writing instructions for something that cannot infer, assume,
+    or use common sense. It is less like maths and more like writing very careful stage
+    directions for an actor who takes everything literally.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The peanut butter sandwich problem</h2>
+    <p>
+      There is a classic classroom exercise. Children write instructions for making a peanut
+      butter sandwich, and the teacher follows them exactly. "Put the peanut butter on the
+      bread" gets the teacher pressing an unopened jar onto an unopened loaf. The room
+      dissolves. A lesson is learned.
+    </p>
+    <p>
+      That teacher is the computer. Programming is the skill of writing instructions so
+      complete and so unambiguous that a determined literalist cannot get them wrong. It is
+      not about being clever. It is about being <em>precise</em>, which is a different and
+      much more learnable skill.
+    </p>
+
+    <div class="voice" data-skill="drama"><div class="v-head"><span class="v-name">DRAMA</span><span class="v-check success">[Easy: Success]</span></div><p>Ah, but the machine is not merely literal, is it? It is hostile in its literalism. It will find the one interpretation you did not intend and commit to it entirely, the way a bad actor finds the one reading of a line that ruins the scene.</p></div>
+
+    <h2>An algorithm is just a plan</h2>
+    <p>
+      The word sounds like a magic spell. It means "a list of steps that finishes". You use
+      them constantly:
+    </p>
+    <ul>
+      <li>A recipe is an algorithm.</li>
+      <li>Looking up "Threepwood" in a phone book by opening the middle and halving your way
+      down is an algorithm. Computer scientists call it binary search and are very proud of it.</li>
+      <li>Your morning routine is an algorithm, complete with a conditional
+      ("if it is raining, take the coat").</li>
+    </ul>
+    <p>
+      Programming is: work out the steps (the hard part, done in your head or on paper), then
+      write them in a language the machine accepts (the easy part, which is what this course
+      teaches).
+    </p>
+
+    <div class="callout tip"><span class="co-title">🎮 You have already done this</span><p>If you have ever set up a crafting queue in a game, written a macro, built a redstone contraption, or configured a spreadsheet formula, you have programmed. You just did not have to fight anyone about semicolons.</p></div>
+
+    <h2>The three moves</h2>
+    <p>
+      Nearly every program ever written is built from three moves, and Level 1 of this course
+      is basically a tour of them:
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Move</th><th>What it means</th><th>In English</th></tr></thead><tbody><tr><td><strong>Sequence</strong></td><td>Do this, then this, then this</td><td>"Open the door, walk in, close the door"</td></tr><tr><td><strong>Selection</strong></td><td>Choose between paths</td><td>"If it is locked, use the key"</td></tr><tr><td><strong>Repetition</strong></td><td>Do it again</td><td>"Keep knocking until someone answers"</td></tr></tbody></table></div>
+    <p>
+      That is the entire toolkit. Add a way to store values (variables) and a way to bundle
+      steps under a name (functions) and you can, in principle, write anything: a game, a
+      browser, a bank, a chatbot. Everything else is convenience, speed and taste.
+    </p>
+
+    <h2>Why languages exist</h2>
+    <p>
+      The CPU wants numbers. Humans want words. A <strong>programming language</strong> is the
+      negotiated settlement. Here is the same idea at three altitudes:
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Level</th><th>Looks like</th><th>Who writes this</th></tr></thead><tbody><tr><td>Machine code</td><td><code>10110000 01100001</code></td><td>Nobody, on purpose, since about 1955</td></tr><tr><td>Assembly</td><td><code>mov al, 0x61</code></td><td>Compiler authors, chip people, demoscene heroes</td></tr><tr><td>Python</td><td><code>letter = "a"</code></td><td>You, in about ten minutes</td></tr></tbody></table></div>
+    <p>
+      Two ways exist to get from the top row to the bottom row:
+    </p>
+    <ul>
+      <li><strong>Compiled</strong> languages (C, Rust, Go) translate your whole program into
+      machine code ahead of time. You get a standalone file that runs blisteringly fast. You
+      pay by waiting for the compile and by having to satisfy the compiler first.</li>
+      <li><strong>Interpreted</strong> languages (Python, JavaScript, Ruby) keep a translator
+      running alongside your program, working through it line by line. You get instant
+      feedback and enormous flexibility. You pay in speed.</li>
+    </ul>
+    <p>
+      Python is interpreted, which is why you will be running real code inside a web page
+      thirty seconds from now, with nothing installed. It is also why our sister school's
+      language, Rust, will run circles around it in a benchmark. Both facts are fine. They
+      are the same trade seen from two sides.
+    </p>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Medium: Success]</span></div><p>Note the honest framing: not 'Python is slow' but 'Python trades machine time for your time'. Your time costs more than the computer's, right up until the moment it does not, and knowing where that line sits is most of what senior engineers are paid for.</p></div>
+
+    <h2>What programmers actually do all day</h2>
+    <p>
+      Not typing. Typing is maybe fifteen minutes of it. The real job:
+    </p>
+    <ul>
+      <li><strong>Reading.</strong> Understanding code you did not write, including your own
+      from three months ago, who was a stranger.</li>
+      <li><strong>Naming.</strong> Deciding what to call things so the next person understands.
+      Famously one of the two hard problems in computer science.</li>
+      <li><strong>Debugging.</strong> Finding out why the thing you were certain about is
+      false. This is the actual craft, and Lesson 10 starts teaching it properly.</li>
+      <li><strong>Deleting.</strong> The best code is the code you did not have to write.</li>
+    </ul>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Be the computer</h3><p>Here are instructions for brushing your teeth. Follow them with maximum literal-mindedness and find at least three ways they go wrong:</p><ol><li>Pick up the toothbrush.</li><li>Put toothpaste on it.</li><li>Brush your teeth for two minutes.</li><li>Rinse.</li></ol><details class="solution"><summary>Reveal solution</summary><p>A few of the many: the toothpaste tube is closed, and nothing said to open it. 'Put toothpaste on it' does not say how much, so you use the whole tube. 'Brush your teeth' does not say to put the brush in your mouth. 'Rinse' does not say rinse <em>what</em>, so you rinse the cat.</p><p>Every one of those is a bug you will genuinely write this year. The mistake is never stupidity. It is assuming shared context with something that has none.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Spot the three moves</h3><p>Describe how a vending machine works in five or six steps. Then label each step as sequence, selection or repetition.</p><details class="solution"><summary>Reveal solution</summary><p>One reasonable answer:</p><ol><li>Wait for a coin. <em>(repetition: keep waiting)</em></li><li>Add the coin's value to the total. <em>(sequence)</em></li><li>If the total is less than the price, go back to step 1. <em>(selection, then repetition)</em></li><li>Wait for a button press. <em>(repetition)</em></li><li>If that slot is empty, refund and stop. Otherwise drop the item. <em>(selection)</em></li><li>Return the change. <em>(sequence)</em></li></ol><p>You have just designed a program. The rest of this course is notation.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-f2-programming">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="f1-machine.html"><span class="dir">← Previous</span>Base Camp 1: What a Computer Actually Is</a>
+      <a class="next" href="f3-python.html"><span class="dir">Next →</span>Base Camp 3: What Python Is, and Where It Came From</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

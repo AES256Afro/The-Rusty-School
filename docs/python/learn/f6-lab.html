@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Base Camp 6: Setting Up Your Lab - The Python School</title>
+<meta name="description" content="Install Python and an editor, run your first script from the terminal, and understand what you just installed.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/f6-lab">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Base Camp 6: Setting Up Your Lab - The Python School">
+<meta property="og:description" content="Install Python and an editor, run your first script from the terminal, and understand what you just installed.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/f6-lab">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Base Camp 6: Setting Up Your Lab - The Python School">
+<meta name="twitter:description" content="Install Python and an editor, run your first script from the terminal, and understand what you just installed.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Base Camp 6 of 6</nav>
+    <span class="badge l0">Level 0 · Base Camp</span>
+    <h1>Setting Up Your Lab 🔧</h1>
+    <p class="lede muted">Ten minutes of setup buys you the real thing: Python on your own machine, an
+    editor that helps you, and a folder that is yours.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>You can skip this. For now.</h2>
+    <p>
+      Every example in Levels 1 and 2 runs in your browser with the ▶ button, and the
+      <a href="../playground.html">Playground</a> is a full editor with nothing to install. If
+      you want to start learning in the next thirty seconds, go, and come back here when a
+      lesson needs real files.
+    </p>
+    <p>
+      But do come back. Programming on your own machine, with your own files, is the moment
+      this stops being a course and starts being a craft.
+    </p>
+
+    <h2>Step 1: get Python</h2>
+    <p>
+      The full walkthrough for each operating system, with screenshots' worth of detail, lives
+      on the <a href="../setup.html">Setup Lab</a> page. The short version:
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>System</th><th>Do this</th><th>Then check</th></tr></thead><tbody><tr><td>Windows</td><td>Install from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> and <strong>tick 'Add python.exe to PATH'</strong> on the first screen</td><td><code>python --version</code></td></tr><tr><td>macOS</td><td>Install from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org/downloads</a> (the version Apple ships is old and not for your projects)</td><td><code>python3 --version</code></td></tr><tr><td>Linux</td><td>It is almost certainly already there</td><td><code>python3 --version</code></td></tr></tbody></table></div>
+    <p>You are looking for something like this:</p>
+    <pre class="term"><code class="nohl">$ python3 --version
+Python 3.13.5</code></pre>
+    <p>
+      Anything 3.11 or newer is fine for this course. If you get "command not found", the
+      Setup Lab has a section for exactly that, and it is nearly always the PATH checkbox on
+      Windows.
+    </p>
+
+    <div class="callout warn"><span class="co-title">⚠️ python versus python3</span><p>On macOS and Linux, type <code>python3</code>. Plain <code>python</code> may not exist, or may point at something ancient. On Windows, plain <code>python</code> is correct. This course writes <code>python3</code> and you should mentally drop the 3 if you are on Windows.</p></div>
+
+    <h2>Step 2: get an editor</h2>
+    <p>
+      You can write Python in Notepad. You should not. A real editor gives you syntax
+      colouring, tells you about mistakes as you type, and lets you run code without leaving
+      the window.
+    </p>
+    <ul>
+      <li><a href="https://code.visualstudio.com" target="_blank" rel="noopener">VS Code</a> plus the official Python
+      extension. The default choice, free, works everywhere, and every tutorial assumes it.</li>
+      <li><a href="https://www.jetbrains.com/pycharm/" target="_blank" rel="noopener">PyCharm Community</a>: heavier, free,
+      more opinionated, excellent refactoring.</li>
+      <li><a href="https://zed.dev" target="_blank" rel="noopener">Zed</a>: very fast, newer, and (fun fact for the sister
+      school) written in Rust.</li>
+    </ul>
+    <p>Take VS Code if you have no opinion. You can change later; nobody will mind.</p>
+
+    <h2>Step 3: your first real program</h2>
+    <ol class="steps">
+      <li><strong>Make a folder.</strong> In your terminal:
+        <pre class="term"><code class="nohl">cd ~
+mkdir python-school
+cd python-school</code></pre></li>
+      <li><strong>Open it in your editor.</strong> In VS Code: File, Open Folder, pick
+        <code>python-school</code>. Working with a <em>folder</em> open rather than a lone
+        file is the habit that makes everything else work later.</li>
+      <li><strong>Make a file</strong> called <code>hello.py</code> and type this into it.
+        Type it, do not paste it. Your fingers learn things your eyes do not.
+        <pre class="run" data-verify="run"><code>name = &quot;Guybrush Threepwood&quot;
+print(&quot;Hello, world!&quot;)
+print(f&quot;My name is {name} and I am a mighty programmer.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Hello, world!
+My name is Guybrush Threepwood and I am a mighty programmer.</code></pre></li>
+      <li><strong>Save it.</strong> Ctrl+S, or Cmd+S on a Mac. An unsaved file is why your
+        change "did nothing".</li>
+      <li><strong>Run it</strong> from the terminal, standing in that folder:
+        <pre class="term"><code class="nohl">$ python3 hello.py
+Hello, world!
+My name is Guybrush Threepwood and I am a mighty programmer.</code></pre></li>
+    </ol>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Formidable: Success]</span></div><p>That was it. That was the wall. Almost everyone who quits programming quits somewhere in the last five minutes: the install, the PATH, the folder, the 'command not found'. You are past it. Everything after this is just learning what to type.</p></div>
+
+    <h2>What you actually installed</h2>
+    <p>Three things arrived on your machine, and knowing which is which will save you later:</p>
+    <div class="table-wrap"><table><thead><tr><th>Thing</th><th>What it is</th><th>You use it by</th></tr></thead><tbody><tr><td><code>python3</code></td><td>The interpreter: the program that runs your programs</td><td><code>python3 myfile.py</code></td></tr><tr><td><code>pip</code></td><td>The package installer: fetches other people's code from PyPI</td><td><code>pip install requests</code> (Lesson 26)</td></tr><tr><td>The REPL</td><td>An interactive prompt for trying things one line at a time</td><td>typing <code>python3</code> with no filename</td></tr></tbody></table></div>
+    <p>Try the third one now. Type <code>python3</code> on its own:</p>
+    <pre class="repl"><code class="nohl">&gt;&gt;&gt; 2 + 2
+4
+&gt;&gt;&gt; &quot;Guybrush&quot; * 3
+&#x27;GuybrushGuybrushGuybrush&#x27;
+&gt;&gt;&gt; len(&quot;How appropriate. You fight like a cow.&quot;)
+38
+&gt;&gt;&gt; exit()</code></pre>
+    <p>
+      That is the REPL: Read, Evaluate, Print, Loop. It is a calculator that speaks Python and
+      it is the single best tool for answering "wait, what does this do?". Professionals keep
+      one open all day. <code>exit()</code> leaves.
+    </p>
+
+    <div class="callout tip"><span class="co-title">📁 One folder per project, always</span><p>Do not pile everything into Documents. Make a folder per project, keep its code in it, and open that folder in your editor. When Lesson 26 introduces virtual environments, this habit is what makes them painless instead of mysterious.</p></div>
+
+    <h2>If something went wrong</h2>
+    <div class="table-wrap"><table><thead><tr><th>Message</th><th>What it means</th><th>Fix</th></tr></thead><tbody><tr><td><code>command not found: python3</code></td><td>The shell cannot find Python</td><td>Reinstall, ticking 'Add to PATH'. Close and reopen the terminal afterwards</td></tr><tr><td><code>No such file or directory: 'hello.py'</code></td><td>You are in the wrong folder</td><td><code>ls</code> to look, <code>cd</code> to move. See Base Camp 5</td></tr><tr><td><code>SyntaxError</code></td><td>A typo in your code</td><td>Read the line number it gives you, then the line above it. Lesson 10 makes this easy</td></tr><tr><td><code>IndentationError</code></td><td>Stray spaces at the start of a line</td><td>Line up your code at the left margin unless it is inside a block</td></tr></tbody></table></div>
+    <p>
+      The full troubleshooting list, per operating system, is on the
+      <a href="../setup.html">Setup Lab</a> page. Nothing you can hit here is unusual, and
+      nothing is your fault.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Make it yours</h3><p>Change <code>hello.py</code> so it prints your own name, and add a third line that prints how many years you have wanted to learn this. Run it again.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>name = &quot;your name here&quot;
+years = 4
+print(&quot;Hello, world!&quot;)
+print(f&quot;My name is {name}.&quot;)
+print(f&quot;I have wanted to do this for {years} years, which ends today.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Hello, world!
+My name is your name here.
+I have wanted to do this for 4 years, which ends today.</code></pre><p>If it ran, you have a working lab. Level 1 starts now.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Live in the REPL for two minutes</h3><p>Open <code>python3</code> with no filename and work out, by experiment, what each of these does. Guess first, then run it.</p><pre data-verify="compile"><code>17 // 5
+17 % 5
+2 ** 10
+&quot;ho&quot; * 3
+len(&quot;Monkey Island&quot;)</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>17 // 5</code> is <strong>3</strong> (division, throwing away the remainder). <code>17 % 5</code> is <strong>2</strong> (just the remainder). <code>2 ** 10</code> is <strong>1024</strong> (2 to the power of 10). <code>"ho" * 3</code> is <strong>'hohoho'</strong> (yes, multiplying text works). <code>len("Monkey Island")</code> is <strong>13</strong>, counting the space.</p><p>You just learned five things by asking the machine instead of asking a person. That is the most valuable habit in this entire course.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-f6-lab">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="f5-terminal.html"><span class="dir">← Previous</span>Base Camp 5: The Terminal, Files and Paths</a>
+      <a class="next" href="../build/index.html"><span class="dir">Next →</span>The Project Workshop</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

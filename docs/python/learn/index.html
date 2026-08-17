@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curriculum - The Python School</title>
+<meta name="description" content="The full 6-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Curriculum - The Python School">
+<meta property="og:description" content="The full 6-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Curriculum - The Python School">
+<meta name="twitter:description" content="The full 6-lesson Python curriculum, from what a computer is through to building your own AI assistant.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container">
+  <section class="lesson-header">
+    <span class="kicker">The curriculum</span>
+    <h1>Your <span class="grad">learning path</span> 🗺️</h1>
+    <p class="lede muted">
+      6 lessons across seven levels, starting before code and ending with a
+      private AI assistant you built yourself. Every lesson has plain-English explanations,
+      examples that run in the page, and exercises with hidden solutions.
+    </p>
+
+    <div class="xp-wrap" id="xp-wrap">
+      <div class="xp-top">
+        <span class="rank-chip"><span class="rank-num">1</span><span class="rank-name">Stowaway</span></span>
+        <span class="xp-nums">0 XP</span>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
+      <p class="xp-note">Lessons are 100 XP. Puzzles are 60. Projects are 250. Quiz answers
+      are 20 each. <a href="../achievements.html">Achievements</a> pay bonuses.</p>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label"></div>
+    </div>
+  </section>
+
+  <div class="callout tip">
+    <span class="co-title">🍵 A good rhythm</span>
+    One lesson per sitting. Type the examples out yourself rather than pasting them; fingers
+    remember what eyes skim. Do the exercises before revealing the answers, take the level
+    quiz when you finish a level, and build the matching workshop project before moving on.
+    Nothing here expires, and nobody is timing you.
+  </div>
+
+  <section class="section" id="level-0">
+    <h2><span class="badge l0">Level 0</span> &nbsp;Base Camp
+      <span class="muted small">- Never written a line of code? Start here. No Python yet, and that is on purpose.</span></h2>
+    <div class="grid cols-2">
+      <a class="card lesson-card" data-lesson="py-f1-machine" href="f1-machine.html"><span class="num">B1</span><div><h3>What a Computer Actually Is</h3><p>CPU, memory, storage and binary, explained as a very fast and very literal kitchen.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-f2-programming" href="f2-programming.html"><span class="num">B2</span><div><h3>What Programming Actually Is</h3><p>Algorithms, the three moves every program is made of, and why languages exist.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-f3-python" href="f3-python.html"><span class="num">B3</span><div><h3>What Python Is, and Where It Came From</h3><p>A Christmas project named after a comedy troupe that ended up running the world.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-f4-why-python" href="f4-why-python.html"><span class="num">B4</span><div><h3>Why Python? An Honest Accounting</h3><p>What Python is genuinely great at, where it loses, and when to pick something else.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-f5-terminal" href="f5-terminal.html"><span class="num">B5</span><div><h3>The Terminal, Files and Paths</h3><p>The black window with the cursor: ten commands, and what a path really is.</p></div></a>
+      <a class="card lesson-card" data-lesson="py-f6-lab" href="f6-lab.html"><span class="num">B6</span><div><h3>Setting Up Your Lab</h3><p>Install Python and an editor, then run your first real program from a real file.</p></div></a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="callout info">
+      <span class="co-title">🔨 Lessons teach the language. Projects teach programming.</span>
+      When a level is done, go and build something from the
+      <a href="../build/index.html">Project Workshop</a> before starting the next one. The
+      gap between "I understood that lesson" and "I can write that from a blank file" is
+      the entire job, and the only way across it is a blank file.
+    </div>
+  </section>
+
+<script>window.PY_LESSONS = [{"id":"py-f1-machine","level":0},{"id":"py-f2-programming","level":0},{"id":"py-f3-python","level":0},{"id":"py-f4-why-python","level":0},{"id":"py-f5-terminal","level":0},{"id":"py-f6-lab","level":0}];</script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

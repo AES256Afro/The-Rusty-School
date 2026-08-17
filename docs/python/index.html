@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Python School - Learn Python from Zero</title>
+<meta name="description" content="A free, beginner-first Python course: run real Python in your browser, 6 lessons from absolute zero to building your own AI assistant, with projects, puzzles, quizzes and XP.">
+<link rel="canonical" href="https://rustyschool.com/python/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="The Python School - Learn Python from Zero">
+<meta property="og:description" content="A free, beginner-first Python course: run real Python in your browser, 6 lessons from absolute zero to building your own AI assistant, with projects, puzzles, quizzes and XP.">
+<meta property="og:url" content="https://rustyschool.com/python/">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Python School - Learn Python from Zero">
+<meta name="twitter:description" content="A free, beginner-first Python course: run real Python in your browser, 6 lessons from absolute zero to building your own AI assistant, with projects, puzzles, quizzes and XP.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="assets/monty.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="setup.html">Setup Lab</a>
+      <a href="learn/index.html">Learn</a>
+      <a href="build/index.html">Build</a>
+      <a href="pit.html">Snake Pit</a>
+      <a href="playground.html">Playground</a>
+      <a href="quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container">
+
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <span class="kicker">A free course for people who have never written code</span>
+        <h1>Learn <span class="grad">Python</span> like it's an adventure game.</h1>
+        <p class="lede">
+          Python runs the science, the automation and the AI. It is also the friendliest
+          language ever put in front of a beginner. This school teaches it from absolute
+          zero: 6 lessons, a workshop full of real projects, puzzles, XP,
+          achievements, and a python named Monty who is mildly skeptical of your code.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="learn/index.html">Start from zero 🐍</a>
+          <a class="btn btn-ghost" href="playground.html">Run Python right now ⚡</a>
+          <a class="btn btn-ghost" href="learn/f4-why-python.html">Why Python?</a>
+        </div>
+        <div class="pill-stat">
+          <div class="stat"><span class="n">6</span><span class="l">lessons</span></div>
+          <div class="stat"><span class="n">7</span><span class="l">levels</span></div>
+          <div class="stat"><span class="n">12</span><span class="l">build-it projects</span></div>
+          <div class="stat"><span class="n">100%</span><span class="l">free &amp; open</span></div>
+        </div>
+        <p class="impact-banner">
+          🔒 No account needed. No ads, no tracking, no data harvesting, ever.
+          <a href="../privacy.html">Our privacy promise</a> is one page long.
+        </p>
+        <p class="impact-banner">
+          🧪 Every example runs <strong>in your browser</strong>, on real Python 3.14.
+          Nothing you type is ever sent anywhere.
+        </p>
+      </div>
+      <div class="hero-art">
+        <img src="assets/monty.svg" alt="Monty, a friendly coiled python">
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="try">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">No installing, no signing up</span>
+        <h2>Your first program is thirty seconds away</h2>
+        <p>Press ▶ run. Then change a word and press it again. You cannot break anything.</p>
+      </div>
+      <pre class="run" data-verify="run"><code>name = &quot;you&quot;
+print(&quot;Hello, world!&quot;)
+print(f&quot;Welcome to the school, {name}.&quot;)
+
+for stage in [&quot;curious&quot;, &quot;confused&quot;, &quot;dangerous&quot;]:
+    print(f&quot;Today you are {stage}.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Hello, world!
+Welcome to the school, you.
+Today you are curious.
+Today you are confused.
+Today you are dangerous.</code></pre>
+      <p class="muted small">
+        That is real CPython, compiled to WebAssembly, running inside this page. The first
+        run downloads the interpreter (about 12 MB, once) and after that it is instant.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="why">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Why Python?</span>
+        <h2>The language that ate the world quietly</h2>
+        <p>Not hype. Here is what it is actually good at, with the receipts in the lessons.</p>
+      </div>
+      <div class="grid cols-3">
+        <div class="card"><span class="emoji">📖</span>
+          <h3>It reads like English</h3>
+          <p>No semicolons, no curly braces, no ceremony. Code you write in week one is
+          still readable in year three, which is more than most languages manage.</p>
+        </div>
+        <div class="card"><span class="emoji">🔬</span>
+          <h3>It owns science and AI</h3>
+          <p>The first image of a black hole, LIGO's gravitational waves, and essentially
+          all modern machine learning were assembled with Python.</p>
+        </div>
+        <div class="card"><span class="emoji">🔌</span>
+          <h3>Batteries genuinely included</h3>
+          <p>Dates, files, zip, JSON, databases, HTTP, testing: all built in. Then half a
+          million more packages on PyPI for everything else.</p>
+        </div>
+        <div class="card"><span class="emoji">🤖</span>
+          <h3>It is how you talk to AI</h3>
+          <p>Every major model provider ships a Python library first. Level 6 of this
+          course builds you a private assistant with one.</p>
+        </div>
+        <div class="card"><span class="emoji">🧹</span>
+          <h3>It automates the boring</h3>
+          <p>Rename 4,000 files, tidy a spreadsheet, back up a folder, scrape a page,
+          post to an API. Fifty lines and an afternoon of your life back.</p>
+        </div>
+        <div class="card"><span class="emoji">💼</span>
+          <h3>It is everywhere jobs are</h3>
+          <p>Instagram, Netflix, Spotify, Dropbox and NASA all run production Python. It
+          sits at or near the top of every language ranking published.</p>
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="co-title">⚖️ And the honest downsides</span>
+        Python is slow compared to compiled languages, its threading has a famous asterisk,
+        and shipping a program to a stranger is fiddlier than it should be. We cover all
+        three properly in <a href="learn/f4-why-python.html">Base Camp 4</a> rather than
+        pretending they do not exist. A course that only sells you the upside is an advert.
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="path">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Your journey</span>
+        <h2>Seven levels, from "what is a variable" to "I built my own AI assistant"</h2>
+        <p>Short lessons, heavy handholding, a lot of small wins. Progress saves in your browser.</p>
+      </div>
+      <div class="grid cols-4">
+        <a class="card" href="learn/index.html#level-0">
+          <span class="badge l0">Level 0 · Base Camp</span>
+          <h3>🏕️ Before any code</h3>
+          <p>What a computer is, what programming is, what Python is, and a terminal
+          survival guide. Code-free and jargon-slaying.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-1">
+          <span class="badge l1">Level 1 · First Words</span>
+          <h3>🌱 The whole language, small</h3>
+          <p>Printing, variables, numbers, text, questions, decisions, loops, and how to
+          read an error message without fear.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-2">
+          <span class="badge l2">Level 2 · The Toolbox</span>
+          <h3>🧰 Data and functions</h3>
+          <p>Lists, dictionaries, sets, comprehensions, and writing your own functions.
+          This is where it starts to feel like power.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-3">
+          <span class="badge l3">Level 3 · Real Programs</span>
+          <h3>🏗️ Software, not scripts</h3>
+          <p>Files, exceptions, JSON, dates, regex, virtual environments, command-line
+          tools, debugging and testing.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-4">
+          <span class="badge l4">Level 4 · Pythonic</span>
+          <h3>🎩 The good stuff</h3>
+          <p>Classes, dataclasses, generators, decorators, context managers, type hints,
+          and concurrency explained honestly.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-5">
+          <span class="badge l5">Level 5 · In the Wild</span>
+          <h3>🌍 What people build</h3>
+          <p>Automation, APIs, scraping, web apps, databases, data analysis, charts,
+          games, packaging, performance and security.</p>
+        </a>
+        <a class="card" href="learn/index.html#level-6">
+          <span class="badge l6">Level 6 · Jarvis</span>
+          <h3>🤖 Your own AI assistant</h3>
+          <p>How models actually work, your first API call, memory, streaming, tools,
+          your own documents, voice, and running it all locally.</p>
+        </a>
+        <a class="card" href="build/index.html">
+          <span class="badge build">The Workshop</span>
+          <h3>🔨 Twelve real projects</h3>
+          <p>Built from a spec, not a script: a dice game, a password vault, a Markdown
+          blog engine, a Discord-style bot, and more.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="game">
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Gamified, but not gimmicky</span>
+        <h2>Earn XP for things that actually make you better</h2>
+      </div>
+      <div class="quest-map">
+        <div class="quest"><span class="q-icon">📚</span><div>
+          <h3>Lessons: 100 XP</h3>
+          <p>Read it, run the examples, do the exercises, mark it complete. Twelve ranks,
+          from Stowaway to Harbourmaster of the Interpreter.</p></div></div>
+        <div class="quest"><span class="q-icon">🐍</span><div>
+          <h3>The Snake Pit: 60 XP a puzzle</h3>
+          <p>Predict the output, find the bug, fix the code. Six tiers from Egg to
+          Basilisk. <a href="pit.html">Enter the pit →</a></p></div></div>
+        <div class="quest"><span class="q-icon">⚔️</span><div>
+          <h3>The Insult Compiler</h3>
+          <p>Swordfighting where the insults are real Python error messages and the
+          comebacks are the fixes. Error literacy is the most underrated beginner skill
+          there is. <a href="insults.html">Draw your sword →</a></p></div></div>
+        <div class="quest"><span class="q-icon">🏅</span><div>
+          <h3>Achievements</h3>
+          <p>Twenty-one of them, including one for finishing lessons at both schools on
+          this campus. <a href="achievements.html">See the trophy cabinet →</a></p></div></div>
+        <div class="quest"><span class="q-icon">🔨</span><div>
+          <h3>Projects: 250 XP</h3>
+          <p>The cure for tutorial hell. A spec, a ladder of hints, a reference solution
+          you only see if you want it. <a href="build/index.html">Open the workshop →</a></p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="campus">
+    <div class="container">
+      <div class="callout info">
+        <span class="co-title">🦀 There is a sister school next door</span>
+        <p>The Python School shares its campus, design and accounts with
+        <a href="../index.html"><strong>The Rusty School</strong></a>, which teaches Rust
+        from the same starting point. Python and Rust are the two most useful languages you
+        can know at once: one for speed of thought, one for speed of machine. Sign in at
+        either and your progress follows you to both.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="learn/index.html">Curriculum</a></li>
+        <li><a href="setup.html">Set up your lab</a></li>
+        <li><a href="quiz.html">Quizzes</a></li>
+        <li><a href="cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="glossary.html">Glossary</a></li>
+        <li><a href="achievements.html">Achievements</a></li>
+        <li><a href="insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
