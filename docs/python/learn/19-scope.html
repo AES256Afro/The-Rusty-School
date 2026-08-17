@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 19: Scope: Where Names Live - The Python School</title>
+<meta name="description" content="Local and global scope, the LEGB rule, shadowing, and why global is usually the wrong answer.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/19-scope">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 19: Scope: Where Names Live - The Python School">
+<meta property="og:description" content="Local and global scope, the LEGB rule, shadowing, and why global is usually the wrong answer.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/19-scope">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 19: Scope: Where Names Live - The Python School">
+<meta name="twitter:description" content="Local and global scope, the LEGB rule, shadowing, and why global is usually the wrong answer.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 19 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Scope: Where Names Live 🔭</h1>
+    <p class="lede muted">Every name you create lives somewhere. Knowing where saves you from the two most
+    confusing errors in Python: the variable that vanished, and the one that refused to
+    change.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>What happens inside stays inside</h2>
+    <pre class="run" data-verify="run"><code>def make_grog():
+    strength = 11          # created inside the function
+    print(f&quot;inside: {strength}&quot;)
+
+
+make_grog()
+# print(strength)          # NameError: name &#x27;strength&#x27; is not defined
+print(&quot;outside: cannot see it&quot;)</code></pre>
+<pre class="out"><code class="nohl">inside: 11
+outside: cannot see it</code></pre>
+    <p>
+      Names created inside a function are <strong>local</strong> to it. They come into
+      existence when the call starts and disappear when it ends. This is a feature: it means
+      you can name a variable <code>total</code> inside a function without wondering whether
+      some other function forty lines away is also using <code>total</code>.
+    </p>
+
+    <h2>Reading outwards is allowed</h2>
+    <pre class="run" data-verify="run"><code>ship_name = &quot;Sea Monkey&quot;          # global
+
+
+def announce():
+    print(f&quot;Now boarding the {ship_name}&quot;)
+
+
+announce()</code></pre>
+<pre class="out"><code class="nohl">Now boarding the Sea Monkey</code></pre>
+    <p>
+      A function can <em>read</em> names from outside. Python looks in ever-widening circles,
+      which has a name you will see in every Python book: <strong>LEGB</strong>.
+    </p>
+    <div class="table-wrap"><table><thead><tr><th>Letter</th><th>Scope</th><th>Means</th></tr></thead><tbody><tr><td><strong>L</strong></td><td>Local</td><td>Inside this function</td></tr><tr><td><strong>E</strong></td><td>Enclosing</td><td>Inside the function that contains this one</td></tr><tr><td><strong>G</strong></td><td>Global</td><td>At the top level of this file</td></tr><tr><td><strong>B</strong></td><td>Built-in</td><td>Python's own names: <code>print</code>, <code>len</code>, <code>str</code></td></tr></tbody></table></div>
+    <p>Python checks them in that order and stops at the first match.</p>
+
+    <h2>Writing outwards is not</h2>
+    <pre class="run" data-verify="run"><code>count = 0
+
+
+def increment():
+    count = count + 1       # UnboundLocalError
+
+
+try:
+    increment()
+except UnboundLocalError as err:
+    print(&quot;Error:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">Error: cannot access local variable &#x27;count&#x27; where it is not associated with a value</code></pre>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Formidable: Success]</span></div><p>Read the rule that causes this, because it is not obvious: if a function assigns to a name anywhere in its body, Python treats that name as local for the whole function, including lines before the assignment.</p>
+<p>So count = count + 1 tries to read a local count that does not exist yet. Not the global one. The decision was made when the function was compiled, before a single line ran.</p></div>
+
+    <p>You can override it, and you usually should not:</p>
+    <pre class="run" data-verify="run"><code>count = 0
+
+
+def increment():
+    global count
+    count += 1
+
+
+increment()
+increment()
+print(count)</code></pre>
+<pre class="out"><code class="nohl">2</code></pre>
+
+    <h2>Why global is usually the wrong answer</h2>
+    <p>
+      <code>global</code> works. It also means any function anywhere can change that value,
+      so when it holds something wrong you have the entire file as your list of suspects.
+      Prefer passing values in and returning them out:
+    </p>
+    <pre class="run" data-verify="run"><code>def increment(count):
+    &quot;&quot;&quot;Return the next count. Changes nothing outside.&quot;&quot;&quot;
+    return count + 1
+
+
+count = 0
+count = increment(count)
+count = increment(count)
+print(count)</code></pre>
+<pre class="out"><code class="nohl">2</code></pre>
+    <p>
+      Now the function is testable, reusable, and impossible to blame for an action at a
+      distance. This is the shape of a <strong>pure function</strong>: it takes values,
+      returns a value, and touches nothing else. Not everything can be pure, but the parts
+      that can, should be.
+    </p>
+
+    <h2>Shadowing: same name, different scope</h2>
+    <pre class="run" data-verify="run"><code>name = &quot;global Guybrush&quot;
+
+
+def outer():
+    name = &quot;outer Elaine&quot;
+
+    def inner():
+        name = &quot;inner Otis&quot;
+        print(&quot;inner sees: &quot;, name)
+
+    inner()
+    print(&quot;outer sees: &quot;, name)
+
+
+outer()
+print(&quot;module sees:&quot;, name)</code></pre>
+<pre class="out"><code class="nohl">inner sees:  inner Otis
+outer sees:  outer Elaine
+module sees: global Guybrush</code></pre>
+    <p>
+      Three separate variables that happen to share a name. Each function sees its own. Legal,
+      occasionally useful, and a reliable way to confuse yourself if you do it on purpose.
+    </p>
+
+    <h2>nonlocal: reaching one level out</h2>
+    <pre class="run" data-verify="run"><code>def counter():
+    count = 0
+
+    def increment():
+        nonlocal count
+        count += 1
+        return count
+
+    return increment
+
+
+tally = counter()
+print(tally(), tally(), tally())</code></pre>
+<pre class="out"><code class="nohl">1 2 3</code></pre>
+    <p>
+      <code>nonlocal</code> means "the one in the enclosing function, not a new local and not
+      the global". The pattern above is a <strong>closure</strong>: <code>increment</code>
+      remembers <code>count</code> even after <code>counter</code> has finished. It is the
+      foundation of decorators (Lesson 35) and one of the genuinely beautiful ideas in
+      programming.
+    </p>
+
+    <h2>Shadowing built-ins: the sneaky one</h2>
+    <pre class="run" data-verify="run"><code>list = [1, 2, 3]           # now `list` is your list, not the type
+print(list)
+
+del list                    # undo the damage
+print(list((1, 2, 3)))      # the built-in is back</code></pre>
+<pre class="out"><code class="nohl">[1, 2, 3]
+[1, 2, 3]</code></pre>
+    <div class="callout warn"><span class="co-title">🪤 Names to avoid</span><p><code>list</code>, <code>dict</code>, <code>set</code>, <code>str</code>, <code>int</code>, <code>type</code>, <code>id</code>, <code>sum</code>, <code>max</code>, <code>min</code>, <code>input</code>, <code>file</code>, <code>next</code>. Python lets you use them as variables and then the real ones stop working, usually thirty lines later, with an error that makes no sense. Add an underscore: <code>list_</code>, or better, name it what it actually is: <code>names</code>.</p></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Predict the scope</h3><p>What does this print? Work it out before running.</p><pre data-verify="compile"><code>x = 10
+
+
+def show():
+    x = 20
+    print(&quot;inside:&quot;, x)
+
+
+show()
+print(&quot;outside:&quot;, x)</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>inside: 20</code> then <code>outside: 10</code>.</p><p>The assignment inside <code>show</code> created a brand new local <code>x</code>. The global one was never touched. If you wanted to change it you would need <code>global x</code>, and you almost certainly do not want to.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Fix the accumulator</h3><p>This should total a list. It raises an error. Fix it two ways: once with <code>global</code>, once properly.</p><pre data-verify="skip"><code>total = 0
+
+
+def add(n):
+    total += n
+
+
+add(5)</code></pre><details class="solution"><summary>Reveal solution</summary><p>The quick fix:</p><pre class="run" data-verify="run"><code>total = 0
+
+
+def add(n):
+    global total
+    total += n
+
+
+add(5)
+add(10)
+print(total)</code></pre>
+<pre class="out"><code class="nohl">15</code></pre><p>The one you should ship:</p><pre class="run" data-verify="run"><code>def add(total, n):
+    &quot;&quot;&quot;Return the new total.&quot;&quot;&quot;
+    return total + n
+
+
+total = 0
+total = add(total, 5)
+total = add(total, 10)
+print(total)
+
+# or simply
+print(sum([5, 10]))</code></pre>
+<pre class="out"><code class="nohl">15
+15</code></pre><p>The second version can be tested in one line and cannot be broken by anything else in the program. And once it is written that way, you notice Python already has <code>sum</code>.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Build a bank account with a closure</h3><p>Write a function that returns two functions: one to deposit and one to check the balance. The balance must not be reachable from outside except through them.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def open_account(starting=0):
+    &quot;&quot;&quot;Return (deposit, balance) functions sharing a private balance.&quot;&quot;&quot;
+    balance = starting
+
+    def deposit(amount):
+        nonlocal balance
+        balance += amount
+        return balance
+
+    def check():
+        return balance
+
+    return deposit, check
+
+
+deposit, check = open_account(100)
+
+print(check())
+deposit(50)
+deposit(25)
+print(check())</code></pre>
+<pre class="out"><code class="nohl">100
+175</code></pre><p>There is no way to reach <code>balance</code> from outside those two functions. That is encapsulation, achieved with nothing but scope. Classes (Lesson 31) are the more common way to do this, but closures got there first.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-19-scope">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="18-arguments.html"><span class="dir">← Previous</span>Lesson 18: Arguments in Depth</a>
+      <a class="next" href="20-modules.html"><span class="dir">Next →</span>Lesson 20: Modules and the Standard Library</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

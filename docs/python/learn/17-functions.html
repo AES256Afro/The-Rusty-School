@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 17: Functions: Naming a Process - The Python School</title>
+<meta name="description" content="def, arguments, return values, docstrings, and why functions are how programs stay understandable.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/17-functions">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 17: Functions: Naming a Process - The Python School">
+<meta property="og:description" content="def, arguments, return values, docstrings, and why functions are how programs stay understandable.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/17-functions">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 17: Functions: Naming a Process - The Python School">
+<meta name="twitter:description" content="def, arguments, return values, docstrings, and why functions are how programs stay understandable.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 17 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Functions: Naming a Process 🧩</h1>
+    <p class="lede muted">Everything so far has been one long strip of instructions. Functions let you cut
+    that strip into named pieces, and that is what makes big programs possible at all.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Defining and calling</h2>
+    <pre class="run" data-verify="run"><code>def greet():
+    print(&quot;Welcome to the Scumm Bar.&quot;)
+    print(&quot;Mind the grog.&quot;)
+
+
+greet()
+greet()</code></pre>
+<pre class="out"><code class="nohl">Welcome to the Scumm Bar.
+Mind the grog.
+Welcome to the Scumm Bar.
+Mind the grog.</code></pre>
+    <p>Three parts:</p>
+    <ul>
+      <li><code>def</code> means "define". You are describing a process, not doing it yet.</li>
+      <li>The name, the brackets and a colon.</li>
+      <li>An indented block: the body.</li>
+    </ul>
+    <p>
+      Defining a function runs nothing. The body only executes when you <em>call</em> it, by
+      writing its name with brackets. Forgetting the brackets is a classic: <code>greet</code>
+      is the function itself, <code>greet()</code> is the act of running it.
+    </p>
+
+    <h2>Arguments: information going in</h2>
+    <pre class="run" data-verify="run"><code>def greet(name):
+    print(f&quot;Welcome, {name}.&quot;)
+
+
+greet(&quot;Guybrush&quot;)
+greet(&quot;Elaine&quot;)</code></pre>
+<pre class="out"><code class="nohl">Welcome, Guybrush.
+Welcome, Elaine.</code></pre>
+    <pre class="run" data-verify="run"><code>def describe(name, role, insults):
+    print(f&quot;{name} the {role} knows {insults} insults.&quot;)
+
+
+describe(&quot;Guybrush&quot;, &quot;pirate&quot;, 8)
+describe(role=&quot;governor&quot;, name=&quot;Elaine&quot;, insults=3)</code></pre>
+<pre class="out"><code class="nohl">Guybrush the pirate knows 8 insults.
+Elaine the governor knows 3 insults.</code></pre>
+    <p>
+      Passing by position is the default. Passing by name (keyword arguments) works in any
+      order and makes the call site far easier to read, especially when there are booleans
+      involved: <code>send(urgent=True)</code> beats <code>send(True)</code> every time.
+    </p>
+
+    <h2>return: information coming out</h2>
+    <pre class="run" data-verify="run"><code>def double(n):
+    return n * 2
+
+
+result = double(21)
+print(result)
+print(double(double(5)))</code></pre>
+<pre class="out"><code class="nohl">42
+20</code></pre>
+
+    <div class="callout danger"><span class="co-title">🪤 print is not return</span><p>This is the most common confusion of Level 2. <code>print</code> shows something to a human and produces nothing. <code>return</code> hands a value back to the code that called the function. A function that prints cannot be used in a calculation; a function that returns can be used anywhere.</p></div>
+    <pre class="run" data-verify="run"><code>def add_printing(a, b):
+    print(a + b)
+
+
+def add_returning(a, b):
+    return a + b
+
+
+x = add_printing(2, 3)
+y = add_returning(2, 3)
+
+print(f&quot;x is {x}&quot;)
+print(f&quot;y is {y}&quot;)
+print(add_returning(1, 1) + add_returning(2, 2))</code></pre>
+<pre class="out"><code class="nohl">5
+x is None
+y is 5
+6</code></pre>
+    <p>
+      <code>add_printing</code> returned <code>None</code>, because a function with no
+      <code>return</code> returns <code>None</code>. That <code>None</code> then poisons
+      whatever you do with it. Rule of thumb: <strong>functions should return values and let
+      the caller decide about printing</strong>. It makes them testable, reusable, and
+      combinable.
+    </p>
+
+    <h2>return exits immediately</h2>
+    <pre class="run" data-verify="run"><code>def check_age(age):
+    if age &lt; 0:
+        return &quot;That is not an age.&quot;
+    if age &lt; 18:
+        return &quot;Too young.&quot;
+    return &quot;Welcome.&quot;
+
+
+print(check_age(-5))
+print(check_age(12))
+print(check_age(30))</code></pre>
+<pre class="out"><code class="nohl">That is not an age.
+Too young.
+Welcome.</code></pre>
+    <p>
+      The moment a <code>return</code> runs, the function is over: nothing after it executes.
+      This "early return" style flattens what would otherwise be nested <code>if/else</code>
+      pyramids, and it is generally considered better than one exit point at the bottom.
+    </p>
+
+    <h2>Docstrings: telling the next person</h2>
+    <pre class="run" data-verify="run"><code>def split_bill(total, people, tip_rate=0.15):
+    &quot;&quot;&quot;Work out what each person owes, including tip.
+
+    Args:
+        total: the bill before tip
+        people: how many are splitting it
+        tip_rate: as a fraction, so 0.15 means 15 percent
+
+    Returns:
+        The amount each person owes, as a float.
+    &quot;&quot;&quot;
+    return (total * (1 + tip_rate)) / people
+
+
+print(f&quot;{split_bill(87.50, 4):.2f}&quot;)
+print(split_bill.__doc__.splitlines()[0])
+help(split_bill)</code></pre>
+<pre class="out"><code class="nohl">25.16
+Work out what each person owes, including tip.
+Help on function split_bill in module __main__:
+
+split_bill(total, people, tip_rate=0.15)
+    Work out what each person owes, including tip.
+
+    Args:
+        total: the bill before tip
+        people: how many are splitting it
+        tip_rate: as a fraction, so 0.15 means 15 percent
+
+    Returns:
+        The amount each person owes, as a float.</code></pre>
+    <p>
+      A string as the first line of a function body becomes its documentation. It is not a
+      comment: Python keeps it, <code>help()</code> prints it, your editor shows it on hover,
+      and documentation tools generate whole websites from it. Write one for anything that is
+      not instantly obvious.
+    </p>
+
+    <h2>Why functions actually matter</h2>
+    <pre class="run" data-verify="run"><code>def celsius_to_fahrenheit(c):
+    return c * 9 / 5 + 32
+
+
+for city, temp in [(&quot;Melee&quot;, 28), (&quot;Booty&quot;, 31), (&quot;Blood&quot;, 19)]:
+    print(f&quot;{city:8} {temp}C = {celsius_to_fahrenheit(temp):.1f}F&quot;)</code></pre>
+<pre class="out"><code class="nohl">Melee    28C = 82.4F
+Booty    31C = 87.8F
+Blood    19C = 66.2F</code></pre>
+    <p>Four reasons, in order of importance:</p>
+    <ol>
+      <li><strong>Naming.</strong> <code>celsius_to_fahrenheit(t)</code> says what it is.
+      <code>t * 9 / 5 + 32</code> makes the reader do the work every time.</li>
+      <li><strong>One place to fix.</strong> A bug in the formula gets fixed once, not in nine
+      scattered copies, one of which you will miss.</li>
+      <li><strong>Testability.</strong> You can check a function in isolation (Lesson 29).
+      You cannot easily test line 47 of a long script.</li>
+      <li><strong>Thinking.</strong> A named function is a concept you can hold in your head
+      as one thing, which is how you fit a big program into a small skull.</li>
+    </ol>
+
+    <div class="voice" data-skill="conceptualization"><div class="v-head"><span class="v-name">CONCEPTUALIZATION</span><span class="v-check success">[Formidable: Success]</span></div><p>This is the whole trick of software, and it never stops working. You cannot hold ten thousand lines in your mind. You can hold twenty names. Each name hides a hundred lines you have already stopped worrying about.</p>
+<p>Every abstraction you will ever meet, functions, classes, modules, packages, services, is this same move performed at a larger scale.</p></div>
+
+    <h2>A worked example: refactoring</h2>
+    <pre class="run" data-verify="run"><code># Before: one long strip, hard to follow, impossible to test
+crew = [{&quot;name&quot;: &quot;Guybrush&quot;, &quot;pay&quot;: 100}, {&quot;name&quot;: &quot;Otis&quot;, &quot;pay&quot;: 40}]
+total = 0
+for m in crew:
+    total += m[&quot;pay&quot;]
+avg = total / len(crew)
+print(f&quot;Total {total}, average {avg:.1f}&quot;)
+for m in crew:
+    if m[&quot;pay&quot;] &lt; avg:
+        print(f&quot;{m[&#x27;name&#x27;]} is paid below average&quot;)</code></pre>
+<pre class="out"><code class="nohl">Total 140, average 70.0
+Otis is paid below average</code></pre>
+    <pre class="run" data-verify="run"><code>def total_pay(crew):
+    &quot;&quot;&quot;Sum everyone&#x27;s pay.&quot;&quot;&quot;
+    return sum(member[&quot;pay&quot;] for member in crew)
+
+
+def average_pay(crew):
+    &quot;&quot;&quot;Mean pay across the crew.&quot;&quot;&quot;
+    return total_pay(crew) / len(crew)
+
+
+def below_average(crew):
+    &quot;&quot;&quot;Names of everyone paid less than the mean.&quot;&quot;&quot;
+    threshold = average_pay(crew)
+    return [m[&quot;name&quot;] for m in crew if m[&quot;pay&quot;] &lt; threshold]
+
+
+crew = [{&quot;name&quot;: &quot;Guybrush&quot;, &quot;pay&quot;: 100}, {&quot;name&quot;: &quot;Otis&quot;, &quot;pay&quot;: 40}]
+
+print(f&quot;Total {total_pay(crew)}, average {average_pay(crew):.1f}&quot;)
+for name in below_average(crew):
+    print(f&quot;{name} is paid below average&quot;)</code></pre>
+<pre class="out"><code class="nohl">Total 140, average 70.0
+Otis is paid below average</code></pre>
+    <p>
+      Longer, and much better. Each piece has a name, does one thing, and can be tested on its
+      own. The last four lines now read like a description of the task rather than an
+      implementation of it.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Temperature converter</h3><p>Write two functions that convert both ways, and prove they round-trip.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def c_to_f(celsius):
+    &quot;&quot;&quot;Convert Celsius to Fahrenheit.&quot;&quot;&quot;
+    return celsius * 9 / 5 + 32
+
+
+def f_to_c(fahrenheit):
+    &quot;&quot;&quot;Convert Fahrenheit to Celsius.&quot;&quot;&quot;
+    return (fahrenheit - 32) * 5 / 9
+
+
+print(c_to_f(100))
+print(f_to_c(212))
+print(f_to_c(c_to_f(37)))</code></pre>
+<pre class="out"><code class="nohl">212.0
+100.0
+37.0</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Is it a palindrome?</h3><p>Write <code>is_palindrome(text)</code> that returns True or False, ignoring case, spaces and punctuation. Test it on several phrases.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def is_palindrome(text):
+    &quot;&quot;&quot;True if text reads the same backwards, ignoring case and punctuation.&quot;&quot;&quot;
+    cleaned = &quot;&quot;.join(c.lower() for c in text if c.isalnum())
+    return cleaned == cleaned[::-1]
+
+
+for phrase in [&quot;Never odd or even&quot;, &quot;A man, a plan, a canal: Panama&quot;, &quot;Monkey Island&quot;]:
+    print(f&quot;{is_palindrome(phrase)!s:6} {phrase}&quot;)</code></pre>
+<pre class="out"><code class="nohl">True   Never odd or even
+True   A man, a plan, a canal: Panama
+False  Monkey Island</code></pre><p><code>.isalnum()</code> is True for letters and digits only, which strips punctuation and spaces in one go. <code>{{value!s:6}}</code> converts to a string first so the width padding applies.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Grade calculator</h3><p>Write <code>grade(score)</code> returning a letter, and a second function that takes a dictionary of names to scores and prints a report sorted by score. Neither function should print anything except the report one.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def grade(score):
+    &quot;&quot;&quot;Convert a percentage to a letter grade.&quot;&quot;&quot;
+    if score &gt;= 90:
+        return &quot;A&quot;
+    if score &gt;= 80:
+        return &quot;B&quot;
+    if score &gt;= 70:
+        return &quot;C&quot;
+    if score &gt;= 60:
+        return &quot;D&quot;
+    return &quot;F&quot;
+
+
+def report(scores):
+    &quot;&quot;&quot;Print every student, best first, with their letter grade.&quot;&quot;&quot;
+    for name, score in sorted(scores.items(), key=lambda pair: pair[1], reverse=True):
+        print(f&quot;{name:10} {score:3}  {grade(score)}&quot;)
+
+
+report({&quot;Guybrush&quot;: 95, &quot;Otis&quot;: 58, &quot;Elaine&quot;: 82, &quot;Meathook&quot;: 71})</code></pre>
+<pre class="out"><code class="nohl">Guybrush    95  A
+Elaine      82  B
+Meathook    71  C
+Otis        58  F</code></pre><p><code>grade</code> is a pure function: same input, same output, no side effects. Those are the easiest things in the world to test and to trust.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-17-functions">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="16-comprehensions.html"><span class="dir">← Previous</span>Lesson 16: Comprehensions</a>
+      <a class="next" href="18-arguments.html"><span class="dir">Next →</span>Lesson 18: Arguments in Depth</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

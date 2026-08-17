@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 7: Making Decisions - The Python School</title>
+<meta name="description" content="if, elif and else, indentation as syntax, nesting, and the conditional expression.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/07-decisions">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 7: Making Decisions - The Python School">
+<meta property="og:description" content="if, elif and else, indentation as syntax, nesting, and the conditional expression.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/07-decisions">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 7: Making Decisions - The Python School">
+<meta name="twitter:description" content="if, elif and else, indentation as syntax, nesting, and the conditional expression.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 7 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Making Decisions 🔀</h1>
+    <p class="lede muted">This is the lesson where your programs stop being a straight line and start being
+    a map with branches. It is also where Python's most famous quirk shows up.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>if</h2>
+    <pre class="run" data-verify="run"><code>grog = 8
+
+if grog &gt; 5:
+    print(&quot;That is enough grog.&quot;)
+    print(&quot;Genuinely, that is plenty.&quot;)
+
+print(&quot;This line always runs, branch or no branch.&quot;)</code></pre>
+<pre class="out"><code class="nohl">That is enough grog.
+Genuinely, that is plenty.
+This line always runs, branch or no branch.</code></pre>
+    <p>Two pieces of punctuation are doing all the work:</p>
+    <ul>
+      <li>The <strong>colon</strong> at the end of the <code>if</code> line. It means "a block
+      follows". Forgetting it is the most common syntax error in Python, by a distance.</li>
+      <li>The <strong>indentation</strong> of the next lines. Those four spaces are what puts
+      those lines inside the <code>if</code>.</li>
+    </ul>
+
+    <h2>Indentation is not decoration. It is the syntax.</h2>
+    <p>
+      Most languages mark blocks with curly braces and treat layout as a matter of taste.
+      Python has no braces: the layout <em>is</em> the structure. This is the single thing
+      newcomers find strangest, and the thing they defend most fiercely after six months.
+    </p>
+    <pre class="run" data-verify="run"><code>ready = True
+
+if ready:
+    print(&quot;inside the if&quot;)
+    print(&quot;also inside&quot;)
+print(&quot;outside again&quot;)</code></pre>
+<pre class="out"><code class="nohl">inside the if
+also inside
+outside again</code></pre>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Medium: Success]</span></div><p>The reasoning is worth knowing. In brace languages, programmers indent anyway, for humans. So there are two structures in every file: the one the compiler reads (braces) and the one the human reads (indentation). When they disagree, the human is misled. Apple's 2014 'goto fail' security bug was exactly this: a stray indented line that looked like it was inside an if and was not. Python makes them the same structure so they cannot disagree.</p></div>
+
+    <div class="callout danger"><span class="co-title">⚠️ Four spaces. Never tabs. Never mixed.</span><p>Python accepts either, but mixing them in one file gives <code>TabError: inconsistent use of tabs and spaces</code>, and the two look identical on screen, which makes it maddening. Set your editor to insert four spaces when you press Tab and forget the problem exists. In VS Code that is the default. PEP 8 says four spaces, so the whole world agrees on this one.</p></div>
+
+    <h2>if / else</h2>
+    <pre class="run" data-verify="run"><code>password = &quot;grog&quot;
+
+if password == &quot;swordfish&quot;:
+    print(&quot;Access granted.&quot;)
+else:
+    print(&quot;Access denied. You fight like a dairy farmer.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Access denied. You fight like a dairy farmer.</code></pre>
+
+    <h2>if / elif / else: choosing from many</h2>
+    <pre class="run" data-verify="run"><code>score = 87
+
+if score &gt;= 90:
+    grade = &quot;A&quot;
+elif score &gt;= 80:
+    grade = &quot;B&quot;
+elif score &gt;= 70:
+    grade = &quot;C&quot;
+elif score &gt;= 60:
+    grade = &quot;D&quot;
+else:
+    grade = &quot;F&quot;
+
+print(f&quot;Score {score} earns a {grade}.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Score 87 earns a B.</code></pre>
+    <p>
+      <code>elif</code> is short for "else if". Python checks each condition in order and
+      <strong>stops at the first true one</strong>. That is why <code>score >= 80</code> works
+      without also checking <code>score &lt; 90</code>: if we reached that line at all, the
+      first test must have failed.
+    </p>
+    <p>Order matters enormously. This version is broken:</p>
+    <pre class="run" data-verify="run"><code>score = 95
+
+if score &gt;= 60:
+    grade = &quot;D&quot;          # always wins, because it is checked first
+elif score &gt;= 90:
+    grade = &quot;A&quot;          # unreachable
+else:
+    grade = &quot;F&quot;
+
+print(f&quot;Score {score} earns a {grade}. Which is wrong.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Score 95 earns a D. Which is wrong.</code></pre>
+
+    <h2>Nesting</h2>
+    <pre class="run" data-verify="run"><code>logged_in = True
+is_admin = False
+
+if logged_in:
+    print(&quot;Welcome back.&quot;)
+    if is_admin:
+        print(&quot;Admin console available.&quot;)
+    else:
+        print(&quot;Standard account.&quot;)
+else:
+    print(&quot;Please sign in.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Welcome back.
+Standard account.</code></pre>
+    <p>
+      Each level of nesting is another four spaces. It works, and past two levels deep it
+      becomes hard to read. When you find yourself at three or four, that is a signal to
+      restructure, usually by pulling a piece out into a function (Lesson 17) or by returning
+      early.
+    </p>
+
+    <h2>The one-line version</h2>
+    <pre class="run" data-verify="run"><code>age = 20
+status = &quot;adult&quot; if age &gt;= 18 else &quot;minor&quot;
+print(status)
+
+crew = []
+print(f&quot;Crew: {len(crew) if crew else &#x27;nobody yet&#x27;}&quot;)</code></pre>
+<pre class="out"><code class="nohl">adult
+Crew: nobody yet</code></pre>
+    <p>
+      This is a <strong>conditional expression</strong>, and reads value-first: "adult, if age
+      is 18 or more, otherwise minor". Lovely for short choices, unreadable for long ones. If
+      it does not fit comfortably on one line, use a normal <code>if</code>.
+    </p>
+
+    <h2>match: the modern multi-way branch</h2>
+    <p>Python 3.10 added <code>match</code>, which is tidier when you are comparing one value
+    against many possibilities:</p>
+    <pre class="run" data-verify="run"><code>command = &quot;north&quot;
+
+match command:
+    case &quot;north&quot; | &quot;n&quot;:
+        print(&quot;You walk north. The jungle thickens.&quot;)
+    case &quot;south&quot; | &quot;s&quot;:
+        print(&quot;You walk south. The beach is behind you.&quot;)
+    case &quot;look&quot;:
+        print(&quot;Trees. So many trees.&quot;)
+    case _:
+        print(f&quot;I do not know how to &#x27;{command}&#x27;.&quot;)</code></pre>
+<pre class="out"><code class="nohl">You walk north. The jungle thickens.</code></pre>
+    <p>
+      The <code>_</code> case is the catch-all, like <code>else</code>. <code>match</code> can
+      do far more than this (it can pull apart lists and objects), and Lesson 33 returns to it.
+      For simple choices, either style is fine; <code>match</code> shines when there are many.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>The bouncer</h3><p>Write a program that decides entry. Under 18: refused. 18 to 20: allowed but no alcohol. 21 and over: allowed. Print a different message for each.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>age = 19
+
+if age &lt; 18:
+    print(&quot;Sorry, come back in a few years.&quot;)
+elif age &lt; 21:
+    print(&quot;You are in, but soft drinks only.&quot;)
+else:
+    print(&quot;Enjoy your evening.&quot;)</code></pre>
+<pre class="out"><code class="nohl">You are in, but soft drinks only.</code></pre><p>Notice the second condition is just <code>age &lt; 21</code>, with no need for <code>age >= 18 and age &lt; 21</code>. Reaching that line already proves the first test failed.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>FizzBuzz, the famous one</h3><p>For the number 15: print <code>Fizz</code> if it divides by 3, <code>Buzz</code> if by 5, <code>FizzBuzz</code> if by both, and the number otherwise. Careful with the order.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>n = 15
+
+if n % 3 == 0 and n % 5 == 0:
+    print(&quot;FizzBuzz&quot;)
+elif n % 3 == 0:
+    print(&quot;Fizz&quot;)
+elif n % 5 == 0:
+    print(&quot;Buzz&quot;)
+else:
+    print(n)</code></pre>
+<pre class="out"><code class="nohl">FizzBuzz</code></pre><p>The both-case must come first. Put it last and 15 matches <code>n % 3 == 0</code> and prints Fizz, and you have written the single most common wrong answer to the single most famous interview question. Lesson 9 makes it print 1 to 100.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Find the indentation bug</h3><p>This should only congratulate winners. What does it actually do, and why?</p><pre data-verify="compile"><code>score = 20
+
+if score &gt; 100:
+    print(&quot;New high score!&quot;)
+print(&quot;Congratulations!&quot;)</code></pre><details class="solution"><summary>Reveal solution</summary><p>It always congratulates. The second <code>print</code> is not indented, so it is not inside the <code>if</code> at all; it is the next statement in the program.</p><pre class="run" data-verify="run"><code>score = 20
+
+if score &gt; 100:
+    print(&quot;New high score!&quot;)
+    print(&quot;Congratulations!&quot;)
+else:
+    print(&quot;Not this time.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Not this time.</code></pre><p>In a brace language this bug hides. In Python it is visible the moment you look at the shape of the code, which is the entire argument for the design.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-07-decisions">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="06-booleans.html"><span class="dir">← Previous</span>Lesson 6: True, False and Questions</a>
+      <a class="next" href="08-while.html"><span class="dir">Next →</span>Lesson 8: Loops That Repeat: while</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

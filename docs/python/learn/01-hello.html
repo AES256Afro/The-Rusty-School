@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1: Hello, World! - The Python School</title>
+<meta name="description" content="Your first Python program: print(), strings, comments, and what to do when it goes wrong.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/01-hello">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 1: Hello, World! - The Python School">
+<meta property="og:description" content="Your first Python program: print(), strings, comments, and what to do when it goes wrong.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/01-hello">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 1: Hello, World! - The Python School">
+<meta name="twitter:description" content="Your first Python program: print(), strings, comments, and what to do when it goes wrong.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 1 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Hello, World! 👋</h1>
+    <p class="lede muted">Tradition demands that your first program says hello to the world. Tradition is
+    right, and it will take you about four seconds.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The program</h2>
+    <p>Press ▶ run.</p>
+    <pre class="run" data-verify="run"><code>print(&quot;Hello, world!&quot;)</code></pre>
+<pre class="out"><code class="nohl">Hello, world!</code></pre>
+    <p>
+      That is a complete, real Python program. Not a toy version, not a simplified teaching
+      dialect. If you put that line in a file called <code>hello.py</code> and ran it on a
+      server in a data centre, it would do exactly the same thing.
+    </p>
+
+    <h2>Taking it apart</h2>
+    <p>Four things are happening in those twenty-one characters:</p>
+    <div class="table-wrap"><table><thead><tr><th>Piece</th><th>Name</th><th>What it does</th></tr></thead><tbody><tr><td><code>print</code></td><td>A function</td><td>A named action that already exists. Somebody wrote it so you do not have to</td></tr><tr><td><code>( )</code></td><td>Brackets, or 'parens'</td><td>How you <em>call</em> a function: 'do it now, with this'</td></tr><tr><td><code>"Hello, world!"</code></td><td>A string</td><td>Text. The quotes mark where it starts and stops</td></tr><tr><td>The whole line</td><td>A statement</td><td>One complete instruction</td></tr></tbody></table></div>
+    <p>
+      <code>print</code> means "show this to the human". It does not mean paper. Nobody has
+      printed anything on paper from a program on purpose since about 1994, but the name
+      stuck, the way "dialling" a phone stuck.
+    </p>
+
+    <div class="voice" data-skill="interfacing"><div class="v-head"><span class="v-name">INTERFACING</span><span class="v-check success">[Easy: Success]</span></div><p>The quotes are a fence, not decoration. Inside the fence, Python does not think, it just carries the characters through. Outside the fence, every word has to mean something. Confusing the inside for the outside is the single most common mistake of week one.</p></div>
+
+    <h2>Print more than one thing</h2>
+    <pre class="run" data-verify="run"><code>print(&quot;Guybrush Threepwood&quot;)
+print(&quot;Mighty programmer&quot;)
+print(&quot;Also: mighty pirate&quot;)</code></pre>
+<pre class="out"><code class="nohl">Guybrush Threepwood
+Mighty programmer
+Also: mighty pirate</code></pre>
+    <p>
+      Each <code>print</code> ends with a new line. Three prints, three lines. Python runs
+      your file strictly top to bottom, like reading a recipe, and never skips ahead.
+    </p>
+    <p>You can also hand <code>print</code> several things at once, separated by commas:</p>
+    <pre class="run" data-verify="run"><code>print(&quot;Grog level:&quot;, 7, &quot;out of&quot;, 10)</code></pre>
+<pre class="out"><code class="nohl">Grog level: 7 out of 10</code></pre>
+    <p>
+      Notice Python put spaces between them for free. Notice also that <code>7</code> has no
+      quotes: it is a number, not text, and Lesson 3 is about why that distinction matters.
+    </p>
+
+    <h2>Single or double quotes?</h2>
+    <pre class="run" data-verify="run"><code>print(&quot;Both of these work.&quot;)
+print(&#x27;There is no difference.&#x27;)
+print(&quot;Use doubles when the text has an apostrophe: it&#x27;s easier.&quot;)
+print(&#x27;Use singles when the text has &quot;quotes&quot; in it.&#x27;)</code></pre>
+<pre class="out"><code class="nohl">Both of these work.
+There is no difference.
+Use doubles when the text has an apostrophe: it&#x27;s easier.
+Use singles when the text has &quot;quotes&quot; in it.</code></pre>
+    <p>
+      Python genuinely does not care. Pick doubles as your default (that is what the
+      autoformatter in Lesson 30 will do anyway) and switch when it saves you an escape.
+    </p>
+
+    <h2>Comments: notes to humans</h2>
+    <p>
+      Anything after a <code>#</code> is ignored by Python entirely. It exists for the next
+      person to read the file, who is usually you, six months from now, having forgotten
+      everything.
+    </p>
+    <pre class="run" data-verify="run"><code># This line does nothing at all. It is for you.
+print(&quot;Insult the swordsman&quot;)   # notes can also sit after code
+
+# print(&quot;This line is switched off.&quot;)
+print(&quot;This line is not.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Insult the swordsman
+This line is not.</code></pre>
+    <p>
+      That third trick, putting a <code>#</code> in front of a line to disable it, is called
+      commenting out, and you will do it fifty times a day while hunting bugs. In your editor
+      the shortcut is <code>Ctrl+/</code> (<code>Cmd+/</code> on a Mac).
+    </p>
+
+    <div class="callout tip"><span class="co-title">✍️ What makes a good comment</span><p>Bad: <code># add one to x</code>. We can see that. Good: <code># the API counts from 1, not 0</code>. Comments should explain <strong>why</strong>, because the <em>what</em> is already sitting right there in the code.</p></div>
+
+    <h2>Your first error, on purpose</h2>
+    <p>
+      Errors are not failures. They are Python telling you, in detail, what it could not
+      understand. Here is a broken line:
+    </p>
+    <pre data-verify="skip"><code>print(&quot;Look behind you, a three-headed monkey!)</code></pre>
+    <p>Python says:</p>
+    <pre class="traceback"><code class="nohl">  File &quot;hello.py&quot;, line 1
+    print(&quot;Look behind you, a three-headed monkey!)
+          ^
+SyntaxError: unterminated string literal (detected at line 1)</code></pre>
+    <p>Read it like a form:</p>
+    <ul>
+      <li><strong>Where:</strong> file <code>hello.py</code>, line 1.</li>
+      <li><strong>What:</strong> <code>SyntaxError</code>, which means "this is not valid
+      Python", found before anything ran.</li>
+      <li><strong>Which bit:</strong> the little <code>^</code> points at the guilty
+      character.</li>
+      <li><strong>Why:</strong> "unterminated string literal": a fence was opened and never
+      closed. The closing quote is missing.</li>
+    </ul>
+    <p>
+      Modern Python error messages are genuinely excellent, and they got dramatically better
+      in 3.10 and 3.11. Lesson 10 is devoted entirely to reading them. For now, absorb the
+      one habit that matters: <strong>read the last line first</strong>. It names the problem.
+    </p>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Medium: Success]</span></div><p>You are going to see hundreds of these. Thousands. Experienced programmers do not see fewer errors than you, they see more, because they write more code. What changes is the reaction time: from twenty minutes of despair, down to four seconds of 'ah, a missing quote'.</p></div>
+
+    <h2>Two ways to run Python</h2>
+    <div class="table-wrap"><table><thead><tr><th>Way</th><th>How</th><th>Good for</th></tr></thead><tbody><tr><td>A file</td><td>Write <code>hello.py</code>, run <code>python3 hello.py</code></td><td>Real programs you want to keep and re-run</td></tr><tr><td>The REPL</td><td>Type <code>python3</code> with no filename</td><td>Trying one thing quickly. It prints the answer to every line automatically</td></tr></tbody></table></div>
+    <pre class="repl"><code class="nohl">&gt;&gt;&gt; print(&quot;Hello&quot;)
+Hello
+&gt;&gt;&gt; 2 + 2
+4
+&gt;&gt;&gt; &quot;grog &quot; * 3
+&#x27;grog grog grog &#x27;</code></pre>
+    <p>
+      Notice that in the REPL, <code>2 + 2</code> shows <code>4</code> without any
+      <code>print</code>. That convenience exists <em>only</em> in the REPL. In a file, a line
+      that just says <code>2 + 2</code> computes 4 and throws it away in silence. Beginners
+      lose an afternoon to this at least once, so now you will not.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Introduce yourself</h3><p>Write a program that prints three lines: your name, one thing you want to build, and how many years you have been meaning to learn this.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>print(&quot;Chris&quot;)
+print(&quot;I want to build a tool that renames my photo library.&quot;)
+print(&quot;I have been meaning to do this for 3 years.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Chris
+I want to build a tool that renames my photo library.
+I have been meaning to do this for 3 years.</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Fix the broken program</h3><p>Three separate mistakes. Find and fix all of them.</p><pre data-verify="skip"><code>Print(&quot;The first mistake is on this line.&quot;)
+print(Second mistake here.)
+print(&quot;Third mistake is at the end.&quot;</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><code>Print</code> with a capital P. Python is case sensitive; the function is <code>print</code>. You would get <code>NameError: name 'Print' is not defined</code>.</li><li>No quotes around the text, so Python tries to read <code>Second mistake here.</code> as code and gives up.</li><li>The closing bracket is missing.</li></ol><pre class="run" data-verify="run"><code>print(&quot;The first mistake is on this line.&quot;)
+print(&quot;Second mistake here.&quot;)
+print(&quot;Third mistake is at the end.&quot;)</code></pre>
+<pre class="out"><code class="nohl">The first mistake is on this line.
+Second mistake here.
+Third mistake is at the end.</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Draw something</h3><p>Print a small picture using text. A house, a ship, a crab, anything. Multiple <code>print</code> lines stack up, so you have a canvas.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>print(&quot;      |&gt;&gt;&gt;&quot;)
+print(&quot;      |&quot;)
+print(&quot;  __ _|__&quot;)
+print(&quot;  \\      /&quot;)
+print(&quot;~~~\\~~~~/~~~~~~~&quot;)</code></pre>
+<pre class="out"><code class="nohl">      |&gt;&gt;&gt;
+      |
+  __ _|__
+  \      /
+~~~\~~~~/~~~~~~~</code></pre><p>The doubled backslashes are not a typo. A backslash has a special meaning inside a string (Lesson 4 explains it), so to print one you write two. Or you can put an <code>r</code> in front of the quote, like <code>r"\_/"</code>, which means 'raw: take this literally'.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-01-hello">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="f6-lab.html"><span class="dir">← Previous</span>Base Camp 6: Setting Up Your Lab</a>
+      <a class="next" href="02-variables.html"><span class="dir">Next →</span>Lesson 2: Variables: Naming Things</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

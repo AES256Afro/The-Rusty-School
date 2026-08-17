@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 11: Lists: Many Things at Once - The Python School</title>
+<meta name="description" content="Creating, indexing, slicing and mutating lists, plus the aliasing trap that catches everyone.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/11-lists">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 11: Lists: Many Things at Once - The Python School">
+<meta property="og:description" content="Creating, indexing, slicing and mutating lists, plus the aliasing trap that catches everyone.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/11-lists">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 11: Lists: Many Things at Once - The Python School">
+<meta name="twitter:description" content="Creating, indexing, slicing and mutating lists, plus the aliasing trap that catches everyone.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 11 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Lists: Many Things at Once 📋</h1>
+    <p class="lede muted">Up to now every variable has held exactly one thing. That is a very small world.
+    A list holds as many things as you like, in order, and it changes everything.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>A list is things in a row</h2>
+    <pre class="run" data-verify="run"><code>inventory = [&quot;rubber chicken&quot;, &quot;map&quot;, &quot;grog&quot;, &quot;sword&quot;]
+
+print(inventory)
+print(len(inventory))
+print(inventory[0])
+print(inventory[-1])</code></pre>
+<pre class="out"><code class="nohl">[&#x27;rubber chicken&#x27;, &#x27;map&#x27;, &#x27;grog&#x27;, &#x27;sword&#x27;]
+4
+rubber chicken
+sword</code></pre>
+    <p>
+      Square brackets, commas between items. Positions count from zero, negatives count from
+      the right, and slicing works exactly as it did for strings, because both are sequences.
+    </p>
+    <pre class="run" data-verify="run"><code>letters = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;, &quot;e&quot;, &quot;f&quot;]
+
+print(letters[1:4])
+print(letters[:3])
+print(letters[-2:])
+print(letters[::2])
+print(letters[::-1])</code></pre>
+<pre class="out"><code class="nohl">[&#x27;b&#x27;, &#x27;c&#x27;, &#x27;d&#x27;]
+[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]
+[&#x27;e&#x27;, &#x27;f&#x27;]
+[&#x27;a&#x27;, &#x27;c&#x27;, &#x27;e&#x27;]
+[&#x27;f&#x27;, &#x27;e&#x27;, &#x27;d&#x27;, &#x27;c&#x27;, &#x27;b&#x27;, &#x27;a&#x27;]</code></pre>
+
+    <h2>Unlike strings, lists can be changed</h2>
+    <pre class="run" data-verify="run"><code>crew = [&quot;Guybrush&quot;, &quot;Elaine&quot;, &quot;Otis&quot;]
+
+crew[2] = &quot;Meathook&quot;            # replace in place
+print(crew)
+
+crew.append(&quot;Carla&quot;)            # add one to the end
+print(crew)
+
+crew.insert(0, &quot;LeChuck&quot;)       # add at a position
+print(crew)
+
+crew.remove(&quot;LeChuck&quot;)          # remove by value (the first match)
+print(crew)
+
+gone = crew.pop()               # remove the last, and give it back
+print(gone, crew)
+
+del crew[0]                     # remove by position
+print(crew)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Meathook&#x27;]
+[&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Meathook&#x27;, &#x27;Carla&#x27;]
+[&#x27;LeChuck&#x27;, &#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Meathook&#x27;, &#x27;Carla&#x27;]
+[&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Meathook&#x27;, &#x27;Carla&#x27;]
+Carla [&#x27;Guybrush&#x27;, &#x27;Elaine&#x27;, &#x27;Meathook&#x27;]
+[&#x27;Elaine&#x27;, &#x27;Meathook&#x27;]</code></pre>
+    <p>
+      This is the crucial difference from strings. Strings are immutable: every operation
+      returns a new string. Lists are mutable: operations change the list you already have.
+      Almost every surprise in this lesson comes from that one fact.
+    </p>
+
+    <h2>The methods worth knowing</h2>
+    <div class="table-wrap"><table><thead><tr><th>Method</th><th>Does</th><th>Changes the list?</th></tr></thead><tbody><tr><td><code>.append(x)</code></td><td>Add one item at the end</td><td>Yes</td></tr><tr><td><code>.extend(other)</code></td><td>Add all of another list's items</td><td>Yes</td></tr><tr><td><code>.insert(i, x)</code></td><td>Add at position i</td><td>Yes</td></tr><tr><td><code>.remove(x)</code></td><td>Delete the first x. Raises ValueError if absent</td><td>Yes</td></tr><tr><td><code>.pop()</code> / <code>.pop(i)</code></td><td>Remove and return the last, or the i-th</td><td>Yes</td></tr><tr><td><code>.sort()</code></td><td>Sort in place</td><td>Yes, and returns None</td></tr><tr><td><code>.reverse()</code></td><td>Reverse in place</td><td>Yes</td></tr><tr><td><code>.clear()</code></td><td>Empty it</td><td>Yes</td></tr><tr><td><code>.count(x)</code></td><td>How many x</td><td>No</td></tr><tr><td><code>.index(x)</code></td><td>Position of the first x</td><td>No</td></tr><tr><td><code>sorted(list)</code></td><td>A <em>new</em> sorted list</td><td>No</td></tr><tr><td><code>list.copy()</code></td><td>A shallow copy</td><td>No</td></tr></tbody></table></div>
+
+    <div class="callout danger"><span class="co-title">🪤 sort() returns None</span><p><code>names = names.sort()</code> is the classic disaster: <code>.sort()</code> sorts the list and returns <code>None</code>, so you have just thrown your list away and replaced it with nothing. Either <code>names.sort()</code> on its own line, or <code>names = sorted(names)</code>. Never both.</p></div>
+
+    <pre class="run" data-verify="run"><code>scores = [88, 42, 95, 61]
+
+new_list = sorted(scores)
+print(scores, &quot;unchanged&quot;)
+print(new_list, &quot;the sorted copy&quot;)
+
+scores.sort()
+print(scores, &quot;now sorted in place&quot;)
+
+scores.sort(reverse=True)
+print(scores, &quot;descending&quot;)</code></pre>
+<pre class="out"><code class="nohl">[88, 42, 95, 61] unchanged
+[42, 61, 88, 95] the sorted copy
+[42, 61, 88, 95] now sorted in place
+[95, 88, 61, 42] descending</code></pre>
+
+    <h2>Sorting by something other than the value</h2>
+    <pre class="run" data-verify="run"><code>crew = [&quot;Guybrush&quot;, &quot;Otis&quot;, &quot;Elaine&quot;, &quot;Meathook&quot;]
+
+print(sorted(crew))                    # alphabetical
+print(sorted(crew, key=len))           # by length
+print(sorted(crew, key=str.lower))     # case-insensitive
+print(max(crew, key=len))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;Elaine&#x27;, &#x27;Guybrush&#x27;, &#x27;Meathook&#x27;, &#x27;Otis&#x27;]
+[&#x27;Otis&#x27;, &#x27;Elaine&#x27;, &#x27;Guybrush&#x27;, &#x27;Meathook&#x27;]
+[&#x27;Elaine&#x27;, &#x27;Guybrush&#x27;, &#x27;Meathook&#x27;, &#x27;Otis&#x27;]
+Guybrush</code></pre>
+    <p>
+      <code>key=</code> takes a function and sorts by what that function returns. It is one of
+      the most useful arguments in the whole language, and it comes back constantly once you
+      have data with structure. Note <code>Guybrush</code> and <code>Meathook</code> are both
+      eight letters, and Python kept them in their original relative order: Python's sort is
+      <strong>stable</strong>, which is a guarantee you can rely on.
+    </p>
+
+    <h2>Searching and testing</h2>
+    <pre class="run" data-verify="run"><code>inventory = [&quot;map&quot;, &quot;grog&quot;, &quot;sword&quot;]
+
+print(&quot;grog&quot; in inventory)
+print(&quot;banana&quot; in inventory)
+print(inventory.index(&quot;grog&quot;))
+print(inventory.count(&quot;grog&quot;))</code></pre>
+<pre class="out"><code class="nohl">True
+False
+1
+1</code></pre>
+
+    <h2>The trap: two names, one list</h2>
+    <pre class="run" data-verify="run"><code>original = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]
+copy = original          # this is NOT a copy
+
+copy.append(&quot;d&quot;)
+
+print(&quot;original:&quot;, original)
+print(&quot;copy:    &quot;, copy)
+print(&quot;same object?&quot;, original is copy)</code></pre>
+<pre class="out"><code class="nohl">original: [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;, &#x27;d&#x27;]
+copy:     [&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;, &#x27;d&#x27;]
+same object? True</code></pre>
+
+    <div class="voice" data-skill="perception"><div class="v-head"><span class="v-name">PERCEPTION</span><span class="v-check success">[Formidable: Success]</span></div><p>Remember Lesson 2, where b = a copied the value and the two went their separate ways? That was true for a number. It is not true here.</p>
+<p>A variable does not hold a list. It holds an arrow pointing at a list. copy = original draws a second arrow at the same list. There is one list and two names for it, and changing it through either name changes it for both.</p></div>
+
+    <p>Three ways to make a genuine copy:</p>
+    <pre class="run" data-verify="run"><code>original = [&quot;a&quot;, &quot;b&quot;, &quot;c&quot;]
+
+copy1 = original.copy()
+copy2 = list(original)
+copy3 = original[:]
+
+copy1.append(&quot;changed&quot;)
+print(original)
+print(copy1)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;]
+[&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;, &#x27;changed&#x27;]</code></pre>
+    <p>
+      All three are equivalent for a flat list. If your list contains other lists, these are
+      <em>shallow</em> copies: the outer list is new, the inner lists are still shared. For
+      that, <code>copy.deepcopy()</code>, which Lesson 15 covers.
+    </p>
+
+    <h2>Building a list up</h2>
+    <pre class="run" data-verify="run"><code>squares = []
+
+for n in range(1, 6):
+    squares.append(n * n)
+
+print(squares)
+print(sum(squares), min(squares), max(squares))</code></pre>
+<pre class="out"><code class="nohl">[1, 4, 9, 16, 25]
+55 1 25</code></pre>
+    <p>
+      Start empty, append in a loop, use afterwards. This is <em>the</em> most common shape in
+      beginner Python, and in Lesson 16 you will learn to write it in one line with a
+      comprehension. Learn it this way first; the short version means nothing if you cannot
+      see the loop inside it.
+    </p>
+
+    <h2>Lists of anything, including lists</h2>
+    <pre class="run" data-verify="run"><code>mixed = [42, &quot;grog&quot;, 3.5, True, None]
+print(mixed)
+
+grid = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9],
+]
+print(grid[1])
+print(grid[1][2])
+
+for row in grid:
+    print(&quot; &quot;.join(str(n) for n in row))</code></pre>
+<pre class="out"><code class="nohl">[42, &#x27;grog&#x27;, 3.5, True, None]
+[4, 5, 6]
+6
+1 2 3
+4 5 6
+7 8 9</code></pre>
+    <p>
+      A list can hold anything, including other lists. <code>grid[1][2]</code> reads as "row
+      1, then item 2 of that". Mixed-type lists are legal but usually a smell: if the items
+      mean different things, you probably want a dictionary (Lesson 13) or a class
+      (Lesson 31).
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Inventory manager</h3><p>Start with three items. Add two, remove one by name, sort what remains, and print a numbered list.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>inventory = [&quot;sword&quot;, &quot;map&quot;, &quot;grog&quot;]
+
+inventory.append(&quot;rubber chicken&quot;)
+inventory.append(&quot;mints&quot;)
+inventory.remove(&quot;grog&quot;)
+inventory.sort()
+
+print(f&quot;You are carrying {len(inventory)} things:&quot;)
+for i, item in enumerate(inventory, start=1):
+    print(f&quot;  {i}. {item}&quot;)</code></pre>
+<pre class="out"><code class="nohl">You are carrying 4 things:
+  1. map
+  2. mints
+  3. rubber chicken
+  4. sword</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Statistics without a library</h3><p>For the list <code>[88, 42, 95, 61, 73]</code>, print the highest, lowest, total, average to one decimal place, and the median.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>scores = [88, 42, 95, 61, 73]
+
+print(f&quot;Highest: {max(scores)}&quot;)
+print(f&quot;Lowest:  {min(scores)}&quot;)
+print(f&quot;Total:   {sum(scores)}&quot;)
+print(f&quot;Average: {sum(scores) / len(scores):.1f}&quot;)
+
+ordered = sorted(scores)
+middle = len(ordered) // 2
+print(f&quot;Median:  {ordered[middle]}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Highest: 95
+Lowest:  42
+Total:   359
+Average: 71.8
+Median:  73</code></pre><p>That median is only correct for an odd number of values. For an even count you must average the middle two, which is exactly the sort of edge case that makes people reach for the standard library: <code>import statistics; statistics.median(scores)</code> handles both.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Predict the aliasing</h3><p>What does this print? Think carefully.</p><pre data-verify="compile"><code>a = [1, 2, 3]
+b = a
+c = a.copy()
+
+b.append(4)
+c.append(5)
+
+print(a)
+print(b)
+print(c)</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>[1, 2, 3, 4]</code>, then <code>[1, 2, 3, 4]</code>, then <code>[1, 2, 3, 5]</code>.</p><p><code>b</code> is another name for <code>a</code>, so appending through <code>b</code> shows up in <code>a</code>. <code>c</code> is a real copy, so it goes its own way.</p><p>If you got this right, you understand the single most important thing in this lesson, and you have avoided a bug that costs professionals real hours.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-11-lists">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="10-errors.html"><span class="dir">← Previous</span>Lesson 10: Reading Errors Without Fear</a>
+      <a class="next" href="12-tuples.html"><span class="dir">Next →</span>Lesson 12: Tuples and Unpacking</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

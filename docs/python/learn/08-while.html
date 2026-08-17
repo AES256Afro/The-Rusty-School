@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 8: Loops That Repeat: while - The Python School</title>
+<meta name="description" content="The while loop, break, continue, sentinel values, and what to do about infinite loops.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/08-while">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 8: Loops That Repeat: while - The Python School">
+<meta property="og:description" content="The while loop, break, continue, sentinel values, and what to do about infinite loops.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/08-while">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 8: Loops That Repeat: while - The Python School">
+<meta name="twitter:description" content="The while loop, break, continue, sentinel values, and what to do about infinite loops.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 8 of 20</nav>
+    <span class="badge l1">Level 1 · First Words</span>
+    <h1>Loops That Repeat: while 🔁</h1>
+    <p class="lede muted">Computers are unbelievably good at doing the same thing over and over without
+    complaining. This is the lesson where you stop copying and pasting.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>while: keep going until</h2>
+    <pre class="run" data-verify="run"><code>grog = 5
+
+while grog &gt; 0:
+    print(f&quot;{grog} mugs of grog on the wall&quot;)
+    grog -= 1
+
+print(&quot;The bar is dry.&quot;)</code></pre>
+<pre class="out"><code class="nohl">5 mugs of grog on the wall
+4 mugs of grog on the wall
+3 mugs of grog on the wall
+2 mugs of grog on the wall
+1 mugs of grog on the wall
+The bar is dry.</code></pre>
+    <p>The shape is always the same, and it has exactly three moving parts:</p>
+    <ol class="steps">
+      <li><strong>Set something up</strong> before the loop (<code>grog = 5</code>).</li>
+      <li><strong>Ask a question</strong> at the top. True means go round again, false means
+      stop.</li>
+      <li><strong>Change something</strong> inside the loop so the answer eventually becomes
+      false (<code>grog -= 1</code>).</li>
+    </ol>
+    <p>Miss step three and the loop runs forever. Which is next.</p>
+
+    <h2>The infinite loop, and the escape hatch</h2>
+    <pre data-verify="skip"><code>grog = 5
+
+while grog &gt; 0:
+    print(&quot;still 5 mugs, forever, until the heat death of the universe&quot;)
+    # grog never changes, so the condition is never false</code></pre>
+
+    <div class="voice" data-skill="reaction-speed"><div class="v-head"><span class="v-name">REACTION SPEED</span><span class="v-check success">[Easy: Success]</span></div><p>Ctrl+C. In the terminal, hold Control and press C. The program stops immediately. Not Cmd+C on a Mac, Control+C, on every platform. Learn it now, use it today.</p></div>
+
+    <p>
+      In this school's playground, the run button gives up after twenty seconds and tells you
+      so, which is friendlier than freezing your browser. On your own machine, Ctrl+C is the
+      answer. Writing an infinite loop is a rite of passage, not a disaster, and everybody has
+      done it.
+    </p>
+
+    <h2>Waiting for the right answer</h2>
+    <pre class="run" data-verify="run" data-stdin="grog&#10;monkey&#10;swordfish"><code>answer = &quot;&quot;
+
+while answer != &quot;swordfish&quot;:
+    answer = input(&quot;Password: &quot;)
+    if answer != &quot;swordfish&quot;:
+        print(&quot;  That is not the password.&quot;)
+
+print(&quot;The door swings open.&quot;)</code></pre>
+<pre class="out"><code class="nohl">Password: grog
+  That is not the password.
+Password: monkey
+  That is not the password.
+Password: swordfish
+The door swings open.</code></pre>
+    <p>
+      This is the classic use of <code>while</code>: you do not know in advance how many times
+      it will run. That is the whole difference between <code>while</code> and the
+      <code>for</code> loop in the next lesson. Unknown number of repeats: <code>while</code>.
+      Known collection to walk through: <code>for</code>.
+    </p>
+
+    <h2>break: leave immediately</h2>
+    <pre class="run" data-verify="run" data-stdin="look&#10;take grog&#10;quit"><code>while True:
+    command = input(&quot;&gt; &quot;)
+    if command == &quot;quit&quot;:
+        print(&quot;Farewell.&quot;)
+        break
+    print(f&quot;You try to {command}. Nothing happens.&quot;)</code></pre>
+<pre class="out"><code class="nohl">&gt; look
+You try to look. Nothing happens.
+&gt; take grog
+You try to take grog. Nothing happens.
+&gt; quit
+Farewell.</code></pre>
+    <p>
+      <code>while True:</code> with a <code>break</code> inside is a completely respectable
+      pattern, not a cheat. It says "loop until I decide to stop", and it is the standard shape
+      for menus, game loops and command prompts. The important thing is that a
+      <code>break</code> exists somewhere and is reachable.
+    </p>
+
+    <h2>continue: skip the rest of this round</h2>
+    <pre class="run" data-verify="run"><code>number = 0
+
+while number &lt; 10:
+    number += 1
+    if number % 2 == 0:
+        continue          # jump straight back to the top
+    print(f&quot;{number} is odd&quot;)</code></pre>
+<pre class="out"><code class="nohl">1 is odd
+3 is odd
+5 is odd
+7 is odd
+9 is odd</code></pre>
+    <div class="callout danger"><span class="co-title">🪤 continue in a while loop is a trap</span><p>If your <code>continue</code> jumps back <em>before</em> the line that changes the counter, you get an infinite loop. In the example above, <code>number += 1</code> is the very first line for exactly that reason. Move it to the bottom and the program hangs at 2, forever.</p></div>
+
+    <h2>while / else, a Python curiosity</h2>
+    <pre class="run" data-verify="run"><code>attempts = 3
+
+while attempts &gt; 0:
+    print(f&quot;{attempts} attempts left&quot;)
+    attempts -= 1
+else:
+    print(&quot;Ran out of attempts, and no break happened.&quot;)</code></pre>
+<pre class="out"><code class="nohl">3 attempts left
+2 attempts left
+1 attempts left
+Ran out of attempts, and no break happened.</code></pre>
+    <p>
+      The <code>else</code> on a loop runs only if the loop finished naturally, without a
+      <code>break</code>. It is genuinely useful for searches ("if we got through the whole
+      list without finding it..."), rare in the wild, and confusing enough that many style
+      guides discourage it. Know it exists so it does not startle you in someone else's code.
+    </p>
+
+    <h2>A real one: the number guessing game</h2>
+    <pre data-verify="compile"><code>import random
+
+secret = random.randint(1, 100)
+guesses = 0
+
+while True:
+    guess = int(input(&quot;Guess (1-100): &quot;))
+    guesses += 1
+
+    if guess &lt; secret:
+        print(&quot;  Higher.&quot;)
+    elif guess &gt; secret:
+        print(&quot;  Lower.&quot;)
+    else:
+        print(f&quot;Got it in {guesses} guesses.&quot;)
+        break</code></pre>
+    <p>
+      That is a complete, genuinely fun program in fourteen lines, and it is
+      <a href="../build/01-guessing-game.html">Project 1</a> in the workshop, where you build
+      it properly with input validation and a play-again loop.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Countdown</h3><p>Count down from 10 to 1, then print 'Liftoff'. One line per number.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>n = 10
+
+while n &gt; 0:
+    print(n)
+    n -= 1
+
+print(&quot;Liftoff! 🚀&quot;)</code></pre>
+<pre class="out"><code class="nohl">10
+9
+8
+7
+6
+5
+4
+3
+2
+1
+Liftoff! 🚀</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Sum until zero</h3><p>Keep asking for numbers and adding them up. When the user enters 0, stop and print the total and how many numbers were given.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run" data-stdin="5&#10;10&#10;3&#10;0"><code>total = 0
+count = 0
+
+while True:
+    number = int(input(&quot;Number (0 to finish): &quot;))
+    if number == 0:
+        break
+    total += number
+    count += 1
+
+print(f&quot;{count} numbers, total {total}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Number (0 to finish): 5
+Number (0 to finish): 10
+Number (0 to finish): 3
+Number (0 to finish): 0
+3 numbers, total 18</code></pre><p>A value that means 'stop' is called a <strong>sentinel</strong>. It is a standard technique, and its weakness is that the sentinel can never be real data: this program can never total a genuine zero.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Why does this never end?</h3><p>Spot the bug without running it. There are two ways to fix it.</p><pre data-verify="skip"><code>count = 1
+while count &lt; 5:
+    print(count)
+count += 1</code></pre><details class="solution"><summary>Reveal solution</summary><p><code>count += 1</code> is outside the loop: it is not indented. So <code>count</code> is 1 forever, the condition is true forever, and the loop prints 1 until the sun burns out.</p><pre class="run" data-verify="run"><code>count = 1
+while count &lt; 5:
+    print(count)
+    count += 1</code></pre>
+<pre class="out"><code class="nohl">1
+2
+3
+4</code></pre><p>The other fix is a <code>for</code> loop, which removes the possibility entirely by counting for you. That is the next lesson, and it is why experienced Python programmers reach for <code>for</code> far more often than <code>while</code>.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-08-while">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="07-decisions.html"><span class="dir">← Previous</span>Lesson 7: Making Decisions</a>
+      <a class="next" href="09-for.html"><span class="dir">Next →</span>Lesson 9: Loops That Count: for</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 12: Tuples and Unpacking - The Python School</title>
+<meta name="description" content="Immutable sequences, tuple unpacking, returning several values, and when to use a tuple over a list.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/12-tuples">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 12: Tuples and Unpacking - The Python School">
+<meta property="og:description" content="Immutable sequences, tuple unpacking, returning several values, and when to use a tuple over a list.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/12-tuples">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 12: Tuples and Unpacking - The Python School">
+<meta name="twitter:description" content="Immutable sequences, tuple unpacking, returning several values, and when to use a tuple over a list.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 12 of 20</nav>
+    <span class="badge l2">Level 2 · The Toolbox</span>
+    <h1>Tuples and Unpacking 🔒</h1>
+    <p class="lede muted">A tuple is a list that has been set in resin. That sounds like a downside. It is
+    the reason tuples show up everywhere in real Python.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Round brackets instead of square</h2>
+    <pre class="run" data-verify="run"><code>point = (3, 7)
+colours = (&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;)
+
+print(point, colours)
+print(point[0], colours[-1])
+print(len(colours))</code></pre>
+<pre class="out"><code class="nohl">(3, 7) (&#x27;red&#x27;, &#x27;green&#x27;, &#x27;blue&#x27;)
+3 blue
+3</code></pre>
+    <p>Everything you can <em>read</em> from a list works. Everything that would change it does not:</p>
+    <pre data-verify="skip"><code>point = (3, 7)
+point[0] = 10</code></pre>
+    <pre class="traceback"><code class="nohl">TypeError: &#x27;tuple&#x27; object does not support item assignment</code></pre>
+
+    <h2>Why would you want that?</h2>
+    <ul>
+      <li><strong>It documents intent.</strong> A tuple says "these belong together and this
+      set will not change": a coordinate, an RGB colour, a database row.</li>
+      <li><strong>It cannot be broken by accident.</strong> Hand a list to a function and the
+      function might append to it. Hand a tuple and it cannot.</li>
+      <li><strong>It can be a dictionary key.</strong> Lists cannot (Lesson 13 explains why).</li>
+      <li><strong>It is slightly smaller and faster.</strong> True, and almost never the
+      reason to choose one.</li>
+    </ul>
+
+    <div class="callout warn"><span class="co-title">🪤 The one-item tuple</span><p><code>(5)</code> is just the number 5 in brackets. A one-item tuple needs a trailing comma: <code>(5,)</code>. It looks like a typo, it is required, and it has confused every Python programmer who ever lived at least once.</p></div>
+    <pre class="run" data-verify="run"><code>not_a_tuple = (5)
+actually_a_tuple = (5,)
+
+print(type(not_a_tuple))
+print(type(actually_a_tuple))</code></pre>
+<pre class="out"><code class="nohl">&lt;class &#x27;int&#x27;&gt;
+&lt;class &#x27;tuple&#x27;&gt;</code></pre>
+
+    <h2>Unpacking: the feature you will use every day</h2>
+    <pre class="run" data-verify="run"><code>point = (3, 7)
+x, y = point
+print(x, y)
+
+# the brackets are optional, which is why this works
+name, role, age = &quot;Guybrush&quot;, &quot;pirate&quot;, 24
+print(f&quot;{name} the {role}, aged {age}&quot;)
+
+# and why swapping is one line
+a, b = 1, 2
+a, b = b, a
+print(a, b)</code></pre>
+<pre class="out"><code class="nohl">3 7
+Guybrush the pirate, aged 24
+2 1</code></pre>
+    <p>
+      The number of names on the left must match the number of values on the right, or Python
+      raises <code>ValueError: too many values to unpack</code>. Unless you use a star:
+    </p>
+    <pre class="run" data-verify="run"><code>scores = [95, 88, 72, 61, 40]
+
+best, *rest = scores
+print(best, rest)
+
+first, *middle, last = scores
+print(first, middle, last)</code></pre>
+<pre class="out"><code class="nohl">95 [88, 72, 61, 40]
+95 [88, 72, 61] 40</code></pre>
+    <p>
+      The starred name soaks up everything left over, and always becomes a list. There can be
+      at most one of them, for the obvious reason.
+    </p>
+
+    <h2>Returning several things at once</h2>
+    <pre class="run" data-verify="run"><code>def split_name(full_name):
+    parts = full_name.split()
+    return parts[0], parts[-1]
+
+
+first, last = split_name(&quot;Guybrush Ulysses Threepwood&quot;)
+print(first, last)
+
+both = split_name(&quot;Elaine Marley&quot;)
+print(both, type(both))</code></pre>
+<pre class="out"><code class="nohl">Guybrush Threepwood
+(&#x27;Elaine&#x27;, &#x27;Marley&#x27;) &lt;class &#x27;tuple&#x27;&gt;</code></pre>
+    <p>
+      A function can only return one object, but that object can be a tuple, so in practice
+      Python functions return as many values as they like. Notice you did not have to write
+      any brackets: a bare comma-separated list of values <em>is</em> a tuple. This is the
+      single most common use of tuples in real code.
+    </p>
+
+    <h2>Tuples in loops</h2>
+    <pre class="run" data-verify="run"><code>crew = [
+    (&quot;Guybrush&quot;, &quot;pirate&quot;, 24),
+    (&quot;Elaine&quot;, &quot;governor&quot;, 28),
+    (&quot;Otis&quot;, &quot;prisoner&quot;, 41),
+]
+
+for name, role, age in crew:
+    print(f&quot;{name:10} {role:10} {age}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Guybrush   pirate     24
+Elaine     governor   28
+Otis       prisoner   41</code></pre>
+    <p>
+      The loop unpacks each tuple automatically. This is exactly how <code>enumerate</code>
+      and <code>zip</code> from Lesson 9 work: they hand you tuples, and you unpack them in
+      the <code>for</code> line without thinking about it.
+    </p>
+
+    <h2>Named tuples, when positions get confusing</h2>
+    <pre class="run" data-verify="run"><code>from collections import namedtuple
+
+Pirate = namedtuple(&quot;Pirate&quot;, [&quot;name&quot;, &quot;role&quot;, &quot;insults&quot;])
+
+guy = Pirate(&quot;Guybrush&quot;, &quot;pirate&quot;, 7)
+
+print(guy)
+print(guy.name, guy.insults)
+print(guy[0])                 # still a tuple underneath
+name, role, insults = guy     # still unpacks
+print(role)</code></pre>
+<pre class="out"><code class="nohl">Pirate(name=&#x27;Guybrush&#x27;, role=&#x27;pirate&#x27;, insults=7)
+Guybrush 7
+Guybrush
+pirate</code></pre>
+    <p>
+      <code>guy.name</code> beats <code>guy[0]</code> the moment you have more than two
+      fields. For anything more elaborate, Lesson 33's <code>dataclass</code> is the modern
+      answer, but named tuples are perfect when you want something immutable and light.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Min, max and average in one function</h3><p>Write a function that takes a list of numbers and returns three values. Call it and unpack the result.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>def summarise(numbers):
+    return min(numbers), max(numbers), sum(numbers) / len(numbers)
+
+
+lowest, highest, average = summarise([88, 42, 95, 61, 73])
+
+print(f&quot;Lowest:  {lowest}&quot;)
+print(f&quot;Highest: {highest}&quot;)
+print(f&quot;Average: {average:.1f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Lowest:  42
+Highest: 95
+Average: 71.8</code></pre></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Tuple or list?</h3><p>For each, say which you would choose and why.</p><ol><li>The RGB values of a colour.</li><li>The names of everyone who has signed up to a newsletter.</li><li>A row read from a spreadsheet.</li><li>The days of the week.</li><li>The cards currently in a player's hand.</li></ol><details class="solution"><summary>Reveal solution</summary><ol><li><strong>Tuple.</strong> Exactly three parts, fixed meaning, will not grow.</li><li><strong>List.</strong> The whole point is that people join and leave.</li><li><strong>Tuple</strong> (or a named tuple). A row has a fixed shape.</li><li><strong>Tuple.</strong> There have been seven since Babylon and there will be seven tomorrow.</li><li><strong>List.</strong> Cards are drawn and played constantly.</li></ol><p>The question that decides it is almost always: does the number of items change during the program's life?</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Unpack the mess</h3><p>From this data, print each film's title and its highest rating, using unpacking rather than indexes.</p><pre data-verify="compile"><code>data = [
+    (&quot;Monkey Island&quot;, 9, 8, 10),
+    (&quot;Disco Elysium&quot;, 10, 10, 9),
+    (&quot;Grim Fandango&quot;, 9, 9, 9),
+]</code></pre><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>data = [
+    (&quot;Monkey Island&quot;, 9, 8, 10),
+    (&quot;Disco Elysium&quot;, 10, 10, 9),
+    (&quot;Grim Fandango&quot;, 9, 9, 9),
+]
+
+for title, *ratings in data:
+    print(f&quot;{title:15} best score {max(ratings)}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Monkey Island   best score 10
+Disco Elysium   best score 10
+Grim Fandango   best score 9</code></pre><p><code>for title, *ratings in data</code> unpacks and stars in one move. This is the kind of line that makes people say Python is elegant.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-12-tuples">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="11-lists.html"><span class="dir">← Previous</span>Lesson 11: Lists: Many Things at Once</a>
+      <a class="next" href="13-dicts.html"><span class="dir">Next →</span>Lesson 13: Dictionaries: Look It Up</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
