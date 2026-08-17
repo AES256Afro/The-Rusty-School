@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 26: Virtual Environments and pip - The Python School</title>
+<meta name="description" content="Why virtual environments exist, creating and activating them, pip, requirements files, and uv.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/26-venv">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 26: Virtual Environments and pip - The Python School">
+<meta property="og:description" content="Why virtual environments exist, creating and activating them, pip, requirements files, and uv.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/26-venv">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 26: Virtual Environments and pip - The Python School">
+<meta name="twitter:description" content="Why virtual environments exist, creating and activating them, pip, requirements files, and uv.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 26 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Virtual Environments and pip 🧪</h1>
+    <p class="lede muted">Half a million packages are waiting for you on PyPI. Two commands stop them from
+    turning your computer into a swamp.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The problem, first</h2>
+    <p>
+      Project A needs version 1 of a library. Project B needs version 2. If both install into
+      the same Python, one of them breaks. Multiply by twenty projects and several years and
+      you get a machine where nothing works and nobody knows why. This has a name:
+      dependency hell.
+    </p>
+    <p>
+      A <strong>virtual environment</strong> is a private Python for one project: its own
+      folder, its own installed packages, isolated from everything else. Making one is one
+      command, and you should make one for every project, every time, no exceptions.
+    </p>
+
+    <h2>The three commands</h2>
+    <pre class="term"><code class="nohl"># 1. create it (once per project)
+python3 -m venv .venv
+
+# 2. activate it (every time you open a terminal)
+source .venv/bin/activate        # macOS and Linux
+.venv\Scripts\activate           # Windows PowerShell
+
+# 3. install things (they land inside .venv, not on your system)
+pip install requests</code></pre>
+    <p>Once activated, your prompt changes to show it:</p>
+    <pre class="term"><code class="nohl">$ source .venv/bin/activate
+(.venv) $ which python
+/Users/you/python-school/.venv/bin/python
+
+(.venv) $ pip install requests
+Successfully installed requests-2.32.3 ...
+
+(.venv) $ deactivate
+$ </code></pre>
+    <div class="callout tip"><span class="co-title">📁 Call it .venv</span><p>The name is a convention, and a strong one: editors like VS Code look for <code>.venv</code> and offer to use it automatically, and every <code>.gitignore</code> template already excludes it. The leading dot hides it from ordinary directory listings.</p></div>
+
+    <h2>Never commit it</h2>
+    <pre data-verify="skip"><code># .gitignore
+.venv/
+__pycache__/
+*.pyc
+.env</code></pre>
+    <p>
+      A virtual environment contains thousands of files, is specific to your operating system,
+      and can be rebuilt from a text file in seconds. Committing it to git is a classic
+      beginner mistake that makes a repository unusably large.
+    </p>
+
+    <h2>Recording what you need</h2>
+    <pre class="term"><code class="nohl">(.venv) $ pip freeze &gt; requirements.txt
+(.venv) $ cat requirements.txt
+certifi==2025.7.9
+charset-normalizer==3.4.2
+idna==3.10
+requests==2.32.3
+urllib3==2.5.0</code></pre>
+    <p>
+      Anyone (including you, on another machine, in a year) can then recreate the exact
+      environment:
+    </p>
+    <pre class="term"><code class="nohl">python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt</code></pre>
+
+    <div class="voice" data-skill="volition"><div class="v-head"><span class="v-name">VOLITION</span><span class="v-check success">[Medium: Success]</span></div><p>This is the moment your code becomes shareable. Before a requirements file, 'it works on my machine' is a true statement and a useless one. After it, someone else can reproduce your machine in thirty seconds.</p>
+<p>Reproducibility is not bureaucracy. It is the difference between a script and software.</p></div>
+
+    <h2>pip, the essential commands</h2>
+    <div class="table-wrap"><table><thead><tr><th>Command</th><th>Does</th></tr></thead><tbody><tr><td><code>pip install requests</code></td><td>Install the latest version</td></tr><tr><td><code>pip install requests==2.32.3</code></td><td>Install exactly that version</td></tr><tr><td><code>pip install 'requests&gt;=2.30'</code></td><td>Install at least that version</td></tr><tr><td><code>pip install -r requirements.txt</code></td><td>Install everything listed in a file</td></tr><tr><td><code>pip list</code></td><td>What is installed here</td></tr><tr><td><code>pip show requests</code></td><td>Details, including what depends on what</td></tr><tr><td><code>pip uninstall requests</code></td><td>Remove it</td></tr><tr><td><code>pip install --upgrade requests</code></td><td>Update it</td></tr></tbody></table></div>
+    <div class="callout warn"><span class="co-title">🎯 Use python3 -m pip, not bare pip</span><p><code>python3 -m pip install x</code> guarantees the package lands in the same Python you are running. Bare <code>pip</code> can belong to a different installation, which produces the single most baffling beginner experience there is: pip says it installed successfully, and Python says <code>ModuleNotFoundError</code>.</p></div>
+
+    <h2>Using an installed package</h2>
+    <pre data-verify="compile"><code># after: pip install requests
+import requests
+
+response = requests.get(&quot;https://api.github.com/repos/python/cpython&quot;)
+data = response.json()
+
+print(data[&quot;name&quot;], &quot;has&quot;, data[&quot;stargazers_count&quot;], &quot;stars&quot;)</code></pre>
+    <p>
+      That block has no run button, because the school's in-browser Python has no network
+      access and no third-party packages. This is exactly the point at which doing
+      <a href="../setup.html">the ten-minute lab setup</a> starts to pay off. Lesson 42 covers
+      <code>requests</code> properly.
+    </p>
+
+    <h2>The modern alternative: uv</h2>
+    <p>
+      <a href="https://github.com/astral-sh/uv" target="_blank" rel="noopener">uv</a> is a drop-in replacement for pip and venv
+      that is typically 10 to 100 times faster, because it is written in Rust. It is
+      increasingly the default choice in new projects.
+    </p>
+    <pre class="term"><code class="nohl"># the same three ideas, one tool
+uv venv                       # create .venv
+uv pip install requests       # install into it
+uv run script.py              # run with the right environment, no activation needed
+
+# or let it manage the whole project
+uv init my-project
+uv add requests</code></pre>
+    <div class="callout info"><span class="co-title">🦀 Wait, a Python tool written in Rust?</span><p>Yes, and it is one of the best arguments for learning both languages. uv, <a href='https://github.com/astral-sh/ruff' target='_blank' rel='noopener'>ruff</a> (the linter) and <a href='https://pola.rs' target='_blank' rel='noopener'>Polars</a> (dataframes) are all Rust programs that made the Python ecosystem dramatically faster. The pattern is: write the workflow in Python, write the hot inner loop in Rust. Lesson 51 shows you how to do it yourself, and the <a href='../../learn/index.html'>Rusty School</a> is next door when you are ready.</p></div>
+
+    <h2>Judging a package before you install it</h2>
+    <p>
+      Anyone can publish to PyPI. Packages have been published with names one typo away from
+      popular ones, containing malware. Before installing something you have not heard of:
+    </p>
+    <ul>
+      <li><strong>Check the name character by character.</strong> <code>requests</code> is
+      real. <code>request</code>, <code>requsts</code> and <code>python-requests</code> are the
+      kind of thing attackers register. This is called typosquatting.</li>
+      <li><strong>Look at the PyPI page.</strong> When was it last released? Does it link to a
+      real source repository?</li>
+      <li><strong>Look at the repository.</strong> Stars, recent commits, open issues being
+      answered.</li>
+      <li><strong>Prefer the standard library</strong> when it will do. Zero dependencies is
+      zero supply chain risk.</li>
+      <li><strong>Pin your versions</strong> in <code>requirements.txt</code> so an update
+      cannot change under you without you noticing.</li>
+    </ul>
+
+    <h2>Common problems</h2>
+    <div class="table-wrap"><table><thead><tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td><code>ModuleNotFoundError</code> right after installing</td><td>Installed into a different Python</td><td>Activate the venv, then <code>python3 -m pip install x</code></td></tr><tr><td><code>externally-managed-environment</code></td><td>You are installing into the system Python on Linux or Homebrew</td><td>Make and activate a venv. The error is protecting you</td></tr><tr><td><code>command not found: pip</code></td><td>Not activated, or pip not installed</td><td><code>python3 -m ensurepip</code>, then activate</td></tr><tr><td>Works in the terminal, not in VS Code</td><td>The editor is using a different interpreter</td><td>Ctrl+Shift+P, 'Python: Select Interpreter', pick the <code>.venv</code> one</td></tr><tr><td><code>Permission denied</code> while installing</td><td>Trying to write to a system folder</td><td>Never use <code>sudo pip</code>. Use a venv</td></tr></tbody></table></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Set up a real project</h3><p>On your own machine, do the whole loop: folder, venv, activate, install <code>requests</code>, freeze, and confirm which Python is in charge.</p><details class="solution"><summary>Reveal solution</summary><pre class="term"><code class="nohl">mkdir weather-tool &amp;&amp; cd weather-tool
+python3 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install requests
+python -c &quot;import requests; print(requests.__version__)&quot;
+
+pip freeze &gt; requirements.txt
+printf &#x27;.venv/\n__pycache__/\n&#x27; &gt; .gitignore
+
+which python
+deactivate</code></pre><p>If <code>which python</code> printed a path ending in <code>weather-tool/.venv/bin/python</code>, everything is correct. That sequence is the opening move of every Python project you will ever start.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Read a requirements file</h3><p>What does each line mean, and which one would you object to in a code review?</p><pre data-verify="skip"><code>requests==2.32.3
+rich&gt;=13.0
+pandas
+numpy~=1.26.0</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><code>requests==2.32.3</code>: exactly this version. Fully reproducible.</li><li><code>rich&gt;=13.0</code>: this or newer. A future version 14 could break you.</li><li><code>pandas</code>: <strong>any version at all</strong>. This is the one to object to. Today it installs 2.x; next year it installs 3.x and your program changes behaviour with no change to your code.</li><li><code>numpy~=1.26.0</code>: compatible release, so 1.26.x but not 1.27. A sensible middle ground.</li></ol><p>Rule of thumb: pin exactly for applications you deploy, use ranges for libraries other people will install alongside things you cannot predict.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Explain it to a colleague</h3><p>A teammate says: 'Virtual environments are pointless, I just install everything globally and it works fine.' Write the three-sentence reply.</p><details class="solution"><summary>Reveal solution</summary><p>Something like: <em>It works fine until two projects need different versions of the same library, and then one of them breaks in a way that is genuinely hard to diagnose. It also means nobody else can reproduce your setup, so 'works on my machine' becomes the whole support process. A venv costs one command per project and removes both problems permanently.</em></p><p>The persuasive detail is the second sentence. Most people accept isolation as theory and adopt it for real the first time a colleague cannot run their code.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-26-venv">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="25-regex.html"><span class="dir">← Previous</span>Lesson 25: Regular Expressions</a>
+      <a class="next" href="27-cli.html"><span class="dir">Next →</span>Lesson 27: Command-Line Programs</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

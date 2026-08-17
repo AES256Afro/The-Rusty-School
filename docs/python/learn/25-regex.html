@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 25: Regular Expressions - The Python School</title>
+<meta name="description" content="A gentle, practical introduction to the re module: patterns, groups, findall, sub, and when not to use regex.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/25-regex">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 25: Regular Expressions - The Python School">
+<meta property="og:description" content="A gentle, practical introduction to the re module: patterns, groups, findall, sub, and when not to use regex.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/25-regex">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 25: Regular Expressions - The Python School">
+<meta name="twitter:description" content="A gentle, practical introduction to the re module: patterns, groups, findall, sub, and when not to use regex.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 25 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Regular Expressions 🔍</h1>
+    <p class="lede muted">A tiny language for describing shapes of text. It looks like someone sat on a
+    keyboard, and it will one day save you four hours in four minutes.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>Why bother</h2>
+    <p>
+      You can find a phone number in a document with string methods. It takes forty lines and
+      misses cases. With a pattern it is one line. The trade is that the line is unreadable
+      until you learn the notation, so this lesson teaches the 20% that does 80% of the work.
+    </p>
+    <pre class="run" data-verify="run"><code>import re
+
+text = &quot;Call Stan on 555-0199 or Elaine on 555-0100 before Friday.&quot;
+
+print(re.findall(r&quot;\d{3}-\d{4}&quot;, text))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;555-0199&#x27;, &#x27;555-0100&#x27;]</code></pre>
+    <p>
+      <code>\d{3}-\d{4}</code> means "three digits, a hyphen, four digits". That is the
+      whole idea: you describe a <em>shape</em>, and Python finds every piece of text with
+      that shape.
+    </p>
+
+    <div class="callout tip"><span class="co-title">🅁 Always use raw strings</span><p>Write patterns as <code>r"..."</code>. Regex uses backslashes constantly, and so do Python strings, so without the <code>r</code> you end up writing <code>"\\\\d"</code> to mean one <code>\d</code>. The <code>r</code> prefix turns that off. Every regex you ever see in real code has it.</p></div>
+
+    <h2>The pieces worth memorising</h2>
+    <div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Matches</th><th>Example</th></tr></thead><tbody><tr><td><code>.</code></td><td>any single character except newline</td><td><code>a.c</code> matches abc, a7c</td></tr><tr><td><code>\d</code></td><td>a digit</td><td><code>\d\d</code> matches 42</td></tr><tr><td><code>\w</code></td><td>a letter, digit or underscore</td><td><code>\w+</code> matches a word</td></tr><tr><td><code>\s</code></td><td>any whitespace</td><td>space, tab, newline</td></tr><tr><td><code>[abc]</code></td><td>any one of these</td><td><code>[aeiou]</code> is a vowel</td></tr><tr><td><code>[^abc]</code></td><td>anything except these</td><td></td></tr><tr><td><code>[a-z]</code></td><td>a range</td><td><code>[A-Za-z]</code> is any letter</td></tr><tr><td><code>*</code></td><td>zero or more of the thing before</td><td><code>ab*</code> matches a, ab, abbb</td></tr><tr><td><code>+</code></td><td>one or more</td><td><code>\d+</code> is a number</td></tr><tr><td><code>?</code></td><td>zero or one, so optional</td><td><code>colou?r</code> matches both spellings</td></tr><tr><td><code>{{3}}</code></td><td>exactly three</td><td><code>\d{{3}}</code></td></tr><tr><td><code>{{2,4}}</code></td><td>between two and four</td><td></td></tr><tr><td><code>^</code> / <code>$</code></td><td>start / end of the text</td><td><code>^Dear</code></td></tr><tr><td><code>|</code></td><td>either</td><td><code>cat|dog</code></td></tr><tr><td><code>( )</code></td><td>a group you want to capture</td><td></td></tr></tbody></table></div>
+
+    <h2>The five functions</h2>
+    <pre class="run" data-verify="run"><code>import re
+
+text = &quot;Guybrush scored 95, Elaine scored 88, Otis scored 42.&quot;
+
+print(re.findall(r&quot;\d+&quot;, text))
+print(re.search(r&quot;\d+&quot;, text).group())
+print(re.match(r&quot;Guybrush&quot;, text) is not None)
+print(re.sub(r&quot;\d+&quot;, &quot;??&quot;, text))
+print(re.split(r&quot;,\s*&quot;, text))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;95&#x27;, &#x27;88&#x27;, &#x27;42&#x27;]
+95
+True
+Guybrush scored ??, Elaine scored ??, Otis scored ??.
+[&#x27;Guybrush scored 95&#x27;, &#x27;Elaine scored 88&#x27;, &#x27;Otis scored 42.&#x27;]</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Function</th><th>Does</th><th>Returns</th></tr></thead><tbody><tr><td><code>re.findall</code></td><td>every match</td><td>a list of strings</td></tr><tr><td><code>re.search</code></td><td>the first match anywhere</td><td>a match object, or None</td></tr><tr><td><code>re.match</code></td><td>a match at the very start only</td><td>a match object, or None</td></tr><tr><td><code>re.sub</code></td><td>find and replace</td><td>a new string</td></tr><tr><td><code>re.split</code></td><td>split on a pattern</td><td>a list</td></tr><tr><td><code>re.finditer</code></td><td>every match, lazily, with positions</td><td>match objects</td></tr></tbody></table></div>
+    <p>
+      <code>search</code> and <code>match</code> return <code>None</code> when there is no
+      match, and <code>None.group()</code> raises <code>AttributeError</code>. Always test
+      before using the result.
+    </p>
+
+    <h2>Groups: pulling pieces out</h2>
+    <pre class="run" data-verify="run"><code>import re
+
+log = &quot;2026-08-17 09:30:00 ERROR disk full&quot;
+
+pattern = r&quot;(\d{4})-(\d{2})-(\d{2}) (\d{2}:\d{2}:\d{2}) (\w+) (.+)&quot;
+found = re.search(pattern, log)
+
+if found:
+    print(found.group(0))
+    print(found.group(1), found.group(2), found.group(3))
+    print(found.group(5), &quot;-&gt;&quot;, found.group(6))
+    print(found.groups())</code></pre>
+<pre class="out"><code class="nohl">2026-08-17 09:30:00 ERROR disk full
+2026 08 17
+ERROR -&gt; disk full
+(&#x27;2026&#x27;, &#x27;08&#x27;, &#x27;17&#x27;, &#x27;09:30:00&#x27;, &#x27;ERROR&#x27;, &#x27;disk full&#x27;)</code></pre>
+    <p>Numbered groups get unreadable fast. Name them:</p>
+    <pre class="run" data-verify="run"><code>import re
+
+log = &quot;2026-08-17 09:30:00 ERROR disk full&quot;
+
+pattern = (r&quot;(?P&lt;date&gt;\d{4}-\d{2}-\d{2}) &quot;
+           r&quot;(?P&lt;time&gt;\d{2}:\d{2}:\d{2}) &quot;
+           r&quot;(?P&lt;level&gt;\w+) &quot;
+           r&quot;(?P&lt;message&gt;.+)&quot;)
+
+found = re.search(pattern, log)
+if found:
+    parts = found.groupdict()
+    print(parts[&quot;level&quot;], &quot;on&quot;, parts[&quot;date&quot;])
+    print(parts)</code></pre>
+<pre class="out"><code class="nohl">ERROR on 2026-08-17
+{&#x27;date&#x27;: &#x27;2026-08-17&#x27;, &#x27;time&#x27;: &#x27;09:30:00&#x27;, &#x27;level&#x27;: &#x27;ERROR&#x27;, &#x27;message&#x27;: &#x27;disk full&#x27;}</code></pre>
+
+    <h2>Greedy versus lazy: the classic surprise</h2>
+    <pre class="run" data-verify="run"><code>import re
+
+html = &quot;&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;&quot;
+
+print(re.findall(r&quot;&lt;.+&gt;&quot;, html))
+print(re.findall(r&quot;&lt;.+?&gt;&quot;, html))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;&lt;b&gt;bold&lt;/b&gt; and &lt;i&gt;italic&lt;/i&gt;&#x27;]
+[&#x27;&lt;b&gt;&#x27;, &#x27;&lt;/b&gt;&#x27;, &#x27;&lt;i&gt;&#x27;, &#x27;&lt;/i&gt;&#x27;]</code></pre>
+
+    <div class="voice" data-skill="logic"><div class="v-head"><span class="v-name">LOGIC</span><span class="v-check success">[Formidable: Success]</span></div><p><code>+</code> and <code>*</code> are greedy: they take as much as they possibly can while still allowing a match. The first pattern matched from the very first &lt; to the very last &gt;, which is technically correct and completely useless.</p>
+<p>Adding <code>?</code> after them makes them lazy: take as little as possible. When a pattern matches far more than you expected, this is nearly always why.</p></div>
+
+    <h2>Substitution with groups</h2>
+    <pre class="run" data-verify="run"><code>import re
+
+dates = &quot;Due 15/10/1990, meeting 20/12/1991.&quot;
+
+iso = re.sub(r&quot;(\d{2})/(\d{2})/(\d{4})&quot;, r&quot;\3-\2-\1&quot;, dates)
+print(iso)
+
+def shout(match):
+    return match.group(0).upper()
+
+print(re.sub(r&quot;\b\w{4}\b&quot;, shout, &quot;this is a test of four char words&quot;))</code></pre>
+<pre class="out"><code class="nohl">Due 1990-10-15, meeting 1991-12-20.
+THIS is a TEST of FOUR CHAR words</code></pre>
+    <p>
+      <code>\3-\2-\1</code> in the replacement means "group 3, then group 2, then group 1".
+      And when the replacement needs logic, pass a <em>function</em>: it receives each match
+      and returns the replacement text.
+    </p>
+
+    <h2>Useful patterns to steal</h2>
+    <pre class="run" data-verify="run"><code>import re
+
+text = &quot;&quot;&quot;Contact elaine@melee.gov or stan@usedships.example.
+Visit https://rustyschool.com/python for the course.
+Ring 555-0199. Order #A-1042 shipped 2026-08-17.&quot;&quot;&quot;
+
+print(re.findall(r&quot;[\w.+-]+@[\w-]+\.[\w.]+&quot;, text))
+print(re.findall(r&quot;https?://[^\s]+&quot;, text))
+print(re.findall(r&quot;\d{4}-\d{2}-\d{2}&quot;, text))
+print(re.findall(r&quot;#[A-Z]-\d+&quot;, text))</code></pre>
+<pre class="out"><code class="nohl">[&#x27;elaine@melee.gov&#x27;, &#x27;stan@usedships.example.&#x27;]
+[&#x27;https://rustyschool.com/python&#x27;]
+[&#x27;2026-08-17&#x27;]
+[&#x27;#A-1042&#x27;]</code></pre>
+    <p>
+      Spot the trailing full stop on that second address. The pattern's final
+      <code>[\w.]+</code> includes dots, so it kept going past the domain and took the end of
+      the sentence with it. Patterns match text, not meaning, and this is exactly the kind of
+      near-miss that survives a quick eyeball and breaks later.
+    </p>
+    <div class="callout warn"><span class="co-title">📧 On validating email addresses</span><p>That email pattern is fine for <em>finding</em> addresses in text. It is not a validator. The real specification for a valid email address is monstrous, and the standard regex that implements it is thousands of characters long. The industry answer is: check there is an @ with something either side, then send a confirmation message. That is the only real test anyway.</p></div>
+
+    <h2>Compile patterns you reuse</h2>
+    <pre class="run" data-verify="run"><code>import re
+
+pattern = re.compile(r&quot;\berror\b&quot;, re.IGNORECASE)
+
+lines = [&quot;Error: disk full&quot;, &quot;all fine&quot;, &quot;ERROR again&quot;, &quot;terrorist&quot;]
+for line in lines:
+    if pattern.search(line):
+        print(f&quot;match: {line}&quot;)</code></pre>
+<pre class="out"><code class="nohl">match: Error: disk full
+match: ERROR again</code></pre>
+    <p>
+      <code>re.compile</code> parses the pattern once instead of on every call, and gives you
+      somewhere to hang a name and a comment. <code>\b</code> is a word boundary, which is why
+      "terrorist" does not match. Flags like <code>re.IGNORECASE</code> and
+      <code>re.MULTILINE</code> go here.
+    </p>
+
+    <h2>When not to use regex</h2>
+    <ul>
+      <li><strong>Parsing HTML or XML.</strong> Use a parser. HTML is not a regular language
+      and cannot be correctly matched by a regular expression. This is a mathematical fact,
+      not an opinion.</li>
+      <li><strong>Parsing CSV.</strong> Use the <code>csv</code> module. Lesson 23 showed you
+      why.</li>
+      <li><strong>When a string method does it.</strong> <code>"x" in text</code> beats
+      <code>re.search</code> for a literal substring, and is faster and clearer.</li>
+      <li><strong>When the pattern needs a comment to be readable</strong> and you only use it
+      once. A short loop can be kinder to the next reader.</li>
+    </ul>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>Extract and total</h3><p>Pull every price out of a receipt and total them.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import re
+
+receipt = &quot;&quot;&quot;Grog        £4.50
+Rubber chicken   £12.00
+Map        £3.25
+Sword      £8.75&quot;&quot;&quot;
+
+prices = re.findall(r&quot;£(\d+\.\d{2})&quot;, receipt)
+print(prices)
+print(f&quot;Total: £{sum(float(p) for p in prices):.2f}&quot;)</code></pre>
+<pre class="out"><code class="nohl">[&#x27;4.50&#x27;, &#x27;12.00&#x27;, &#x27;3.25&#x27;, &#x27;8.75&#x27;]
+Total: £28.50</code></pre><p>The group around the number means <code>findall</code> returns just the digits, not the currency symbol. Groups control what you get back, which is half the reason to use them.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Redact sensitive data</h3><p>Replace every email address and phone number in a message with <code>[redacted]</code>, keeping everything else intact.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import re
+
+message = &quot;&quot;&quot;From: elaine@melee.gov
+Call me on 555-0199 or reach stan@usedships.example.
+The meeting is Tuesday.&quot;&quot;&quot;
+
+redacted = re.sub(r&quot;[\w.+-]+@[\w-]+\.[\w.]+&quot;, &quot;[redacted email]&quot;, message)
+redacted = re.sub(r&quot;\d{3}-\d{4}&quot;, &quot;[redacted phone]&quot;, redacted)
+
+print(redacted)</code></pre>
+<pre class="out"><code class="nohl">From: [redacted email]
+Call me on [redacted phone] or reach [redacted email]
+The meeting is Tuesday.</code></pre><p>Look closely at the second line: the full stop after <code>usedships.example</code> has vanished. The pattern ends with <code>[\w.]+</code>, which happily includes dots, so it swallowed the sentence's punctuation along with the domain.</p><p>That is greedy matching biting you in a way that is easy to miss, because the output still looks plausible. Ending the pattern with <code>[\w-]+\.[A-Za-z]{2,}</code> would stop at the top-level domain instead. Always read what a regex actually matched, not what you meant.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Parse a log file</h3><p>Turn each line of a log into a dictionary, and count how many of each level there were. Skip any line that does not match.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>import re
+from collections import Counter
+
+log = &quot;&quot;&quot;2026-08-17 09:30:00 INFO server started
+2026-08-17 09:31:12 ERROR disk full
+this line is garbage
+2026-08-17 09:31:45 WARN retrying
+2026-08-17 09:32:00 ERROR still full&quot;&quot;&quot;
+
+pattern = re.compile(
+    r&quot;(?P&lt;date&gt;\d{4}-\d{2}-\d{2}) (?P&lt;time&gt;[\d:]+) (?P&lt;level&gt;\w+) (?P&lt;message&gt;.+)&quot;
+)
+
+entries = []
+for line in log.splitlines():
+    found = pattern.match(line)
+    if found:
+        entries.append(found.groupdict())
+
+print(f&quot;{len(entries)} parsed, 1 skipped&quot;)
+for level, count in Counter(e[&quot;level&quot;] for e in entries).most_common():
+    print(f&quot;  {level:6} {count}&quot;)
+
+for entry in entries:
+    if entry[&quot;level&quot;] == &quot;ERROR&quot;:
+        print(f&quot;{entry[&#x27;time&#x27;]} {entry[&#x27;message&#x27;]}&quot;)</code></pre>
+<pre class="out"><code class="nohl">4 parsed, 1 skipped
+  ERROR  2
+  INFO   1
+  WARN   1
+09:31:12 disk full
+09:32:00 still full</code></pre><p>Silently skipping unparseable lines is a decision, not a default. In a real tool you would count them and report the number, because a log format that quietly changed is exactly the sort of thing you want to hear about.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-25-regex">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="24-dates.html"><span class="dir">← Previous</span>Lesson 24: Dates and Times</a>
+      <a class="next" href="26-venv.html"><span class="dir">Next →</span>Lesson 26: Virtual Environments and pip</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

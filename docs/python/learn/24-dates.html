@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 24: Dates and Times - The Python School</title>
+<meta name="description" content="datetime, timedelta, strftime and strptime, ISO format, and the time zone rules that keep software honest.">
+<link rel="canonical" href="https://rustyschool.com/python/learn/24-dates">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Python School">
+<meta property="og:title" content="Lesson 24: Dates and Times - The Python School">
+<meta property="og:description" content="datetime, timedelta, strftime and strptime, ISO format, and the time zone rules that keep software honest.">
+<meta property="og:url" content="https://rustyschool.com/python/learn/24-dates">
+<meta property="og:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Python School: learn Python from zero, with Monty the python mascot">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Lesson 24: Dates and Times - The Python School">
+<meta name="twitter:description" content="datetime, timedelta, strftime and strptime, ISO format, and the time zone rules that keep software honest.">
+<meta name="twitter:image" content="https://rustyschool.com/python/assets/og-image.png">
+<meta name="theme-color" content="#4584b6">
+<link rel="icon" type="image/svg+xml" href="../assets/monty.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/py.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/py.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/monty.svg" alt="Monty the python">The Python <span class="crate">School</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../setup.html">Setup Lab</a>
+      <a href="../learn/index.html">Learn</a>
+      <a href="../build/index.html">Build</a>
+      <a href="../pit.html">Snake Pit</a>
+      <a href="../playground.html">Playground</a>
+      <a href="../quiz.html">Quizzes</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Curriculum</a> · Lesson 24 of 30</nav>
+    <span class="badge l3">Level 3 · Real Programs</span>
+    <h1>Dates and Times 📅</h1>
+    <p class="lede muted">Time looks simple and is not. This lesson gives you the 90% you need and warns you
+    honestly about the 10% that has broken production systems at every company on earth.</p>
+  </section>
+
+  <div class="lesson-body">
+
+    <h2>The three types</h2>
+    <pre class="run" data-verify="run"><code>from datetime import date, time, datetime
+
+release = date(1990, 10, 15)
+opening = time(9, 30)
+launch = datetime(1990, 10, 15, 9, 30, 0)
+
+print(release)
+print(opening)
+print(launch)
+print(release.year, release.month, release.day)
+print(launch.weekday(), launch.strftime(&quot;%A&quot;))</code></pre>
+<pre class="out"><code class="nohl">1990-10-15
+09:30:00
+1990-10-15 09:30:00
+1990 10 15
+0 Monday</code></pre>
+    <p>
+      <code>date</code> is a day, <code>time</code> is a clock reading, <code>datetime</code>
+      is both. <code>weekday()</code> counts from 0 for Monday, which is one of those
+      arbitrary facts you look up forever.
+    </p>
+
+    <h2>Now</h2>
+    <pre class="run" data-verify="run"><code>from datetime import datetime, date
+
+today = date.today()
+now = datetime.now()
+
+print(type(today).__name__, type(now).__name__)
+print(now.year &gt;= 2024)</code></pre>
+<pre class="out"><code class="nohl">date datetime
+True</code></pre>
+    <p>
+      This lesson mostly uses fixed dates rather than <code>now()</code>, for the same reason
+      the school seeds its random numbers: an example whose output changes every day cannot be
+      checked. That is also excellent advice for your own code, and Lesson 29 explains why
+      testable code never calls <code>now()</code> deep inside a function.
+    </p>
+
+    <h2>Doing arithmetic with timedelta</h2>
+    <pre class="run" data-verify="run"><code>from datetime import date, timedelta
+
+release = date(1990, 10, 15)
+sequel = date(1991, 12, 20)
+
+gap = sequel - release
+print(gap)
+print(f&quot;{gap.days} days, about {gap.days / 365.25:.1f} years&quot;)
+
+print(release + timedelta(days=100))
+print(release + timedelta(weeks=52))
+print(release - timedelta(days=1))</code></pre>
+<pre class="out"><code class="nohl">431 days, 0:00:00
+431 days, about 1.2 years
+1991-01-23
+1991-10-14
+1990-10-14</code></pre>
+    <p>
+      Subtracting two dates gives a <code>timedelta</code>: a duration. Adding a
+      <code>timedelta</code> to a date gives another date, and it handles month lengths and
+      leap years for you, which is the entire reason not to do this arithmetic by hand.
+    </p>
+    <div class="callout warn"><span class="co-title">📆 There is no timedelta(months=1)</span><p>Deliberately. How long is a month? Adding one month to 31 January has no single correct answer, and different businesses want different answers. If you need calendar months, use the third-party <code>dateutil.relativedelta</code>, and decide explicitly what your rule is.</p></div>
+
+    <h2>Formatting: datetime to text</h2>
+    <pre class="run" data-verify="run"><code>from datetime import datetime
+
+launch = datetime(1990, 10, 15, 9, 5, 30)
+
+print(launch.strftime(&quot;%Y-%m-%d&quot;))
+print(launch.strftime(&quot;%d/%m/%Y&quot;))
+print(launch.strftime(&quot;%A %d %B %Y&quot;))
+print(launch.strftime(&quot;%H:%M:%S&quot;))
+print(launch.strftime(&quot;%I:%M %p&quot;))
+print(launch.strftime(&quot;Released on %B %d, %Y at %H:%M&quot;))</code></pre>
+<pre class="out"><code class="nohl">1990-10-15
+15/10/1990
+Monday 15 October 1990
+09:05:30
+09:05 AM
+Released on October 15, 1990 at 09:05</code></pre>
+    <div class="table-wrap"><table><thead><tr><th>Code</th><th>Means</th><th>Example</th></tr></thead><tbody><tr><td><code>%Y</code> / <code>%y</code></td><td>year, 4 or 2 digits</td><td>1990 / 90</td></tr><tr><td><code>%m</code> / <code>%B</code> / <code>%b</code></td><td>month number / name / short</td><td>10 / October / Oct</td></tr><tr><td><code>%d</code></td><td>day of month</td><td>15</td></tr><tr><td><code>%A</code> / <code>%a</code></td><td>weekday name / short</td><td>Monday / Mon</td></tr><tr><td><code>%H</code> / <code>%I</code></td><td>hour, 24 or 12</td><td>09 / 09</td></tr><tr><td><code>%M</code> / <code>%S</code></td><td>minute / second</td><td>05 / 30</td></tr><tr><td><code>%p</code></td><td>AM or PM</td><td>AM</td></tr></tbody></table></div>
+
+    <h2>Parsing: text to datetime</h2>
+    <pre class="run" data-verify="run"><code>from datetime import datetime, date
+
+parsed = datetime.strptime(&quot;15/10/1990&quot;, &quot;%d/%m/%Y&quot;)
+print(parsed)          # no time in the input, so midnight
+
+# ISO 8601 is the sane interchange format, and has its own shortcut
+print(date.fromisoformat(&quot;1990-10-15&quot;))
+print(datetime.fromisoformat(&quot;1990-10-15T09:30:00&quot;))
+print(date(1990, 10, 15).isoformat())
+
+try:
+    datetime.strptime(&quot;banana&quot;, &quot;%d/%m/%Y&quot;)
+except ValueError as err:
+    print(&quot;ValueError:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">1990-10-15 00:00:00
+1990-10-15
+1990-10-15 09:30:00
+1990-10-15
+ValueError: time data &#x27;banana&#x27; does not match format &#x27;%d/%m/%Y&#x27;</code></pre>
+
+    <div class="voice" data-skill="encyclopedia"><div class="v-head"><span class="v-name">ENCYCLOPEDIA</span><span class="v-check success">[Medium: Success]</span></div><p>Always store and exchange dates as ISO 8601: 1990-10-15. It sorts correctly as plain text, it is unambiguous worldwide, and it is what every database and API expects.</p>
+<p>The format 10/15/1990 versus 15/10/1990 has caused genuine medical and financial errors. On the third of April, half the world writes 03/04 and the other half writes 04/03, and neither half is warned.</p></div>
+
+    <h2>Time zones, honestly</h2>
+    <pre class="run" data-verify="run"><code>from datetime import datetime, timezone, timedelta
+
+naive = datetime(1990, 10, 15, 9, 30)
+aware = datetime(1990, 10, 15, 9, 30, tzinfo=timezone.utc)
+
+print(naive, &quot;&lt;- no idea where in the world this is&quot;)
+print(aware, &quot;&lt;- unambiguous&quot;)
+
+melee_time = timezone(timedelta(hours=-5))
+print(aware.astimezone(melee_time))
+
+# comparing the two raises, which is Python protecting you
+try:
+    print(naive &lt; aware)
+except TypeError as err:
+    print(&quot;TypeError:&quot;, err)</code></pre>
+<pre class="out"><code class="nohl">1990-10-15 09:30:00 &lt;- no idea where in the world this is
+1990-10-15 09:30:00+00:00 &lt;- unambiguous
+1990-10-15 04:30:00-05:00
+TypeError: can&#x27;t compare offset-naive and offset-aware datetimes</code></pre>
+    <p>Three rules that will save you real pain:</p>
+    <ol>
+      <li><strong>Store UTC.</strong> Always. Convert to local time only when displaying it to
+      a human.</li>
+      <li><strong>Use aware datetimes</strong> for anything that crosses a machine boundary.
+      Naive ones are fine for a stopwatch and dangerous for a calendar.</li>
+      <li><strong>Never write your own offset arithmetic.</strong> Daylight saving means some
+      local times happen twice a year and some never happen at all. Python 3.9 added
+      <code>zoneinfo</code>, which knows the real rules for every zone.</li>
+    </ol>
+    <pre class="run" data-verify="run"><code>from datetime import datetime
+from zoneinfo import ZoneInfo
+
+utc = datetime(2026, 6, 15, 12, 0, tzinfo=ZoneInfo(&quot;UTC&quot;))
+
+for zone in [&quot;Europe/London&quot;, &quot;America/New_York&quot;, &quot;Asia/Tokyo&quot;]:
+    local = utc.astimezone(ZoneInfo(zone))
+    print(f&quot;{zone:18} {local.strftime(&#x27;%Y-%m-%d %H:%M %Z&#x27;)}&quot;)</code></pre>
+<pre class="out"><code class="nohl">Europe/London      2026-06-15 13:00 BST
+America/New_York   2026-06-15 08:00 EDT
+Asia/Tokyo         2026-06-15 21:00 JST</code></pre>
+
+    <h2>Measuring how long something took</h2>
+    <pre class="run" data-verify="run"><code>import time
+
+start = time.perf_counter()
+total = sum(range(1_000_000))
+elapsed = time.perf_counter() - start
+
+print(f&quot;summed to {total:,}&quot;)
+print(f&quot;took less than a second: {elapsed &lt; 1}&quot;)</code></pre>
+<pre class="out"><code class="nohl">summed to 499,999,500,000
+took less than a second: True</code></pre>
+    <p>
+      Use <code>time.perf_counter()</code> for measuring durations, not
+      <code>datetime.now()</code>: it is monotonic, so it cannot go backwards when the system
+      clock is adjusted or the clocks change. Lesson 51 uses it properly with
+      <code>timeit</code>.
+    </p>
+
+    <div class="exercise"><span class="ex-label">Exercise 1</span><h3>How old is this?</h3><p>Write a function that takes a release date and a reference date and returns a friendly age like '35 years, 10 months'. Approximating months as 30.44 days is fine.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from datetime import date
+
+
+def age_of(released, today):
+    &quot;&quot;&quot;Return a friendly age string between two dates.&quot;&quot;&quot;
+    days = (today - released).days
+    years = days // 365
+    months = int((days % 365) / 30.44)
+    return f&quot;{years} years, {months} months&quot;
+
+
+print(age_of(date(1990, 10, 15), date(2026, 8, 17)))
+print(age_of(date(2024, 1, 1), date(2026, 8, 17)))</code></pre>
+<pre class="out"><code class="nohl">35 years, 10 months
+2 years, 7 months</code></pre><p>Approximate, and honest about it. If you need exact calendar arithmetic, that is what <code>dateutil.relativedelta</code> exists for.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 2</span><h3>Working days until</h3><p>Count the weekdays (Monday to Friday) between two dates, excluding the start and including the end.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from datetime import date, timedelta
+
+
+def working_days(start, end):
+    &quot;&quot;&quot;Count Mon-Fri days after start, up to and including end.&quot;&quot;&quot;
+    days = 0
+    current = start + timedelta(days=1)
+    while current &lt;= end:
+        if current.weekday() &lt; 5:
+            days += 1
+        current += timedelta(days=1)
+    return days
+
+
+print(working_days(date(2026, 8, 17), date(2026, 8, 31)))</code></pre>
+<pre class="out"><code class="nohl">10</code></pre><p>A loop over days is perfectly acceptable here: two weeks is fourteen iterations. If you were doing this across ten years you would want maths instead of a loop, and that is a good instinct to develop.</p></details></div>
+
+    <div class="exercise"><span class="ex-label">Exercise 3</span><h3>Parse a messy log</h3><p>These timestamps arrive in three different formats. Normalise them all to ISO and sort them chronologically.</p><details class="solution"><summary>Reveal solution</summary><pre class="run" data-verify="run"><code>from datetime import datetime
+
+raw = [
+    &quot;15/10/1990 09:30&quot;,
+    &quot;1991-12-20T14:00:00&quot;,
+    &quot;Jan 03 1993 18:45&quot;,
+]
+
+formats = [&quot;%d/%m/%Y %H:%M&quot;, &quot;%Y-%m-%dT%H:%M:%S&quot;, &quot;%b %d %Y %H:%M&quot;]
+
+
+def parse_any(text):
+    &quot;&quot;&quot;Try each known format until one works.&quot;&quot;&quot;
+    for fmt in formats:
+        try:
+            return datetime.strptime(text, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f&quot;no known format matches {text!r}&quot;)
+
+
+parsed = sorted(parse_any(t) for t in raw)
+for moment in parsed:
+    print(moment.isoformat())</code></pre>
+<pre class="out"><code class="nohl">1990-10-15T09:30:00
+1991-12-20T14:00:00
+1993-01-03T18:45:00</code></pre><p>Try-each-format-until-one-works is the standard approach to messy real data, and raising a clear error when nothing matches is what stops the mess spreading silently into your database.</p></details></div>
+
+
+    <button class="complete-btn" data-lesson="py-24-dates">Mark lesson complete</button>
+    <span class="xp-gain">+100 XP</span>
+
+    <div class="lesson-nav">
+      <a href="23-data-formats.html"><span class="dir">← Previous</span>Lesson 23: JSON and CSV</a>
+      <a class="next" href="25-regex.html"><span class="dir">Next →</span>Lesson 25: Regular Expressions</a>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h2>🐍 The Python School</h2>
+      <p>Learn Python from absolute zero.<br>This site is itself built by a Python
+      script you will be able to read by Level 3.</p>
+      <p class="campus-switch">Same campus as <a href="../../index.html">🦀 The Rusty School</a></p>
+    </div>
+    <div>
+      <h2>School</h2>
+      <ul>
+        <li><a href="../learn/index.html">Curriculum</a></li>
+        <li><a href="../setup.html">Set up your lab</a></li>
+        <li><a href="../quiz.html">Quizzes</a></li>
+        <li><a href="../cheatsheets.html">Cheat sheets</a></li>
+        <li><a href="../glossary.html">Glossary</a></li>
+        <li><a href="../achievements.html">Achievements</a></li>
+        <li><a href="../insults.html">Insult Compiler</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Official Python resources</h2>
+      <ul>
+        <li><a href="https://www.python.org" target="_blank" rel="noopener">python.org</a></li>
+        <li><a href="https://docs.python.org/3/tutorial/" target="_blank" rel="noopener">The official tutorial</a></li>
+        <li><a href="https://docs.python.org/3/library/" target="_blank" rel="noopener">Standard library docs</a></li>
+        <li><a href="https://peps.python.org/pep-0008/" target="_blank" rel="noopener">PEP 8 style guide</a></li>
+        <li><a href="https://pypi.org" target="_blank" rel="noopener">PyPI, the package index</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
