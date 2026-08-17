@@ -291,3 +291,13 @@ pre.repl code { color: #dbe6f0; }
   border: 1px dashed var(--border); border-radius: 999px; padding: 4px 14px;
 }
 .campus-switch a { font-weight: 700; }
+
+/* ---------- milestones & next-step, repainted ----------
+   The layout comes from the campus style.css (loaded first); these
+   rules only undo the Rust-orange specifics so the panels wear
+   Python's colours. py.css loads second, so it wins. */
+[data-theme="light"] .ns-kicker { color: var(--accent-bright); }
+.toast { display: block; }
+.ms.reached { border-color: rgba(143, 206, 95, 0.45); }
+.ms.current { border-color: var(--accent); background: rgba(69, 132, 182, 0.12); }
+[data-theme="light"] .ms.current { background: rgba(43, 110, 160, 0.08); }

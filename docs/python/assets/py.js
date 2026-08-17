@@ -428,12 +428,29 @@ _failed = not _ok
     wrap.querySelector(".xp-fill").style.width = r.pct + "%";
   }
 
-  /* ---- achievements ---- */
-  const LESSON_LEVELS = {}; // filled from window.PY_LESSONS if present
+  /* ---- achievements ----
+     Every test below reads window.PY_COURSE (assets/course.js), which
+     ships on every page. It used to read page-scoped globals such as
+     PY_LESSONS, which exist only on the curriculum page: away from that
+     one page the level achievements silently evaluated to false, and
+     because checkNewAchievements() then wrote the shrunken list back to
+     storage, already-earned achievements were re-announced later. One
+     shared index fixes the whole family of bugs. */
+  function courseLessons() {
+    return (window.PY_COURSE && window.PY_COURSE.lessons) || window.PY_LESSONS || [];
+  }
+  function quizSizes() {
+    return (window.PY_COURSE && window.PY_COURSE.quizSizes) || window.PY_QUIZ_SIZES || {};
+  }
+  function pitTotal() {
+    return (window.PY_COURSE && window.PY_COURSE.pitTotal) || window.PY_PIT_TOTAL || 0;
+  }
+  function buildTotal() {
+    return (window.PY_COURSE && window.PY_COURSE.projects.length) || window.PY_BUILD_TOTAL || 0;
+  }
 
   function lessonIdsForLevel(level) {
-    const all = window.PY_LESSONS || [];
-    return all.filter((l) => l.level === level).map((l) => l.id);
+    return courseLessons().filter((l) => l.level === level).map((l) => l.id);
   }
   function allComplete(ids) {
     if (!ids.length) return false;
@@ -468,10 +485,7 @@ _failed = not _ok
       test: () => allComplete(lessonIdsForLevel(6)) },
     { id: "graduate", icon: "🎓", name: "Graduate", xp: 400,
       how: "Complete every lesson in the school.",
-      test: () => {
-        const all = (window.PY_LESSONS || []).map((l) => l.id);
-        return allComplete(all);
-      } },
+      test: () => allComplete(courseLessons().map((l) => l.id)) },
     { id: "labrat", icon: "🧪", name: "Lab Rat", xp: 25,
       how: "Run Python in your browser at least once.",
       test: () => !!getFlags()["ran-code"] },
@@ -486,19 +500,19 @@ _failed = not _ok
       test: () => countDone("pypit-") >= 10 },
     { id: "basilisk", icon: "🏆", name: "Basilisk Slayer", xp: 200,
       how: "Solve every puzzle in the Snake Pit.",
-      test: () => window.PY_PIT_TOTAL ? countDone("pypit-") >= window.PY_PIT_TOTAL : false },
+      test: () => pitTotal() > 0 && countDone("pypit-") >= pitTotal() },
     { id: "bookworm", icon: "📚", name: "Bookworm", xp: 50,
       how: "Score full marks on any quiz.",
       test: () => {
         const best = bestScores();
-        const quizzes = window.PY_QUIZ_SIZES || {};
+        const quizzes = quizSizes();
         return Object.keys(quizzes).some((k) => best[k] === quizzes[k]);
       } },
     { id: "straightas", icon: "💯", name: "Straight A's", xp: 200,
       how: "Score full marks on every quiz.",
       test: () => {
         const best = bestScores();
-        const quizzes = window.PY_QUIZ_SIZES || {};
+        const quizzes = quizSizes();
         const keys = Object.keys(quizzes);
         return keys.length > 0 && keys.every((k) => best[k] === quizzes[k]);
       } },
@@ -507,7 +521,7 @@ _failed = not _ok
       test: () => countDone("pybuild-") > 0 },
     { id: "shipped", icon: "🚢", name: "Shipped It", xp: 300,
       how: "Finish every project in the workshop.",
-      test: () => window.PY_BUILD_TOTAL ? countDone("pybuild-") >= window.PY_BUILD_TOTAL : false },
+      test: () => buildTotal() > 0 && countDone("pybuild-") >= buildTotal() },
     { id: "bilingual", icon: "🦀", name: "Bilingual", xp: 100,
       how: "Complete lessons at both the Python School and the Rusty School.",
       test: () => {
@@ -552,6 +566,10 @@ _failed = not _ok
     el.innerHTML = '<span class="t-title"></span><span class="t-body"></span>';
     el.querySelector(".t-title").textContent = title;
     el.querySelector(".t-body").textContent = body || "";
+    // Finishing a level can earn an achievement and a milestone at the
+    // same instant. Stack them rather than letting one hide the other.
+    const stacked = document.querySelectorAll(".toast").length;
+    if (stacked) el.style.bottom = 26 + stacked * 104 + "px";
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 5200);
   }
@@ -593,6 +611,7 @@ _failed = not _ok
         render();
         renderXp();
         checkNewAchievements();
+        refreshGuidance(true);
         pushProgress();
       });
     });
@@ -683,6 +702,319 @@ _failed = not _ok
     if (count) {
       count.textContent = unlocked.size + " of " + ACHIEVEMENTS.length + " unlocked";
     }
+  }
+
+  /* ================= milestones and what to do next =================
+     Achievements are wide: twenty-one scattered rewards for doing
+     interesting things. Milestones are the opposite shape, and answer a
+     different question. They are the single road through the school,
+     and each one names what you can DO now rather than how much is
+     left. Both matter; neither replaces the other.
+
+     Alongside them sits the question beginners ask most often and
+     tutorials answer worst: what should I do next? The engine below
+     names one concrete action with a reason.
+
+     Course order comes from assets/course.js, generated by pybuild.py,
+     so this never drifts from the curriculum. */
+  function course() {
+    return window.PY_COURSE || { levels: [], lessons: [], projects: [], pitTotal: 0 };
+  }
+  function lessonsOfLevel(n) {
+    return course().lessons.filter((l) => l.level === n);
+  }
+  function countDoneIn(ids) {
+    const done = getDone();
+    return ids.filter((id) => done.has(id)).length;
+  }
+  function levelProgress(n) {
+    const ids = lessonsOfLevel(n).map((l) => l.id);
+    return [countDoneIn(ids), ids.length];
+  }
+  function lessonsDoneCount() {
+    return countDoneIn(course().lessons.map((l) => l.id));
+  }
+  function projectsDoneCount() {
+    return countDoneIn(course().projects.map((p) => p.id));
+  }
+
+  const MILESTONES = [
+    { id: "camp", icon: "🏕️", name: "Camp Struck",
+      blurb: "Base Camp done. You know what a program is, what an interpreter does, and why any of this works. No Python required.",
+      need: () => levelProgress(0) },
+    { id: "firstwords", icon: "👋", name: "First Words",
+      blurb: "You have written and run real Python. The gap between zero and one is the widest one there is, and it is behind you.",
+      need: () => [countDoneIn(["py-01-hello"]), 1] },
+    { id: "fledgling", icon: "🐣", name: "Fledgling",
+      blurb: "Values, names, decisions, loops. The whole language in miniature: you can already write programs that think.",
+      need: () => levelProgress(1) },
+    { id: "toolbox", icon: "🧰", name: "Toolbox Open",
+      blurb: "Lists, dictionaries, functions. This is the point where Python stops being a toy and starts being a superpower.",
+      need: () => levelProgress(2) },
+    { id: "builder", icon: "🔨", name: "Builder",
+      blurb: "One workshop project finished, built from a spec rather than copied. That is the cure for tutorial hell.",
+      need: () => [Math.min(projectsDoneCount(), 1), 1] },
+    { id: "pit", icon: "🐍", name: "Pit Fighter",
+      blurb: "Ten Snake Pit puzzles solved. Reading broken code is a separate skill from writing new code, and a rarer one.",
+      need: () => [Math.min(countDone("pypit-"), 10), 10] },
+    { id: "software", icon: "🛠️", name: "Software, Not Scripts",
+      blurb: "Files, errors, testing, packaging. The difference between something that ran once and something other people can use.",
+      need: () => levelProgress(3) },
+    { id: "pythonic", icon: "🎩", name: "Pythonic",
+      blurb: "Objects, generators, decorators. Your code has stopped looking like translated Java and started looking like Python.",
+      need: () => levelProgress(4) },
+    { id: "wild", icon: "🌍", name: "In the Wild",
+      blurb: "Automation, the web, data, games, hardware. You have seen what people actually build for a living.",
+      need: () => levelProgress(5) },
+    { id: "jarvis", icon: "🤖", name: "Jarvis Online",
+      blurb: "The capstone track complete: a private AI assistant you built, own, and understand end to end.",
+      need: () => levelProgress(6) },
+    { id: "shipped", icon: "🚢", name: "Shipped It",
+      blurb: "Every workshop project finished. You have a folder of programs that are yours.",
+      need: () => [projectsDoneCount(), course().projects.length] },
+    { id: "graduate", icon: "🎓", name: "Graduate",
+      blurb: "Every lesson in the school complete. Now go and teach somebody, which is the only way to find out what you really know.",
+      need: () => [lessonsDoneCount(), course().lessons.length] },
+  ];
+
+  function milestoneState() {
+    const list = MILESTONES.map((m) => {
+      const [have, total] = m.need();
+      return { m, have, total, reached: total > 0 && have >= total };
+    });
+    return {
+      list,
+      current: list.find((x) => !x.reached) || null,
+      reached: list.filter((x) => x.reached).length,
+    };
+  }
+
+  function suggestNext() {
+    const done = getDone();
+    const c = course();
+    const out = [];
+    const anyLesson = c.lessons.some((l) => done.has(l.id));
+
+    const nextLesson = c.lessons.find((l) => !done.has(l.id));
+    if (nextLesson) {
+      const lvl = c.levels[nextLesson.level] || { icon: "", name: "" };
+      out.push({
+        icon: anyLesson ? "📖" : "🚀",
+        title: nextLesson.title,
+        why: anyLesson
+          ? "The next lesson on the path, in " + lvl.icon + " " + lvl.name + "."
+          : "Everybody starts here, including people who have never opened a terminal.",
+        href: UP + nextLesson.href,
+        cta: anyLesson ? "Continue" : "Start at the beginning",
+      });
+    }
+
+    const best = bestScores();
+    for (let i = c.levels.length - 1; i >= 0; i--) {
+      const [have, total] = levelProgress(i);
+      if (total > 0 && have >= total && best[c.levels[i].quiz] === undefined) {
+        out.push({
+          icon: "🧠",
+          title: c.levels[i].name + " quiz",
+          why: "You finished the level. Ten minutes of testing yourself beats an hour of re-reading.",
+          href: UP + "quiz.html",
+          cta: "Take the quiz",
+        });
+        break;
+      }
+    }
+
+    const [l1have, l1total] = levelProgress(1);
+    if (l1total > 0 && l1have >= l1total) {
+      const nextProject = c.projects.find((p) => !done.has(p.id));
+      if (nextProject) {
+        out.push({
+          icon: "🔨",
+          title: nextProject.title,
+          why: projectsDoneCount() === 0
+            ? "Lessons teach the language. Projects teach programming. The gap between them is the whole job."
+            : "The next build in the workshop.",
+          href: UP + nextProject.href,
+          cta: "Open the spec",
+        });
+      }
+    }
+
+    if (anyLesson && countDone("pypit-") < c.pitTotal && lessonsDoneCount() >= 5) {
+      out.push({
+        icon: "🐍",
+        title: "The Snake Pit",
+        why: countDone("pypit-") === 0
+          ? "Broken and baffling programs, ranked from Egg to Basilisk. Predict, fix, and find the bug."
+          : countDone("pypit-") + " of " + c.pitTotal + " puzzles solved so far.",
+        href: UP + "pit.html",
+        cta: "Enter the pit",
+      });
+    }
+
+    if (anyLesson && !getFlags()["duel-won"]) {
+      out.push({
+        icon: "⚔️",
+        title: "The Insult Compiler",
+        why: "Error messages are the thing beginners fear most, so we turned reading them into a swordfight.",
+        href: UP + "insults.html",
+        cta: "Fight",
+      });
+    }
+
+    if (!nextLesson) {
+      out.push({
+        icon: "🦀",
+        title: "The Rusty School",
+        why: "You have finished Python. The sister school starts from zero again, and the contrast teaches you more about Python than another Python course would.",
+        href: campus + "index.html",
+        cta: "Visit the Rusty School",
+      });
+    }
+
+    return out;
+  }
+
+  function renderMilestones(mount) {
+    const state = milestoneState();
+    mount.innerHTML = "";
+    const head = document.createElement("div");
+    head.className = "ms-head";
+    head.innerHTML = "<h2>Milestones</h2><span class='ms-count'></span>";
+    head.querySelector(".ms-count").textContent =
+      state.reached + " of " + MILESTONES.length + " reached";
+    mount.appendChild(head);
+
+    const track = document.createElement("div");
+    track.className = "ms-track";
+    state.list.forEach((x) => {
+      const isCurrent = state.current === x;
+      const el = document.createElement("div");
+      el.className = "ms" + (x.reached ? " reached" : isCurrent ? " current" : " locked");
+      const icon = document.createElement("span");
+      icon.className = "ms-icon";
+      icon.textContent = x.m.icon;
+      const body = document.createElement("div");
+      body.className = "ms-body";
+      const name = document.createElement("span");
+      name.className = "ms-name";
+      name.textContent = x.m.name;
+      const meta = document.createElement("span");
+      meta.className = "ms-meta";
+      meta.textContent = x.reached ? "reached" : x.have + " of " + x.total;
+      body.appendChild(name);
+      body.appendChild(meta);
+      if (isCurrent || x.reached) {
+        const blurb = document.createElement("p");
+        blurb.className = "ms-blurb";
+        blurb.textContent = x.m.blurb;
+        body.appendChild(blurb);
+      }
+      el.appendChild(icon);
+      el.appendChild(body);
+      track.appendChild(el);
+    });
+    mount.appendChild(track);
+  }
+
+  function renderNextStep(mount) {
+    const picks = suggestNext();
+    if (!picks.length) return false;
+    const primary = picks[0];
+    mount.innerHTML = "";
+
+    const card = document.createElement("div");
+    card.className = "next-step";
+    const kicker = document.createElement("span");
+    kicker.className = "ns-kicker";
+    kicker.textContent = "What to do next";
+    card.appendChild(kicker);
+
+    const row = document.createElement("div");
+    row.className = "ns-row";
+    const icon = document.createElement("span");
+    icon.className = "ns-icon";
+    icon.textContent = primary.icon;
+    const text = document.createElement("div");
+    text.className = "ns-text";
+    const h3 = document.createElement("h3");
+    h3.textContent = primary.title;
+    const why = document.createElement("p");
+    why.textContent = primary.why;
+    text.appendChild(h3);
+    text.appendChild(why);
+    const go = document.createElement("a");
+    go.className = "btn btn-primary btn-small";
+    go.href = primary.href;
+    go.textContent = primary.cta + " →";
+    row.appendChild(icon);
+    row.appendChild(text);
+    row.appendChild(go);
+    card.appendChild(row);
+
+    if (picks.length > 1) {
+      const also = document.createElement("div");
+      also.className = "ns-also";
+      also.appendChild(document.createTextNode("Or: "));
+      picks.slice(1, 3).forEach((s, i) => {
+        if (i) also.appendChild(document.createTextNode(" · "));
+        const a = document.createElement("a");
+        a.href = s.href;
+        a.textContent = s.icon + " " + s.title;
+        also.appendChild(a);
+      });
+      card.appendChild(also);
+    }
+
+    mount.appendChild(card);
+    return true;
+  }
+
+  function checkMilestones(announce) {
+    const now = milestoneState().list.filter((x) => x.reached).map((x) => x.m.id);
+    let seen;
+    try { seen = JSON.parse(localStorage.getItem("py-milestones") || "[]"); }
+    catch { seen = []; }
+    const fresh = now.filter((id) => !seen.includes(id));
+    localStorage.setItem("py-milestones", JSON.stringify(now));
+    if (announce && fresh.length) {
+      const m = MILESTONES.find((x) => x.id === fresh[0]);
+      toast("🏁 Milestone reached: " + m.icon + " " + m.name, m.blurb);
+    }
+  }
+
+  function refreshGuidance(announce) {
+    const msMount = document.getElementById("milestones");
+    if (msMount) renderMilestones(msMount);
+    const nsMount = document.getElementById("next-step");
+    if (nsMount) renderNextStep(nsMount);
+    const cont = document.getElementById("continue");
+    if (cont) {
+      const started = lessonsDoneCount() > 0 || projectsDoneCount() > 0 ||
+                      countDone("pypit-") > 0;
+      const body = cont.querySelector(".continue-body");
+      if (started && body && renderNextStep(body)) cont.hidden = false;
+      else cont.hidden = true;
+    }
+    checkMilestones(announce);
+  }
+
+  function initGuidance() {
+    const wrap = document.querySelector(".progress-wrap");
+    if (wrap && !document.getElementById("next-step")) {
+      const ns = document.createElement("div");
+      ns.id = "next-step";
+      wrap.insertAdjacentElement("afterend", ns);
+      // The milestone spine belongs to the curriculum. The workshop and
+      // the pit already have their own progress shapes.
+      if (/\/python\/learn\//.test(location.pathname)) {
+        const ms = document.createElement("section");
+        ms.id = "milestones";
+        ms.className = "section ms-section";
+        ns.insertAdjacentElement("afterend", ms);
+      }
+    }
+    refreshGuidance(false);
   }
 
   /* ================= quiz engine ================= */
@@ -924,6 +1256,7 @@ _failed = not _ok
           checkNewAchievements();
           pushProgress();
           refreshPit();
+          refreshGuidance(true);
         });
         actions.appendChild(solved);
         card.appendChild(actions);
@@ -1279,6 +1612,7 @@ _failed = not _ok
     await syncProgress(1500);
     initProgress();
     renderXp();
+    initGuidance();
     initAchievements();
     initQuizzes();
     initDuel();

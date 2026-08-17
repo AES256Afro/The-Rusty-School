@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="../assets/style.css">
 <link rel="stylesheet" href="assets/py.css">
 <script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="assets/course.js"></script>
 <script defer src="assets/py.js"></script>
 </head>
 <body>
@@ -81,6 +82,18 @@
       <div class="hero-art">
         <img src="assets/monty.svg" alt="Monty, a friendly coiled python">
       </div>
+    </div>
+  </section>
+
+  <!-- Hidden for first-time visitors. py.js unhides it and fills in the
+       next step once there is any progress to pick up from. -->
+  <section class="section" id="continue" hidden>
+    <div class="container">
+      <div class="section-head">
+        <span class="kicker">Welcome back</span>
+        <h2>Pick up where you left off</h2>
+      </div>
+      <div class="continue-body"></div>
     </div>
   </section>
 
