@@ -142,6 +142,13 @@ p { margin: 0.8em 0; }
 }
 .main-nav a:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
 .main-nav a.active { color: var(--accent-bright); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+/* campus cross-link in the nav (Rust <-> Python), a subtle pill so the
+   sister school is visible on every page without shouting */
+.main-nav a.nav-campus {
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface-2);
+}
+.main-nav a.nav-campus:hover { border-color: var(--accent); background: var(--surface); }
 .theme-toggle {
   background: var(--surface-2); color: var(--text);
   border: 1px solid var(--border); border-radius: 50%;
@@ -222,6 +229,30 @@ p { margin: 0.8em 0; }
 .card .emoji { font-size: 1.7rem; display: block; margin-bottom: 6px; }
 a.card { display: block; color: var(--text); }
 a.card:hover { text-decoration: none; border-color: var(--accent); transform: translateY(-2px); }
+
+/* the two-school campus cards on the home page */
+.school-card {
+  position: relative; padding: 26px 28px; overflow: hidden;
+  border-width: 1px; border-style: solid;
+}
+.school-card .school-mascot {
+  width: 66px; height: 46px; object-fit: contain; display: block; margin-bottom: 10px;
+}
+.school-card h3 { font-size: 1.35rem; margin: 0 0 8px; }
+.school-card p { font-size: 0.98rem; color: var(--text-muted); }
+.school-card .school-go {
+  display: inline-block; margin-top: 14px; font-weight: 800; color: var(--accent-bright);
+}
+.school-card.rust:hover { border-color: #f74c00; }
+.school-card.python { }
+.school-card.python:hover { border-color: #4584b6; }
+.school-card.python .school-go { color: #4584b6; }
+[data-theme="light"] .school-card.python .school-go { color: #1c5f92; }
+.school-card::after {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 4px;
+}
+.school-card.rust::after { background: linear-gradient(90deg, #f74c00, #ffb454); }
+.school-card.python::after { background: linear-gradient(90deg, #4584b6, #ffde57); }
 
 /* showcase logos/names */
 .chip-row { display: flex; flex-wrap: wrap; gap: 9px; margin: 10px 0; }

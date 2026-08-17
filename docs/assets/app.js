@@ -75,6 +75,15 @@
       acct.textContent = "Account";
       nav.insertBefore(acct, nav.querySelector(".theme-toggle"));
     }
+    // Campus cross-link: a Python School link on every Rust page, so the
+    // second school is discoverable everywhere, not just on the home page.
+    if (nav && !nav.querySelector('a[href*="python/"]')) {
+      const py = document.createElement("a");
+      py.href = prefix + "python/index.html";
+      py.textContent = "🐍 Python";
+      py.className = "nav-campus";
+      nav.insertBefore(py, nav.querySelector(".theme-toggle"));
+    }
     const footList = document.querySelector(".site-footer .cols ul");
     if (footList && !footList.querySelector('a[href$="glossary.html"]')) {
       const li = document.createElement("li");
