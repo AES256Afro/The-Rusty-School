@@ -771,6 +771,11 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://rustyschool.com/bridge/crew</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://rustyschool.com/bridge/s1/01-long-cold-cup</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -811,8 +816,83 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://rustyschool.com/bridge/crew</loc>
+    <loc>https://rustyschool.com/bridge/s2/09-the-manifest</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s2/10-hottest-reading</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s2/11-signal-cleanup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s2/12-duplicate-requisitions</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s2/13-countdown</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s2/14-most-requested</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s2/15-smoothing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s2/16-diagnostic-sweep</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/17-crew-directory</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/18-parsing-the-log</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/19-reconciliation</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/20-coordinates</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/21-duty-roster</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/22-overlapping-watches</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/23-heading-validation</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://rustyschool.com/bridge/s3/24-transporter-safety</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

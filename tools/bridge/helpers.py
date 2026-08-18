@@ -86,16 +86,20 @@ fn __report(i: usize, ok: bool, detail: String) {
 '''
 
 
-def rs_cases(fn: str, cases: list, check: str = "got == want") -> str:
+def rs_cases(fn: str, cases: list, check: str = "got == want",
+             want_ty: str | None = None) -> str:
     """Checker that calls `fn(args...)` per case, in Rust.
 
     cases: [(["arg1_src", "arg2_src"], "want_src"), ...] where every element
            is Rust SOURCE, so "61", "\\"too cold\\"", "vec![1, 2]" all work.
     check: a Rust boolean expression over `got` and `want`.
            For f64 use "(got - want).abs() < 1e-6".
+    want_ty: an explicit type for `want`, needed when a bare literal such
+           as `None` or `Some((12.5, -3.25))` cannot be inferred on its own.
     A panic inside the learner's function is caught and reported rather
     than taking every later objective down with it.
     """
+    ty = f": {want_ty}" if want_ty else ""
     blocks = []
     for i, (args, want) in enumerate(cases):
         call = f"{fn}({', '.join(args)})"
@@ -104,7 +108,7 @@ def rs_cases(fn: str, cases: list, check: str = "got == want") -> str:
         blocks.append(f'''
     match std::panic::catch_unwind(|| {call}) {{
         Ok(got) => {{
-            let want = {want};
+            let want{ty} = {want};
             let ok = {check};
             __report({i}, ok, __short(format!("{{}} returned {{:?}}, wanted {{:?}}", {call_lit}, got, want)));
         }}

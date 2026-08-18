@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ration Arithmetic - The Bridge</title>
-<meta name="description" content="How many days of food are aboard? The answer the computer gives is a fraction, and nobody eats a fraction of a day.">
-<link rel="canonical" href="https://rustyschool.com/bridge/s1/08-ration-arithmetic">
+<title>Overlapping Watches - The Bridge</title>
+<meta name="description" content="Two stardate ranges. Do they overlap? The answer at the exact edge has caused an argument.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s3/22-overlapping-watches">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Rusty School">
-<meta property="og:title" content="Ration Arithmetic - The Bridge">
-<meta property="og:description" content="How many days of food are aboard? The answer the computer gives is a fraction, and nobody eats a fraction of a day.">
-<meta property="og:url" content="https://rustyschool.com/bridge/s1/08-ration-arithmetic">
+<meta property="og:title" content="Overlapping Watches - The Bridge">
+<meta property="og:description" content="Two stardate ranges. Do they overlap? The answer at the exact edge has caused an argument.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s3/22-overlapping-watches">
 <meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Ration Arithmetic - The Bridge">
-<meta name="twitter:description" content="How many days of food are aboard? The answer the computer gives is a fraction, and nobody eats a fraction of a day.">
+<meta name="twitter:title" content="Overlapping Watches - The Bridge">
+<meta name="twitter:description" content="Two stardate ranges. Do they overlap? The answer at the exact edge has caused an argument.">
 <meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
 <meta name="theme-color" content="#f74c00">
 <link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
@@ -47,24 +47,24 @@
 <main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
-      Season 1, Shakedown Cruise</nav>
-    <span class="badge station station-ops">📦 Ops</span>
-    <h1>Ration Arithmetic</h1>
-    <p class="stardate muted small">Stardate 55114.9 · UES Magnanimous</p>
+      Season 3, First Contact</nav>
+    <span class="badge station station-science">🔬 Science</span>
+    <h1>Overlapping Watches</h1>
+    <p class="stardate muted small">Stardate 55138.8 · UES Magnanimous</p>
   </section>
 
   <div class="mission-body">
     <section class="briefing">
       <h2>Briefing</h2>
 
-<p>Each ration crate feeds forty person-days: one person for forty days, forty people
-for one day, or any arrangement in between. The Captain has asked how long the current
-stores will last, and the computer has answered <em>"9.756 days"</em>. The Captain does
-not want the point seven five six. The Captain wants to know whether to order more.</p>
+<p>To line up the other ship's log with ours, Lt. Skree needs to know whether two
+stardate ranges overlap. Each range is a start and an end, and both ends are
+<em>inclusive</em>: a range from 10 to 12 includes 12.</p>
 
-<p>Chief T'Kala points out that a partial day is not a day anyone gets fed on, so the
-answer should round <em>down</em>. Ensign Tannenbaum suggested rounding to the nearest,
-"for morale". This was overruled by everyone present, including Gerald.</p>
+<p>The argument is about ranges that touch. Skree says a range ending at 12 and a range
+starting at 12 share a moment and therefore overlap. Commander Raghunathan agrees, but
+wanted it written down, because "the last time we didn't write it down, we got a
+turbolift that stops one deck short". It is written down. Touching counts.</p>
 
     </section>
 
@@ -72,11 +72,11 @@ answer should round <em>down</em>. Ensign Tannenbaum suggested rounding to the n
       <h2>Mission objectives</h2>
       <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
       <ul class="objectives" data-role="objectives">
-        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Ten crates for a crew of forty last exactly ten days</span><span class="obj-detail"></span></li>
-        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Ten crates for forty-one people: nine days, because a partial day does not count</span><span class="obj-detail"></span></li>
-        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">No crates, no days</span><span class="obj-detail"></span></li>
-        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">Seven crates for twenty people last fourteen days</span><span class="obj-detail"></span></li>
-        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">One crate for eighty people is zero whole days</span><span class="obj-detail"></span></li>
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Clearly overlapping ranges</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Clearly separate ranges</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">Ranges that touch at exactly one point overlap, because ends are inclusive</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">One range entirely inside the other</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">The same overlap in the other order</span><span class="obj-detail"></span></li>
       </ul>
     </section>
 
@@ -89,9 +89,10 @@ answer should round <em>down</em>. Ensign Tannenbaum suggested rounding to the n
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>days_of_rations(crates, crew)</code>: each crate is forty person-days.
-Return how many <strong>whole</strong> days the crew can be fed, rounding
-<strong>down</strong>. So <code>days_of_rations(10, 41)</code> is <code>9</code>.</p>
+<p>Write <code>overlaps(a, b)</code>: <code>a</code> and <code>b</code> are
+<code>(start, end)</code> tuples with <code>start &lt;= end</code>, both ends
+<strong>inclusive</strong>. Return <code>True</code> if the ranges share at least one
+point.</p>
 
       </div>
 
@@ -126,10 +127,10 @@ Return how many <strong>whole</strong> days the crew can be fed, rounding
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>days_of_rations(crates: u32, crew: u32) -&gt; u32</code>: each crate is
-forty person-days. Return how many <strong>whole</strong> days the crew can be fed,
-rounding <strong>down</strong>. So <code>days_of_rations(10, 41)</code> is
-<code>9</code>.</p>
+<p>Write <code>overlaps(a: (f64, f64), b: (f64, f64)) -&gt; bool</code>: each is
+<code>(start, end)</code> with <code>start &lt;= end</code>, both ends
+<strong>inclusive</strong>. Return <code>true</code> if the ranges share at least one
+point.</p>
 
       </div>
 
@@ -163,28 +164,26 @@ rounding <strong>down</strong>. So <code>days_of_rations(10, 41)</code> is
 
     <details class="hint">
       <summary>Ask Commander Raghunathan for a hint</summary>
-      <div class="hint-body"><p>Total person-days is crates times forty. Divide by the crew size and keep only the whole number: <code>//</code> in Python, plain <code>/</code> on integers in Rust, which already discards the remainder.</p></div>
+      <div class="hint-body"><p>Two inclusive ranges overlap when each one starts no later than the other ends: <code>a_start &lt;= b_end and b_start &lt;= a_end</code>. Getting the touching case right is a matter of <code>&lt;=</code> versus <code>&lt;</code>.</p></div>
     </details>
 
     <section class="debrief" data-role="debrief" hidden>
       <h2>Debrief</h2>
 
-<p>Nine days. The Captain has ordered more rations, and has also ordered that in future
-the computer round down before anyone gets hopeful. Chief T'Kala has entered this into
-the ship's standing orders, directly beneath the one about Gerald's watering schedule.</p>
-
-<p><strong>You have completed the shakedown cruise.</strong> Report to the mission
-board: the Science station is now open to you.</p>
+<p>The two logs line up. There is a nineteen-year gap in the middle, and on our side of
+the gap, an entry that reads <em>"pressure|flow mismatch"</em>. On theirs, the same
+entry, the same stardate, the same handwriting. Skree has removed the word "pending"
+from the file entirely.</p>
 
     </section>
 
     <div class="lesson-nav">
-      <a class="" href="../s1/07-absolute-zero.html"><span class="dir">← Previous</span>Absolute Zero, Approximately</a>
-      <a class="next" href="../s2/09-the-manifest.html"><span class="dir">Next →</span>The Manifest</a>
+      <a class="" href="../s3/21-duty-roster.html"><span class="dir">← Previous</span>The Duty Roster</a>
+      <a class="next" href="../s3/23-heading-validation.html"><span class="dir">Next →</span>Heading: Validated</a>
     </div>
   </div>
 
-<script>window.BRIDGE_MISSION = "bridge-s1m8";</script>
+<script>window.BRIDGE_MISSION = "bridge-s3m22";</script>
 
 </main>
 
