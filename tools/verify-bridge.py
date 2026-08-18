@@ -51,8 +51,10 @@ def run_python(code: str) -> str:
         f.write(code)
         path = f.name
     try:
-        p = subprocess.run([sys.executable, path], capture_output=True, text=True, timeout=60)
+        p = subprocess.run([sys.executable, path], capture_output=True, text=True, timeout=45)
         return p.stdout + p.stderr
+    except subprocess.TimeoutExpired:
+        return "__TIMEOUT__"
     finally:
         Path(path).unlink(missing_ok=True)
 
@@ -70,7 +72,10 @@ def run_rust(code: str) -> str:
         )
         if c.returncode != 0:
             return "__COMPILE_FAIL__\n" + c.stderr
-        p = subprocess.run([str(out)], capture_output=True, text=True, timeout=60)
+        try:
+            p = subprocess.run([str(out)], capture_output=True, text=True, timeout=45)
+        except subprocess.TimeoutExpired:
+            return "__TIMEOUT__"
         return p.stdout + p.stderr
 
 
@@ -95,6 +100,10 @@ def main() -> int:
                 skipped_rust = True
                 continue
             checked += 1
+            if out == "__TIMEOUT__":
+                problems += 1
+                print(f"\n{label}: the REFERENCE run timed out")
+                continue
             if out.startswith("__COMPILE_FAIL__"):
                 problems += 1
                 print(f"\n{label}: the REFERENCE does not compile")
@@ -113,6 +122,12 @@ def main() -> int:
             # 2. the stub must NOT pass everything
             out = RUNNERS[lang](m[lang + "_stub"] + "\n" + checker)
             checked += 1
+            if out == "__TIMEOUT__":
+                problems += 1
+                print(f"\n{label}: the STUB run timed out")
+                print("    The checker must guard against slow starter code, or the")
+                print("    learner's browser hangs before ARCHIE can say anything.")
+                continue
             if out.startswith("__COMPILE_FAIL__"):
                 # A stub that does not compile is a legitimate starting state.
                 continue

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shield Generator - The Bridge</title>
+<meta name="description" content="The shields need to remember how charged they are. Right now every hit is the first hit.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s4/25-shield-generator">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="The Shield Generator - The Bridge">
+<meta property="og:description" content="The shields need to remember how charged they are. Right now every hit is the first hit.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s4/25-shield-generator">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Shield Generator - The Bridge">
+<meta name="twitter:description" content="The shields need to remember how charged they are. Right now every hit is the first hit.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/bridge.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../../assets/app.js"></script>
+<script defer src="../assets/missions.js"></script>
+<script defer src="../assets/bridge.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ship.svg" alt="The UES Magnanimous">The <span class="crate">Bridge</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">The Bridge</a>
+      <a href="../../learn/index.html">🦀 Rust</a>
+      <a href="../../python/index.html">🐍 Python</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
+      Season 4, The Anomaly</nav>
+    <span class="badge station station-ops">📦 Ops</span>
+    <h1>The Shield Generator</h1>
+    <p class="stardate muted small">Stardate 55143.0 · UES Magnanimous</p>
+  </section>
+
+  <div class="mission-body">
+    <section class="briefing">
+      <h2>Briefing</h2>
+
+<p>Commander Raghunathan is back, with a copy of the other ship's computer, and the
+first thing she wants is our own shields to work properly before anyone reads it. The
+shield routine has no memory: every hit is treated as the first, so the display reads
+"98%" after ninety hits.</p>
+
+<p>Chief T'Kala wants a shield generator that <em>knows</em> its charge. It takes hits,
+which reduce it but never below zero. It recharges, but never past capacity. It reports
+a whole-number percentage, rounded down, and it can say plainly whether it is down.
+Four small behaviours, one object, and a memory.</p>
+
+    </section>
+
+    <section class="objectives-panel">
+      <h2>Mission objectives</h2>
+      <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
+      <ul class="objectives" data-role="objectives">
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">A new generator starts at full charge, 100%</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">A hit reduces the charge; two hits reduce it twice</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">Charge never drops below zero, and is_down reports it</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">Recharging never exceeds capacity</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Percent is a whole number, rounded down</span><span class="obj-detail"></span></li>
+      </ul>
+    </section>
+
+    <div class="lang-tabs" role="tablist" aria-label="Choose a language">
+      <button type="button" class="lang-tab" data-lang="py">🐍 Python</button>
+      <button type="button" class="lang-tab" data-lang="rs">🦀 Rust</button>
+    </div>
+
+    <div class="lang-panel" data-lang="py" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Write a class <code>Shields</code>:</p>
+<ul>
+  <li><code>Shields(capacity)</code> starts fully charged.</li>
+  <li><code>.hit(damage)</code> reduces the charge, never below 0.</li>
+  <li><code>.recharge(amount)</code> increases it, never above capacity.</li>
+  <li><code>.percent()</code> returns the charge as a whole-number percentage of
+    capacity, rounded down.</li>
+  <li><code>.is_down()</code> returns <code>True</code> when the charge is 0.</li>
+</ul>
+
+      </div>
+
+      <div class="console" data-lang="py">
+        <div class="console-head">
+          <span class="console-title">🐍 Python console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Python code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lang-panel" data-lang="rs" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Write a struct <code>Shields</code> with:</p>
+<ul>
+  <li><code>Shields::new(capacity: u32) -&gt; Shields</code>, fully charged.</li>
+  <li><code>fn hit(&amp;mut self, damage: u32)</code>: reduce the charge, never below 0.</li>
+  <li><code>fn recharge(&amp;mut self, amount: u32)</code>: increase it, never above capacity.</li>
+  <li><code>fn percent(&amp;self) -&gt; u32</code>: charge as a whole-number percentage,
+    rounded down.</li>
+  <li><code>fn is_down(&amp;self) -&gt; bool</code>: true when the charge is 0.</li>
+</ul>
+
+      </div>
+
+      <div class="console" data-lang="rs">
+        <div class="console-head">
+          <span class="console-title">🦀 Rust console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Rust code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="hint">
+      <summary>Ask Commander Raghunathan for a hint</summary>
+      <div class="hint-body"><p>Store the capacity and the current charge as attributes. <code>hit</code> subtracts and clamps at 0; <code>recharge</code> adds and clamps at capacity; <code>percent</code> is charge times 100, integer-divided by capacity.</p></div>
+    </details>
+
+    <section class="debrief" data-role="debrief" hidden>
+      <h2>Debrief</h2>
+
+<p>The shields remember. After ninety hits they read 10%, which is honest, and after a
+recharge they read 100% and not 140%, which is progress. Commander Raghunathan has put
+the other computer's core on the science bench and has not yet turned it on.</p>
+
+    </section>
+
+    <div class="lesson-nav">
+      <a class="" href="../s3/24-transporter-safety.html"><span class="dir">← Previous</span>Transporter Safety</a>
+      <a class="next" href="../s4/26-anomaly-readings.html"><span class="dir">Next →</span>Readings, One at a Time</a>
+    </div>
+  </div>
+
+<script>window.BRIDGE_MISSION = "bridge-s4m25";</script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>The Bridge</h4>
+      <ul>
+        <li><a href="../index.html">Mission board</a></li>
+        <li><a href="../../roadmap.html">Roadmap</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The campus</h4>
+      <ul>
+        <li><a href="../../index.html">🦀 The Rusty School</a></li>
+        <li><a href="../../python/index.html">🐍 The Python School</a></li>
+        <li><a href="../../privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The small print</h4>
+      <p class="muted small">The UES Magnanimous, her crew and ARCHIE are original to
+      this school. Starships, warp cores and away teams are stock science fiction and
+      belong to everybody.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

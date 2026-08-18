@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Warp Core Sequence - The Bridge</title>
+<meta name="description" content="Cold, warming, ready, engaged. The core must go through them in order, refuse to skip, and always be able to scram.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s5/40-warp-core-sequence">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="The Warp Core Sequence - The Bridge">
+<meta property="og:description" content="Cold, warming, ready, engaged. The core must go through them in order, refuse to skip, and always be able to scram.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s5/40-warp-core-sequence">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Warp Core Sequence - The Bridge">
+<meta name="twitter:description" content="Cold, warming, ready, engaged. The core must go through them in order, refuse to skip, and always be able to scram.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/bridge.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../../assets/app.js"></script>
+<script defer src="../assets/missions.js"></script>
+<script defer src="../assets/bridge.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ship.svg" alt="The UES Magnanimous">The <span class="crate">Bridge</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">The Bridge</a>
+      <a href="../../learn/index.html">🦀 Rust</a>
+      <a href="../../python/index.html">🐍 Python</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
+      Season 5, Deep Space</nav>
+    <span class="badge station station-engineering">⚙️ Engineering</span>
+    <h1>The Warp Core Sequence</h1>
+    <p class="stardate muted small">Stardate 55166.3 · UES Magnanimous</p>
+  </section>
+
+  <div class="mission-body">
+    <section class="briefing">
+      <h2>Briefing</h2>
+
+<p>The other Magnanimous has raised shields, and the Captain wants ours ready to move.
+The warp core has four states, cold, warming, ready and engaged, and it moves through
+them in that order and no other. You cannot engage a cold core. You cannot warm a core
+that is already engaged. And from any state whatsoever, <em>scram</em> takes it straight
+to cold, because that one is the emergency brake and it must never be refused.</p>
+
+<p>Commander Raghunathan wants each transition to say whether it happened, so the
+bridge can tell "engaged" from "you asked to engage a cold core and nothing occurred".
+An invalid transition changes nothing and says so. This is a state machine, and it is
+the shape of half of everything you will ever build: a thing with a state, and rules
+about how the state may change.</p>
+
+    </section>
+
+    <section class="objectives-panel">
+      <h2>Mission objectives</h2>
+      <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
+      <ul class="objectives" data-role="objectives">
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">A new core is cold; warm, ready, engage step through in order</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Skipping ahead is refused and changes nothing</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">Going backwards without disengage is refused</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">Disengage returns an engaged core to ready</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Scram works from every state and always lands on cold</span><span class="obj-detail"></span></li>
+      </ul>
+    </section>
+
+    <div class="lang-tabs" role="tablist" aria-label="Choose a language">
+      <button type="button" class="lang-tab" data-lang="py">🐍 Python</button>
+      <button type="button" class="lang-tab" data-lang="rs">🦀 Rust</button>
+    </div>
+
+    <div class="lang-panel" data-lang="py" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Write a class <code>WarpCore</code> with attribute <code>state</code>, one of
+<code>"cold"</code>, <code>"warming"</code>, <code>"ready"</code>, <code>"engaged"</code>,
+starting cold. Methods <code>warm()</code> (cold to warming), <code>ready()</code>
+(warming to ready), <code>engage()</code> (ready to engaged), <code>disengage()</code>
+(engaged to ready) each return <code>True</code> and change state only if the core is in
+the right starting state, otherwise return <code>False</code> and change nothing.
+<code>scram()</code> sets the state to cold from anywhere and returns <code>True</code>.</p>
+
+      </div>
+
+      <div class="console" data-lang="py">
+        <div class="console-head">
+          <span class="console-title">🐍 Python console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Python code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lang-panel" data-lang="rs" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Keep the enum as given. Write <code>WarpCore</code> with <code>WarpCore::new()</code>
+(cold), <code>fn state(&amp;self) -&gt; CoreState</code>, and methods
+<code>warm</code>, <code>ready</code>, <code>engage</code>, <code>disengage</code>, each
+<code>fn(&amp;mut self) -&gt; bool</code>: they change state and return
+<code>true</code> only from the correct starting state (cold to warming, warming to
+ready, ready to engaged, engaged to ready), otherwise return <code>false</code> and
+change nothing. <code>scram(&amp;mut self) -&gt; bool</code> sets cold from anywhere and
+returns <code>true</code>.</p>
+
+      </div>
+
+      <div class="console" data-lang="rs">
+        <div class="console-head">
+          <span class="console-title">🦀 Rust console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Rust code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="hint">
+      <summary>Ask Commander Raghunathan for a hint</summary>
+      <div class="hint-body"><p>Store the state. Each method checks the current state, and only if the transition is allowed does it change state and return true. <code>scram</code> ignores the current state entirely. A <code>match</code> on the state per method keeps it readable.</p></div>
+    </details>
+
+    <section class="debrief" data-role="debrief" hidden>
+      <h2>Debrief</h2>
+
+<p>Cold, warming, ready. Engaged. The Captain has said "hold there", and the Maggie is
+holding, and across two kilometres of nothing the other ship is holding too. Chief
+T'Kala has moved Gerald away from the viewscreen, which she has never done before.</p>
+
+<p><strong>Deep Space is complete.</strong> Whatever happens tomorrow, the last season
+opens at Commander, and it is called Terminus.</p>
+
+    </section>
+
+    <div class="lesson-nav">
+      <a class="" href="../s5/39-the-flaky-sensor.html"><span class="dir">← Previous</span>The Flaky Sensor</a>
+      <a class="next" href="../index.html"><span class="dir">Next →</span>Mission board</a>
+    </div>
+  </div>
+
+<script>window.BRIDGE_MISSION = "bridge-s5m40";</script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>The Bridge</h4>
+      <ul>
+        <li><a href="../index.html">Mission board</a></li>
+        <li><a href="../../roadmap.html">Roadmap</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The campus</h4>
+      <ul>
+        <li><a href="../../index.html">🦀 The Rusty School</a></li>
+        <li><a href="../../python/index.html">🐍 The Python School</a></li>
+        <li><a href="../../privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The small print</h4>
+      <p class="muted small">The UES Magnanimous, her crew and ARCHIE are original to
+      this school. Starships, warp cores and away teams are stock science fiction and
+      belong to everybody.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

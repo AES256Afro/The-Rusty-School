@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Readings, One at a Time - The Bridge</title>
+<meta name="description" content="The other ship's sensor log is enormous. Lt. Skree wants to read it one value at a time, not load it all and hope.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s4/26-anomaly-readings">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="Readings, One at a Time - The Bridge">
+<meta property="og:description" content="The other ship's sensor log is enormous. Lt. Skree wants to read it one value at a time, not load it all and hope.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s4/26-anomaly-readings">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Readings, One at a Time - The Bridge">
+<meta name="twitter:description" content="The other ship's sensor log is enormous. Lt. Skree wants to read it one value at a time, not load it all and hope.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/bridge.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../../assets/app.js"></script>
+<script defer src="../assets/missions.js"></script>
+<script defer src="../assets/bridge.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ship.svg" alt="The UES Magnanimous">The <span class="crate">Bridge</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">The Bridge</a>
+      <a href="../../learn/index.html">🦀 Rust</a>
+      <a href="../../python/index.html">🐍 Python</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
+      Season 4, The Anomaly</nav>
+    <span class="badge station station-science">🔬 Science</span>
+    <h1>Readings, One at a Time</h1>
+    <p class="stardate muted small">Stardate 55144.4 · UES Magnanimous</p>
+  </section>
+
+  <div class="mission-body">
+    <section class="briefing">
+      <h2>Briefing</h2>
+
+<p>The other Magnanimous kept everything. Its sensor log is nineteen years long and Lt.
+Skree does not want it in memory all at once; Skree wants to walk it, one reading at a
+time, stopping whenever the pattern shows up.</p>
+
+<p>Build a sequence that produces readings on demand: a start value, a step, and a count.
+It should hand out one value when asked and not before, so that asking for the first
+three of a million costs three. Skree describes this as "the difference between reading
+a book and being hit with it".</p>
+
+    </section>
+
+    <section class="objectives-panel">
+      <h2>Mission objectives</h2>
+      <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
+      <ul class="objectives" data-role="objectives">
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Produces start, start+step, ... for exactly count values</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">A count of zero produces nothing</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">It is lazy: values come one at a time on demand, not as a prebuilt list</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">The first three of a million cost three</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">It composes: the values can be doubled with a standard adaptor</span><span class="obj-detail"></span></li>
+      </ul>
+    </section>
+
+    <div class="lang-tabs" role="tablist" aria-label="Choose a language">
+      <button type="button" class="lang-tab" data-lang="py">🐍 Python</button>
+      <button type="button" class="lang-tab" data-lang="rs">🦀 Rust</button>
+    </div>
+
+    <div class="lang-panel" data-lang="py" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Write <code>readings(start, step, count)</code> as a <strong>generator</strong>: it
+yields <code>start</code>, then <code>start + step</code>, and so on, for exactly
+<code>count</code> values. It must be lazy: a generator object, not a list.</p>
+
+      </div>
+
+      <div class="console" data-lang="py">
+        <div class="console-head">
+          <span class="console-title">🐍 Python console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Python code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lang-panel" data-lang="rs" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Keep the struct as given and implement <code>Iterator</code> for it, so that
+<code>Readings::new(start, step, count)</code> yields <code>start</code>, then
+<code>start + step</code>, and so on, for exactly <code>count</code> values, then
+<code>None</code>. Because it is a real iterator, <code>.take()</code>, <code>.map()</code>
+and <code>.collect()</code> all work on it for free.</p>
+
+      </div>
+
+      <div class="console" data-lang="rs">
+        <div class="console-head">
+          <span class="console-title">🦀 Rust console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Rust code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="hint">
+      <summary>Ask Commander Raghunathan for a hint</summary>
+      <div class="hint-body"><p>Python: <code>yield</code> inside a loop makes a generator, and generators are lazy by nature. Rust: a struct holding <code>current</code>, <code>step</code> and <code>remaining</code>, and <code>impl Iterator</code> with a <code>next</code> that returns <code>None</code> when nothing remains.</p></div>
+    </details>
+
+    <section class="debrief" data-role="debrief" hidden>
+      <h2>Debrief</h2>
+
+<p>Skree is walking the other ship's log. So far it is identical to ours, entry for
+entry, up to a stardate nineteen years ago. Skree has asked for the next reading. Then
+the next. Skree has stopped saying "hm" and started writing things down.</p>
+
+    </section>
+
+    <div class="lesson-nav">
+      <a class="" href="../s4/25-shield-generator.html"><span class="dir">← Previous</span>The Shield Generator</a>
+      <a class="next" href="../s4/27-errors-with-names.html"><span class="dir">Next →</span>Errors With Names</a>
+    </div>
+  </div>
+
+<script>window.BRIDGE_MISSION = "bridge-s4m26";</script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>The Bridge</h4>
+      <ul>
+        <li><a href="../index.html">Mission board</a></li>
+        <li><a href="../../roadmap.html">Roadmap</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The campus</h4>
+      <ul>
+        <li><a href="../../index.html">🦀 The Rusty School</a></li>
+        <li><a href="../../python/index.html">🐍 The Python School</a></li>
+        <li><a href="../../privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The small print</h4>
+      <p class="muted small">The UES Magnanimous, her crew and ARCHIE are original to
+      this school. Starships, warp cores and away teams are stock science fiction and
+      belong to everybody.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

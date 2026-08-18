@@ -323,3 +323,37 @@
 .toast .t-title { font-weight: 700; }
 .toast .t-body { color: var(--muted); font-size: 0.9rem; }
 @keyframes toast-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- Red Alert ---------- */
+.red-alert-offer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 22px 0 -10px;
+}
+.badge.red-cleared { background: #6b2230; color: #ffd6dd; }
+:root[data-theme="light"] .badge.red-cleared { background: #fad7de; color: #571a26; }
+
+.red-alert {
+  position: sticky;
+  top: 66px;
+  z-index: 20;
+  margin: 0 0 22px;
+  padding: 12px 16px;
+  border: 2px solid var(--fail);
+  border-radius: 12px;
+  background: var(--surface);
+  animation: ra-pulse 1.6s ease-in-out infinite;
+}
+@keyframes ra-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(209, 59, 59, 0.0); }
+  50% { box-shadow: 0 0 0 6px rgba(209, 59, 59, 0.18); }
+}
+@media (prefers-reduced-motion: reduce) { .red-alert { animation: none; } }
+.ra-head { display: flex; justify-content: space-between; align-items: baseline; }
+.ra-title { font-weight: 800; letter-spacing: 0.08em; color: var(--fail); }
+.ra-time { font-family: var(--mono, ui-monospace, monospace); font-weight: 700; font-size: 1.1rem; }
+.ra-bar { height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin: 8px 0; }
+.ra-fill { height: 100%; background: var(--fail); transition: width 0.5s linear; }
+.ra-line { margin: 4px 0 8px; font-size: 0.92rem; }

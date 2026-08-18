@@ -75,6 +75,24 @@ _FAILED = _Failed()
 ''' + body
 
 
+def py_async(body: str) -> str:
+    """A hand-written checker whose work lives in `async def _archie_main()`.
+
+    Locally (plain CPython, no running loop) it is run with asyncio.run().
+    In the browser, Pyodide's event loop is already running and would refuse
+    that, so the coroutine is handed back in _archie_pending and the harness
+    awaits it at top level. `body` must define _archie_main.
+    """
+    return py_custom(body) + '''
+
+import asyncio as _asyncio, sys as _sys
+if _sys.platform == "emscripten":
+    _archie_pending = _archie_main()
+else:
+    _asyncio.run(_archie_main())
+'''
+
+
 # -------------------------------------------------------------- Rust
 RS_PRELUDE = '''
 fn __short(s: String) -> String {

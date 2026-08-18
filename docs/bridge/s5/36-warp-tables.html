@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Warp Tables - The Bridge</title>
+<meta name="description" content="The warp energy table is computed by a formula that calls itself twice. By entry forty it has called itself four hundred million times.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s5/36-warp-tables">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="The Warp Tables - The Bridge">
+<meta property="og:description" content="The warp energy table is computed by a formula that calls itself twice. By entry forty it has called itself four hundred million times.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s5/36-warp-tables">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Warp Tables - The Bridge">
+<meta name="twitter:description" content="The warp energy table is computed by a formula that calls itself twice. By entry forty it has called itself four hundred million times.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/bridge.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../../assets/app.js"></script>
+<script defer src="../assets/missions.js"></script>
+<script defer src="../assets/bridge.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ship.svg" alt="The UES Magnanimous">The <span class="crate">Bridge</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">The Bridge</a>
+      <a href="../../learn/index.html">🦀 Rust</a>
+      <a href="../../python/index.html">🐍 Python</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
+      Season 5, Deep Space</nav>
+    <span class="badge station station-engineering">⚙️ Engineering</span>
+    <h1>The Warp Tables</h1>
+    <p class="stardate muted small">Stardate 55160.1 · UES Magnanimous</p>
+  </section>
+
+  <div class="mission-body">
+    <section class="briefing">
+      <h2>Briefing</h2>
+
+<p>The energy needed for warp factor <em>n</em> is the sum of the energies for
+<em>n - 1</em> and <em>n - 2</em>, starting from 2 and 3. Ensign Tannenbaum wrote this
+down exactly as stated, as a function that calls itself twice, and it is beautiful and
+correct and for factor 40 it makes four hundred million calls. For factor 80 it would
+finish after the ship was decommissioned.</p>
+
+<p>The formula is fine. The repetition is the problem: it computes the same small values
+over and over. Remember them, or build the table from the bottom up in a loop, and
+factor 80 takes no time at all. ARCHIE will time a medium factor first and only try
+factor 80 if that was fast, because Commander Raghunathan does not want to explain a
+frozen console to the Captain again.</p>
+
+    </section>
+
+    <section class="objectives-panel">
+      <h2>Mission objectives</h2>
+      <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
+      <ul class="objectives" data-role="objectives">
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Factors 0 and 1 are 2 and 3</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Small factors match the recurrence</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">Factor 40 is 433,494,437</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">A medium factor is fast (no repeated work)</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Factor 80 is 99,194,853,094,755,497, if the medium one was fast</span><span class="obj-detail"></span></li>
+      </ul>
+    </section>
+
+    <div class="lang-tabs" role="tablist" aria-label="Choose a language">
+      <button type="button" class="lang-tab" data-lang="py">🐍 Python</button>
+      <button type="button" class="lang-tab" data-lang="rs">🦀 Rust</button>
+    </div>
+
+    <div class="lang-panel" data-lang="py" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Rewrite <code>warp_energy(n)</code> so it returns the same values as the recurrence
+(<code>warp_energy(0) == 2</code>, <code>warp_energy(1) == 3</code>, and each later
+value is the sum of the two before it) but without repeating work, so that
+<code>warp_energy(80)</code> is instant.</p>
+
+      </div>
+
+      <div class="console" data-lang="py">
+        <div class="console-head">
+          <span class="console-title">🐍 Python console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Python code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lang-panel" data-lang="rs" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Rewrite <code>warp_energy(n: u32) -&gt; u64</code> so it returns the same values as
+the recurrence (<code>warp_energy(0) == 2</code>, <code>warp_energy(1) == 3</code>, and
+each later value is the sum of the two before it) but without repeating work, so that
+<code>warp_energy(80)</code> is instant.</p>
+
+      </div>
+
+      <div class="console" data-lang="rs">
+        <div class="console-head">
+          <span class="console-title">🦀 Rust console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Rust code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="hint">
+      <summary>Ask Commander Raghunathan for a hint</summary>
+      <div class="hint-body"><p>Either build up from the bottom in a loop, keeping the last two values, or cache results in a dictionary or map so each factor is computed once. Python's <code>functools.lru_cache</code> is a one-line version of the second.</p></div>
+    </details>
+
+    <section class="debrief" data-role="debrief" hidden>
+      <h2>Debrief</h2>
+
+<p>Factor 80 in a millisecond. Ensign Tannenbaum has asked why the slow version was
+wrong if it gave the right answer, and Commander Raghunathan has told him it was not
+wrong, it was <em>late</em>, and that in Engineering those are the same thing. He has
+written that down. It is the first thing he has written down all season.</p>
+
+    </section>
+
+    <div class="lesson-nav">
+      <a class="" href="../s5/35-the-slow-lookup.html"><span class="dir">← Previous</span>The Slow Lookup</a>
+      <a class="next" href="../s5/37-reading-the-traceback.html"><span class="dir">Next →</span>Reading the Traceback</a>
+    </div>
+  </div>
+
+<script>window.BRIDGE_MISSION = "bridge-s5m36";</script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>The Bridge</h4>
+      <ul>
+        <li><a href="../index.html">Mission board</a></li>
+        <li><a href="../../roadmap.html">Roadmap</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The campus</h4>
+      <ul>
+        <li><a href="../../index.html">🦀 The Rusty School</a></li>
+        <li><a href="../../python/index.html">🐍 The Python School</a></li>
+        <li><a href="../../privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The small print</h4>
+      <p class="muted small">The UES Magnanimous, her crew and ARCHIE are original to
+      this school. Starships, warp cores and away teams are stock science fiction and
+      belong to everybody.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

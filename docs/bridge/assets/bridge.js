@@ -103,6 +103,7 @@ _saved_out, _saved_err = sys.stdout, sys.stderr
 sys.stdout = _buf
 sys.stderr = _buf
 _setup_error = ""
+_archie_pending = None
 
 try:
     exec(compile(_user_code, "your_console.py", "exec"), globals())
@@ -118,6 +119,15 @@ else:
         exec(compile(_checker_code, "archie_checker.py", "exec"), globals())
     except BaseException as _e:
         _setup_error = "The checker could not run: " + repr(_e)
+
+# Concurrency missions hand back a coroutine instead of running it, because
+# the browser's event loop is already running and asyncio.run() would
+# refuse. Await it here, at the top level, where Pyodide allows it.
+if not _setup_error and _archie_pending is not None:
+    try:
+        await _archie_pending
+    except BaseException as _e:
+        _setup_error = "The checker could not finish: " + repr(_e)
 
 sys.stdout, sys.stderr = _saved_out, _saved_err
 _output = _buf.getvalue()
@@ -284,6 +294,31 @@ _output = _buf.getvalue()
 
     showLang(active);
     renderMissionState(missionId, objectivesEl, debriefEl);
+
+    // Red Alert: offered once you hold the rank, never required.
+    const state = campaignState();
+    const missionBody = document.querySelector(".mission-body");
+    if (state.cleared >= RED_ALERT_RANK && missionBody) {
+      const bar = document.createElement("div");
+      bar.className = "red-alert-offer";
+      bar.innerHTML =
+        '<button type="button" class="btn btn-ghost btn-small" data-role="ra-start">🚨 Run this under Red Alert</button>' +
+        '<span class="muted small">Five minutes on the clock, ARCHIE narrating the hull. Optional, always.</span>';
+      document.querySelector(".lang-tabs").insertAdjacentElement("beforebegin", bar);
+      bar.querySelector('[data-role="ra-start"]').addEventListener("click", () => {
+        startRedAlert(missionBody, () => {
+          toast("Time. The hull held, barely.", "Red Alert stands down. Try again whenever you like.");
+        });
+        bar.hidden = true;
+      });
+      const done = getDone();
+      if (done.has(missionId + "-py-red") || done.has(missionId + "-rs-red")) {
+        const badge = document.createElement("span");
+        badge.className = "badge red-cleared";
+        badge.textContent = "🚨 cleared under Red Alert";
+        bar.appendChild(badge);
+      }
+    }
   }
 
   function reportSetupFailure(archie, message, lang) {
@@ -347,6 +382,24 @@ _output = _buf.getvalue()
       if (debriefEl) debriefEl.hidden = false;
       if (firstTime) confetti();
       renderMissionState(missionId, objectivesEl, debriefEl);
+      if (redAlertActive()) {
+        const hull = redAlertHullPercent();
+        stopRedAlert();
+        markCleared(missionId + "-" + lang + "-red");
+        setTimeout(() => toast("🚨 Red Alert cleared at hull " + hull + "%",
+          hull > 50 ? "Comfortably. ARCHIE has logged it as 'unremarkable', which is his highest praise."
+                    : "Barely. Chief T'Kala is putting Gerald back."), 400);
+        const offer = document.querySelector(".red-alert-offer");
+        if (offer) {
+          offer.hidden = false;
+          if (!offer.querySelector(".red-cleared")) {
+            const badge = document.createElement("span");
+            badge.className = "badge red-cleared";
+            badge.textContent = "🚨 cleared under Red Alert";
+            offer.appendChild(badge);
+          }
+        }
+      }
       const after = campaignState();
       if (after.rank[0] > before[0]) {
         setTimeout(() => toast(after.rank[2] + " Promoted to " + after.rank[1],
@@ -357,12 +410,16 @@ _output = _buf.getvalue()
 
   const PASS_LINES = {
     py: [
-      "All objectives met. The replicator is behaving and the Captain is telling people about it.",
-      "Every objective passed. I have logged this as a success and Ensign Tannenbaum as a lesson.",
+      "All objectives met. I have logged this as a success and Ensign Tannenbaum as a lesson.",
+      "Every objective passed. Lt. Skree has said 'adequate', which is effusive.",
+      "All objectives met. Commander Raghunathan has sighed, but it was the good sigh.",
+      "Every objective passed. Chief T'Kala has told Gerald. Gerald seemed pleased.",
     ],
     rs: [
       "All objectives met, and it compiled, which is two achievements in one.",
       "Every objective passed. The borrow checker raised no complaint, which from it is warm praise.",
+      "All objectives met. Commander Raghunathan has asked whether it was 'the fast way'. It was.",
+      "Every objective passed. Lt. Skree has filed it under 'resolved', without the usual 'pending'.",
     ],
   };
   function pickPass(lang) {
@@ -384,6 +441,74 @@ _output = _buf.getvalue()
         t.appendChild(tick);
       }
     });
+  }
+
+  /* ================= Red Alert (optional timed mode) =================
+     Unlocked at Lieutenant JG. Same mission, on a clock, with ARCHIE
+     narrating the hull. Optional forever: timed challenges motivate some
+     people and are genuinely unpleasant for others, and nothing in the
+     main campaign is ever locked behind it. Clearing under Red Alert
+     stores an extra "-red" id; it changes nothing else. */
+  const RED_ALERT_SECONDS = 300;
+  const RED_ALERT_RANK = 14;
+  let redAlert = null;   // { deadline, timer, el }
+
+  function redAlertActive() { return !!redAlert; }
+
+  function startRedAlert(missionBody, onExpire) {
+    if (redAlert) return;
+    const el = document.createElement("div");
+    el.className = "red-alert";
+    el.setAttribute("role", "status");
+    el.innerHTML =
+      '<div class="ra-head"><span class="ra-title">🚨 RED ALERT</span>' +
+      '<span class="ra-time" data-role="ra-time">5:00</span></div>' +
+      '<div class="ra-bar"><div class="ra-fill" data-role="ra-fill" style="width:100%"></div></div>' +
+      '<p class="ra-line" data-role="ra-line">Hull integrity 100%. Clear every objective before it reaches zero.</p>' +
+      '<button type="button" class="btn btn-ghost btn-small" data-role="ra-cancel">Stand down</button>';
+    missionBody.insertAdjacentElement("afterbegin", el);
+    const deadline = Date.now() + RED_ALERT_SECONDS * 1000;
+    const timeEl = el.querySelector('[data-role="ra-time"]');
+    const fillEl = el.querySelector('[data-role="ra-fill"]');
+    const lineEl = el.querySelector('[data-role="ra-line"]');
+    const LINES = [
+      [80, "Holding. Plenty of time, in theory."],
+      [60, "Dropping. Ensign Tannenbaum has asked if he can help. He cannot."],
+      [40, "Below half. Commander Raghunathan is looking at you."],
+      [20, "Critical. The Captain would like a word afterwards, whatever happens."],
+      [0,  "Minimal. Chief T'Kala has moved Gerald."],
+    ];
+    const timer = setInterval(() => {
+      const left = Math.max(0, deadline - Date.now());
+      const pct = Math.round((left / (RED_ALERT_SECONDS * 1000)) * 100);
+      const m = Math.floor(left / 60000), sec = Math.floor((left % 60000) / 1000);
+      timeEl.textContent = m + ":" + String(sec).padStart(2, "0");
+      fillEl.style.width = pct + "%";
+      const line = LINES.find(([at]) => pct > at) || LINES[LINES.length - 1];
+      lineEl.textContent = "Hull integrity " + pct + "%. " + line[1];
+      if (left <= 0) {
+        stopRedAlert();
+        onExpire();
+      }
+    }, 500);
+    redAlert = { deadline, timer, el };
+    el.querySelector('[data-role="ra-cancel"]').addEventListener("click", () => {
+      stopRedAlert();
+      toast("Red Alert stood down", "No harm done. It is optional for a reason.");
+    });
+  }
+
+  function stopRedAlert() {
+    if (!redAlert) return;
+    clearInterval(redAlert.timer);
+    redAlert.el.remove();
+    redAlert = null;
+  }
+
+  function redAlertHullPercent() {
+    if (!redAlert) return 0;
+    const left = Math.max(0, redAlert.deadline - Date.now());
+    return Math.round((left / (RED_ALERT_SECONDS * 1000)) * 100);
   }
 
   /* ================= the campaign layer =================
@@ -451,9 +576,12 @@ _output = _buf.getvalue()
     }
     const nextEl = document.getElementById("rank-next");
     if (nextEl) {
-      nextEl.textContent = next
+      let reds = 0;
+      state.done.forEach((id) => { if (/^bridge-s\d+m\d+-(py|rs)-red$/.test(id)) reds++; });
+      const redNote = reds ? " · 🚨 " + reds + " Red Alert" + (reds === 1 ? "" : "s") + " cleared" : "";
+      nextEl.textContent = (next
         ? (next[0] - cleared) + " more to " + next[1] + " " + next[2]
-        : "Full commission. The dedication plaque has your name on it.";
+        : "Full commission. The dedication plaque has your name on it.") + redNote;
     }
   }
 
