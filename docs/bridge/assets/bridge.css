@@ -258,3 +258,68 @@
   .console-editor { min-height: 200px; font-size: 0.88rem; }
   .rank-top { flex-direction: column; gap: 4px; }
 }
+
+/* ---------- campaign layer ---------- */
+.rank-next { margin: 8px 0 0; }
+.crew-link { margin-top: 12px; }
+
+.season h2 { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.season-num {
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bridge-blue);
+  font-weight: 800;
+}
+.badge.soon { background: var(--surface-2); color: var(--muted); }
+.season-gated .grid { opacity: 0.85; }
+
+.mission-card.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+.mission-card.locked:hover { transform: none; box-shadow: none; }
+.mission-flags .flag.lock { border-color: var(--bridge-amber); color: var(--bridge-amber); }
+
+.station-list li.shut { opacity: 0.7; }
+.station-list .st-lock { float: right; }
+.station-list li.open .st-lock { color: var(--pass); }
+
+/* crew roster: unknown until met */
+.crew-card { display: grid; grid-template-columns: 3rem 1fr; gap: 14px; }
+.crew-icon { font-size: 2rem; line-height: 1; }
+.crew-card .crew-known { display: none; }
+.crew-card .crew-unknown { display: block; }
+.crew-card.met .crew-known { display: block; }
+.crew-card.met .crew-unknown { display: none; }
+.crew-card:not(.met) { border-style: dashed; }
+.crew-card:not(.met) .crew-icon { filter: grayscale(1); opacity: 0.45; }
+.crew-role { margin: 2px 0 10px; }
+.crew-quote {
+  margin: 12px 0 0;
+  padding: 8px 14px;
+  border-left: 3px solid var(--bridge-amber);
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* toasts, if the campus stylesheet has not supplied one on this page */
+.toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 60;
+  max-width: 340px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  display: grid;
+  gap: 4px;
+  animation: toast-in 0.25s ease-out;
+}
+.toast .t-title { font-weight: 700; }
+.toast .t-body { color: var(--muted); font-size: 0.9rem; }
+@keyframes toast-in { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }

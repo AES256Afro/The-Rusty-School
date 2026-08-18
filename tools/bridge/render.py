@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 from .kit import NL, SITE, esc, page
+from .crew import CREW
 from .mission_data import MISSIONS
 
 STATIONS = {
@@ -255,6 +256,66 @@ def _index() -> str:
     )
 
 
+def _crew_page() -> str:
+    cards = []
+    for c in CREW:
+        attrs = f' data-crew="{c["id"]}"'
+        if c.get("always"):
+            attrs += ' data-always="1"'
+        if c.get("unlock_id"):
+            attrs += f' data-unlock="{c["unlock_id"]}"'
+        quote = f'<blockquote class="crew-quote">{esc(c["quote"])}</blockquote>' if c["quote"] else ""
+        note = c.get("unlock_note", "Clear a mission they appear in")
+        cards.append(f"""      <article class="card crew-card"{attrs}>
+        <div class="crew-icon">{c["icon"]}</div>
+        <div class="crew-known">
+          <h3>{esc(c["name"])}</h3>
+          <p class="crew-role muted">{esc(c["role"])}</p>
+          <p>{esc(c["bio"])}</p>
+          {quote}
+        </div>
+        <div class="crew-unknown">
+          <h3>Not yet met</h3>
+          <p class="muted">{esc(note)} and this entry fills in.</p>
+        </div>
+      </article>""")
+
+    body = f"""  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="index.html">← Mission board</a></nav>
+    <span class="kicker">UES Magnanimous</span>
+    <h1>The <span class="grad">crew</span> 👩‍🚀</h1>
+    <p class="lede muted">
+      Nineteen years of service and a personnel file to match. You meet people as you
+      work with them: clear a mission somebody appears in and their entry opens up.
+      ARCHIE is always available, because ARCHIE is always available.
+    </p>
+    <p class="muted small" id="crew-count"></p>
+  </section>
+
+  <section class="section">
+    <div class="grid cols-2 crew-grid">
+{NL.join(cards)}
+    </div>
+  </section>
+
+  <div class="callout info">
+    <span class="co-title">📜 On the record</span>
+    The Magnanimous, her crew and ARCHIE are original to this school. Starships, bridge
+    stations, away teams and a literal-minded alien science officer are stock science
+    fiction, older than any one franchise and free for anyone to use. The workplace
+    comedy is a tone, not property.
+  </div>
+"""
+    return page(
+        path="bridge/crew.html",
+        title="The crew - The Bridge",
+        description="The crew of the UES Magnanimous, revealed one mission at a time.",
+        body=body,
+        canonical=SITE + "/bridge/crew",
+        main_class="container narrow",
+    )
+
+
 def _missions_js() -> str:
     """The data bridge.js runs: stubs and checkers, per language."""
     payload = {}
@@ -277,6 +338,7 @@ def _missions_js() -> str:
 
 def build() -> list[tuple[str, str]]:
     out = [("bridge/index.html", _index()),
+           ("bridge/crew.html", _crew_page()),
            ("bridge/assets/missions.js", _missions_js())]
     for i, m in enumerate(MISSIONS):
         prev = MISSIONS[i - 1] if i > 0 else None
