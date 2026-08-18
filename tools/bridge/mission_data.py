@@ -11,6 +11,6 @@ seasons that need stateful or concurrent checks write theirs by hand.
 from __future__ import annotations
 
 from .helpers import MISSIONS  # noqa: F401  (the registry the seasons fill)
-from . import s1, s2, s3, s4, s5  # noqa: F401,E402
+from . import s1, s2, s3, s4, s5, s6  # noqa: F401,E402
 
 __all__ = ["MISSIONS"]

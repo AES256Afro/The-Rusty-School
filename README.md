@@ -11,6 +11,17 @@ And yes, **the website is served by a web server written in Rust** (see
 [`src/main.rs`](src/main.rs)). The server has zero dependencies, is heavily
 commented, and doubles as the final reading exercise of the course.
 
+
+## 🖖 The Bridge
+
+A starship simulator for people learning to code, live at
+[rustyschool.com/bridge](https://rustyschool.com/bridge/). Six seasons, 44
+missions, each playable in Python and in Rust; the ship's computer runs your
+code against the mission objectives and reports which ones you met. Built by
+`tools/bridgebuild.py` from `tools/bridge/`, verified by
+`tools/verify-bridge.py` (every reference passes, every stub fails, nothing
+hangs). Design in [BRIDGE.md](BRIDGE.md).
+
 ## Quick start
 
 1. [Install Rust](https://rustup.rs) (the site's *Setup* page walks you through it

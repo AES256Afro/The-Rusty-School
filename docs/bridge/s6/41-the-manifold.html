@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Manifold - The Bridge</title>
+<meta name="description" content="Tomorrow's stardate is in both logs. The other ship's release notes say what fixed it. Now write the fix.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s6/41-the-manifold">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="The Manifold - The Bridge">
+<meta property="og:description" content="Tomorrow's stardate is in both logs. The other ship's release notes say what fixed it. Now write the fix.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s6/41-the-manifold">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Manifold - The Bridge">
+<meta name="twitter:description" content="Tomorrow's stardate is in both logs. The other ship's release notes say what fixed it. Now write the fix.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
+<link rel="stylesheet" href="../../assets/style.css">
+<link rel="stylesheet" href="../assets/bridge.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../../assets/app.js"></script>
+<script defer src="../assets/missions.js"></script>
+<script defer src="../assets/bridge.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="../index.html"><img src="../assets/ship.svg" alt="The UES Magnanimous">The <span class="crate">Bridge</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="../index.html">The Bridge</a>
+      <a href="../../learn/index.html">🦀 Rust</a>
+      <a href="../../python/index.html">🐍 Python</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container narrow">
+  <section class="lesson-header">
+    <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
+      Season 6, Terminus</nav>
+    <span class="badge station station-engineering">⚙️ Engineering</span>
+    <h1>The Manifold</h1>
+    <p class="stardate muted small">Stardate 55168.0 · UES Magnanimous</p>
+  </section>
+
+  <div class="mission-body">
+    <section class="briefing">
+      <h2>Briefing</h2>
+
+<p>Commander Raghunathan has read the other ship's release notes for version 1.10.3
+eleven times and has finally said it out loud: <em>pressure|flow mismatch</em> is the
+plasma manifold. It is the fault behind the incident nobody talks about, and it is
+scheduled, according to both logs, for tomorrow. The other Magnanimous did not have the
+fix in time. It has brought it back.</p>
+
+<p>The fix is a validator. Flow through the manifold should track pressure: the expected
+flow is four times the square root of the pressure, and a reading whose flow is more than
+ten percent off that expectation is a mismatch. One mismatch is noise. Two are a
+warning. Three in a row is the incident, and the core must be told before it happens.
+This is three functions, eight objectives, and the reason the other ship came. Ensign
+Tannenbaum has asked to help and, for the first time, been told yes.</p>
+
+    </section>
+
+    <section class="objectives-panel">
+      <h2>Mission objectives</h2>
+      <p class="muted small">ARCHIE checks all eight every time you run diagnostics.</p>
+      <ul class="objectives" data-role="objectives">
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">expected_flow: four times the square root of pressure, to two places</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">is_mismatch: a flow more than ten percent off expectation</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">is_mismatch: exactly ten percent off is not a mismatch</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">mismatches: the indices of every mismatched reading</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">mismatches: no readings, no indices</span><span class="obj-detail"></span></li>
+        <li data-obj="5"><span class="obj-state">•</span><span class="obj-label">status: 'nominal' when nothing is wrong</span><span class="obj-detail"></span></li>
+        <li data-obj="6"><span class="obj-state">•</span><span class="obj-label">status: 'mismatch at N readings' otherwise</span><span class="obj-detail"></span></li>
+        <li data-obj="7"><span class="obj-state">•</span><span class="obj-label">status: 'critical' when three or more mismatches are consecutive</span><span class="obj-detail"></span></li>
+      </ul>
+    </section>
+
+    <div class="lang-tabs" role="tablist" aria-label="Choose a language">
+      <button type="button" class="lang-tab" data-lang="py">🐍 Python</button>
+      <button type="button" class="lang-tab" data-lang="rs">🦀 Rust</button>
+    </div>
+
+    <div class="lang-panel" data-lang="py" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Three functions:</p>
+<ul>
+  <li><code>expected_flow(pressure)</code>: <code>4 * sqrt(pressure)</code>, rounded to two
+    decimal places.</li>
+  <li><code>is_mismatch(pressure, flow)</code>: <code>True</code> if <code>flow</code>
+    differs from the (unrounded) expected flow by <strong>more than</strong> ten percent
+    of the expected flow.</li>
+  <li><code>mismatches(readings)</code>: <code>readings</code> is a list of
+    <code>(pressure, flow)</code> tuples; return the list of indices that mismatch.</li>
+  <li><code>status(readings)</code>: <code>"nominal"</code> if none mismatch;
+    <code>"critical"</code> if three or more mismatched indices are consecutive; otherwise
+    <code>"mismatch at N readings"</code> with N the count.</li>
+</ul>
+
+      </div>
+
+      <div class="console" data-lang="py">
+        <div class="console-head">
+          <span class="console-title">🐍 Python console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Python code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lang-panel" data-lang="rs" hidden>
+      <div class="objective-spec">
+        <h3>Objective</h3>
+
+<p>Four functions:</p>
+<ul>
+  <li><code>expected_flow(pressure: f64) -&gt; f64</code>: <code>4 * sqrt(pressure)</code>,
+    rounded to two decimal places.</li>
+  <li><code>is_mismatch(pressure: f64, flow: f64) -&gt; bool</code>: true if
+    <code>flow</code> differs from the (unrounded) expected flow by <strong>more
+    than</strong> ten percent of it.</li>
+  <li><code>mismatches(readings: &amp;[(f64, f64)]) -&gt; Vec&lt;usize&gt;</code>: the
+    indices of readings that mismatch.</li>
+  <li><code>status(readings: &amp;[(f64, f64)]) -&gt; String</code>: <code>"nominal"</code>
+    if none; <code>"critical"</code> if three or more mismatched indices are consecutive;
+    otherwise <code>"mismatch at N readings"</code>.</li>
+</ul>
+
+      </div>
+
+      <div class="console" data-lang="rs">
+        <div class="console-head">
+          <span class="console-title">🦀 Rust console</span>
+          <span class="console-status" data-role="status"></span>
+        </div>
+        <textarea class="console-editor" spellcheck="false"
+          aria-label="Rust code editor for this mission"></textarea>
+        <div class="console-actions">
+          <button type="button" class="btn btn-primary btn-small" data-role="run">
+            Run Diagnostics
+          </button>
+          <button type="button" class="btn btn-ghost btn-small" data-role="reset">
+            Reset console
+          </button>
+          <span class="console-hint muted small">Ctrl/Cmd + Enter also runs</span>
+        </div>
+      </div>
+
+      <div class="archie" data-role="archie" aria-live="polite">
+        <div class="archie-head"><span class="archie-name">ARCHIE</span>
+          <span class="archie-sub muted small">ship's computer, standing by</span></div>
+        <div class="archie-body">
+          <p class="muted">Press <strong>Run Diagnostics</strong> and I will tell you
+          which objectives you actually met.</p>
+        </div>
+      </div>
+    </div>
+
+    <details class="hint">
+      <summary>Ask Commander Raghunathan for a hint</summary>
+      <div class="hint-body"><p>Build the three functions on top of each other: <code>status</code> uses <code>mismatches</code>, which uses <code>is_mismatch</code>, which uses <code>expected_flow</code>. For 'consecutive', walk the indices and count a run; reset the run whenever the gap is more than one.</p></div>
+    </details>
+
+    <section class="debrief" data-role="debrief" hidden>
+      <h2>Debrief</h2>
+
+<p>The validator is in. It flags two mismatches in the last hour of our log, neither
+consecutive. Commander Raghunathan has looked at the manifold itself, with the torch,
+and found the seal the notes describe. She has replaced it. It took four minutes. She has
+been standing next to it since.</p>
+
+    </section>
+
+    <div class="callout tip away-mission">
+      <span class="co-title">🚀 Away mission</span>
+
+<p><strong>Away mission, for your own editor:</strong> turn the validator into a real
+program. Read readings from a CSV file, one <code>pressure,flow</code> per line, print
+the status, and exit with a non-zero code on <em>critical</em> so a shell script can
+react. Then add a <code>--tolerance</code> flag with a default of 10 percent. Nothing
+here is graded; it is the point at which a browser console should make you want a real
+one.</p>
+
+    </div>
+
+    <div class="lesson-nav">
+      <a class="" href="../s5/40-warp-core-sequence.html"><span class="dir">← Previous</span>The Warp Core Sequence</a>
+      <a class="next" href="../s6/42-the-two-logs.html"><span class="dir">Next →</span>The Two Logs</a>
+    </div>
+  </div>
+
+<script>window.BRIDGE_MISSION = "bridge-s6m41";</script>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>The Bridge</h4>
+      <ul>
+        <li><a href="../index.html">Mission board</a></li>
+        <li><a href="../../roadmap.html">Roadmap</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The campus</h4>
+      <ul>
+        <li><a href="../../index.html">🦀 The Rusty School</a></li>
+        <li><a href="../../python/index.html">🐍 The Python School</a></li>
+        <li><a href="../../privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The small print</h4>
+      <p class="muted small">The UES Magnanimous, her crew and ARCHIE are original to
+      this school. Starships, warp cores and away teams are stock science fiction and
+      belong to everybody.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

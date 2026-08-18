@@ -590,6 +590,7 @@ _output = _buf.getvalue()
     const state = campaignState();
     const { done, cleared } = state;
     renderRank(state);
+    initPlaque(state);
 
     document.querySelectorAll(".mission-card[data-mission]").forEach((card) => {
       const id = card.dataset.mission;
@@ -639,6 +640,43 @@ _output = _buf.getvalue()
         if (lock) lock.textContent = "🔒 opens at " + rankNameFor(need);
       }
     });
+  }
+
+  /* ================= the dedication plaque ================= */
+  function initPlaque(state) {
+    const sec = document.getElementById("plaque");
+    if (!sec) return;
+    if (state.total === 0 || state.cleared < state.total) return;
+    sec.hidden = false;
+    const nameEl = sec.querySelector('[data-role="plaque-name"]');
+    const noteEl = sec.querySelector('[data-role="plaque-note"]');
+    const input = document.getElementById("plaque-input");
+    const save = sec.querySelector('[data-role="plaque-save"]');
+    let reds = 0;
+    state.done.forEach((id) => { if (/^bridge-s\d+m\d+-(py|rs)-red$/.test(id)) reds++; });
+    let both = 0;
+    Object.keys(state.all).forEach((id) => {
+      if (state.done.has(id + "-py") && state.done.has(id + "-rs")) both++;
+    });
+    function render() {
+      const name = localStorage.getItem("bridge-plaque-name") || "";
+      nameEl.textContent = name || "________________";
+      noteEl.textContent =
+        state.total + " missions cleared" +
+        (both ? " · " + both + " in both languages" : "") +
+        (reds ? " · " + reds + " under Red Alert" : "");
+      if (name) input.value = name;
+    }
+    save.addEventListener("click", () => {
+      const v = input.value.trim().slice(0, 40);
+      if (!v) return;
+      localStorage.setItem("bridge-plaque-name", v);
+      render();
+      confetti();
+      toast("👑 Engraved", "The Maggie has your name on her now. Gerald has been told.");
+    });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter") save.click(); });
+    render();
   }
 
   /* ================= the crew roster ================= */
