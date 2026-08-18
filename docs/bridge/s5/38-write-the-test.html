@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Transporter Safety - The Bridge</title>
-<meta name="description" content="Somebody wants to beam across to the other ship. The transporter should have opinions about that, in a specific order.">
-<link rel="canonical" href="https://rustyschool.com/bridge/s3/24-transporter-safety">
+<title>Write the Test - The Bridge</title>
+<meta name="description" content="This time you do not write the function. You write the thing that decides whether somebody else's function is right.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s5/38-write-the-test">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Rusty School">
-<meta property="og:title" content="Transporter Safety - The Bridge">
-<meta property="og:description" content="Somebody wants to beam across to the other ship. The transporter should have opinions about that, in a specific order.">
-<meta property="og:url" content="https://rustyschool.com/bridge/s3/24-transporter-safety">
+<meta property="og:title" content="Write the Test - The Bridge">
+<meta property="og:description" content="This time you do not write the function. You write the thing that decides whether somebody else's function is right.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s5/38-write-the-test">
 <meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Transporter Safety - The Bridge">
-<meta name="twitter:description" content="Somebody wants to beam across to the other ship. The transporter should have opinions about that, in a specific order.">
+<meta name="twitter:title" content="Write the Test - The Bridge">
+<meta name="twitter:description" content="This time you do not write the function. You write the thing that decides whether somebody else's function is right.">
 <meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
 <meta name="theme-color" content="#f74c00">
 <link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
@@ -47,26 +47,25 @@
 <main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
-      Season 3, First Contact</nav>
-    <span class="badge station station-tactical">🛡️ Tactical</span>
-    <h1>Transporter Safety</h1>
-    <p class="stardate muted small">Stardate 55141.5 · UES Magnanimous</p>
+      Season 5, Deep Space</nav>
+    <span class="badge station station-sickbay">🩺 Sickbay</span>
+    <h1>Write the Test</h1>
+    <p class="stardate muted small">Stardate 55163.2 · UES Magnanimous</p>
   </section>
 
   <div class="mission-body">
     <section class="briefing">
       <h2>Briefing</h2>
 
-<p>The other Magnanimous has opened a channel. There is nobody on it, only their
-computer, and their computer is asking for a technician. Commander Raghunathan has
-volunteered, and Chief T'Kala has responded by writing down, in order, every reason
-the transporter should refuse to send her.</p>
+<p>Commander Raghunathan has four implementations of the shield clamp from Season 1,
+written by four different people, and she does not want to read them. She wants a
+<em>test</em>: a function that takes a clamp implementation, tries it, and says whether
+it is correct. Then she can run it on all four and only read the ones that fail.</p>
 
-<p>Shields up: refuse, and say so, because that one kills you. Cargo over five hundred
-kilos: refuse, the pattern buffer will not hold it. Lock quality below 0.9: refuse,
-because ninety percent of a Commander is not a Commander. The transporter must give the
-<em>first</em> applicable reason in that order, or, if there is none, permit the
-transport. The Captain has asked whether "permit" means "should". It does not.</p>
+<p>A test is only worth anything if it can fail. So ARCHIE will hand your test a correct
+clamp and expect a yes, and then several broken ones, each broken in a specific way, and
+expect a no for each. If your test says yes to a broken clamp, it did not check the
+thing that was broken. That is the whole discipline of testing, in one mission.</p>
 
     </section>
 
@@ -74,11 +73,11 @@ transport. The Captain has asked whether "permit" means "should". It does not.</
       <h2>Mission objectives</h2>
       <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
       <ul class="objectives" data-role="objectives">
-        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Shields up is refused first, whatever else is true</span><span class="obj-detail"></span></li>
-        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Too heavy is refused when shields are down</span><span class="obj-detail"></span></li>
-        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">A weak lock is refused when the mass is fine</span><span class="obj-detail"></span></li>
-        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">Everything in order: permitted</span><span class="obj-detail"></span></li>
-        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Exactly 500 kilograms and a lock of exactly 0.9 are both still fine</span><span class="obj-detail"></span></li>
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Accepts a correct clamp</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Rejects a clamp with no lower bound</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">Rejects a clamp whose upper bound is off by one</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">Rejects a clamp that does nothing at all</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Accepts a second correct clamp written a different way</span><span class="obj-detail"></span></li>
       </ul>
     </section>
 
@@ -91,11 +90,10 @@ transport. The Captain has asked whether "permit" means "should". It does not.</
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>transport_refusal(shields_up, mass_kg, lock_quality)</code>. Return the
-<strong>first</strong> applicable reason as a string, checking in this order:
-<code>"shields are up"</code> if <code>shields_up</code>; <code>"too heavy"</code> if
-<code>mass_kg</code> is over 500; <code>"weak lock"</code> if <code>lock_quality</code>
-is below 0.9. If none apply, return <code>None</code>: the transport is permitted.</p>
+<p>Write <code>test_clamp(clamp)</code>: <code>clamp</code> is a function of one integer
+argument. Return <code>True</code> if it correctly clamps to 0..100 inclusive (values
+below 0 become 0, above 100 become 100, others unchanged), and <code>False</code>
+otherwise.</p>
 
       </div>
 
@@ -130,12 +128,9 @@ is below 0.9. If none apply, return <code>None</code>: the transport is permitte
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>transport_check(shields_up: bool, mass_kg: u32, lock_quality: f64) -&gt;
-Result&lt;(), &amp;'static str&gt;</code>. Return the <strong>first</strong> applicable
-refusal, checking in this order: <code>Err("shields are up")</code> if
-<code>shields_up</code>; <code>Err("too heavy")</code> if <code>mass_kg</code> is over
-500; <code>Err("weak lock")</code> if <code>lock_quality</code> is below 0.9. If none
-apply, return <code>Ok(())</code>: the transport is permitted.</p>
+<p>Write <code>test_clamp(clamp: fn(i32) -&gt; i32) -&gt; bool</code>: return
+<code>true</code> if <code>clamp</code> correctly limits values to 0..=100 (below 0
+becomes 0, above 100 becomes 100, others unchanged), and <code>false</code> otherwise.</p>
 
       </div>
 
@@ -169,29 +164,26 @@ apply, return <code>Ok(())</code>: the transport is permitted.</p>
 
     <details class="hint">
       <summary>Ask Commander Raghunathan for a hint</summary>
-      <div class="hint-body"><p>Three checks in the stated order, each returning immediately with its reason. The last objective is the boundary: 500 is not over 500, and 0.9 is not below 0.9. Python returns the reason or <code>None</code>; Rust returns a <code>Result</code> where <code>Ok(())</code> is permission.</p></div>
+      <div class="hint-body"><p>Call the clamp with a handful of chosen inputs and compare against what a correct clamp returns: something negative, zero, something in range, exactly 100, something above 100. Return whether every one matched. The inputs you choose <em>are</em> the test.</p></div>
     </details>
 
     <section class="debrief" data-role="debrief" hidden>
       <h2>Debrief</h2>
 
-<p>Shields down, 71 kilograms, lock at 0.98: permitted. Commander Raghunathan is
-standing on the other ship's transporter pad, and the first thing she has said over the
-channel is that it smells the same. The second thing is that their coffee replicator is
-working perfectly.</p>
-
-<p><strong>First Contact complete.</strong> The Anomaly is open, and it is going to be
-about what, precisely, is on the other ship's computer.</p>
+<p>Two of the four clamps failed your test. One was Ensign Tannenbaum's, which had no
+lower bound. The other was Chief T'Kala's, which returned 99 for anything over 100,
+because, she says, "nothing on this ship is ever actually at 100 percent". She has been
+asked to fix it and has said she will "think about it".</p>
 
     </section>
 
     <div class="lesson-nav">
-      <a class="" href="../s3/23-heading-validation.html"><span class="dir">← Previous</span>Heading: Validated</a>
-      <a class="next" href="../s4/25-shield-generator.html"><span class="dir">Next →</span>The Shield Generator</a>
+      <a class="" href="../s5/37-reading-the-traceback.html"><span class="dir">← Previous</span>Reading the Traceback</a>
+      <a class="next" href="../s5/39-the-flaky-sensor.html"><span class="dir">Next →</span>The Flaky Sensor</a>
     </div>
   </div>
 
-<script>window.BRIDGE_MISSION = "bridge-s3m24";</script>
+<script>window.BRIDGE_MISSION = "bridge-s5m38";</script>
 
 </main>
 
