@@ -3,6 +3,14 @@
 window.BRIDGE_MISSIONS = {
   "bridge-s1m1": {
     "title": "The Long Cold Cup",
+    "season": 1,
+    "station": "helm",
+    "crew": [
+      "dubois",
+      "raghunathan",
+      "tannenbaum",
+      "skree"
+    ],
     "objectives": [
       "Below the band: 61 degrees reads as too cold",
       "The lower edge: exactly 82 is already acceptable",
@@ -12,11 +20,180 @@ window.BRIDGE_MISSIONS = {
     ],
     "py": {
       "stub": "def brew_report(celsius):\n    \"\"\"Return the replicator's verdict for a temperature in Celsius.\"\"\"\n    # TODO: three bands. Mind the edges: 82 and 96 are both acceptable.\n    return \"\"\n",
-      "checker": "\n_cases = [\n    (61, \"too cold\"),\n    (82, \"acceptable\"),\n    (90, \"acceptable\"),\n    (96, \"acceptable\"),\n    (97, \"the Captain is happy\"),\n]\n\nfor _i, (_arg, _want) in enumerate(_cases):\n    try:\n        _got = brew_report(_arg)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{type(_e).__name__}: {_e}\")\n        continue\n    _ok = _got == _want\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|brew_report({_arg}) returned {_got!r}, wanted {_want!r}\")\n"
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [((61,), 'too cold'), ((82,), 'acceptable'), ((90,), 'acceptable'), ((96,), 'acceptable'), ((97,), 'the Captain is happy')]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"brew_report(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = brew_report(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(_got == _want)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
     },
     "rs": {
       "stub": "/// Return the replicator's verdict for a temperature in Celsius.\nfn brew_report(celsius: i32) -> &'static str {\n    // TODO: three bands. Mind the edges: 82 and 96 are both acceptable.\n    \"\"\n}\n",
-      "checker": "\nfn main() {\n    let cases: [(i32, &str); 5] = [\n        (61, \"too cold\"),\n        (82, \"acceptable\"),\n        (90, \"acceptable\"),\n        (96, \"acceptable\"),\n        (97, \"the Captain is happy\"),\n    ];\n    for (i, (arg, want)) in cases.iter().enumerate() {\n        let got = brew_report(*arg);\n        let verdict = if got == *want { \"PASS\" } else { \"FAIL\" };\n        println!(\n            \"BRIDGE|{}|{}|brew_report({}) returned {:?}, wanted {:?}\",\n            i, verdict, arg, got, want\n        );\n    }\n}\n"
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| brew_report(61)) {\n        Ok(got) => {\n            let want = \"too cold\";\n            let ok = got == want;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"brew_report(61)\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"brew_report(61)\"#)),\n    }\n    match std::panic::catch_unwind(|| brew_report(82)) {\n        Ok(got) => {\n            let want = \"acceptable\";\n            let ok = got == want;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"brew_report(82)\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"brew_report(82)\"#)),\n    }\n    match std::panic::catch_unwind(|| brew_report(90)) {\n        Ok(got) => {\n            let want = \"acceptable\";\n            let ok = got == want;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"brew_report(90)\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"brew_report(90)\"#)),\n    }\n    match std::panic::catch_unwind(|| brew_report(96)) {\n        Ok(got) => {\n            let want = \"acceptable\";\n            let ok = got == want;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"brew_report(96)\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"brew_report(96)\"#)),\n    }\n    match std::panic::catch_unwind(|| brew_report(97)) {\n        Ok(got) => {\n            let want = \"the Captain is happy\";\n            let ok = got == want;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"brew_report(97)\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"brew_report(97)\"#)),\n    }\n}\n"
+    }
+  },
+  "bridge-s1m2": {
+    "title": "Roll Call",
+    "season": 1,
+    "station": "ops",
+    "crew": [
+      "tkala",
+      "tannenbaum"
+    ],
+    "objectives": [
+      "Ensign Tannenbaum reporting",
+      "Chief T'Kala reporting, apostrophe intact",
+      "A one-word surname",
+      "A double-barrelled Captain",
+      "Exactly one space between rank and surname, and one before 'reporting'"
+    ],
+    "py": {
+      "stub": "def roll_call(rank, surname):\n    \"\"\"Announce an officer: '<rank> <surname> reporting'.\"\"\"\n    # TODO: build the greeting from the two parts.\n    return \"None None reporting\"\n",
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [(('Ensign', 'Tannenbaum'), 'Ensign Tannenbaum reporting'), (('Chief', \"T'Kala\"), \"Chief T'Kala reporting\"), (('Lieutenant', 'Skree'), 'Lieutenant Skree reporting'), (('Captain', 'Dubois-Okonkwo'), 'Captain Dubois-Okonkwo reporting'), (('Commander', 'Raghunathan'), 'Commander Raghunathan reporting')]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"roll_call(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = roll_call(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(_got == _want)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
+    },
+    "rs": {
+      "stub": "/// Announce an officer: \"<rank> <surname> reporting\".\nfn roll_call(rank: &str, surname: &str) -> String {\n    // TODO: build the greeting from the two parts.\n    String::from(\"None None reporting\")\n}\n",
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| roll_call(\"Ensign\", \"Tannenbaum\")) {\n        Ok(got) => {\n            let want = \"Ensign Tannenbaum reporting\";\n            let ok = got == want;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"roll_call(\"Ensign\", \"Tannenbaum\")\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"roll_call(\"Ensign\", \"Tannenbaum\")\"#)),\n    }\n    match std::panic::catch_unwind(|| roll_call(\"Chief\", \"T'Kala\")) {\n        Ok(got) => {\n            let want = \"Chief T'Kala reporting\";\n            let ok = got == want;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"roll_call(\"Chief\", \"T'Kala\")\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"roll_call(\"Chief\", \"T'Kala\")\"#)),\n    }\n    match std::panic::catch_unwind(|| roll_call(\"Lieutenant\", \"Skree\")) {\n        Ok(got) => {\n            let want = \"Lieutenant Skree reporting\";\n            let ok = got == want;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"roll_call(\"Lieutenant\", \"Skree\")\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"roll_call(\"Lieutenant\", \"Skree\")\"#)),\n    }\n    match std::panic::catch_unwind(|| roll_call(\"Captain\", \"Dubois-Okonkwo\")) {\n        Ok(got) => {\n            let want = \"Captain Dubois-Okonkwo reporting\";\n            let ok = got == want;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"roll_call(\"Captain\", \"Dubois-Okonkwo\")\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"roll_call(\"Captain\", \"Dubois-Okonkwo\")\"#)),\n    }\n    match std::panic::catch_unwind(|| roll_call(\"Commander\", \"Raghunathan\")) {\n        Ok(got) => {\n            let want = \"Commander Raghunathan reporting\";\n            let ok = got == want;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"roll_call(\"Commander\", \"Raghunathan\")\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"roll_call(\"Commander\", \"Raghunathan\")\"#)),\n    }\n}\n"
+    }
+  },
+  "bridge-s1m3": {
+    "title": "Which Deck?",
+    "season": 1,
+    "station": "helm",
+    "crew": [
+      "skree",
+      "tannenbaum"
+    ],
+    "objectives": [
+      "Compartment 1 is on Deck 1",
+      "Compartment 12, the last on Deck 1, is still on Deck 1",
+      "Compartment 13 is on Deck 2",
+      "Compartment 24 is on Deck 2",
+      "Compartment 100 is on Deck 9"
+    ],
+    "py": {
+      "stub": "def deck_of(compartment):\n    \"\"\"Return which deck (from 1) a compartment (from 1) is on. Twelve per deck.\"\"\"\n    # TODO: careful at compartments 12 and 13.\n    return 0\n",
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [((1,), 1), ((12,), 1), ((13,), 2), ((24,), 2), ((100,), 9)]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"deck_of(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = deck_of(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(_got == _want)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
+    },
+    "rs": {
+      "stub": "/// Which deck (from 1) is a compartment (from 1) on? Twelve per deck.\nfn deck_of(compartment: u32) -> u32 {\n    // TODO: careful at compartments 12 and 13.\n    0\n}\n",
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| deck_of(1)) {\n        Ok(got) => {\n            let want = 1;\n            let ok = got == want;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"deck_of(1)\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"deck_of(1)\"#)),\n    }\n    match std::panic::catch_unwind(|| deck_of(12)) {\n        Ok(got) => {\n            let want = 1;\n            let ok = got == want;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"deck_of(12)\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"deck_of(12)\"#)),\n    }\n    match std::panic::catch_unwind(|| deck_of(13)) {\n        Ok(got) => {\n            let want = 2;\n            let ok = got == want;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"deck_of(13)\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"deck_of(13)\"#)),\n    }\n    match std::panic::catch_unwind(|| deck_of(24)) {\n        Ok(got) => {\n            let want = 2;\n            let ok = got == want;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"deck_of(24)\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"deck_of(24)\"#)),\n    }\n    match std::panic::catch_unwind(|| deck_of(100)) {\n        Ok(got) => {\n            let want = 9;\n            let ok = got == want;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"deck_of(100)\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"deck_of(100)\"#)),\n    }\n}\n"
+    }
+  },
+  "bridge-s1m4": {
+    "title": "The Badge Printer",
+    "season": 1,
+    "station": "ops",
+    "crew": [
+      "tannenbaum",
+      "dubois"
+    ],
+    "objectives": [
+      "Leading and trailing spaces removed",
+      "Lower case becomes upper case",
+      "Already-clean input passes through unchanged",
+      "Both problems at once",
+      "Spaces inside the name are kept, only the ends are trimmed"
+    ],
+    "py": {
+      "stub": "def badge(name):\n    \"\"\"Trim the ends and shout the name.\"\"\"\n    # TODO\n    return name\n",
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [(('  yves  ',), 'YVES'), (('skree',), 'SKREE'), ((\"T'KALA\",), \"T'KALA\"), (('  bo tannenbaum ',), 'BO TANNENBAUM'), (('Priya Raghunathan',), 'PRIYA RAGHUNATHAN')]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"badge(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = badge(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(_got == _want)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
+    },
+    "rs": {
+      "stub": "/// Trim the ends and shout the name.\nfn badge(name: &str) -> String {\n    // TODO\n    name.to_string()\n}\n",
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| badge(\"  yves  \")) {\n        Ok(got) => {\n            let want = \"YVES\";\n            let ok = got == want;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"badge(\"  yves  \")\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"badge(\"  yves  \")\"#)),\n    }\n    match std::panic::catch_unwind(|| badge(\"skree\")) {\n        Ok(got) => {\n            let want = \"SKREE\";\n            let ok = got == want;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"badge(\"skree\")\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"badge(\"skree\")\"#)),\n    }\n    match std::panic::catch_unwind(|| badge(\"T'KALA\")) {\n        Ok(got) => {\n            let want = \"T'KALA\";\n            let ok = got == want;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"badge(\"T'KALA\")\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"badge(\"T'KALA\")\"#)),\n    }\n    match std::panic::catch_unwind(|| badge(\"  bo tannenbaum \")) {\n        Ok(got) => {\n            let want = \"BO TANNENBAUM\";\n            let ok = got == want;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"badge(\"  bo tannenbaum \")\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"badge(\"  bo tannenbaum \")\"#)),\n    }\n    match std::panic::catch_unwind(|| badge(\"Priya Raghunathan\")) {\n        Ok(got) => {\n            let want = \"PRIYA RAGHUNATHAN\";\n            let ok = got == want;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"badge(\"Priya Raghunathan\")\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"badge(\"Priya Raghunathan\")\"#)),\n    }\n}\n"
+    }
+  },
+  "bridge-s1m5": {
+    "title": "One Hundred and Forty Percent",
+    "season": 1,
+    "station": "helm",
+    "crew": [
+      "raghunathan",
+      "tannenbaum"
+    ],
+    "objectives": [
+      "A negative reading is clamped to 0",
+      "Zero stays zero",
+      "A normal reading passes through unchanged",
+      "Exactly 100 stays 100",
+      "An overcharged reading is clamped to 100"
+    ],
+    "py": {
+      "stub": "def clamp_shields(percent):\n    \"\"\"Keep a shield reading honest: never below 0, never above 100.\"\"\"\n    # TODO\n    return percent\n",
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [((-20,), 0), ((0,), 0), ((55,), 55), ((100,), 100), ((140,), 100)]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"clamp_shields(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = clamp_shields(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(_got == _want)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
+    },
+    "rs": {
+      "stub": "/// Keep a shield reading honest: never below 0, never above 100.\nfn clamp_shields(percent: i32) -> i32 {\n    // TODO\n    percent\n}\n",
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| clamp_shields(-20)) {\n        Ok(got) => {\n            let want = 0;\n            let ok = got == want;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"clamp_shields(-20)\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"clamp_shields(-20)\"#)),\n    }\n    match std::panic::catch_unwind(|| clamp_shields(0)) {\n        Ok(got) => {\n            let want = 0;\n            let ok = got == want;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"clamp_shields(0)\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"clamp_shields(0)\"#)),\n    }\n    match std::panic::catch_unwind(|| clamp_shields(55)) {\n        Ok(got) => {\n            let want = 55;\n            let ok = got == want;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"clamp_shields(55)\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"clamp_shields(55)\"#)),\n    }\n    match std::panic::catch_unwind(|| clamp_shields(100)) {\n        Ok(got) => {\n            let want = 100;\n            let ok = got == want;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"clamp_shields(100)\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"clamp_shields(100)\"#)),\n    }\n    match std::panic::catch_unwind(|| clamp_shields(140)) {\n        Ok(got) => {\n            let want = 100;\n            let ok = got == want;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"clamp_shields(140)\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"clamp_shields(140)\"#)),\n    }\n}\n"
+    }
+  },
+  "bridge-s1m6": {
+    "title": "The Airlock Interlock",
+    "season": 1,
+    "station": "ops",
+    "crew": [
+      "tkala",
+      "skree"
+    ],
+    "objectives": [
+      "Everything in order: sealed, equalised, no lockout, so it may open",
+      "Inner door open: must not open",
+      "Pressure not equalised: must not open",
+      "Maintenance lockout engaged: must not open, even though the rest is fine",
+      "Nothing in order at all: must not open"
+    ],
+    "py": {
+      "stub": "def outer_may_open(inner_sealed, pressure_equalised, lockout):\n    \"\"\"May the outer door open? Sealed AND equalised AND no lockout.\"\"\"\n    # TODO: this is currently the bug Chief T'Kala found.\n    return inner_sealed or pressure_equalised or lockout\n",
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [((True, True, False), True), ((False, True, False), False), ((True, False, False), False), ((True, True, True), False), ((False, False, False), False)]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"outer_may_open(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = outer_may_open(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(_got == _want)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
+    },
+    "rs": {
+      "stub": "/// May the outer door open? Sealed AND equalised AND no lockout.\nfn outer_may_open(inner_sealed: bool, pressure_equalised: bool, lockout: bool) -> bool {\n    // TODO: this is currently the bug Chief T'Kala found.\n    inner_sealed || pressure_equalised || lockout\n}\n",
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| outer_may_open(true, true, false)) {\n        Ok(got) => {\n            let want = true;\n            let ok = got == want;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"outer_may_open(true, true, false)\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"outer_may_open(true, true, false)\"#)),\n    }\n    match std::panic::catch_unwind(|| outer_may_open(false, true, false)) {\n        Ok(got) => {\n            let want = false;\n            let ok = got == want;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"outer_may_open(false, true, false)\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"outer_may_open(false, true, false)\"#)),\n    }\n    match std::panic::catch_unwind(|| outer_may_open(true, false, false)) {\n        Ok(got) => {\n            let want = false;\n            let ok = got == want;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"outer_may_open(true, false, false)\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"outer_may_open(true, false, false)\"#)),\n    }\n    match std::panic::catch_unwind(|| outer_may_open(true, true, true)) {\n        Ok(got) => {\n            let want = false;\n            let ok = got == want;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"outer_may_open(true, true, true)\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"outer_may_open(true, true, true)\"#)),\n    }\n    match std::panic::catch_unwind(|| outer_may_open(false, false, false)) {\n        Ok(got) => {\n            let want = false;\n            let ok = got == want;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"outer_may_open(false, false, false)\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"outer_may_open(false, false, false)\"#)),\n    }\n}\n"
+    }
+  },
+  "bridge-s1m7": {
+    "title": "Absolute Zero, Approximately",
+    "season": 1,
+    "station": "helm",
+    "crew": [
+      "skree",
+      "raghunathan"
+    ],
+    "objectives": [
+      "Zero Celsius is 273.15 K",
+      "Absolute zero, minus 273.15, is 0.0 K",
+      "Boiling water at 100 is 373.15 K",
+      "Room temperature, 21.5, is 294.65 K",
+      "The result is rounded to two decimal places"
+    ],
+    "py": {
+      "stub": "def to_kelvin(celsius):\n    \"\"\"Celsius to Kelvin, rounded to two decimal places.\"\"\"\n    # TODO\n    return 0.0\n",
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [((0,), 273.15), ((-273.15,), 0.0), ((100,), 373.15), ((21.5,), 294.65), ((36.6,), 309.75)]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"to_kelvin(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = to_kelvin(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(abs(_got - _want) < 1e-6)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
+    },
+    "rs": {
+      "stub": "/// Celsius to Kelvin, rounded to two decimal places.\nfn to_kelvin(celsius: f64) -> f64 {\n    // TODO\n    0.0\n}\n",
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| to_kelvin(0.0)) {\n        Ok(got) => {\n            let want = 273.15;\n            let ok = (got - want).abs() < 1e-6;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"to_kelvin(0.0)\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"to_kelvin(0.0)\"#)),\n    }\n    match std::panic::catch_unwind(|| to_kelvin(-273.15)) {\n        Ok(got) => {\n            let want = 0.0;\n            let ok = (got - want).abs() < 1e-6;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"to_kelvin(-273.15)\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"to_kelvin(-273.15)\"#)),\n    }\n    match std::panic::catch_unwind(|| to_kelvin(100.0)) {\n        Ok(got) => {\n            let want = 373.15;\n            let ok = (got - want).abs() < 1e-6;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"to_kelvin(100.0)\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"to_kelvin(100.0)\"#)),\n    }\n    match std::panic::catch_unwind(|| to_kelvin(21.5)) {\n        Ok(got) => {\n            let want = 294.65;\n            let ok = (got - want).abs() < 1e-6;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"to_kelvin(21.5)\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"to_kelvin(21.5)\"#)),\n    }\n    match std::panic::catch_unwind(|| to_kelvin(36.6)) {\n        Ok(got) => {\n            let want = 309.75;\n            let ok = (got - want).abs() < 1e-6;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"to_kelvin(36.6)\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"to_kelvin(36.6)\"#)),\n    }\n}\n"
+    }
+  },
+  "bridge-s1m8": {
+    "title": "Ration Arithmetic",
+    "season": 1,
+    "station": "ops",
+    "crew": [
+      "dubois",
+      "tkala",
+      "tannenbaum"
+    ],
+    "objectives": [
+      "Ten crates for a crew of forty last exactly ten days",
+      "Ten crates for forty-one people: nine days, because a partial day does not count",
+      "No crates, no days",
+      "Seven crates for twenty people last fourteen days",
+      "One crate for eighty people is zero whole days"
+    ],
+    "py": {
+      "stub": "def days_of_rations(crates, crew):\n    \"\"\"Whole days of food aboard. Forty person-days per crate. Round down.\"\"\"\n    # TODO\n    return 0\n",
+      "checker": "\ndef _short(x):\n    s = repr(x)\n    return s if len(s) <= 70 else s[:67] + \"...\"\n\n_cases = [((10, 40), 10), ((10, 41), 9), ((0, 50), 0), ((7, 20), 14), ((1, 80), 0)]\nfor _i, (_args, _want) in enumerate(_cases):\n    _call = \"days_of_rations(\" + \", \".join(_short(a) for a in _args) + \")\"\n    try:\n        _got = days_of_rations(*_args)\n    except Exception as _e:\n        print(f\"BRIDGE|{_i}|FAIL|{_call} raised {type(_e).__name__}: {_e}\")\n        continue\n    try:\n        _ok = bool(_got == _want)\n    except Exception:\n        _ok = False\n    print(f\"BRIDGE|{_i}|{'PASS' if _ok else 'FAIL'}|{_call} returned {_short(_got)}, wanted {_short(_want)}\")\n"
+    },
+    "rs": {
+      "stub": "/// Whole days of food aboard. Forty person-days per crate. Round down.\nfn days_of_rations(crates: u32, crew: u32) -> u32 {\n    // TODO\n    0\n}\n",
+      "checker": "\nfn __short(s: String) -> String {\n    if s.chars().count() <= 70 { s } else { s.chars().take(67).collect::<String>() + \"...\" }\n}\nfn __report(i: usize, ok: bool, detail: String) {\n    println!(\"BRIDGE|{}|{}|{}\", i, if ok { \"PASS\" } else { \"FAIL\" }, detail);\n}\n\nfn main() {\n    std::panic::set_hook(Box::new(|_| {}));\n\n    match std::panic::catch_unwind(|| days_of_rations(10, 40)) {\n        Ok(got) => {\n            let want = 10;\n            let ok = got == want;\n            __report(0, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"days_of_rations(10, 40)\"#, got, want)));\n        }\n        Err(_) => __report(0, false, format!(\"{} panicked\", r#\"days_of_rations(10, 40)\"#)),\n    }\n    match std::panic::catch_unwind(|| days_of_rations(10, 41)) {\n        Ok(got) => {\n            let want = 9;\n            let ok = got == want;\n            __report(1, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"days_of_rations(10, 41)\"#, got, want)));\n        }\n        Err(_) => __report(1, false, format!(\"{} panicked\", r#\"days_of_rations(10, 41)\"#)),\n    }\n    match std::panic::catch_unwind(|| days_of_rations(0, 50)) {\n        Ok(got) => {\n            let want = 0;\n            let ok = got == want;\n            __report(2, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"days_of_rations(0, 50)\"#, got, want)));\n        }\n        Err(_) => __report(2, false, format!(\"{} panicked\", r#\"days_of_rations(0, 50)\"#)),\n    }\n    match std::panic::catch_unwind(|| days_of_rations(7, 20)) {\n        Ok(got) => {\n            let want = 14;\n            let ok = got == want;\n            __report(3, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"days_of_rations(7, 20)\"#, got, want)));\n        }\n        Err(_) => __report(3, false, format!(\"{} panicked\", r#\"days_of_rations(7, 20)\"#)),\n    }\n    match std::panic::catch_unwind(|| days_of_rations(1, 80)) {\n        Ok(got) => {\n            let want = 0;\n            let ok = got == want;\n            __report(4, ok, __short(format!(\"{} returned {:?}, wanted {:?}\", r#\"days_of_rations(1, 80)\"#, got, want)));\n        }\n        Err(_) => __report(4, false, format!(\"{} panicked\", r#\"days_of_rations(1, 80)\"#)),\n    }\n}\n"
     }
   }
 };

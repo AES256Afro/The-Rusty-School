@@ -62,7 +62,9 @@
         <span class="rank-nums muted small">0 missions cleared</span>
       </div>
       <div class="rank-bar"><div class="rank-fill" id="rank-fill"></div></div>
+      <p class="rank-next muted small" id="rank-next"></p>
     </div>
+    <p class="crew-link"><a href="crew.html">Meet the crew →</a></p>
   </section>
 
   <div class="callout info">
@@ -74,25 +76,59 @@
     where the two languages genuinely disagree.
   </div>
 
-  <section class="section">
-    <h2>Season 1: Shakedown Cruise</h2>
-    <p class="muted">Output, variables, types and decisions. Cadet through Ensign.</p>
+  <section class="section season" id="season-1" data-season="1">
+    <h2><span class="season-num">Season 1</span> Shakedown Cruise
+      <span class="muted small season-count" data-role="season-count"></span></h2>
+    <p class="muted">Output, variables, types and decisions. Opens at Cadet.</p>
     <div class="grid cols-2">
-      <a class="card mission-card" data-mission="bridge-s1m1" href="s1/01-long-cold-cup.html"><span class="mission-num">01</span><div><span class="badge station station-helm">🧭 Helm</span><h3>The Long Cold Cup</h3><p>The beverage replicator has opinions about temperature. The Captain has opinions about the replicator.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m1" data-station="helm" data-season="1" href="s1/01-long-cold-cup.html"><span class="mission-num">01</span><div><span class="badge station station-helm">🧭 Helm</span><h3>The Long Cold Cup</h3><p>The beverage replicator has opinions about temperature. The Captain has opinions about the replicator.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m2" data-station="ops" data-season="1" href="s1/02-roll-call.html"><span class="mission-num">02</span><div><span class="badge station station-ops">📦 Ops</span><h3>Roll Call</h3><p>The morning roll call announces every officer as 'None None reporting'. Chief T'Kala would like her name back.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m3" data-station="helm" data-season="1" href="s1/03-which-deck.html"><span class="mission-num">03</span><div><span class="badge station station-helm">🧭 Helm</span><h3>Which Deck?</h3><p>The turbolift keeps delivering people one deck short. Lt. Skree has measured this and is not amused.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m4" data-station="ops" data-season="1" href="s1/04-badge-printer.html"><span class="mission-num">04</span><div><span class="badge station station-ops">📦 Ops</span><h3>The Badge Printer</h3><p>The name badges for the diplomatic reception have come out in whatever case and spacing the crew typed. The Captain's says '  yves  '.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m5" data-station="helm" data-season="1" href="s1/05-shield-clamp.html"><span class="mission-num">05</span><div><span class="badge station station-helm">🧭 Helm</span><h3>One Hundred and Forty Percent</h3><p>The shield display reads 140%. The shields are not at 140%. Nothing is ever at 140%.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m6" data-station="ops" data-season="1" href="s1/06-airlock-interlock.html"><span class="mission-num">06</span><div><span class="badge station station-ops">📦 Ops</span><h3>The Airlock Interlock</h3><p>An airlock is a door that must never open at the wrong time. Somebody has written the rule with an 'or' where they meant an 'and'.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m7" data-station="helm" data-season="1" href="s1/07-absolute-zero.html"><span class="mission-num">07</span><div><span class="badge station station-helm">🧭 Helm</span><h3>Absolute Zero, Approximately</h3><p>The science lab wants Kelvin. The sensors report Celsius. Between them is a floating-point number and a great deal of feeling.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s1m8" data-station="ops" data-season="1" href="s1/08-ration-arithmetic.html"><span class="mission-num">08</span><div><span class="badge station station-ops">📦 Ops</span><h3>Ration Arithmetic</h3><p>How many days of food are aboard? The answer the computer gives is a fraction, and nobody eats a fraction of a day.</p><div class="meta mission-flags"></div></div></a>
     </div>
+  </section>
+  <section class="section season season-locked" id="season-2">
+    <h2><span class="season-num">Season 2</span> Routine Patrol
+      <span class="badge soon">coming soon</span></h2>
+    <p class="muted">Loops, collections and iteration.</p>
+  </section>
+  <section class="section season season-locked" id="season-3">
+    <h2><span class="season-num">Season 3</span> First Contact
+      <span class="badge soon">coming soon</span></h2>
+    <p class="muted">Functions, structured data and parsing.</p>
+  </section>
+  <section class="section season season-locked" id="season-4">
+    <h2><span class="season-num">Season 4</span> The Anomaly
+      <span class="badge soon">coming soon</span></h2>
+    <p class="muted">Objects, traits, errors and iterators.</p>
+  </section>
+  <section class="section season season-locked" id="season-5">
+    <h2><span class="season-num">Season 5</span> Deep Space
+      <span class="badge soon">coming soon</span></h2>
+    <p class="muted">Concurrency, async and performance.</p>
+  </section>
+  <section class="section season season-locked" id="season-6">
+    <h2><span class="season-num">Season 6</span> Terminus
+      <span class="badge soon">coming soon</span></h2>
+    <p class="muted">Four long systems, and an ending.</p>
   </section>
 
   <section class="section">
     <h2>The stations</h2>
     <p class="muted">Every mission is posted to a station, so you can see which kind of
-    problem keeps catching you out. More open up as you are promoted.</p>
+    problem keeps catching you out. Promotions open more of them; they never make the
+    missions harder, only wider.</p>
     <ul class="station-list">
-        <li><span class="st-icon">🧭</span><strong>Helm</strong> <span class="muted">Control flow, loops and keeping the ship pointed somewhere</span></li>
-        <li><span class="st-icon">📦</span><strong>Ops</strong> <span class="muted">Collections, manifests and resources that must add up</span></li>
-        <li><span class="st-icon">⚙️</span><strong>Engineering</strong> <span class="muted">Concurrency, performance and memory</span></li>
-        <li><span class="st-icon">🔬</span><strong>Science</strong> <span class="muted">Algorithms, parsing and making sense of signals</span></li>
-        <li><span class="st-icon">🛡️</span><strong>Tactical</strong> <span class="muted">Errors, validation and refusing bad input</span></li>
-        <li><span class="st-icon">🩺</span><strong>Sickbay</strong> <span class="muted">Debugging, testing and diagnosing the ship</span></li>
+        <li data-station="helm"><span class="st-icon">🧭</span><strong>Helm</strong> <span class="muted">Control flow, loops and keeping the ship pointed somewhere</span><span class="st-lock muted small"></span></li>
+        <li data-station="ops"><span class="st-icon">📦</span><strong>Ops</strong> <span class="muted">Collections, manifests and resources that must add up</span><span class="st-lock muted small"></span></li>
+        <li data-station="engineering"><span class="st-icon">⚙️</span><strong>Engineering</strong> <span class="muted">Concurrency, performance and memory</span><span class="st-lock muted small"></span></li>
+        <li data-station="science"><span class="st-icon">🔬</span><strong>Science</strong> <span class="muted">Algorithms, parsing and making sense of signals</span><span class="st-lock muted small"></span></li>
+        <li data-station="tactical"><span class="st-icon">🛡️</span><strong>Tactical</strong> <span class="muted">Errors, validation and refusing bad input</span><span class="st-lock muted small"></span></li>
+        <li data-station="sickbay"><span class="st-icon">🩺</span><strong>Sickbay</strong> <span class="muted">Debugging, testing and diagnosing the ship</span><span class="st-lock muted small"></span></li>
     </ul>
   </section>
 
