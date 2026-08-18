@@ -25,17 +25,16 @@ urgent is a wish list.
 
 ## The next three things
 
-1. **M11: The Bridge, Season 1.** Seven more missions to finish the
-   Shakedown Cruise. The engine is live; this is the vertical slice that
-   proves the format and settles the voice. See [BRIDGE.md](BRIDGE.md).
-2. **M12: The Bridge campaign layer.** Ranks, the crew roster, station
-   unlocks. Deliberately after Season 1.
-3. **M6: Instructor guides**, still the cheapest route to teaching others,
-   and unblocked whenever there is an evening for it.
+1. **M6: Instructor guides.** The cheapest route to the stated goal of
+   teaching other people, and it needs no backend at all.
+2. **M7: Classroom mode.** Unblocked, since accounts are live.
+3. **M8: Self-hosted playground.** The Bridge grades Rust by compiling on
+   the official playground, so this stopped being optional the moment
+   people started clearing missions. Watch the traffic; move when it says.
 
 M1 (search), M2 (accounts), M3 (certificate), M4 (per-lesson quizzes),
-M5 (accessibility) and M10 (the mission engine) have all shipped. See
-Shipped, below.
+M5 (accessibility) and M10 to M15 (the whole of The Bridge) have all
+shipped. See Shipped, below.
 
 ---
 
@@ -77,42 +76,6 @@ launches only when its first level is genuinely excellent. Better two deep
 schools than five shallow ones.
 
 ---
-
-### M11 · The Bridge, Season 1: Shakedown Cruise 🚀
-**Ship test:** eight missions in both languages, Cadet through Ensign,
-playable start to finish, every reference solution verified.
-**Size:** 1 to 2 weeks.
-The vertical slice, and it must be excellent before anything else starts. The
-campus rule about new schools applies: better one season people finish than
-six they abandon. This is where the voice is settled for everything after.
-
-### M12 · The Bridge: the campaign layer 🎖️
-**Ship test:** ranks, insignia, the crew roster, ARCHIE's in-character
-reports, and a ship's status page reflecting real progress.
-**Size:** 1 week.
-What turns eight exercises into a campaign. Deliberately after Season 1,
-because ceremony wrapped around content that is not yet good is just noise.
-
-### M13 · The Bridge, Seasons 2 and 3 📡
-**Ship test:** 16 more missions across Ops, Science and Tactical, both
-languages, all verified.
-**Size:** 2 to 3 weeks.
-Loops, collections, functions, structured data and files: the bulk of the
-everyday-competence content.
-
-### M14 · The Bridge, Seasons 4 and 5, and Red Alert 🔥
-**Ship test:** 16 missions on classes and traits, errors, iterators,
-concurrency and performance, plus the optional timed mode.
-**Size:** 3 weeks.
-The hardest content to write well, especially Engineering, where the point is
-that the two languages genuinely disagree. Treat M8 as a hard dependency by
-now.
-
-### M15 · The Bridge, Season 6: Terminus 🌌
-**Ship test:** four long multi-part capstones and a finale that acknowledges
-what the learner built.
-**Size:** 2 weeks.
-Away missions that leave the browser for a real editor, and an ending.
 
 ---
 
@@ -208,6 +171,32 @@ Roughly in order of audience overlap:
 ---
 
 ## Shipped
+
+### M11 to M15 · The Bridge, complete ✅
+Six seasons, 44 missions, 88 implementations, every one verified in both
+languages and both directions (the reference passes every objective; the
+untouched stub fails at least one; a stub that hangs is a defect). Live at
+[/bridge/](https://rustyschool.com/bridge/).
+
+- **Season 1, Shakedown Cruise:** output, types, decisions. Cadet to Ensign.
+- **Season 2, Routine Patrol:** loops and collections; the Science station opens.
+- **Season 3, First Contact:** parsing and structured data; Tactical opens.
+- **Season 4, The Anomaly:** objects, iterators, errors with names, ordering.
+- **Season 5, Deep Space:** concurrency where the languages disagree on
+  purpose (asyncio in the browser, threads under the borrow checker), a
+  lookup that must be a set, a recurrence that must stop repeating itself,
+  and Sickbay: debugging, writing the test, retrying with restraint.
+- **Season 6, Terminus:** four long missions with eight objectives across
+  several functions each, away missions for your own editor, and the ending.
+
+Campaign layer: ranks by missions cleared, gating stations and seasons but
+never difficulty; a crew roster that fills in as you meet people; Red Alert,
+an optional five-minute timed mode from Lieutenant JG; and a dedication
+plaque with your name on it at Captain.
+
+The story: another Magnanimous on long-range sensors, the same hull number,
+identical logs up to a nineteen-year gap, tomorrow's stardate in both, and
+one line of release notes brought back the long way round.
 
 ### M10 · The Bridge: mission engine and auto-grading ✅
 The campus can now **check a learner's answer**, which is the thing 73

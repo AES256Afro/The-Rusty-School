@@ -92,6 +92,14 @@ def _mission_page(m: dict, prev: dict | None, nxt: dict | None) -> str:
     nav_next = (_link(nxt, "next", "Next →") if nxt
                 else '<a class="next" href="../index.html"><span class="dir">Next →</span>Mission board</a>')
 
+    away = ""
+    if m.get("away"):
+        away = f"""
+    <div class="callout tip away-mission">
+      <span class="co-title">🚀 Away mission</span>
+{m["away"]}
+    </div>"""
+
     body = f"""  <section class="lesson-header">
     <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
       Season {m["season"]}, {esc(season_name)}</nav>
@@ -129,6 +137,7 @@ def _mission_page(m: dict, prev: dict | None, nxt: dict | None) -> str:
       <h2>Debrief</h2>
 {m["debrief"]}
     </section>
+{away}
 
     <div class="lesson-nav">
       {nav_prev}
@@ -221,6 +230,28 @@ def _index() -> str:
   </div>
 
 {seasons_html}
+
+  <section class="section plaque-section" id="plaque" hidden>
+    <h2>The dedication plaque</h2>
+    <p class="muted">Every ship in the service carries one. Ours has had a blank line
+    on it for nineteen years.</p>
+    <div class="plaque">
+      <div class="plaque-inner">
+        <span class="plaque-kicker">United Expeditionary Service</span>
+        <span class="plaque-ship">UES Magnanimous</span>
+        <span class="plaque-motto">"Held together by optimism"</span>
+        <span class="plaque-line">Systems Officer</span>
+        <span class="plaque-name" data-role="plaque-name">________________</span>
+        <span class="plaque-note" data-role="plaque-note"></span>
+      </div>
+    </div>
+    <div class="plaque-form">
+      <label class="muted small" for="plaque-input">Your name, as it should appear</label>
+      <input id="plaque-input" type="text" maxlength="40" placeholder="Systems Officer">
+      <button type="button" class="btn btn-primary btn-small" data-role="plaque-save">Engrave</button>
+      <span class="muted small">Stored in this browser only. Nothing is uploaded.</span>
+    </div>
+  </section>
 
   <section class="section">
     <h2>The stations</h2>

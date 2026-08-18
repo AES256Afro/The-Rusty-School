@@ -151,10 +151,38 @@
       <a class="card mission-card" data-mission="bridge-s5m40" data-station="engineering" data-season="5" href="s5/40-warp-core-sequence.html"><span class="mission-num">40</span><div><span class="badge station station-engineering">⚙️ Engineering</span><h3>The Warp Core Sequence</h3><p>Cold, warming, ready, engaged. The core must go through them in order, refuse to skip, and always be able to scram.</p><div class="meta mission-flags"></div></div></a>
     </div>
   </section>
-  <section class="section season season-locked" id="season-6">
+  <section class="section season" id="season-6" data-season="6">
     <h2><span class="season-num">Season 6</span> Terminus
-      <span class="badge soon">coming soon</span></h2>
-    <p class="muted">Four long systems, and an ending.</p>
+      <span class="muted small season-count" data-role="season-count"></span></h2>
+    <p class="muted">Four long systems, and an ending. Opens at Commander.</p>
+    <div class="grid cols-2">
+      <a class="card mission-card" data-mission="bridge-s6m41" data-station="engineering" data-season="6" href="s6/41-the-manifold.html"><span class="mission-num">41</span><div><span class="badge station station-engineering">⚙️ Engineering</span><h3>The Manifold</h3><p>Tomorrow's stardate is in both logs. The other ship's release notes say what fixed it. Now write the fix.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s6m42" data-station="science" data-season="6" href="s6/42-the-two-logs.html"><span class="mission-num">42</span><div><span class="badge station station-science">🔬 Science</span><h3>The Two Logs</h3><p>Two logs, nineteen years apart, and one place where they stop agreeing. Find it, count it, and read what comes after.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s6m43" data-station="tactical" data-season="6" href="s6/43-the-handshake.html"><span class="mission-num">43</span><div><span class="badge station station-tactical">🛡️ Tactical</span><h3>The Handshake</h3><p>Before the other ship's computer will hand over the rest, it wants a framed, checksummed message, and it will reject anything malformed.</p><div class="meta mission-flags"></div></div></a>
+      <a class="card mission-card" data-mission="bridge-s6m44" data-station="helm" data-season="6" href="s6/44-terminus.html"><span class="mission-num">44</span><div><span class="badge station station-helm">🧭 Helm</span><h3>Terminus</h3><p>Tomorrow. The seal is replaced, the logs agree, and the Captain would like a course. Every station, one last time.</p><div class="meta mission-flags"></div></div></a>
+    </div>
+  </section>
+
+  <section class="section plaque-section" id="plaque" hidden>
+    <h2>The dedication plaque</h2>
+    <p class="muted">Every ship in the service carries one. Ours has had a blank line
+    on it for nineteen years.</p>
+    <div class="plaque">
+      <div class="plaque-inner">
+        <span class="plaque-kicker">United Expeditionary Service</span>
+        <span class="plaque-ship">UES Magnanimous</span>
+        <span class="plaque-motto">"Held together by optimism"</span>
+        <span class="plaque-line">Systems Officer</span>
+        <span class="plaque-name" data-role="plaque-name">________________</span>
+        <span class="plaque-note" data-role="plaque-note"></span>
+      </div>
+    </div>
+    <div class="plaque-form">
+      <label class="muted small" for="plaque-input">Your name, as it should appear</label>
+      <input id="plaque-input" type="text" maxlength="40" placeholder="Systems Officer">
+      <button type="button" class="btn btn-primary btn-small" data-role="plaque-save">Engrave</button>
+      <span class="muted small">Stored in this browser only. Nothing is uploaded.</span>
+    </div>
   </section>
 
   <section class="section">

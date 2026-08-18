@@ -2,6 +2,10 @@
 
 **A starship simulator for people learning to code.**
 
+> **Status: shipped.** All six seasons are live at
+> [rustyschool.com/bridge/](https://rustyschool.com/bridge/). This document
+> is the design as built; the milestones at the end are all complete.
+
 A story-driven, auto-graded campaign that runs across both schools. You are
 posted to a mid-tier exploration vessel whose software is held together by
 optimism, and every mission is a real coding problem wearing a uniform.

@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Heading: Validated - The Bridge</title>
-<meta name="description" content="The helm accepts any heading you type, including 'left', 400, and -12. Tactical would like it to stop doing that.">
-<link rel="canonical" href="https://rustyschool.com/bridge/s3/23-heading-validation">
+<title>The Handshake - The Bridge</title>
+<meta name="description" content="Before the other ship's computer will hand over the rest, it wants a framed, checksummed message, and it will reject anything malformed.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s6/43-the-handshake">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Rusty School">
-<meta property="og:title" content="Heading: Validated - The Bridge">
-<meta property="og:description" content="The helm accepts any heading you type, including 'left', 400, and -12. Tactical would like it to stop doing that.">
-<meta property="og:url" content="https://rustyschool.com/bridge/s3/23-heading-validation">
+<meta property="og:title" content="The Handshake - The Bridge">
+<meta property="og:description" content="Before the other ship's computer will hand over the rest, it wants a framed, checksummed message, and it will reject anything malformed.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s6/43-the-handshake">
 <meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Heading: Validated - The Bridge">
-<meta name="twitter:description" content="The helm accepts any heading you type, including 'left', 400, and -12. Tactical would like it to stop doing that.">
+<meta name="twitter:title" content="The Handshake - The Bridge">
+<meta name="twitter:description" content="Before the other ship's computer will hand over the rest, it wants a framed, checksummed message, and it will reject anything malformed.">
 <meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
 <meta name="theme-color" content="#f74c00">
 <link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
@@ -47,37 +47,43 @@
 <main id="main" tabindex="-1" class="container narrow">
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
-      Season 3, First Contact</nav>
+      Season 6, Terminus</nav>
     <span class="badge station station-tactical">🛡️ Tactical</span>
-    <h1>Heading: Validated</h1>
-    <p class="stardate muted small">Stardate 55140.2 · UES Magnanimous</p>
+    <h1>The Handshake</h1>
+    <p class="stardate muted small">Stardate 55169.9 · UES Magnanimous</p>
   </section>
 
   <div class="mission-body">
     <section class="briefing">
       <h2>Briefing</h2>
 
-<p>Welcome to Tactical, which on this ship means the station that says <em>no</em>. Chief
-T'Kala runs it, and she has a list.</p>
+<p>The other computer wants to talk properly now, and properly means framed messages: a
+fixed prefix, the message length, the message, and a checksum, pipes between. It will
+reject a frame with the wrong prefix, a length that does not match, or a checksum that
+does not add up, and it will say nothing about why, because it is a computer, and a
+computer from nineteen years in the future at that.</p>
 
-<p>Item one on the list: the helm accepts any heading a person types. Yesterday it
-accepted <em>"left"</em>. Last week it accepted 400, which it treated as 40, and -12,
-which it treated as a mood. A heading is a whole number from 0 to 359, and the Chief
-wants text that is anything else to be refused: not corrected, not guessed at, refused,
-so the person at the helm has to try again. Whitespace around a valid number is fine.
-Ensign Tannenbaum typed most of the examples.</p>
+<p>Chief T'Kala wants both directions: <em>frame</em> a message for sending, and
+<em>unframe</em> one for receiving, refusing anything malformed. Because the length is in
+the frame, a message may itself contain pipes and still come back whole. The checksum is
+the sum of the message's bytes, modulo 256, as two hex digits. Eight objectives. Lt.
+Skree has pointed out that if we get this wrong the other ship simply says nothing, "which
+is what it has mostly done, so we would not know". This is true and unhelpful.</p>
 
     </section>
 
     <section class="objectives-panel">
       <h2>Mission objectives</h2>
-      <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
+      <p class="muted small">ARCHIE checks all eight every time you run diagnostics.</p>
       <ul class="objectives" data-role="objectives">
-        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">A valid heading is accepted</span><span class="obj-detail"></span></li>
-        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Whitespace around a valid heading is fine</span><span class="obj-detail"></span></li>
-        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">Words are refused</span><span class="obj-detail"></span></li>
-        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">360 and above are refused, not wrapped</span><span class="obj-detail"></span></li>
-        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Negative numbers are refused</span><span class="obj-detail"></span></li>
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">checksum: the byte sum modulo 256, as two lower-case hex digits</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">checksum: an empty message is 00</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">frame: 'MAGN|&lt;length&gt;|&lt;message&gt;|&lt;checksum&gt;'</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">unframe: a good frame gives back the message</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">unframe: a message containing pipes survives the round trip</span><span class="obj-detail"></span></li>
+        <li data-obj="5"><span class="obj-state">•</span><span class="obj-label">unframe: a wrong prefix is refused</span><span class="obj-detail"></span></li>
+        <li data-obj="6"><span class="obj-state">•</span><span class="obj-label">unframe: a length that does not match is refused</span><span class="obj-detail"></span></li>
+        <li data-obj="7"><span class="obj-state">•</span><span class="obj-label">unframe: a corrupted checksum is refused</span><span class="obj-detail"></span></li>
       </ul>
     </section>
 
@@ -90,10 +96,16 @@ Ensign Tannenbaum typed most of the examples.</p>
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>parse_heading(text)</code>: return the heading as an <code>int</code> if
-<code>text</code> is a whole number from 0 to 359 (whitespace around it allowed).
-Otherwise return <code>None</code>. Do not wrap or clamp: <code>"400"</code> is refused,
-not turned into 40.</p>
+<p>Three functions:</p>
+<ul>
+  <li><code>checksum(message)</code>: sum of the message's UTF-8 bytes modulo 256, as two
+    lower-case hex digits, e.g. <code>"7f"</code>.</li>
+  <li><code>frame(message)</code>: <code>f"MAGN|{len(message)}|{message}|{checksum}"</code>,
+    where the length is the number of characters.</li>
+  <li><code>unframe(text)</code>: the message from a well-formed frame, or
+    <code>None</code> if the prefix is not <code>MAGN</code>, the length field does not
+    match the message, or the checksum does not match.</li>
+</ul>
 
       </div>
 
@@ -128,10 +140,17 @@ not turned into 40.</p>
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>parse_heading(text: &amp;str) -&gt; Option&lt;u16&gt;</code>: the heading
-if <code>text</code> is a whole number from 0 to 359 (whitespace around it allowed).
-Otherwise <code>None</code>. Do not wrap or clamp: <code>"400"</code> is refused, not
-turned into 40.</p>
+<p>Three functions:</p>
+<ul>
+  <li><code>checksum(message: &amp;str) -&gt; String</code>: sum of the message's UTF-8
+    bytes modulo 256, as two lower-case hex digits, e.g. <code>"7f"</code>.</li>
+  <li><code>frame(message: &amp;str) -&gt; String</code>:
+    <code>"MAGN|{length}|{message}|{checksum}"</code>, where the length is the number of
+    characters.</li>
+  <li><code>unframe(text: &amp;str) -&gt; Option&lt;String&gt;</code>: the message from a
+    well-formed frame, or <code>None</code> if the prefix is not <code>MAGN</code>, the
+    length field does not match the message, or the checksum does not match.</li>
+</ul>
 
       </div>
 
@@ -165,27 +184,38 @@ turned into 40.</p>
 
     <details class="hint">
       <summary>Ask Commander Raghunathan for a hint</summary>
-      <div class="hint-body"><p>Trim, then try to convert to a whole number; if that fails, refuse. Then check the range 0 to 359 and refuse anything outside it. Rust's <code>parse::&lt;u16&gt;()</code> already refuses negatives, and <code>.ok()?</code> makes the whole thing three lines.</p></div>
+      <div class="hint-body"><p>Split on the pipe at most three times, so the message keeps its own pipes: prefix, length, then the rest, and the checksum is the last field of the rest. Use the declared length to cut the message out of the rest exactly. Refuse on any check that fails, and only then recompute the checksum and compare.</p></div>
     </details>
 
     <section class="debrief" data-role="debrief" hidden>
       <h2>Debrief</h2>
 
-<p>The helm refuses "left". It refuses 400. It refuses -12, and it refuses "12 degrees",
-and Ensign Tannenbaum has stopped typing things into it to see what happens. The other
-Magnanimous is holding station at heading 180, exactly facing us. Chief T'Kala has quietly
-brought the shields up.</p>
+<p>The handshake completes. The other computer sends one frame, checksum correct, and
+the message is a personnel file. Commander Priya Raghunathan. Shore leave: <em>granted,
+55170.3</em>. Tomorrow. Filed nineteen years ago on a ship that had just replaced a
+manifold seal by hand, by a version of her who had four minutes to spare and used them
+for this. She has read it. She has said "oh". She has sat down.</p>
 
     </section>
 
+    <div class="callout tip away-mission">
+      <span class="co-title">🚀 Away mission</span>
+
+<p><strong>Away mission:</strong> make it a real protocol. Write a tiny server that
+accepts framed messages over a local socket (Python's <code>socket</code>, Rust's
+<code>std::net</code>), unframes them, and replies with a framed acknowledgement, and a
+client that sends three messages including one deliberately corrupted. Watch the server
+refuse it. Then swap the checksum for a real hash and notice how little else changes.</p>
+
+    </div>
 
     <div class="lesson-nav">
-      <a class="" href="../s3/22-overlapping-watches.html"><span class="dir">← Previous</span>Overlapping Watches</a>
-      <a class="next" href="../s3/24-transporter-safety.html"><span class="dir">Next →</span>Transporter Safety</a>
+      <a class="" href="../s6/42-the-two-logs.html"><span class="dir">← Previous</span>The Two Logs</a>
+      <a class="next" href="../s6/44-terminus.html"><span class="dir">Next →</span>Terminus</a>
     </div>
   </div>
 
-<script>window.BRIDGE_MISSION = "bridge-s3m23";</script>
+<script>window.BRIDGE_MISSION = "bridge-s6m43";</script>
 
 </main>
 
