@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Long Cold Cup - The Bridge</title>
-<meta name="description" content="The beverage replicator has opinions about temperature. The Captain has opinions about the replicator.">
-<link rel="canonical" href="https://rustyschool.com/bridge/s1/01-long-cold-cup">
+<title>Roll Call - The Bridge</title>
+<meta name="description" content="The morning roll call announces every officer as 'None None reporting'. Chief T'Kala would like her name back.">
+<link rel="canonical" href="https://rustyschool.com/bridge/s1/02-roll-call">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="The Rusty School">
-<meta property="og:title" content="The Long Cold Cup - The Bridge">
-<meta property="og:description" content="The beverage replicator has opinions about temperature. The Captain has opinions about the replicator.">
-<meta property="og:url" content="https://rustyschool.com/bridge/s1/01-long-cold-cup">
+<meta property="og:title" content="Roll Call - The Bridge">
+<meta property="og:description" content="The morning roll call announces every officer as 'None None reporting'. Chief T'Kala would like her name back.">
+<meta property="og:url" content="https://rustyschool.com/bridge/s1/02-roll-call">
 <meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Long Cold Cup - The Bridge">
-<meta name="twitter:description" content="The beverage replicator has opinions about temperature. The Captain has opinions about the replicator.">
+<meta name="twitter:title" content="Roll Call - The Bridge">
+<meta name="twitter:description" content="The morning roll call announces every officer as 'None None reporting'. Chief T'Kala would like her name back.">
 <meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
 <meta name="theme-color" content="#f74c00">
 <link rel="icon" type="image/svg+xml" href="../assets/ship.svg">
@@ -48,24 +48,22 @@
   <section class="lesson-header">
     <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
       Season 1, Shakedown Cruise</nav>
-    <span class="badge station station-helm">🧭 Helm</span>
-    <h1>The Long Cold Cup</h1>
-    <p class="stardate muted small">Stardate 55103.2 · UES Magnanimous</p>
+    <span class="badge station station-ops">📦 Ops</span>
+    <h1>Roll Call</h1>
+    <p class="stardate muted small">Stardate 55104.7 · UES Magnanimous</p>
   </section>
 
   <div class="mission-body">
     <section class="briefing">
       <h2>Briefing</h2>
 
-<p>The beverage replicator on Deck 4 has produced three hundred and forty consecutive
-cups of lukewarm water. The Captain has raised this at three consecutive staff meetings
-and is now raising it again, with feeling.</p>
+<p>Since the last software update, the bridge roll call has greeted every officer as
+<em>"None None reporting"</em>. Chief T'Kala, who is two and a half metres tall and has
+never once needed to raise her voice, has asked, very gently, for her name back.</p>
 
-<p>Ensign Tannenbaum has "already looked at it". The situation has since become worse.</p>
-
-<p>Commander Raghunathan traced the fault to a single temperature routine and then did
-not fix it, on the grounds that it is "a good first one for the new officer". This is
-Engineering for <em>I am extremely tired</em>.</p>
+<p>The routine that assembles the greeting was written by Ensign Tannenbaum during what
+he describes as "a very productive night shift". It concatenates a rank and a surname.
+It concatenates them wrong.</p>
 
     </section>
 
@@ -73,11 +71,11 @@ Engineering for <em>I am extremely tired</em>.</p>
       <h2>Mission objectives</h2>
       <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
       <ul class="objectives" data-role="objectives">
-        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Below the band: 61 degrees reads as too cold</span><span class="obj-detail"></span></li>
-        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">The lower edge: exactly 82 is already acceptable</span><span class="obj-detail"></span></li>
-        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">Comfortably inside: 90 is acceptable</span><span class="obj-detail"></span></li>
-        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">The upper edge: exactly 96 is still acceptable</span><span class="obj-detail"></span></li>
-        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Above the band: 97 makes the Captain happy</span><span class="obj-detail"></span></li>
+        <li data-obj="0"><span class="obj-state">•</span><span class="obj-label">Ensign Tannenbaum reporting</span><span class="obj-detail"></span></li>
+        <li data-obj="1"><span class="obj-state">•</span><span class="obj-label">Chief T'Kala reporting, apostrophe intact</span><span class="obj-detail"></span></li>
+        <li data-obj="2"><span class="obj-state">•</span><span class="obj-label">A one-word surname</span><span class="obj-detail"></span></li>
+        <li data-obj="3"><span class="obj-state">•</span><span class="obj-label">A double-barrelled Captain</span><span class="obj-detail"></span></li>
+        <li data-obj="4"><span class="obj-state">•</span><span class="obj-label">Exactly one space between rank and surname, and one before 'reporting'</span><span class="obj-detail"></span></li>
       </ul>
     </section>
 
@@ -90,12 +88,10 @@ Engineering for <em>I am extremely tired</em>.</p>
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>brew_report(celsius)</code>, which takes a number and returns a string:</p>
-<ul>
-  <li><code>"too cold"</code> when the temperature is <strong>below 82</strong></li>
-  <li><code>"acceptable"</code> from <strong>82 to 96 inclusive</strong></li>
-  <li><code>"the Captain is happy"</code> when it is <strong>above 96</strong></li>
-</ul>
+<p>Write <code>roll_call(rank, surname)</code>, which returns the string
+<code>"&lt;rank&gt; &lt;surname&gt; reporting"</code>. So
+<code>roll_call("Ensign", "Tannenbaum")</code> is
+<code>"Ensign Tannenbaum reporting"</code>.</p>
 
       </div>
 
@@ -130,13 +126,10 @@ Engineering for <em>I am extremely tired</em>.</p>
       <div class="objective-spec">
         <h3>Objective</h3>
 
-<p>Write <code>brew_report(celsius: i32) -&gt; &amp;'static str</code>, which returns:</p>
-<ul>
-  <li><code>"too cold"</code> when the temperature is <strong>below 82</strong></li>
-  <li><code>"acceptable"</code> from <strong>82 to 96 inclusive</strong></li>
-  <li><code>"the Captain is happy"</code> when it is <strong>above 96</strong></li>
-</ul>
-<p class="muted small">Write the function only. ARCHIE supplies <code>main</code>.</p>
+<p>Write <code>roll_call(rank: &amp;str, surname: &amp;str) -&gt; String</code>, which
+returns <code>"&lt;rank&gt; &lt;surname&gt; reporting"</code>. So
+<code>roll_call("Ensign", "Tannenbaum")</code> is
+<code>"Ensign Tannenbaum reporting"</code>.</p>
 
       </div>
 
@@ -170,28 +163,25 @@ Engineering for <em>I am extremely tired</em>.</p>
 
     <details class="hint">
       <summary>Ask Commander Raghunathan for a hint</summary>
-      <div class="hint-body"><p>Read the specification's word <em>inclusive</em> very carefully, then look at which comparison you used at each edge. Almost every failure here is one character: <code>&lt;</code> where you wanted <code>&lt;=</code>.</p></div>
+      <div class="hint-body"><p>You want a formatted string: an f-string in Python, <code>format!</code> in Rust. Count the spaces in the expected output; a stray one is the usual culprit.</p></div>
     </details>
 
     <section class="debrief" data-role="debrief" hidden>
       <h2>Debrief</h2>
 
-<p>The replicator is producing coffee at ninety-four degrees. The Captain has been
-informed and is currently describing it to people who did not ask.</p>
-
-<p>Lt. Skree wishes it noted that the beverage is chemically identical to the previous
-three hundred and forty, and that the crew's reaction is therefore "sociological rather
-than thermal". Nobody has replied to this.</p>
+<p>Roll call now reads "Chief T'Kala reporting", and the Chief has thanked you by
+introducing you to the plant on the bridge. The plant is called Gerald. Gerald is on the
+duty roster. Do not ask.</p>
 
     </section>
 
     <div class="lesson-nav">
-      <a href="../index.html"><span class="dir">← Back</span>Mission board</a>
-      <a class="next" href="../s1/02-roll-call.html"><span class="dir">Next →</span>Roll Call</a>
+      <a class="" href="../s1/01-long-cold-cup.html"><span class="dir">← Previous</span>The Long Cold Cup</a>
+      <a class="next" href="../s1/03-which-deck.html"><span class="dir">Next →</span>Which Deck?</a>
     </div>
   </div>
 
-<script>window.BRIDGE_MISSION = "bridge-s1m1";</script>
+<script>window.BRIDGE_MISSION = "bridge-s1m2";</script>
 
 </main>
 

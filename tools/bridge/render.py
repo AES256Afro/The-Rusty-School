@@ -17,15 +17,23 @@ STATIONS = {
 }
 
 SEASONS = {
-    1: ("Shakedown Cruise", "Output, variables, types and decisions"),
+    1: ("Shakedown Cruise", "Output, variables, types and decisions", "Cadet"),
+    2: ("Routine Patrol", "Loops, collections and iteration", "Cadet"),
+    3: ("First Contact", "Functions, structured data and parsing", "Ensign"),
+    4: ("The Anomaly", "Objects, traits, errors and iterators", "Lieutenant JG"),
+    5: ("Deep Space", "Concurrency, async and performance", "Lieutenant"),
+    6: ("Terminus", "Four long systems, and an ending", "Commander"),
 }
 
 LANGS = [("py", "🐍", "Python"), ("rs", "🦀", "Rust")]
 
 
-def _mission_page(m: dict) -> str:
+def _mission_page(m: dict, prev: dict | None, nxt: dict | None) -> str:
     icon, station_name, _ = STATIONS[m["station"]]
     season_name = SEASONS[m["season"]][0]
+    n_obj = len(m["objectives"])
+    words = {3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight",
+             9: "nine", 10: "ten"}.get(n_obj, str(n_obj))
 
     objectives = NL.join(
         f'        <li data-obj="{i}"><span class="obj-state">•</span>'
@@ -75,6 +83,14 @@ def _mission_page(m: dict) -> str:
       </div>
     </div>""")
 
+    def _link(other, cls, label):
+        return (f'<a class="{cls}" href="../s{other["season"]}/{other["slug"]}.html">'
+                f'<span class="dir">{label}</span>{esc(other["title"])}</a>')
+    nav_prev = (_link(prev, "", "← Previous") if prev
+                else '<a href="../index.html"><span class="dir">← Back</span>Mission board</a>')
+    nav_next = (_link(nxt, "next", "Next →") if nxt
+                else '<a class="next" href="../index.html"><span class="dir">Next →</span>Mission board</a>')
+
     body = f"""  <section class="lesson-header">
     <nav class="breadcrumb"><a href="../index.html">← Mission board</a> ·
       Season {m["season"]}, {esc(season_name)}</nav>
@@ -91,7 +107,7 @@ def _mission_page(m: dict) -> str:
 
     <section class="objectives-panel">
       <h2>Mission objectives</h2>
-      <p class="muted small">ARCHIE checks all five every time you run diagnostics.</p>
+      <p class="muted small">ARCHIE checks all {words} every time you run diagnostics.</p>
       <ul class="objectives" data-role="objectives">
 {objectives}
       </ul>
@@ -114,7 +130,8 @@ def _mission_page(m: dict) -> str:
     </section>
 
     <div class="lesson-nav">
-      <a href="../index.html"><span class="dir">← Back</span>Mission board</a>
+      {nav_prev}
+      {nav_next}
     </div>
   </div>
 
@@ -130,23 +147,45 @@ def _mission_page(m: dict) -> str:
     )
 
 
-def _index() -> str:
+def _season_block(num: int) -> str:
+    name, blurb, rank = SEASONS[num]
+    mine = [m for m in MISSIONS if m["season"] == num]
+    if not mine:
+        return f"""  <section class="section season season-locked" id="season-{num}">
+    <h2><span class="season-num">Season {num}</span> {esc(name)}
+      <span class="badge soon">coming soon</span></h2>
+    <p class="muted">{esc(blurb)}.</p>
+  </section>"""
     cards = []
-    for m in MISSIONS:
+    for m in mine:
         icon, station_name, _ = STATIONS[m["station"]]
         cards.append(
             f'      <a class="card mission-card" data-mission="{m["id"]}" '
+            f'data-station="{m["station"]}" data-season="{num}" '
             f'href="s{m["season"]}/{m["slug"]}.html">'
             f'<span class="mission-num">{m["num"]:02d}</span>'
             f'<div><span class="badge station station-{m["station"]}">{icon} {esc(station_name)}</span>'
             f'<h3>{esc(m["title"])}</h3><p>{esc(m["blurb"])}</p>'
             f'<div class="meta mission-flags"></div></div></a>'
         )
+    return f"""  <section class="section season" id="season-{num}" data-season="{num}">
+    <h2><span class="season-num">Season {num}</span> {esc(name)}
+      <span class="muted small season-count" data-role="season-count"></span></h2>
+    <p class="muted">{esc(blurb)}. Opens at {esc(rank)}.</p>
+    <div class="grid cols-2">
+{NL.join(cards)}
+    </div>
+  </section>"""
+
+
+def _index() -> str:
+    seasons_html = NL.join(_season_block(n) for n in sorted(SEASONS))
 
     station_rows = NL.join(
-        f'        <li><span class="st-icon">{icon}</span>'
-        f'<strong>{esc(name)}</strong> <span class="muted">{esc(desc)}</span></li>'
-        for icon, name, desc in STATIONS.values()
+        f'        <li data-station="{key}"><span class="st-icon">{icon}</span>'
+        f'<strong>{esc(name)}</strong> <span class="muted">{esc(desc)}</span>'
+        f'<span class="st-lock muted small"></span></li>'
+        for key, (icon, name, desc) in STATIONS.items()
     )
 
     body = f"""  <section class="lesson-header bridge-hero">
@@ -166,7 +205,9 @@ def _index() -> str:
         <span class="rank-nums muted small">0 missions cleared</span>
       </div>
       <div class="rank-bar"><div class="rank-fill" id="rank-fill"></div></div>
+      <p class="rank-next muted small" id="rank-next"></p>
     </div>
+    <p class="crew-link"><a href="crew.html">Meet the crew →</a></p>
   </section>
 
   <div class="callout info">
@@ -178,18 +219,13 @@ def _index() -> str:
     where the two languages genuinely disagree.
   </div>
 
-  <section class="section">
-    <h2>Season 1: Shakedown Cruise</h2>
-    <p class="muted">{esc(SEASONS[1][1])}. Cadet through Ensign.</p>
-    <div class="grid cols-2">
-{NL.join(cards)}
-    </div>
-  </section>
+{seasons_html}
 
   <section class="section">
     <h2>The stations</h2>
     <p class="muted">Every mission is posted to a station, so you can see which kind of
-    problem keeps catching you out. More open up as you are promoted.</p>
+    problem keeps catching you out. Promotions open more of them; they never make the
+    missions harder, only wider.</p>
     <ul class="station-list">
 {station_rows}
     </ul>
@@ -225,6 +261,9 @@ def _missions_js() -> str:
     for m in MISSIONS:
         payload[m["id"]] = {
             "title": m["title"],
+            "season": m["season"],
+            "station": m["station"],
+            "crew": m.get("crew", []),
             "objectives": m["objectives"],
             "py": {"stub": m["py_stub"], "checker": m["py_checker"]},
             "rs": {"stub": m["rs_stub"], "checker": m["rs_checker"]},
@@ -239,6 +278,8 @@ def _missions_js() -> str:
 def build() -> list[tuple[str, str]]:
     out = [("bridge/index.html", _index()),
            ("bridge/assets/missions.js", _missions_js())]
-    for m in MISSIONS:
-        out.append((f"bridge/s{m['season']}/{m['slug']}.html", _mission_page(m)))
+    for i, m in enumerate(MISSIONS):
+        prev = MISSIONS[i - 1] if i > 0 else None
+        nxt = MISSIONS[i + 1] if i + 1 < len(MISSIONS) else None
+        out.append((f"bridge/s{m['season']}/{m['slug']}.html", _mission_page(m, prev, nxt)))
     return out
