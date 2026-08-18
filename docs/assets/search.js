@@ -24,7 +24,7 @@
   })();
 
   const KIND_ICON = { lesson: "📖", project: "🔨", puzzles: "🧩", page: "📄" };
-  const SCHOOL_ICON = { rust: "🦀", python: "🐍" };
+  const SCHOOL_ICON = { rust: "🦀", python: "🐍", bridge: "🖖" };
 
   let index = null;
   let loading = null;
@@ -156,7 +156,7 @@
 
     if (!q) {
       statusEl.textContent = index
-        ? "Search " + index.length + " pages across both schools."
+        ? "Search " + index.length + " pages across the campus."
         : "Loading the index…";
       return;
     }
@@ -230,9 +230,10 @@
           '<button type="button" class="cs-close" aria-label="Close search">esc</button>' +
         "</div>" +
         '<div class="cs-filters" role="group" aria-label="Filter by school">' +
-          '<button type="button" class="cs-chip active" data-f="all">Both schools</button>' +
+          '<button type="button" class="cs-chip active" data-f="all">Everything</button>' +
           '<button type="button" class="cs-chip" data-f="rust">🦀 Rust</button>' +
           '<button type="button" class="cs-chip" data-f="python">🐍 Python</button>' +
+          '<button type="button" class="cs-chip" data-f="bridge">🖖 Bridge</button>' +
         "</div>" +
         '<p class="cs-status" id="cs-status" aria-live="polite"></p>' +
         '<div class="cs-list" id="cs-list" role="listbox" aria-label="Search results"></div>' +

@@ -112,6 +112,10 @@ def canonical_url(path: Path) -> str:
 
 def classify(rel: str) -> tuple[str, str]:
     """Return (school, kind) for a page, for filter chips and icons."""
+    # The Bridge is campus-level rather than part of either school, so it
+    # gets its own filter chip instead of being mislabelled as Rust.
+    if rel.startswith("bridge/"):
+        return "bridge", "page" if rel == "bridge/index.html" else "mission"
     school = "python" if rel.startswith("python/") else "rust"
     tail = rel[len("python/"):] if school == "python" else rel
     if tail.startswith("learn/") and not tail.endswith("learn/index.html"):
@@ -134,6 +138,7 @@ def read_page(path: Path) -> dict | None:
     # "Lesson 7: Borrowing - The Rusty School" reads better as just the
     # lesson name; the school is shown as a chip beside the result.
     title = re.sub(r"\s*-\s*The (Rusty|Python) School\s*$", "", title)
+    title = re.sub(r"\s*-\s*The Bridge\s*$", "", title)
     if not title:
         return None
 
