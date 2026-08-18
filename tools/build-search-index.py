@@ -115,7 +115,7 @@ def classify(rel: str) -> tuple[str, str]:
     # The Bridge is campus-level rather than part of either school, so it
     # gets its own filter chip instead of being mislabelled as Rust.
     if rel.startswith("bridge/"):
-        return "bridge", "page" if rel == "bridge/index.html" else "mission"
+        return "bridge", "mission" if re.match(r"bridge/s\d+/", rel) else "page"
     school = "python" if rel.startswith("python/") else "rust"
     tail = rel[len("python/"):] if school == "python" else rel
     if tail.startswith("learn/") and not tail.endswith("learn/index.html"):
