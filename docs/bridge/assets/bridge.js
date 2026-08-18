@@ -340,12 +340,18 @@ _output = _buf.getvalue()
     if (output) archie.querySelector(".archie-output pre").textContent = output;
 
     if (passed === total && !missing) {
+      const before = campaignState().rank;
       const langId = missionId + "-" + lang;
       const firstTime = markCleared(langId);
       markCleared(missionId);
       if (debriefEl) debriefEl.hidden = false;
       if (firstTime) confetti();
       renderMissionState(missionId, objectivesEl, debriefEl);
+      const after = campaignState();
+      if (after.rank[0] > before[0]) {
+        setTimeout(() => toast(after.rank[2] + " Promoted to " + after.rank[1],
+          "New stations may have opened. Check the mission board."), 900);
+      }
     }
   }
 
@@ -380,30 +386,102 @@ _output = _buf.getvalue()
     });
   }
 
-  /* ================= mission board ================= */
+  /* ================= the campaign layer =================
+     Ranks are earned by missions cleared (in either language). Rank gates
+     open STATIONS and SEASONS, never difficulty: a Cadet has two places
+     to fail, a Commander has six. Nothing in the main campaign is ever
+     locked behind the timed mode. */
   const RANKS = [
-    [0, "Cadet", "🎖️"],
-    [1, "Ensign", "⭐"],
-    [6, "Lieutenant JG", "🌟"],
-    [14, "Lieutenant", "✨"],
-    [24, "Lt. Commander", "🏅"],
-    [34, "Commander", "🎗️"],
-    [44, "Captain", "👑"],
+    [0,  "Cadet",          "🎖️"],
+    [6,  "Ensign",         "⭐"],
+    [14, "Lieutenant JG",  "🌟"],
+    [22, "Lieutenant",     "✨"],
+    [30, "Lt. Commander",  "🏅"],
+    [36, "Commander",      "🎗️"],
+    [44, "Captain",        "👑"],
   ];
+  // Minimum missions cleared before a station is open.
+  const STATION_OPENS = { helm: 0, ops: 0, science: 6, tactical: 14, engineering: 22, sickbay: 30 };
+  // Minimum missions cleared before a season is open.
+  const SEASON_OPENS = { 1: 0, 2: 0, 3: 6, 4: 14, 5: 22, 6: 36 };
 
-  function initBoard() {
+  function rankNameFor(threshold) {
+    for (const r of RANKS) if (r[0] === threshold) return r[1];
+    return "a higher rank";
+  }
+
+  function campaignState() {
+    const done = getDone();
+    const all = window.BRIDGE_MISSIONS || {};
+    const ids = Object.keys(all);
+    let cleared = 0;
+    const clearedIds = new Set();
+    ids.forEach((id) => {
+      if (done.has(id) || done.has(id + "-py") || done.has(id + "-rs")) {
+        cleared++;
+        clearedIds.add(id);
+      }
+    });
+    let rank = RANKS[0];
+    for (const r of RANKS) if (cleared >= r[0]) rank = r;
+    const next = RANKS[RANKS.indexOf(rank) + 1] || null;
+    return { done, all, cleared, clearedIds, rank, next, total: ids.length };
+  }
+
+  function isLocked(mission, cleared) {
+    const stationAt = STATION_OPENS[mission.station] || 0;
+    const seasonAt = SEASON_OPENS[mission.season] || 0;
+    const need = Math.max(stationAt, seasonAt);
+    return cleared < need ? need : 0;
+  }
+
+  function renderRank(state) {
     const wrap = document.getElementById("rank-wrap");
     if (!wrap) return;
-    const done = getDone();
-    const cards = [...document.querySelectorAll(".mission-card[data-mission]")];
+    const { cleared, rank, next } = state;
+    wrap.querySelector(".rank-icon").textContent = rank[2];
+    wrap.querySelector(".rank-name").textContent = rank[1];
+    wrap.querySelector(".rank-nums").textContent =
+      cleared + " mission" + (cleared === 1 ? "" : "s") + " cleared";
+    const fill = document.getElementById("rank-fill");
+    if (fill) {
+      const span = next ? next[0] - rank[0] : 1;
+      const into = next ? cleared - rank[0] : 1;
+      fill.style.width = Math.min(100, Math.round((into / span) * 100)) + "%";
+    }
+    const nextEl = document.getElementById("rank-next");
+    if (nextEl) {
+      nextEl.textContent = next
+        ? (next[0] - cleared) + " more to " + next[1] + " " + next[2]
+        : "Full commission. The dedication plaque has your name on it.";
+    }
+  }
 
-    let cleared = 0;
-    cards.forEach((card) => {
+  function initBoard() {
+    if (!document.getElementById("rank-wrap")) return;
+    const state = campaignState();
+    const { done, cleared } = state;
+    renderRank(state);
+
+    document.querySelectorAll(".mission-card[data-mission]").forEach((card) => {
       const id = card.dataset.mission;
+      const m = state.all[id] || { station: card.dataset.station, season: Number(card.dataset.season) };
       const py = done.has(id + "-py");
       const rs = done.has(id + "-rs");
-      if (py || rs) { cleared++; card.classList.add("cleared"); }
       const flags = card.querySelector(".mission-flags");
+      const need = isLocked(m, cleared);
+      if (need) {
+        card.classList.add("locked");
+        card.setAttribute("aria-disabled", "true");
+        card.addEventListener("click", (e) => {
+          e.preventDefault();
+          toast("🔒 Requires " + rankNameFor(need),
+                "Clear " + (need - cleared) + " more mission" + (need - cleared === 1 ? "" : "s") + " first.");
+        });
+        if (flags) flags.innerHTML = '<span class="flag lock">🔒 requires ' + rankNameFor(need) + "</span>";
+        return;
+      }
+      if (py || rs) card.classList.add("cleared");
       if (flags) {
         flags.innerHTML =
           '<span class="flag' + (py ? " on" : "") + '">🐍 ' + (py ? "cleared" : "open") + "</span>" +
@@ -411,21 +489,61 @@ _output = _buf.getvalue()
       }
     });
 
-    let rank = RANKS[0];
-    for (const r of RANKS) if (cleared >= r[0]) rank = r;
-    const next = RANKS[RANKS.indexOf(rank) + 1];
+    // Per-season counts.
+    document.querySelectorAll(".season[data-season]").forEach((sec) => {
+      const cards = [...sec.querySelectorAll(".mission-card")];
+      const n = cards.filter((c) => c.classList.contains("cleared")).length;
+      const el = sec.querySelector('[data-role="season-count"]');
+      if (el && cards.length) el.textContent = n + " of " + cards.length + " cleared";
+      const need = SEASON_OPENS[Number(sec.dataset.season)] || 0;
+      if (cleared < need) sec.classList.add("season-gated");
+    });
 
-    wrap.querySelector(".rank-icon").textContent = rank[2];
-    wrap.querySelector(".rank-name").textContent = rank[1];
-    wrap.querySelector(".rank-nums").textContent =
-      cleared + " mission" + (cleared === 1 ? "" : "s") + " cleared" +
-      (next ? " · " + (next[0] - cleared) + " to " + next[1] : " · full commission");
-    const fill = document.getElementById("rank-fill");
-    if (fill) {
-      const span = next ? next[0] - rank[0] : 1;
-      const into = cleared - rank[0];
-      fill.style.width = Math.min(100, Math.round((into / span) * 100)) + "%";
-    }
+    // Station list: open or locked, with what it takes.
+    document.querySelectorAll(".station-list li[data-station]").forEach((li) => {
+      const need = STATION_OPENS[li.dataset.station] || 0;
+      const lock = li.querySelector(".st-lock");
+      if (cleared >= need) {
+        li.classList.add("open");
+        if (lock) lock.textContent = "open";
+      } else {
+        li.classList.add("shut");
+        if (lock) lock.textContent = "🔒 opens at " + rankNameFor(need);
+      }
+    });
+  }
+
+  /* ================= the crew roster ================= */
+  function initCrew() {
+    const cards = document.querySelectorAll(".crew-card[data-crew]");
+    if (!cards.length) return;
+    const state = campaignState();
+    let met = 0;
+    cards.forEach((card) => {
+      const id = card.dataset.crew;
+      let known = card.dataset.always === "1";
+      if (!known && card.dataset.unlock) {
+        known = state.clearedIds.has(card.dataset.unlock);
+      } else if (!known) {
+        known = Object.keys(state.all).some((mid) =>
+          state.clearedIds.has(mid) && (state.all[mid].crew || []).includes(id));
+      }
+      card.classList.toggle("met", known);
+      if (known) met++;
+    });
+    const count = document.getElementById("crew-count");
+    if (count) count.textContent = met + " of " + cards.length + " personnel files open.";
+  }
+
+  /* ================= toasts (campus style) ================= */
+  function toast(title, body) {
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.innerHTML = '<span class="t-title"></span><span class="t-body"></span>';
+    el.querySelector(".t-title").textContent = title;
+    el.querySelector(".t-body").textContent = body || "";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4200);
   }
 
   /* ================= confetti (campus style) ================= */
@@ -448,5 +566,6 @@ _output = _buf.getvalue()
   document.addEventListener("DOMContentLoaded", () => {
     initMission();
     initBoard();
+    initCrew();
   });
 })();

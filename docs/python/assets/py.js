@@ -372,6 +372,7 @@ _failed = not _ok
   const XP_PROJECT = 250;
   const XP_JARVIS = 150;
   const XP_QUIZ_Q = 20;
+  const XP_MISSION = 120;   // a cleared Bridge mission, in either language
 
   const RANKS = [
     [0, "Stowaway", "🥚"],
@@ -424,6 +425,9 @@ _failed = not _ok
       else if (id.startsWith("pyjarvis-")) xp += XP_JARVIS;
       else if (id.startsWith("pybuild-")) xp += XP_PROJECT;
       else if (id.startsWith("py-")) xp += XP_LESSON;
+      // Bridge missions store "bridge-s1m1" plus a per-language "-py"/"-rs";
+      // count the mission once, not once per language.
+      else if (/^bridge-s\d+m\d+$/.test(id)) xp += XP_MISSION;
     });
     const best = bestScores();
     Object.keys(best).forEach((k) => { if (k.startsWith("py-")) xp += best[k] * XP_QUIZ_Q; });
