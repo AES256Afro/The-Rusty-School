@@ -75,6 +75,15 @@
       acct.textContent = "Account";
       nav.insertBefore(acct, nav.querySelector(".theme-toggle"));
     }
+    // The Bridge: campus-level, so it is linked from every page of both
+    // schools rather than living inside one of them.
+    if (nav && !nav.querySelector('a[href*="bridge/"]')) {
+      const br = document.createElement("a");
+      br.href = prefix + "bridge/index.html";
+      br.textContent = "🖖 The Bridge";
+      br.className = "nav-campus nav-bridge";
+      nav.insertBefore(br, nav.querySelector(".theme-toggle"));
+    }
     // Campus cross-link: a Python School link on every Rust page, so the
     // second school is discoverable everywhere, not just on the home page.
     if (nav && !nav.querySelector('a[href*="python/"]')) {

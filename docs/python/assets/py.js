@@ -57,6 +57,14 @@
     const nav = document.querySelector(".main-nav");
     if (burger && nav) burger.addEventListener("click", () => nav.classList.toggle("open"));
 
+    // The Bridge, linked from every Python page too.
+    if (nav && !nav.querySelector('a[href*="bridge/"]')) {
+      const br = document.createElement("a");
+      br.href = campus + "bridge/index.html";
+      br.textContent = "🖖 The Bridge";
+      br.className = "nav-campus nav-bridge";
+      nav.insertBefore(br, nav.querySelector(".theme-toggle"));
+    }
     // Campus cross-link: a Rust School link on every Python page, mirroring
     // the Python link the Rust school injects. The campus goes both ways.
     if (nav && !nav.querySelector('a.nav-campus')) {

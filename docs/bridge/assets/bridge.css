@@ -1,0 +1,260 @@
+/* ============================================================
+   The Bridge
+
+   Sits on top of the campus style.css rather than replacing it, so
+   buttons, code blocks, callouts and both themes carry over. Only the
+   things that are genuinely new to The Bridge live here: the console,
+   the objective list, ARCHIE, rank, and the station badges.
+   ============================================================ */
+
+:root {
+  --bridge-blue: #4584b6;
+  --bridge-amber: #f0a500;
+  --pass: #2f9e58;
+  --fail: #d13b3b;
+}
+
+/* ---------- hero and rank ---------- */
+.bridge-hero .lede { max-width: 62ch; }
+
+.rank-wrap {
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  max-width: 520px;
+}
+.rank-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.rank-chip { font-weight: 700; }
+.rank-icon { margin-right: 6px; }
+.rank-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.rank-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--bridge-blue), var(--bridge-amber));
+  transition: width 0.4s ease;
+}
+
+/* ---------- station badges ---------- */
+.badge.station { background: var(--surface-2); color: var(--text); }
+.badge.station-helm       { background: #2b4a6b; color: #dbe9f7; }
+.badge.station-ops        { background: #3d3566; color: #e4dcff; }
+.badge.station-engineering{ background: #6b3a1f; color: #ffe0cc; }
+.badge.station-science    { background: #1f5b52; color: #ccf2ea; }
+.badge.station-tactical   { background: #6b2230; color: #ffd6dd; }
+.badge.station-sickbay    { background: #1f4f6b; color: #d3ecff; }
+
+:root[data-theme="light"] .badge.station-helm       { background: #d6e6f7; color: #1b3350; }
+:root[data-theme="light"] .badge.station-ops        { background: #e3ddfa; color: #2e2752; }
+:root[data-theme="light"] .badge.station-engineering{ background: #fadfcd; color: #582c12; }
+:root[data-theme="light"] .badge.station-science    { background: #cfefe8; color: #14443c; }
+:root[data-theme="light"] .badge.station-tactical   { background: #fad7de; color: #571a26; }
+:root[data-theme="light"] .badge.station-sickbay    { background: #d5ecfb; color: #163b52; }
+
+/* ---------- mission board ---------- */
+.mission-card { display: flex; gap: 16px; align-items: flex-start; }
+.mission-card .mission-num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--muted);
+  min-width: 2ch;
+}
+.mission-card.cleared { border-color: var(--pass); }
+.mission-flags { display: flex; gap: 10px; margin-top: 10px; }
+.mission-flags .flag {
+  font-size: 0.82rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.mission-flags .flag.on {
+  border-color: var(--pass);
+  color: var(--pass);
+  font-weight: 600;
+}
+
+.station-list { list-style: none; padding: 0; }
+.station-list li {
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.station-list .st-icon { margin-right: 10px; }
+
+/* ---------- mission page ---------- */
+.stardate { letter-spacing: 0.06em; text-transform: uppercase; }
+
+.briefing {
+  border-left: 3px solid var(--bridge-blue);
+  padding: 2px 0 2px 18px;
+  margin: 26px 0;
+}
+.briefing h2 { margin-top: 0; }
+
+.objectives-panel { margin: 30px 0 24px; }
+.objectives { list-style: none; padding: 0; margin: 14px 0 0; }
+.objectives li {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr;
+  gap: 4px 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  margin-bottom: 8px;
+  background: var(--surface-2);
+}
+.objectives .obj-state { font-weight: 800; color: var(--muted); }
+.objectives .obj-detail {
+  grid-column: 2;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.objectives .obj-detail:empty { display: none; }
+.objectives li.obj-pass { border-color: var(--pass); }
+.objectives li.obj-pass .obj-state { color: var(--pass); }
+.objectives li.obj-fail { border-color: var(--fail); }
+.objectives li.obj-fail .obj-state { color: var(--fail); }
+.objectives li.obj-unknown { border-color: var(--bridge-amber); }
+.objectives li.obj-unknown .obj-state { color: var(--bridge-amber); }
+
+/* ---------- language tabs ---------- */
+.lang-tabs { display: flex; gap: 8px; margin: 26px 0 0; flex-wrap: wrap; }
+.lang-tab {
+  font: inherit;
+  font-weight: 600;
+  padding: 9px 16px;
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  background: var(--surface-2);
+  color: var(--muted);
+  cursor: pointer;
+}
+.lang-tab:hover { color: var(--text); }
+.lang-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.lang-tab .tab-check { color: var(--pass); }
+
+.lang-panel {
+  border: 1px solid var(--border);
+  border-radius: 0 12px 12px 12px;
+  padding: 20px;
+  background: var(--surface);
+}
+.objective-spec h3 { margin-top: 0; }
+.objective-spec ul { margin-bottom: 0; }
+
+/* ---------- the console ---------- */
+.console {
+  margin: 20px 0 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+.console-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.86rem;
+}
+.console-title { font-weight: 600; }
+.console-status { color: var(--muted); font-size: 0.82rem; }
+.console-status.busy { color: var(--bridge-amber); }
+.console-status.ready { color: var(--pass); }
+
+.console-editor {
+  display: block;
+  width: 100%;
+  min-height: 230px;
+  padding: 14px;
+  border: none;
+  resize: vertical;
+  font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  tab-size: 4;
+  background: var(--code-bg, var(--surface));
+  color: var(--text);
+}
+.console-editor:focus { outline: 2px solid var(--bridge-blue); outline-offset: -2px; }
+
+.console-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+/* ---------- ARCHIE ---------- */
+.archie {
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  background: var(--surface-2);
+}
+.archie-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.archie-name {
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  color: var(--bridge-blue);
+}
+.archie-line { margin: 0 0 10px; }
+.archie-score {
+  font-size: 1.05rem;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+.archie-score strong { font-size: 1.5rem; }
+.archie-err, .archie-output pre {
+  margin: 8px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--code-bg, #1a1a1a);
+  color: var(--text);
+  font-size: 0.85rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+.archie-err { border-left: 3px solid var(--fail); }
+.archie-output { margin-top: 14px; }
+
+.debrief {
+  margin: 28px 0;
+  border-left: 3px solid var(--pass);
+  padding: 2px 0 2px 18px;
+}
+.debrief h2 { margin-top: 0; }
+
+@media (max-width: 620px) {
+  .lang-panel { padding: 14px; }
+  .console-editor { min-height: 200px; font-size: 0.88rem; }
+  .rank-top { flex-direction: column; gap: 4px; }
+}

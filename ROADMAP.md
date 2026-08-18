@@ -25,16 +25,17 @@ urgent is a wish list.
 
 ## The next three things
 
-1. **M10: The Bridge mission engine.** Auto-grading is the campus's biggest
-   missing capability: 73 puzzles exist and not one of them checks your
-   answer. See [BRIDGE.md](BRIDGE.md) for the full design.
-2. **M11: The Bridge, Season 1.** The vertical slice that proves the format
-   and settles the voice.
+1. **M11: The Bridge, Season 1.** Seven more missions to finish the
+   Shakedown Cruise. The engine is live; this is the vertical slice that
+   proves the format and settles the voice. See [BRIDGE.md](BRIDGE.md).
+2. **M12: The Bridge campaign layer.** Ranks, the crew roster, station
+   unlocks. Deliberately after Season 1.
 3. **M6: Instructor guides**, still the cheapest route to teaching others,
    and unblocked whenever there is an evening for it.
 
-M1 (search), M2 (accounts), M3 (certificate), M4 (per-lesson quizzes)
-and M5 (accessibility) have all shipped. See Shipped, below.
+M1 (search), M2 (accounts), M3 (certificate), M4 (per-lesson quizzes),
+M5 (accessibility) and M10 (the mission engine) have all shipped. See
+Shipped, below.
 
 ---
 
@@ -76,20 +77,6 @@ launches only when its first level is genuinely excellent. Better two deep
 schools than five shallow ones.
 
 ---
-
-### M10 · The Bridge: mission engine and auto-grading ⚙️
-**Ship test:** a learner opens a mission, writes a function in the console,
-presses Run Diagnostics, and gets a per-objective pass or fail with the
-failing input shown, in both schools.
-**Size:** 1 week.
-The enabling capability for [The Bridge](BRIDGE.md), and the only genuinely
-new technology in that plan: a harness that appends hidden tests to learner
-code, runs it (Pyodide for Python, the /api/run proxy for Rust) and reports
-per-objective results. This closes the campus's most honest gap: the 73
-existing Dojo and Snake Pit puzzles are self-marked, so nobody checks the
-answer. Ships with one mission per language, because the engine is the
-deliverable. Note it couples M8 to this work: every Rust diagnostic run is a
-compile on somebody else's playground.
 
 ### M11 · The Bridge, Season 1: Shakedown Cruise 🚀
 **Ship test:** eight missions in both languages, Cadet through Ensign,
@@ -221,6 +208,24 @@ Roughly in order of audience overlap:
 ---
 
 ## Shipped
+
+### M10 · The Bridge: mission engine and auto-grading ✅
+The campus can now **check a learner's answer**, which is the thing 73
+existing Dojo and Snake Pit puzzles politely decline to do. A mission page
+takes what the learner wrote, appends the mission's objective checker, runs
+the combined program (Pyodide in the browser for Python, the `/api/run`
+playground proxy for Rust) and reports per-objective pass or fail with the
+input that broke it.
+
+Live at [/bridge/](https://rustyschool.com/bridge/) with the first mission,
+*The Long Cold Cup*, playable in both languages. `tools/verify-bridge.py`
+gates every mission on two checks: the reference solution must pass every
+objective, **and the untouched stub must fail at least one**, because a
+checker that passes the starter code is not testing anything.
+
+Also: drafts survive a refresh, a Rust learner who writes their own `main()`
+gets an explanation instead of a duplicate-symbol error, and the tests being
+readable is stated openly on the mission board rather than pretended away.
 
 ### M4 · Per-lesson mini-quizzes ✅
 Two or three recall questions at the foot of **every lesson in both

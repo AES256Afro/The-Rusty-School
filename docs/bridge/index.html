@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bridge - The Rusty School</title>
+<meta name="description" content="A starship simulator for people learning to code. Repair the UES Magnanimous one mission at a time, in Python or Rust, and the ship's computer checks your work.">
+<link rel="canonical" href="https://rustyschool.com/bridge/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Rusty School">
+<meta property="og:title" content="The Bridge - The Rusty School">
+<meta property="og:description" content="A starship simulator for people learning to code. Repair the UES Magnanimous one mission at a time, in Python or Rust, and the ship's computer checks your work.">
+<meta property="og:url" content="https://rustyschool.com/bridge/">
+<meta property="og:image" content="https://rustyschool.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Rusty School: learn Rust or Python from zero">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Bridge - The Rusty School">
+<meta name="twitter:description" content="A starship simulator for people learning to code. Repair the UES Magnanimous one mission at a time, in Python or Rust, and the ship's computer checks your work.">
+<meta name="twitter:image" content="https://rustyschool.com/assets/og-image.png">
+<meta name="theme-color" content="#f74c00">
+<link rel="icon" type="image/svg+xml" href="assets/ship.svg">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="assets/bridge.css">
+<script>try{var t=localStorage.getItem("rusty-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+<script defer src="../assets/app.js"></script>
+<script defer src="assets/missions.js"></script>
+<script defer src="assets/bridge.js"></script>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="container">
+    <a class="logo" href="index.html"><img src="assets/ship.svg" alt="The UES Magnanimous">The <span class="crate">Bridge</span></a>
+    <button class="nav-burger" aria-label="Open menu">☰</button>
+    <nav class="main-nav">
+      <a href="index.html">The Bridge</a>
+      <a href="../learn/index.html">🦀 Rust</a>
+      <a href="../python/index.html">🐍 Python</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark theme">☀️</button>
+    </nav>
+  </div>
+</header>
+
+<main id="main" tabindex="-1" class="container">
+  <section class="lesson-header bridge-hero">
+    <span class="kicker">United Expeditionary Service</span>
+    <h1>The <span class="grad">Bridge</span> 🖖</h1>
+    <p class="lede muted">
+      You are the new Systems Officer aboard the <strong>UES Magnanimous</strong>: nineteen
+      years old, three decks with a smell Engineering has stopped apologising for, and
+      software held together by optimism. Every mission is a real coding problem wearing
+      a uniform, and the ship's computer checks your work.
+    </p>
+
+    <div class="rank-wrap" id="rank-wrap">
+      <div class="rank-top">
+        <span class="rank-chip"><span class="rank-icon">🎖️</span>
+          <span class="rank-name">Cadet</span></span>
+        <span class="rank-nums muted small">0 missions cleared</span>
+      </div>
+      <div class="rank-bar"><div class="rank-fill" id="rank-fill"></div></div>
+    </div>
+  </section>
+
+  <div class="callout info">
+    <span class="co-title">🖥️ What makes this different from the puzzles</span>
+    The Dojo and the Snake Pit show you a problem and trust you to mark it solved. Here
+    <strong>ARCHIE runs your code</strong> against the mission objectives and tells you
+    which ones you actually met, with the input that broke it. Every mission exists in
+    both Python and Rust, and you can clear it in either. Doing both is how you find out
+    where the two languages genuinely disagree.
+  </div>
+
+  <section class="section">
+    <h2>Season 1: Shakedown Cruise</h2>
+    <p class="muted">Output, variables, types and decisions. Cadet through Ensign.</p>
+    <div class="grid cols-2">
+      <a class="card mission-card" data-mission="bridge-s1m1" href="s1/01-long-cold-cup.html"><span class="mission-num">01</span><div><span class="badge station station-helm">🧭 Helm</span><h3>The Long Cold Cup</h3><p>The beverage replicator has opinions about temperature. The Captain has opinions about the replicator.</p><div class="meta mission-flags"></div></div></a>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>The stations</h2>
+    <p class="muted">Every mission is posted to a station, so you can see which kind of
+    problem keeps catching you out. More open up as you are promoted.</p>
+    <ul class="station-list">
+        <li><span class="st-icon">🧭</span><strong>Helm</strong> <span class="muted">Control flow, loops and keeping the ship pointed somewhere</span></li>
+        <li><span class="st-icon">📦</span><strong>Ops</strong> <span class="muted">Collections, manifests and resources that must add up</span></li>
+        <li><span class="st-icon">⚙️</span><strong>Engineering</strong> <span class="muted">Concurrency, performance and memory</span></li>
+        <li><span class="st-icon">🔬</span><strong>Science</strong> <span class="muted">Algorithms, parsing and making sense of signals</span></li>
+        <li><span class="st-icon">🛡️</span><strong>Tactical</strong> <span class="muted">Errors, validation and refusing bad input</span></li>
+        <li><span class="st-icon">🩺</span><strong>Sickbay</strong> <span class="muted">Debugging, testing and diagnosing the ship</span></li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <div class="callout">
+      <span class="co-title">🔍 About the tests</span>
+      <p>The objectives run in your own browser (Python) or through our playground proxy
+      (Rust), which means a determined person can read them. That is fine. This is a
+      place to learn, not an exam, and nobody is awarded anything at the end. Building
+      elaborate tamper resistance would cost real effort and protect nothing worth
+      protecting.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container cols">
+    <div>
+      <h4>The Bridge</h4>
+      <ul>
+        <li><a href="index.html">Mission board</a></li>
+        <li><a href="../roadmap.html">Roadmap</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The campus</h4>
+      <ul>
+        <li><a href="../index.html">🦀 The Rusty School</a></li>
+        <li><a href="../python/index.html">🐍 The Python School</a></li>
+        <li><a href="../privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>The small print</h4>
+      <p class="muted small">The UES Magnanimous, her crew and ARCHIE are original to
+      this school. Starships, warp cores and away teams are stock science fiction and
+      belong to everybody.</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
