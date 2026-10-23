@@ -2808,7 +2808,7 @@ print(check(word_frequencies))''',
 
 
 def test_everything():
-    result = process_orders(load_orders("/Users/user/data/orders.csv"))
+    result = process_orders(load_orders("data/orders.csv"))
     assert result
     assert result["date"] == datetime.date.today()''', run=False, verify="compile"),
               "<ol><li><strong>It tests everything at once.</strong> When it fails you know "
