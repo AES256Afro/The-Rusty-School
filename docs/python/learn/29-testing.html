@@ -369,7 +369,7 @@ print(check(word_frequencies))</code></pre>
 
 
 def test_everything():
-    result = process_orders(load_orders(&quot;/Users/user/data/orders.csv&quot;))
+    result = process_orders(load_orders(&quot;data/orders.csv&quot;))
     assert result
     assert result[&quot;date&quot;] == datetime.date.today()</code></pre><details class="solution"><summary>Reveal solution</summary><ol><li><strong>It tests everything at once.</strong> When it fails you know nothing about which part broke. One test, one behaviour.</li><li><strong>It depends on the outside world:</strong> a hard-coded path on one person's machine. It will fail for everyone else and in CI. Use pytest's <code>tmp_path</code> and build the input inside the test.</li><li><strong><code>assert result</code> asserts almost nothing</strong> (any non-empty value passes), and comparing to <code>today()</code> makes the test depend on the clock. It will pass today and fail if it runs at midnight. Pass the date in as an argument instead: functions that take their dependencies as arguments are the ones that are easy to test.</li></ol><p>That last point is the deepest one in this lesson. Code that is hard to test is usually badly designed, and the difficulty is the message.</p></details></div>
 
